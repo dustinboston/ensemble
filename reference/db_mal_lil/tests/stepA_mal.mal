@@ -1,0 +1,31 @@
+;; Testing JavaScript nsInterop
+
+(js-eval "7")
+;=>7
+
+(js-eval "undefined")
+;=>nil
+
+;; (js-eval "'foo'")
+;; ;=>"foo"
+;; 
+;; (js-eval ":bar")
+;; ;=>:bar
+;; 
+;; (js-eval "baz")
+;; ;=>baz
+;; 
+;; (js-eval "123 === 456")
+;; ;=>false
+;; 
+;; (js-eval "123 === 123")
+;; ;=>true
+;; 
+;; (js-eval "(...args) => (args.join('_'))")
+;; ;=>#<fn>
+;; 
+;; (apply (js-eval "(...args) => (args.join('_'))") [1 2 3])
+;; ;=>"1_2_3"
+;; 
+;; (switch "foo" (list "bar" "bar") (list "foo" "baz") ("qux"))
+;; ;=>"baz"

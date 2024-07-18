@@ -1,0 +1,63 @@
+{
+  "compilerOptions": {
+    "allowJS": true,
+    "checkJS": true,
+    "strict": true,
+    "lib": ["esnext", "dom", "dom.iterable", "dom.asynciterable", "deno.ns"]
+  },
+  "nodeModulesDir": false,
+  "imports": {
+    "deno-std-assert": "https://deno.land/std@0.201.0/assert/mod.ts",
+    "deno-std-testing-bdd": "https://deno.land/std@0.201.0/testing/bdd.ts",
+    "deno-std-testing-mock": "https://deno.land/std@0.201.0/testing/mock.ts"
+  },
+  "tasks": {
+    "cov": "./scripts/coverage.sh",
+    "serve-documentation": "python -m http.server -d ./documentation",
+    "generate-documentation": "deno doc --html --name='lil' --output=./documentation ./stepA_mal.ts"
+  },
+  "lint": {
+    "include": ["**/*.ts"],
+    "exclude": ["node_modules", "compat", "types/lib.deno.d.ts"],
+    "rules": {
+      "tags": ["recommended"],
+      "include": [
+        "camelcase",
+        "default-param-last",
+        "eqeqeq",
+        "explicit-function-return-type",
+        "explicit-module-boundary-types",
+        "guard-for-in",
+        "no-await-in-loop",
+        "no-const-assign",
+        "no-eval",
+        "no-external-import",
+        "no-implicit-declare-namespace-export",
+        "no-non-null-asserted-optional-chain",
+        "no-non-null-assertion",
+        "no-sparse-arrays",
+        "no-sync-fn-in-async-fn",
+        "no-throw-literal",
+        "no-top-level-await",
+        "no-undef",
+        "prefer-ascii",
+        "single-var-declarator"
+      ],
+      "exclude": []
+    }    
+  },  
+  "fmt": {    
+    "useTabs": true,
+    "lineWidth": 80,
+    "indentWidth": 4,
+    "semiColons": true,
+    "singleQuote": true,
+    "proseWrap": "always",
+    "include": ["**/*.ts"],
+    "exclude": ["node_modules", "documentation", "examples", "extensions"]
+  },
+  "test": {
+    "exclude": []
+  }
+}
+

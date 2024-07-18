@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Fibonacci Sequence</title>
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: black;
+            color: ghostwhite;
+            font: 1em/160% sans-serif;
+            margin: 3em auto;
+            max-width: 450px;
+        }
+
+        a:link,
+        a:visited {
+            color: skyblue;
+            font-weight: 700;
+        }
+
+        a:hover,
+        a:focus,
+        a:active {
+            color: aliceblue;
+        }
+
+        a:focus {
+            outline: 2px solid deepskyblue;
+            outline-offset: 2px;
+            border-radius: 1px;
+        }
+
+        input,
+        button,
+        output {
+            background: #111;
+            border-radius: 5px;
+            color: inherit;
+            font: inherit;
+            line-height: 120%;
+            padding: 0.75em;
+        }
+
+        input,
+        button {
+            border: 2px solid dimgray;
+
+            &:focus {
+                outline: 0;
+                border-color: deepskyblue;
+            }
+
+            &:hover,
+            &:active {
+                border-color: lightgray;
+            }
+
+            margin-right: 1rem;
+        }
+
+        output {
+            height: 250px;
+            resize: none;
+            display: block;
+            margin-top: 2rem;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Fibonacci Sequence</h1>
+    <p>Display the given number of terms in the <a href="https://en.wikipedia.org/wiki/Fibonacci_sequence">Fibonacci
+            Sequence</a>.</p>
+
+    <form id="inputForm">
+        <label>Number<br />
+            <input name="n" type="number" required max="21" min="1" value="1" />
+        </label>
+
+        <button type="submit">Calculate</button>
+        <output name="output"></output>
+    </form>
+
+    <script type="module">
+        function fib(n) {
+            if (n <= 1) return n;
+            return fib(n - 1) + fib(n - 2);
+        }
+
+        document.forms.inputForm.addEventListener("submit", (ev) => {
+            ev.preventDefault();
+            const output = ev.target.elements.output;
+            const data = new FormData(event.target);
+            const n = Math.min(Math.max(parseInt(data.get("n") || 1), 1), 21);
+
+            output.innerHTML = Array.from({ length: n }, (_, i) => `${fib(i)}<br />`).join('');
+        })
+    </script>
+</body>
+
+</html>

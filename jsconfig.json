@@ -1,0 +1,25 @@
+{
+	"compilerOptions": {
+		"strict": true,
+		"checkJs": true,
+		"target": "ESNext",
+		"lib": [
+			"ESNext",
+			"DOM"
+		],
+		"moduleResolution": "NodeNext",
+		"newLine": "lf",
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"noImplicitReturns": true,
+		"noFallthroughCasesInSwitch": true,
+		"forceConsistentCasingInFileNames": true,
+	},
+	"extends": "@tsconfig/node20/tsconfig.json",
+	"include": [
+		"./**/*.js",
+	],
+	"exclude": [
+		"node_modules"
+	]
+}
