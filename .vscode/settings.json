@@ -1,8 +1,5 @@
 {
-	"xo.enable": true,
-	"xo.format.enable": true,
 	"debug.javascript.autoAttachFilter": "smart",
-	"editor.defaultFormatter": "samverschueren.linter-xo",
 	"editor.rulers": [
 		80,
 		120
@@ -17,13 +14,17 @@
 	"[jsonc]": {
 		"editor.defaultFormatter": "vscode.json-language-features"
 	},
-	"[json]": {
-		"editor.defaultFormatter": "samverschueren.linter-xo"
-	},
-	"[javascript]": {
-		"editor.defaultFormatter": "samverschueren.linter-xo"
-	},
 	"[html]": {
 		"editor.defaultFormatter": "vscode.html-language-features"
 	},
+	"javascript.preferences.quoteStyle": "double",
+	"typescript.preferences.quoteStyle": "double",
+	"typescript.check.npmIsInstalled": false,
+	"typescript.disableAutomaticTypeAcquisition": true,
+	"npm.autoDetect": "off",
+	"npm.fetchOnlinePackageInfo": false,
+	"javascript.format.semicolons": "insert",
+	"typescript.format.semicolons": "insert",
+	"typescript.format.insertSpaceAfterSemicolonInForStatements": false,
+	"javascript.format.insertSpaceAfterSemicolonInForStatements": false,
 }

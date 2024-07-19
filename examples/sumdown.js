@@ -1,4 +1,4 @@
-import {dsl} from "../jsldsl.js";
+import {dsl} from "../ensemble.js";
 import {$} from "../core.js";
 
 // Compute n(n+1)/2 with a non tail-recursive call. Where n is a non-negative number.

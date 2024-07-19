@@ -7,7 +7,6 @@
 			"ESNext",
 			"DOM"
 		],
-		"moduleResolution": "NodeNext",
 		"newLine": "lf",
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
@@ -15,8 +14,8 @@
 		"noFallthroughCasesInSwitch": true,
 		"forceConsistentCasingInFileNames": true,
 	},
-	"extends": "@tsconfig/node20/tsconfig.json",
 	"include": [
+		"./types/*.d.ts",
 		"./**/*.js",
 	],
 	"exclude": [

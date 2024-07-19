@@ -1,7 +1,10 @@
-import {Env} from "./env.js";
+import * as std from "std";
+
+import { WebServer } from "./server.js";
+import { Env } from "./env.js";
 import * as core from "./core.js";
 
-const $ = core.$;
+export const $ = core.$;
 
 /**
  * Type definitions
@@ -17,10 +20,10 @@ const $ = core.$;
 const appEnv = new Env(core.ns, null);
 
 // MARK: MAIN
-function _quote() {}
-function _quasiquote() {}
-function _unquote() {}
-function _spliceUnquote() {}
+function _quote() { }
+function _quasiquote() { }
+function _unquote() { }
+function _spliceUnquote() { }
 
 /**
  * @param {*} ast
@@ -200,7 +203,7 @@ function createLocal(ast, env) {
 	}
 
 	const letEnv = new Env(undefined, env);
-	for (let i = 0; i < a1.length; i += 2) {
+	for (let i = 0;i < a1.length;i += 2) {
 		const variableName = a1[i];
 		const variableValue = evaluate(a1[i + 1], letEnv);
 		letEnv.set(variableName, variableValue);
@@ -232,4 +235,48 @@ function createGlobal(ast, env) {
 export function dsl(ast) {
 	const evaluated = evaluate(ast, appEnv);
 	return evaluated;
+}
+
+/**
+ * Parses command-line arguments and performs actions based on the arguments.
+ */
+export function parseArguments() {
+	// First arg is the script name
+	const args = scriptArgs.slice(1);
+	try {
+		if (args.includes('-s') || args.includes('--serve')) {
+			const server = new WebServer(8080);
+			server.start();
+		} else if (args.length === 1) {
+			std.loadScript(args[0]);
+		} else {
+			startREPL();
+		}
+	} catch (e) {
+		std.puts(`${e}\n`);
+	}
+}
+
+/**
+ * Starts a REPL (Read-Eval-Print Loop) session.
+ */
+export function startREPL() {
+	const prompt = '> ';
+	std.puts('Ensemble REPL\n');
+	std.puts(prompt);
+
+	while (true) {
+		const line = std.in.getline();
+		if (line === null) break;
+
+		try {
+			const result = eval(line);
+			std.puts(`${result}\n`);
+		} catch (e) {
+			// const error = (e instanceof Error) ? e.message : String(e);
+			std.puts(`Error: ${e}\n`);
+		}
+	}
+
+	std.puts(prompt);
 }

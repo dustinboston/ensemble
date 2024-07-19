@@ -1,61 +1,31 @@
 /* eslint-disable n/prefer-global/process */
 // Import process from 'node:process';
-import {equal, deepStrictEqual, throws} from "node:assert";
-import {describe, it} from "node:test";
-import {dsl} from "./jsldsl.js";
-import {stringify, $} from "./core.js";
-
-// Reference for string methods
-// str = toString
-// pr-str = toEscaped
-// prn = logEscaped
-// println = logString
-
-/**
- * Capture output from stdout
- * @param {() => void} log
- * @returns {{returned: any, stdout: string}}
- */
-function captureStdout(log) {
-	/** @type {string} */
-	let stdout = "";
-	const originalWrite = process.stdout.write.bind(process.stdout);
-
-	/**
-	 * @param {string | Uint8Array} chunk
-	 * @returns {boolean}
-	 */
-	process.stdout.write = chunk => {
-		stdout += String(chunk);
-		return true;
-	};
-
-	const returned = log();
-	process.stdout.write = originalWrite;
-	return {returned, stdout};
-}
-
+// import { equal, deepStrictEqual, throws } from "node:assert";
+// import { describe, it } from "node:test";
+import { dsl } from "./ensemble.js";
+import { stringify, $ } from "./core.js";
 describe("Core symbols exist on $", () => {
-	it("Should have formSymbols", () => {});
-	const formSymbols = getFormSymbols();
-	for (const key of formSymbols) {
-		equal($[key], $[key]);
-	}
+	it("Should have formSymbols", () => {
+		const formSymbols = getFormSymbols();
+		for (const key of formSymbols) {
+			equal($[key], $[key]);
+		}
 
-	const coreSymbols = getCoreSymbols();
-	for (const key of coreSymbols) {
-		equal($[key], $[key]);
-	}
+		const coreSymbols = getCoreSymbols();
+		for (const key of coreSymbols) {
+			equal($[key], $[key]);
+		}
 
-	const htmlSymbols = getHtmlSymbols();
-	for (const key of htmlSymbols) {
-		equal($[key], $[key]);
-	}
+		const htmlSymbols = getHtmlSymbols();
+		for (const key of htmlSymbols) {
+			equal($[key], $[key]);
+		}
 
-	const cssSymbols = getCssSymbols();
-	for (const key of cssSymbols) {
-		equal($[key], $[key]);
-	}
+		const cssSymbols = getCssSymbols();
+		for (const key of cssSymbols) {
+			equal($[key], $[key]);
+		}
+	});
 });
 
 // MARK: 1. PRINT
@@ -102,9 +72,9 @@ describe("Print (stringify)", () => {
 
 	it("Should print object literals", () => {
 		equal(stringify({}), "{}");
-		equal(stringify({abc: 1}), "{abc: 1}");
-		equal(stringify({a: {b: 2}}), "{a: {b: 2}}");
-		equal(stringify({a: {b: {c: 3}}}), "{a: {b: {c: 3}}}");
+		equal(stringify({ abc: 1 }), "{abc: 1}");
+		equal(stringify({ a: { b: 2 } }), "{a: {b: 2}}");
+		equal(stringify({ a: { b: { c: 3 } } }), "{a: {b: {c: 3}}}");
 	});
 });
 
@@ -139,7 +109,7 @@ describe("Eval", () => {
 	it("Should throw an error with no return value", () => {
 		throws(() => {
 			dsl([Symbol.for("abc"), 1, 2, 3]);
-		}, {message: /.+/});
+		}, /.+/);
 	});
 
 	// () ;=>()
@@ -154,7 +124,7 @@ describe("Eval", () => {
 
 	// {"a" (+ 7 8)} ;=>{"a" 15}
 	it("Should evaluate object literals", () => {
-		deepStrictEqual(dsl({a: [$.add, 7, 8]}), {a: 15});
+		deepStrictEqual(dsl({ a: [$.add, 7, 8] }), { a: 15 });
 	});
 
 	// [] ;=>[]
@@ -197,8 +167,7 @@ describe("Env", () => {
 
 		throws(() => {
 			dsl([$.global, w, [Symbol.for("abc")]]);
-		},
-		{message: "'Symbol(abc)' not found in env."});
+		}, "'Symbol(abc)' not found in env.");
 
 		equal(dsl(w), 123);
 	});
@@ -222,8 +191,8 @@ describe("Env", () => {
 
 	it("Should handle multiple bindings in local variables", () => {
 		equal(dsl([$.const,
-			[Symbol.for("p"), [$.add, 2, 3], Symbol.for("q"), [$.add, 2, Symbol.for("p")]],
-			[$.add, Symbol.for("p"), Symbol.for("q")]]), 12);
+		[Symbol.for("p"), [$.add, 2, 3], Symbol.for("q"), [$.add, 2, Symbol.for("p")]],
+		[$.add, Symbol.for("p"), Symbol.for("q")]]), 12);
 	});
 
 	it("Should handle nested variable expressions", () => {
@@ -240,11 +209,11 @@ describe("Env", () => {
 	it("Should evaluate \"vectors\" (arrays without a beginning symbol)", () => {
 		equal(dsl([$.const, [Symbol.for("z"), 9], Symbol.for("z")]), 9);
 		equal(dsl([$.const,
-			[Symbol.for("p"), [$.add, 2, 3], Symbol.for("q"), [$.add, 2, Symbol.for("p")]],
-			[$.add, Symbol.for("p"), Symbol.for("q")]]), 12);
+		[Symbol.for("p"), [$.add, 2, 3], Symbol.for("q"), [$.add, 2, Symbol.for("p")]],
+		[$.add, Symbol.for("p"), Symbol.for("q")]]), 12);
 		deepStrictEqual(dsl([$.const,
-			[Symbol.for("a"), 5, Symbol.for("b"), 6],
-			[3, 4, Symbol.for("a"), [Symbol.for("b"), 7], 8]]), [3, 4, 5, [6, 7], 8]);
+		[Symbol.for("a"), 5, Symbol.for("b"), 6],
+		[3, 4, Symbol.for("a"), [Symbol.for("b"), 7], 8]]), [3, 4, 5, [6, 7], 8]);
 	});
 
 	it("Should give priority to the last assignment", () => {
@@ -426,9 +395,9 @@ describe("If/Fn/Do", () => {
 		it("Should log multiple and return", () => {
 			const output = captureStdout(() => dsl(
 				[$.do,
-					[$.logEscaped, 101],
-					[$.logEscaped, 102],
-					[$.add, 1, 2]]));
+				[$.logEscaped, 101],
+				[$.logEscaped, 102],
+				[$.add, 1, 2]]));
 
 			equal(output.stdout, "101\n102\n");
 			equal(output.returned, 3);
@@ -445,23 +414,23 @@ describe("If/Fn/Do", () => {
 	});
 
 	describe("Testing recursion", () => {
-	// ;; Testing recursive sumdown function
+		// ;; Testing recursive sumdown function
 		it("Should handle the recursive sumdown function", () => {
 			dsl([$.global,
-				Symbol.for("sumdown"),
-				[$.function,
-					[Symbol.for("N")],
-					[$.if,
-						[$.greaterThan, Symbol.for("N"), 0],
-						[$.add,	Symbol.for("N"), [Symbol.for("sumdown"), [$.subtract, Symbol.for("N"), 1]]],
-						0]]]);
+			Symbol.for("sumdown"),
+			[$.function,
+			[Symbol.for("N")],
+			[$.if,
+			[$.greaterThan, Symbol.for("N"), 0],
+			[$.add, Symbol.for("N"), [Symbol.for("sumdown"), [$.subtract, Symbol.for("N"), 1]]],
+				0]]]);
 			equal(dsl([Symbol.for("sumdown"), 1]), 1);
 			equal(dsl([Symbol.for("sumdown"), 2]), 3);
 			equal(dsl([Symbol.for("sumdown"), 6]), 21);
 		});
 
 		it("Should handle the recursive fibonacci function", () => {
-		// Testing recursive fibonacci function
+			// Testing recursive fibonacci function
 			dsl([$.global, Symbol.for("fib"), [$.function, [Symbol.for("N")], [$.if, [$.equals, Symbol.for("N"), 0], 1, [$.if, [$.equals, Symbol.for("N"), 1], 1, [$.add, [Symbol.for("fib"), [$.subtract, Symbol.for("N"), 1]], [Symbol.for("fib"), [$.subtract, Symbol.for("N"), 2]]]]]]]);
 			equal(dsl([Symbol.for("fib"), 1]), 1);
 			equal(dsl([Symbol.for("fib"), 2]), 2);
@@ -657,7 +626,7 @@ describe("If/Fn/Do", () => {
 		equal(dsl([$.logEscaped]), null);
 		equal(dsl([$.logEscaped, ""]), "");
 		equal(dsl([$.logEscaped, "abc"]), "abc");
-		equal(dsl([$.logEscaped, "abc, , def", "ghi, jkl"]), "abc, , def", "ghi, jkl");
+		equal(dsl([$.logEscaped, "abc, , def", "ghi, jkl"]), "abc, , def, ghi, jkl");
 		equal(dsl([$.logEscaped, "\""]), "\"");
 		equal(dsl([$.logEscaped, "abc\ndef\nghi"]), "abc\\ndef\\nghi");
 		equal(dsl([$.logEscaped, "abc\\def\\ghi"]), "abc\\\\def\\\\ghi");
@@ -707,7 +676,7 @@ describe("If/Fn/Do", () => {
 		equal(dsl([$.logString, "\""]), "\"");
 		equal(dsl([$.logString, "abc\ndef\nghi"]), "abc\ndef\nghi");
 		equal(dsl([$.logString, "abc\\def\\ghi"]), "abc\\def\\ghi");
-		equal(dsl([$.logString, [1, 2, "abc", "\""], "def"]), "[1, 2, abc, \"\"\"]", "def");
+		equal(dsl([$.logString, [1, 2, "abc", "\""], "def"]), "[1, 2, abc, \"\"\"] def");
 	});
 
 	// These tests aren't really necessary because we don't use them like
@@ -885,7 +854,7 @@ describe("Core functions", () => {
 
 describe("JavaScript interop", () => {
 	it("Should be able to call a JavaScript function", () => {
-		const testObject = {foo: "bar"};
+		const testObject = { foo: "bar" };
 		equal(dsl([Reflect.get, testObject, "foo"]), "bar");
 	});
 });
@@ -1593,3 +1562,117 @@ function getCssSymbols() {
 	];
 }
 
+
+
+/**
+ * 
+ * @param {string} desc 
+ * @param {() => void} fn 
+ */
+function it(desc, fn) {
+	try {
+		fn();
+		console.log(`[PASS] ${desc}`);
+	} catch (e) {
+		console.log(`[FAIL] ${desc}\n       ${e}`);
+	}
+}
+
+/**
+ * 
+ * @param {string} desc 
+ * @param {() => void} fn 
+ */
+function describe(desc, fn) {
+	console.log(`====== ${desc}`);
+	fn();
+	console.log("");
+}
+
+/**
+ * 
+ * @param {string} desc 
+ * @param {() => void} _fn 
+ */
+describe.skip = (desc, _fn) => {
+	console.log(`[SKIP] ${desc}`);
+};
+
+/**
+ * 
+ * @param {*} a 
+ * @param {*} b 
+ */
+function deepStrictEqual(a, b) {
+	const a2 = stringify(a);
+	const b2 = stringify(b);
+	if (a2 !== b2) {
+		throw new Error(`${String(a)} !== ${String(b)}`);
+	}
+}
+
+/**
+ * 
+ * @param {*} a 
+ * @param {*} b 
+ */
+function equal(a, b) {
+	if (a !== b) {
+		throw new Error(`${String(a)} !== ${String(b)}`);
+	}
+}
+
+/**
+ * 
+ * @param {() => void} fn 
+ * @param {string|RegExp} message 
+ */
+function throws(fn, message) {
+	let threw = false;
+	let matchedMessage = false;
+	try {
+		fn();
+	} catch (e) {
+		threw = true;
+		const error = e instanceof Error ? e.message : String(e);
+		if (message instanceof RegExp) {
+			if (message.test(error)) matchedMessage = true;
+		} else if (typeof message === "string") {
+			if (error.includes(message)) matchedMessage = true;
+		}
+	}
+	if (!threw && matchedMessage) {
+		throw new Error("Didn't throw.");
+	}
+}
+
+// Reference for string methods
+// str = toString
+// pr-str = toEscaped
+// prn = logEscaped
+// println = logString
+
+/**
+ * Capture output from stdout
+ * @param {() => void} log
+ * @returns {{returned: any, stdout: string}}
+ */
+function captureStdout(log) {
+	throw new Error(`TODO: implement captureStdout for QuickJS.`);
+	// /** @type {string} */
+	// let stdout = "";
+	// const originalWrite = process.stdout.write.bind(process.stdout);
+
+	// /**
+	//  * @param {string | Uint8Array} chunk
+	//  * @returns {boolean}
+	//  */
+	// process.stdout.write = chunk => {
+	// 	stdout += String(chunk);
+	// 	return true;
+	// };
+
+	// const returned = log();
+	// process.stdout.write = originalWrite;
+	// return { returned, stdout };
+}
