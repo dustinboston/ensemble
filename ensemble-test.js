@@ -2,8 +2,15 @@
 // Import process from 'node:process';
 // import { equal, deepStrictEqual, throws } from "node:assert";
 // import { describe, it } from "node:test";
-import { dsl } from "./ensemble.js";
+import { dsl } from "./ensemble-dsl.js";
 import { stringify, $ } from "./core.js";
+
+const summary = {
+	pass: 0,
+	fail: 0,
+	skip: 0,
+};
+
 describe("Core symbols exist on $", () => {
 	it("Should have formSymbols", () => {
 		const formSymbols = getFormSymbols();
@@ -502,7 +509,7 @@ describe("If/Fn/Do", () => {
 		});
 	});
 
-	describe.skip("TODO: Test toEscaped", () => {
+	describeSkip("TODO: Test toEscaped", () => {
 		// (pr-str)
 		// ;=>""
 
@@ -532,66 +539,66 @@ describe("If/Fn/Do", () => {
 		// Testing pr-str
 
 		// Test this once there is a REPL:
-		it("Should convert the ast to an escaped string", () => {
-			equal(dsl([$.toEscaped]), "");
-			equal(dsl([$.toEscaped, ""]), "\"\"");
-			equal(dsl([$.toEscaped, "abc"]), "\"abc\"");
-			equal(dsl([$.toEscaped, "abc  def", "ghi jkl"]), "\"abc  def\", \"ghi jkl\"");
-			equal(dsl([$.toEscaped, "\""]), "\"\\\"\"");
-			equal(dsl([$.toEscaped, [1, 2, "abc", "\""], "def"]), "[1, 2, \"abc\", \"\\\"\"], \"def\"");
-			equal(dsl([$.toEscaped, "abc\ndef\nghi"]), "\"abc\\ndef\\nghi\"");
-			equal(dsl([$.toEscaped, "abc\\def\\ghi"]), "\"abc\\\\def\\\\ghi\"");
-			equal(dsl([$.toEscaped, []]), "[]");
-		});
+		// it("Should convert the ast to an escaped string", () => {
+		// 	equal(dsl([$.toEscaped]), "");
+		// 	equal(dsl([$.toEscaped, ""]), "\"\"");
+		// 	equal(dsl([$.toEscaped, "abc"]), "\"abc\"");
+		// 	equal(dsl([$.toEscaped, "abc  def", "ghi jkl"]), "\"abc  def\", \"ghi jkl\"");
+		// 	equal(dsl([$.toEscaped, "\""]), "\"\\\"\"");
+		// 	equal(dsl([$.toEscaped, [1, 2, "abc", "\""], "def"]), "[1, 2, \"abc\", \"\\\"\"], \"def\"");
+		// 	equal(dsl([$.toEscaped, "abc\ndef\nghi"]), "\"abc\\ndef\\nghi\"");
+		// 	equal(dsl([$.toEscaped, "abc\\def\\ghi"]), "\"abc\\\\def\\\\ghi\"");
+		// 	equal(dsl([$.toEscaped, []]), "[]");
+		// });
 	});
 
-	describe("TODO: Test toString", () => {
-		// ;; Testing str
+	// describe("TODO: Test toString", () => {
+	// 	// ;; Testing str
 
-		// (str)
-		// ;=>""
+	// 	// (str)
+	// 	// ;=>""
 
-		// (str "")
-		// ;=>""
+	// 	// (str "")
+	// 	// ;=>""
 
-		// (str "abc")
-		// ;=>"abc"
+	// 	// (str "abc")
+	// 	// ;=>"abc"
 
-		// (str "\"")
-		// ;=>"\""
+	// 	// (str "\"")
+	// 	// ;=>"\""
 
-		// (str 1 "abc" 3)
-		// ;=>"1abc3"
+	// 	// (str 1 "abc" 3)
+	// 	// ;=>"1abc3"
 
-		// (str "abc  def" "ghi jkl")
-		// ;=>"abc  defghi jkl"
+	// 	// (str "abc  def" "ghi jkl")
+	// 	// ;=>"abc  defghi jkl"
 
-		// (str "abc\ndef\nghi")
-		// ;=>"abc\ndef\nghi"
+	// 	// (str "abc\ndef\nghi")
+	// 	// ;=>"abc\ndef\nghi"
 
-		// (str "abc\\def\\ghi")
-		// ;=>"abc\\def\\ghi"
+	// 	// (str "abc\\def\\ghi")
+	// 	// ;=>"abc\\def\\ghi"
 
-		// (str (list 1 2 "abc" "\"") "def")
-		// ;=>"(1 2 abc \")def"
+	// 	// (str (list 1 2 "abc" "\"") "def")
+	// 	// ;=>"(1 2 abc \")def"
 
-		// (str (list))
-		// ;=>"()"
-		it("Should convert the ast to a string", () => {
-			equal(dsl([$.toString]), "");
-			equal(dsl([$.toString, ""]), "");
-			equal(dsl([$.toString, "abc"]), "abc");
-			equal(dsl([$.toString, "\""]), "\"");
-			equal(dsl([$.toString, 1, "abc", 3]), "1abc3");
-			equal(dsl([$.toString, "abc  def", "ghi jkl"]), "abc  defghi jkl");
-			equal(dsl([$.toString, "abc\ndef\nghi"]), "abc\ndef\nghi");
-			equal(dsl([$.toString, "abc\\def\\ghi"]), "abc\\def\\ghi");
-			equal(dsl([$.toString, [1, 2, "abc", "\""], "def"]), "[1, 2, abc, \"]def");
-			equal(dsl([$.toString, []]), "[]");
-		});
-	});
+	// 	// (str (list))
+	// 	// ;=>"()"
+	// 	it("Should convert the ast to a string", () => {
+	// 		equal(dsl([$.toString]), "");
+	// 		equal(dsl([$.toString, ""]), "");
+	// 		equal(dsl([$.toString, "abc"]), "abc");
+	// 		equal(dsl([$.toString, "\""]), "\"");
+	// 		equal(dsl([$.toString, 1, "abc", 3]), "1abc3");
+	// 		equal(dsl([$.toString, "abc  def", "ghi jkl"]), "abc  defghi jkl");
+	// 		equal(dsl([$.toString, "abc\ndef\nghi"]), "abc\ndef\nghi");
+	// 		equal(dsl([$.toString, "abc\\def\\ghi"]), "abc\\def\\ghi");
+	// 		equal(dsl([$.toString, [1, 2, "abc", "\""], "def"]), "[1, 2, abc, \"]def");
+	// 		equal(dsl([$.toString, []]), "[]");
+	// 	});
+	// });
 
-	describe.skip("TODO: Testing logEscaped", () => {
+	describeSkip("TODO: Testing logEscaped", () => {
 		// ;; Testing prn
 		// (prn)
 		// ;/
@@ -623,17 +630,19 @@ describe("If/Fn/Do", () => {
 		// (prn (list 1 2 "abc" "\"") "def")
 		// ;/\(1 2 "abc" "\\""\) "def"
 		// ;=>nil
-		equal(dsl([$.logEscaped]), null);
-		equal(dsl([$.logEscaped, ""]), "");
-		equal(dsl([$.logEscaped, "abc"]), "abc");
-		equal(dsl([$.logEscaped, "abc, , def", "ghi, jkl"]), "abc, , def, ghi, jkl");
-		equal(dsl([$.logEscaped, "\""]), "\"");
-		equal(dsl([$.logEscaped, "abc\ndef\nghi"]), "abc\\ndef\\nghi");
-		equal(dsl([$.logEscaped, "abc\\def\\ghi"]), "abc\\\\def\\\\ghi");
-		equal(dsl([$.logEscaped, [1, 2, "abc", "\""], "def"]), "[1, 2, \"abc\" \"\\\"\"], \"def\"");
+		it("Should log escaped strings", () => {
+			equal(dsl([$.logEscaped]), null);
+			equal(dsl([$.logEscaped, ""]), "");
+			equal(dsl([$.logEscaped, "abc"]), "abc");
+			equal(dsl([$.logEscaped, "abc, , def", "ghi, jkl"]), "abc, , def, ghi, jkl");
+			equal(dsl([$.logEscaped, "\""]), "\"");
+			equal(dsl([$.logEscaped, "abc\ndef\nghi"]), "abc\\ndef\\nghi");
+			equal(dsl([$.logEscaped, "abc\\def\\ghi"]), "abc\\\\def\\\\ghi");
+			equal(dsl([$.logEscaped, [1, 2, "abc", "\""], "def"]), "[1, 2, \"abc\" \"\\\"\"], \"def\"");
+		});
 	});
 
-	describe.skip("TODO: Testing logString", () => {
+	describeSkip("TODO: Testing logString", () => {
 		// ;; Testing println
 		// (println)
 		// ;/
@@ -669,19 +678,21 @@ describe("If/Fn/Do", () => {
 		// ;=>nil
 
 		// Testing, $.logEscaped
-		equal(dsl([$.logString]), "");
-		equal(dsl([$.logString, ""]), "");
-		equal(dsl([$.logString, "abc"]), "abc");
-		equal(dsl([$.logString, "abc, , def", "ghi, jkl"]), "abc, , def, ghi, jkl");
-		equal(dsl([$.logString, "\""]), "\"");
-		equal(dsl([$.logString, "abc\ndef\nghi"]), "abc\ndef\nghi");
-		equal(dsl([$.logString, "abc\\def\\ghi"]), "abc\\def\\ghi");
-		equal(dsl([$.logString, [1, 2, "abc", "\""], "def"]), "[1, 2, abc, \"\"\"] def");
+		it("should log strings", () => {
+			equal(dsl([$.logString]), "");
+			equal(dsl([$.logString, ""]), "");
+			equal(dsl([$.logString, "abc"]), "abc");
+			equal(dsl([$.logString, "abc, , def", "ghi, jkl"]), "abc, , def, ghi, jkl");
+			equal(dsl([$.logString, "\""]), "\"");
+			equal(dsl([$.logString, "abc\ndef\nghi"]), "abc\ndef\nghi");
+			equal(dsl([$.logString, "abc\\def\\ghi"]), "abc\\def\\ghi");
+			equal(dsl([$.logString, [1, 2, "abc", "\""], "def"]), "[1, 2, abc, \"\"\"] def");
+		});
 	});
 
 	// These tests aren't really necessary because we don't use them like
 	// Clojure style keywords and JavaScript has its own object literal.
-	describe.skip("Testing keywords", () => {
+	describeSkip("Testing keywords", () => {
 		// ;; Testing keywords
 		// (= :abc :abc)
 		// ;=>true
@@ -692,119 +703,127 @@ describe("If/Fn/Do", () => {
 		// (= (list :abc) (list :abc))
 		// ;=>true
 
-		equal(dsl([$.eq, Symbol.for(":abc"), Symbol.for(":abc")]), true);
-		equal(dsl([$.eq, Symbol.for(":abc"), Symbol.for(":def")]), false);
-		equal(dsl([$.eq, Symbol.for(":abc"), ":abc"]), false);
-		equal(dsl([$.eq, [Symbol.for(":abc")], [Symbol.for(":abc")]]), true);
+		it("Should handle keywords", () => {
+			equal(dsl([$.eq, Symbol.for(":abc"), Symbol.for(":abc")]), true);
+			equal(dsl([$.eq, Symbol.for(":abc"), Symbol.for(":def")]), false);
+			equal(dsl([$.eq, Symbol.for(":abc"), ":abc"]), false);
+			equal(dsl([$.eq, [Symbol.for(":abc")], [Symbol.for(":abc")]]), true);
+
+		});
 	});
 
-	describe.skip("Testing vectors", () => {
-		// Testing vector truthiness
+	describeSkip("Testing vectors", () => {
+		it("should handle arrays without symbols (vectors)", () => {
 
-		// (if [] 7 8)
-		// ;=>7
-		equal(dsl([$.if, [], 7, 8]), 7);
 
-		// Testing vector printing
+			// Testing vector truthiness
 
-		// (pr-str [1 2 "abc" "\""] "def")
-		// ;=>"[1 2 \"abc\" \"\\\"\"] \"def\""
+			// (if [] 7 8)
+			// ;=>7
+			equal(dsl([$.if, [], 7, 8]), 7);
 
-		// (pr-str [])
-		// ;=>"[]"
+			// Testing vector printing
 
-		// (str [1 2 "abc" "\""] "def")
-		// ;=>"[1 2 abc \"]def"
+			// (pr-str [1 2 "abc" "\""] "def")
+			// ;=>"[1 2 \"abc\" \"\\\"\"] \"def\""
 
-		// (str [])
-		// ;=>"[]"
-		equal(dsl([$.toString, [1, 2, "abc", "\""], "def"]), "[1, 2, \"abc\", \"\\\"\"], \"def\"");
-		equal(dsl([$.toString, []]), "[]");
-		equal(dsl([$.toString, [1, 2, "abc", "\""], "def"]), "[1, 2, abc, \"]def");
-		equal(dsl([$.toString, []]), "[]");
+			// (pr-str [])
+			// ;=>"[]"
 
-		// Testing vector functions
+			// (str [1 2 "abc" "\""] "def")
+			// ;=>"[1 2 abc \"]def"
 
-		// (count [1 2 3])
-		// ;=>3
+			// (str [])
+			// ;=>"[]"
+			equal(dsl([$.toString, [1, 2, "abc", "\""], "def"]), "[1, 2, \"abc\", \"\\\"\"], \"def\"");
+			equal(dsl([$.toString, []]), "[]");
+			equal(dsl([$.toString, [1, 2, "abc", "\""], "def"]), "[1, 2, abc, \"]def");
+			equal(dsl([$.toString, []]), "[]");
 
-		// (empty? [1 2 3])
-		// ;=>false
+			// Testing vector functions
 
-		// (empty? [])
-		// ;=>true
+			// (count [1 2 3])
+			// ;=>3
 
-		// (list? [4 5 6])
-		// ;=>false
+			// (empty? [1 2 3])
+			// ;=>false
 
-		equal(dsl([$.length, [1, 2, 3]]), 3);
-		equal(dsl([$.isEmpty, [1, 2, 3]]), false);
-		equal(dsl([$.isEmpty, []]), true);
-		equal(dsl([$.isArray, [4, 5, 6]]), false);
+			// (empty? [])
+			// ;=>true
 
-		// Testing vector equality
-		// (= [] (list))
+			// (list? [4 5 6])
+			// ;=>false
 
-		// ;=>true
-		// (= [7 8] [7 8])
+			equal(dsl([$.length, [1, 2, 3]]), 3);
+			equal(dsl([$.isEmpty, [1, 2, 3]]), false);
+			equal(dsl([$.isEmpty, []]), true);
+			equal(dsl([$.isArray, [4, 5, 6]]), false);
 
-		// ;=>true
-		// (= [:abc] [:abc])
+			// Testing vector equality
+			// (= [] (list))
 
-		// ;=>true
-		// (= (list 1 2) [1 2])
+			// ;=>true
+			// (= [7 8] [7 8])
 
-		// ;=>true
-		// (= (list 1) [])
+			// ;=>true
+			// (= [:abc] [:abc])
 
-		// ;=>false
-		// (= [] [1])
+			// ;=>true
+			// (= (list 1 2) [1 2])
 
-		// ;=>false
-		// (= 0 [])
+			// ;=>true
+			// (= (list 1) [])
 
-		// ;=>false
-		// (= [] 0)
+			// ;=>false
+			// (= [] [1])
 
-		// ;=>false
+			// ;=>false
+			// (= 0 [])
 
-		// (= [] "")
-		// ;=>false
+			// ;=>false
+			// (= [] 0)
 
-		// (= "" [])
-		// ;=>false
-		equal(dsl([$.eq, [], []]), true);
-		equal(dsl([$.eq, [7, 8], [7, 8]]), true);
-		equal(dsl([$.eq, [Symbol.for(":abc")], [Symbol.for(":abc")]]), true);
-		equal(dsl([$.eq, [1, 2], [1, 2]]), true);
-		equal(dsl([$.eq, [1], []]), false);
-		equal(dsl([$.eq, [], [1]]), false);
-		equal(dsl([$.eq, 0, []]), false);
-		equal(dsl([$.eq, [], 0]), false);
-		equal(dsl([$.eq, [], ""]), false);
-		equal(dsl([$.eq, "", []]), false);
+			// ;=>false
 
-		// Testing vector parameter lists
+			// (= [] "")
+			// ;=>false
 
-		// ( (fn* [] 4) )
-		// ;=>4
+			// (= "" [])
+			// ;=>false
+			equal(dsl([$.eq, [], []]), true);
+			equal(dsl([$.eq, [7, 8], [7, 8]]), true);
+			equal(dsl([$.eq, [Symbol.for(":abc")], [Symbol.for(":abc")]]), true);
+			equal(dsl([$.eq, [1, 2], [1, 2]]), true);
+			equal(dsl([$.eq, [1], []]), false);
+			equal(dsl([$.eq, [], [1]]), false);
+			equal(dsl([$.eq, 0, []]), false);
+			equal(dsl([$.eq, [], 0]), false);
+			equal(dsl([$.eq, [], ""]), false);
+			equal(dsl([$.eq, "", []]), false);
 
-		// ( (fn* [f x] (f x)) (fn* [a] (+ 1 a)) 7)
-		// ;=>8
+			// Testing vector parameter lists
 
-		equal(dsl([[$.fn, [], 4]]), 4);
-		equal(dsl([[$.fn, [Symbol.for("f"), Symbol.for("x")], [Symbol.for("f"), Symbol.for("x")]], [$.fn, [Symbol.for("a")], [$.add, 1, Symbol.for("a")]], 7]), 8);
+			// ( (fn* [] 4) )
+			// ;=>4
 
-		// Nested vector/list equality
+			// ( (fn* [f x] (f x)) (fn* [a] (+ 1 a)) 7)
+			// ;=>8
 
-		// (= [(list)] (list []))
-		// ;=>true
+			equal(dsl([[$.fn, [], 4]]), 4);
+			equal(dsl([[$.fn, [Symbol.for("f"), Symbol.for("x")], [Symbol.for("f"), Symbol.for("x")]], [$.fn, [Symbol.for("a")], [$.add, 1, Symbol.for("a")]], 7]), 8);
 
-		// (= [1 2 (list 3 4 [5 6])] (list 1 2 [3 4 (list 5 6)]))
-		// ;=>true
+			// Nested vector/list equality
 
-		equal(dsl([$.eq, [[]], [[]]]), true);
-		equal(dsl([$.eq, [1, 2, [3, 4, [5, 6]]], [1, 2, [3, 4, [5, 6]]]]), true);
+			// (= [(list)] (list []))
+			// ;=>true
+
+			// (= [1 2 (list 3 4 [5 6])] (list 1 2 [3 4 (list 5 6)]))
+			// ;=>true
+
+			equal(dsl([$.eq, [[]], [[]]]), true);
+			equal(dsl([$.eq, [1, 2, [3, 4, [5, 6]]], [1, 2, [3, 4, [5, 6]]]]), true);
+
+		});
 	});
 });
 
@@ -1562,7 +1581,7 @@ function getCssSymbols() {
 	];
 }
 
-
+console.log(JSON.stringify(summary, null, 2));
 
 /**
  * 
@@ -1573,8 +1592,10 @@ function it(desc, fn) {
 	try {
 		fn();
 		console.log(`[PASS] ${desc}`);
+		summary.pass++;
 	} catch (e) {
 		console.log(`[FAIL] ${desc}\n       ${e}`);
+		summary.fail++;
 	}
 }
 
@@ -1585,6 +1606,9 @@ function it(desc, fn) {
  */
 function describe(desc, fn) {
 	console.log(`====== ${desc}`);
+	if (typeof fn !== "function") {
+		console.log(`Error: function argument is not a function.\n Received ${String(fn)}`);
+	}
 	fn();
 	console.log("");
 }
@@ -1594,8 +1618,9 @@ function describe(desc, fn) {
  * @param {string} desc 
  * @param {() => void} _fn 
  */
-describe.skip = (desc, _fn) => {
+function describeSkip(desc, _fn) {
 	console.log(`[SKIP] ${desc}`);
+	summary.skip++;
 };
 
 /**

@@ -1,4 +1,4 @@
-import { dsl, $ } from "../ensemble.js";
+import { dsl, $ } from "../ensemble-dsl.js";
 import { createServer } from "../server.js";
 
 const s = Symbol.for;

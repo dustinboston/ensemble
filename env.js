@@ -1,5 +1,3 @@
-import {toString} from "./core.js";
-
 export class Env extends Map {
 	/**
 	 * @param {(Array<[string|symbol,*]>|Map<symbol|string, *>)} entries
@@ -17,7 +15,7 @@ export class Env extends Map {
 
 		let isVariadic = false;
 
-		for (let i = 0; i < binds.length; i++) {
+		for (let i = 0;i < binds.length;i++) {
 			if (i > exprs.length) {
 				break;
 			}
@@ -32,7 +30,9 @@ export class Env extends Map {
 		}
 
 		if (!(isVariadic || binds.length === exprs.length)) {
-			throw new TypeError(`Arity mismatch:\nbindings: ${toString(binds)}\nexpressions: ${toString(exprs)}`);
+			const bindsString = JSON.stringify(binds);
+			const exprsString = JSON.stringify(exprs);
+			throw new TypeError(`Arity mismatch:\nbindings: ${bindsString}\nexpressions: ${exprsString}`);
 		}
 	}
 
@@ -60,6 +60,7 @@ export class Env extends Map {
 	 */
 
 	get(key) {
+		console.log(`Env.get(${key})`);
 		const env = this.find(key);
 		if (env) {
 			return super.get.call(env, key);

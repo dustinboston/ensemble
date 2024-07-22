@@ -52,7 +52,7 @@ declare module "std" {
   export function exit(n: number): void;
   export function evalScript(script: string, options?: EvalOptions): void;
   export function loadScript(filename: string): void;
-  export function loadFile(filename: string): void;
+  export function loadFile(filename: string): string | null;
   export function open(
     filename: string,
     flags: unknown,
@@ -78,23 +78,23 @@ declare module "std" {
   export function getenv(name: string): any | undefined;
   export function setenv(name: string, value: any): void;
   export function unsetenv(name: string): void;
-  export function getenviron(): { readonly [key: string]: string };
+  export function getenviron(): { readonly [key: string]: string; };
   export function urlGet(url: string): string;
   export function urlGet(
     url: string,
-    options: { full?: false; binary: false }
+    options: { full?: false; binary: false; }
   ): string;
   export function urlGet(
     url: string,
-    options: { full?: false; binary: true }
+    options: { full?: false; binary: true; }
   ): ArrayBuffer;
   export function urlGet(
     url: string,
-    options: { full: true; binary?: false }
+    options: { full: true; binary?: false; }
   ): URLGetResponse;
   export function urlGet(
     url: string,
-    options: { full: true; binary?: false }
+    options: { full: true; binary?: false; }
   ): ArrayBuffer;
   export function parseExtJSON(str: string): any;
 
