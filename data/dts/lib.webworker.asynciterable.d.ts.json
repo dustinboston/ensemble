@@ -1,0 +1,245 @@
+{
+  "endOfFileToken": {
+    "kind": "EndOfFileToken"
+  },
+  "fileName": "data/dts/lib.webworker.asynciterable.d.ts",
+  "hasNoDefaultLib": true,
+  "isDeclarationFile": true,
+  "kind": "SourceFile",
+  "libReferenceDirectives": [],
+  "referencedFiles": [],
+  "statements": [
+    {
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "expression": {
+              "expression": {
+                "kind": "Identifier",
+                "text": "Symbol"
+              },
+              "kind": "PropertyAccessExpression",
+              "name": {
+                "kind": "Identifier",
+                "text": "asyncIterator"
+              }
+            },
+            "kind": "ComputedPropertyName"
+          },
+          "parameters": [],
+          "type": {
+            "kind": "TypeReference",
+            "typeArguments": [
+              {
+                "elements": [
+                  {
+                    "kind": "StringKeyword"
+                  },
+                  {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "FileSystemHandle"
+                    }
+                  }
+                ],
+                "kind": "TupleType"
+              }
+            ],
+            "typeName": {
+              "kind": "Identifier",
+              "text": "AsyncIterableIterator"
+            }
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "entries"
+          },
+          "parameters": [],
+          "type": {
+            "kind": "TypeReference",
+            "typeArguments": [
+              {
+                "elements": [
+                  {
+                    "kind": "StringKeyword"
+                  },
+                  {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "FileSystemHandle"
+                    }
+                  }
+                ],
+                "kind": "TupleType"
+              }
+            ],
+            "typeName": {
+              "kind": "Identifier",
+              "text": "AsyncIterableIterator"
+            }
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "keys"
+          },
+          "parameters": [],
+          "type": {
+            "kind": "TypeReference",
+            "typeArguments": [
+              {
+                "kind": "StringKeyword"
+              }
+            ],
+            "typeName": {
+              "kind": "Identifier",
+              "text": "AsyncIterableIterator"
+            }
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "values"
+          },
+          "parameters": [],
+          "type": {
+            "kind": "TypeReference",
+            "typeArguments": [
+              {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "FileSystemHandle"
+                }
+              }
+            ],
+            "typeName": {
+              "kind": "Identifier",
+              "text": "AsyncIterableIterator"
+            }
+          }
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "FileSystemDirectoryHandle"
+      }
+    },
+    {
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "expression": {
+              "expression": {
+                "kind": "Identifier",
+                "text": "Symbol"
+              },
+              "kind": "PropertyAccessExpression",
+              "name": {
+                "kind": "Identifier",
+                "text": "asyncIterator"
+              }
+            },
+            "kind": "ComputedPropertyName"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "options"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "ReadableStreamIteratorOptions"
+                }
+              }
+            }
+          ],
+          "type": {
+            "kind": "TypeReference",
+            "typeArguments": [
+              {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "R"
+                }
+              }
+            ],
+            "typeName": {
+              "kind": "Identifier",
+              "text": "AsyncIterableIterator"
+            }
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "values"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "options"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "ReadableStreamIteratorOptions"
+                }
+              }
+            }
+          ],
+          "type": {
+            "kind": "TypeReference",
+            "typeArguments": [
+              {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "R"
+                }
+              }
+            ],
+            "typeName": {
+              "kind": "Identifier",
+              "text": "AsyncIterableIterator"
+            }
+          }
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "ReadableStream"
+      }
+    }
+  ],
+  "text": "/*! *****************************************************************************\nCopyright (c) Microsoft Corporation. All rights reserved.\nLicensed under the Apache License, Version 2.0 (the \"License\"); you may not use\nthis file except in compliance with the License. You may obtain a copy of the\nLicense at http://www.apache.org/licenses/LICENSE-2.0\n\nTHIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY\nKIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED\nWARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,\nMERCHANTABLITY OR NON-INFRINGEMENT.\n\nSee the Apache Version 2.0 License for specific language governing permissions\nand limitations under the License.\n***************************************************************************** */\n\n\n/// <reference no-default-lib=\"true\"/>\n\n/////////////////////////////\n/// Worker Async Iterable APIs\n/////////////////////////////\n\ninterface FileSystemDirectoryHandle {\n    [Symbol.asyncIterator](): AsyncIterableIterator<[string, FileSystemHandle]>;\n    entries(): AsyncIterableIterator<[string, FileSystemHandle]>;\n    keys(): AsyncIterableIterator<string>;\n    values(): AsyncIterableIterator<FileSystemHandle>;\n}\n\ninterface ReadableStream<R = any> {\n    [Symbol.asyncIterator](options?: ReadableStreamIteratorOptions): AsyncIterableIterator<R>;\n    values(options?: ReadableStreamIteratorOptions): AsyncIterableIterator<R>;\n}\n",
+  "typeReferenceDirectives": []
+}

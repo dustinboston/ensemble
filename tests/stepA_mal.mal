@@ -1,0 +1,110 @@
+;; Testing JavaScript nsInterop
+
+;;; (switch "foo" (list "bar" "bar") (list "foo" "baz") ("qux"))
+;;; ;=>"baz"
+
+(% 7 5)
+;=>2
+
+;; Bitwise operations
+
+(>> 5 2)
+;=>1
+
+(<< 5 2)
+;=>20
+
+(>>> 5 2)
+;=>1
+
+;;; Prefix bitwise operators with forward slash
+(/& 5 3)
+;=>1
+
+;;; Prefix bitwise operators with forward slash
+(/~ 5)
+;=>-6
+
+;;; Prefix bitwise operators with forward slash
+(/| 5 3)
+;=>7
+
+;;; Prefix bitwise operators with forward slash
+(/^ 5 3)
+;=>6
+
+;; Logical operations
+
+(! true)
+;=>false
+
+(! false)
+;=>true
+
+(&& (> 3 0) (> -2 0))
+;=>false
+
+(|| (> 3 0) (> -2 0))
+;=>true
+
+(?? nil "foo")
+;=>"foo"
+
+
+
+;; Increment and decrement
+
+(++ 1)
+;=>[2 1]
+
+(++ 1 "postfix")
+;=>[2 1]
+
+(++ 1 "prefix")
+;=>[2 2]
+
+(-- 1) 
+;=>[0 1]
+
+(-- 1 "postfix") 
+;=>[0 1]
+
+(-- 1 "prefix")
+;=>[0 0]
+
+
+;; globalThis
+
+(global)
+;=>(atom (global))
+
+(getIn (global) [:Reflect :get])
+
+
+;;; (js-eval "7")
+;;; ;=>7
+;;; 
+;;; (js-eval "undefined")
+;;; ;=>nil
+;;;
+;;; (js-eval "'foo'")
+;;; ;=>"foo"
+;;; 
+;;; (js-eval ":bar")
+;;; ;=>:bar
+;;; 
+;;; (js-eval "baz")
+;;; ;=>baz
+;;; 
+;;; (js-eval "123 === 456")
+;;; ;=>false
+;;; 
+;;; (js-eval "123 === 123")
+;;; ;=>true
+;;; 
+;;; (js-eval "(...args) => (args.join('_'))")
+;;; ;=>#<fn>
+;;; 
+;;; (apply (js-eval "(...args) => (args.join('_'))") [1 2 3])
+;;; ;=>"1_2_3"
+;;; 

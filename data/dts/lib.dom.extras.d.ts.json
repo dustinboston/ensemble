@@ -1,0 +1,749 @@
+{
+  "endOfFileToken": {
+    "kind": "EndOfFileToken"
+  },
+  "fileName": "data/dts/lib.dom.extras.d.ts",
+  "hasNoDefaultLib": true,
+  "isDeclarationFile": true,
+  "kind": "SourceFile",
+  "libReferenceDirectives": [],
+  "referencedFiles": [],
+  "statements": [
+    {
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "protocol"
+          },
+          "questionToken": {
+            "kind": "QuestionToken"
+          },
+          "type": {
+            "kind": "StringKeyword"
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "username"
+          },
+          "questionToken": {
+            "kind": "QuestionToken"
+          },
+          "type": {
+            "kind": "StringKeyword"
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "password"
+          },
+          "questionToken": {
+            "kind": "QuestionToken"
+          },
+          "type": {
+            "kind": "StringKeyword"
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "hostname"
+          },
+          "questionToken": {
+            "kind": "QuestionToken"
+          },
+          "type": {
+            "kind": "StringKeyword"
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "port"
+          },
+          "questionToken": {
+            "kind": "QuestionToken"
+          },
+          "type": {
+            "kind": "StringKeyword"
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "pathname"
+          },
+          "questionToken": {
+            "kind": "QuestionToken"
+          },
+          "type": {
+            "kind": "StringKeyword"
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "search"
+          },
+          "questionToken": {
+            "kind": "QuestionToken"
+          },
+          "type": {
+            "kind": "StringKeyword"
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "hash"
+          },
+          "questionToken": {
+            "kind": "QuestionToken"
+          },
+          "type": {
+            "kind": "StringKeyword"
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "baseURL"
+          },
+          "questionToken": {
+            "kind": "QuestionToken"
+          },
+          "type": {
+            "kind": "StringKeyword"
+          }
+        }
+      ],
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "URLPatternInit"
+      }
+    },
+    {
+      "kind": "TypeAliasDeclaration",
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "URLPatternInput"
+      },
+      "type": {
+        "kind": "UnionType",
+        "types": [
+          {
+            "kind": "StringKeyword"
+          },
+          {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "URLPatternInit"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "input"
+          },
+          "type": {
+            "kind": "StringKeyword"
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "groups"
+          },
+          "type": {
+            "kind": "TypeReference",
+            "typeArguments": [
+              {
+                "kind": "StringKeyword"
+              },
+              {
+                "kind": "UnionType",
+                "types": [
+                  {
+                    "kind": "StringKeyword"
+                  },
+                  {
+                    "kind": "UndefinedKeyword"
+                  }
+                ]
+              }
+            ],
+            "typeName": {
+              "kind": "Identifier",
+              "text": "Record"
+            }
+          }
+        }
+      ],
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "URLPatternComponentResult"
+      }
+    },
+    {
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "inputs"
+          },
+          "type": {
+            "kind": "UnionType",
+            "types": [
+              {
+                "elements": [
+                  {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "URLPatternInit"
+                    }
+                  }
+                ],
+                "kind": "TupleType"
+              },
+              {
+                "elements": [
+                  {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "URLPatternInit"
+                    }
+                  },
+                  {
+                    "kind": "StringKeyword"
+                  }
+                ],
+                "kind": "TupleType"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "protocol"
+          },
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "URLPatternComponentResult"
+            }
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "username"
+          },
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "URLPatternComponentResult"
+            }
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "password"
+          },
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "URLPatternComponentResult"
+            }
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "hostname"
+          },
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "URLPatternComponentResult"
+            }
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "port"
+          },
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "URLPatternComponentResult"
+            }
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "pathname"
+          },
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "URLPatternComponentResult"
+            }
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "search"
+          },
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "URLPatternComponentResult"
+            }
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "hash"
+          },
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "URLPatternComponentResult"
+            }
+          }
+        }
+      ],
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "URLPatternResult"
+      }
+    },
+    {
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "test"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "input"
+              },
+              "type": {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "URLPatternInput"
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "baseURL"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "StringKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "BooleanKeyword"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "exec"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "input"
+              },
+              "type": {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "URLPatternInput"
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "baseURL"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "StringKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "UnionType",
+            "types": [
+              {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "URLPatternResult"
+                }
+              },
+              {
+                "kind": "LiteralType",
+                "literal": {
+                  "kind": "NullKeyword"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "modifiers": [
+            {
+              "kind": "ReadonlyKeyword"
+            }
+          ],
+          "name": {
+            "kind": "Identifier",
+            "text": "protocol"
+          },
+          "type": {
+            "kind": "StringKeyword"
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "modifiers": [
+            {
+              "kind": "ReadonlyKeyword"
+            }
+          ],
+          "name": {
+            "kind": "Identifier",
+            "text": "username"
+          },
+          "type": {
+            "kind": "StringKeyword"
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "modifiers": [
+            {
+              "kind": "ReadonlyKeyword"
+            }
+          ],
+          "name": {
+            "kind": "Identifier",
+            "text": "password"
+          },
+          "type": {
+            "kind": "StringKeyword"
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "modifiers": [
+            {
+              "kind": "ReadonlyKeyword"
+            }
+          ],
+          "name": {
+            "kind": "Identifier",
+            "text": "hostname"
+          },
+          "type": {
+            "kind": "StringKeyword"
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "modifiers": [
+            {
+              "kind": "ReadonlyKeyword"
+            }
+          ],
+          "name": {
+            "kind": "Identifier",
+            "text": "port"
+          },
+          "type": {
+            "kind": "StringKeyword"
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "modifiers": [
+            {
+              "kind": "ReadonlyKeyword"
+            }
+          ],
+          "name": {
+            "kind": "Identifier",
+            "text": "pathname"
+          },
+          "type": {
+            "kind": "StringKeyword"
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "modifiers": [
+            {
+              "kind": "ReadonlyKeyword"
+            }
+          ],
+          "name": {
+            "kind": "Identifier",
+            "text": "search"
+          },
+          "type": {
+            "kind": "StringKeyword"
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "modifiers": [
+            {
+              "kind": "ReadonlyKeyword"
+            }
+          ],
+          "name": {
+            "kind": "Identifier",
+            "text": "hash"
+          },
+          "type": {
+            "kind": "StringKeyword"
+          }
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "URLPattern"
+      }
+    },
+    {
+      "declarationList": {
+        "declarations": [
+          {
+            "kind": "VariableDeclaration",
+            "name": {
+              "kind": "Identifier",
+              "text": "URLPattern"
+            },
+            "type": {
+              "kind": "TypeLiteral",
+              "members": [
+                {
+                  "kind": "PropertySignature",
+                  "modifiers": [
+                    {
+                      "kind": "ReadonlyKeyword"
+                    }
+                  ],
+                  "name": {
+                    "kind": "Identifier",
+                    "text": "prototype"
+                  },
+                  "type": {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "URLPattern"
+                    }
+                  }
+                },
+                {
+                  "kind": "ConstructSignature",
+                  "parameters": [
+                    {
+                      "kind": "Parameter",
+                      "name": {
+                        "kind": "Identifier",
+                        "text": "input"
+                      },
+                      "type": {
+                        "kind": "TypeReference",
+                        "typeName": {
+                          "kind": "Identifier",
+                          "text": "URLPatternInput"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "Parameter",
+                      "name": {
+                        "kind": "Identifier",
+                        "text": "baseURL"
+                      },
+                      "questionToken": {
+                        "kind": "QuestionToken"
+                      },
+                      "type": {
+                        "kind": "StringKeyword"
+                      }
+                    }
+                  ],
+                  "type": {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "URLPattern"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "kind": "VariableDeclarationList"
+      },
+      "kind": "FirstStatement",
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ]
+    },
+    {
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "captureStackTrace"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "error"
+              },
+              "type": {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "Object"
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "constructor"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "Function"
+                }
+              }
+            }
+          ],
+          "type": {
+            "kind": "VoidKeyword"
+          }
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "ErrorConstructor"
+      }
+    }
+  ],
+  "text": "// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.\n\n/*\n * This library contains DOM standards that are not currently included in the\n * distributed `lib.dom.d.ts` file with TypeScript.\n */\n\n/// <reference no-default-lib=\"true\"/>\n\ndeclare interface URLPatternInit {\n  protocol?: string;\n  username?: string;\n  password?: string;\n  hostname?: string;\n  port?: string;\n  pathname?: string;\n  search?: string;\n  hash?: string;\n  baseURL?: string;\n}\n\ndeclare type URLPatternInput = string | URLPatternInit;\n\ndeclare interface URLPatternComponentResult {\n  input: string;\n  groups: Record<string, string | undefined>;\n}\n\n/** `URLPatternResult` is the object returned from `URLPattern.exec`. */\ndeclare interface URLPatternResult {\n  /** The inputs provided when matching. */\n  inputs: [URLPatternInit] | [URLPatternInit, string];\n\n  /** The matched result for the `protocol` matcher. */\n  protocol: URLPatternComponentResult;\n  /** The matched result for the `username` matcher. */\n  username: URLPatternComponentResult;\n  /** The matched result for the `password` matcher. */\n  password: URLPatternComponentResult;\n  /** The matched result for the `hostname` matcher. */\n  hostname: URLPatternComponentResult;\n  /** The matched result for the `port` matcher. */\n  port: URLPatternComponentResult;\n  /** The matched result for the `pathname` matcher. */\n  pathname: URLPatternComponentResult;\n  /** The matched result for the `search` matcher. */\n  search: URLPatternComponentResult;\n  /** The matched result for the `hash` matcher. */\n  hash: URLPatternComponentResult;\n}\n\n/**\n * The URLPattern API provides a web platform primitive for matching URLs based\n * on a convenient pattern syntax.\n *\n * The syntax is based on path-to-regexp. Wildcards, named capture groups,\n * regular groups, and group modifiers are all supported.\n *\n * ```ts\n * // Specify the pattern as structured data.\n * const pattern = new URLPattern({ pathname: \"/users/:user\" });\n * const match = pattern.exec(\"https://blog.example.com/users/joe\");\n * console.log(match.pathname.groups.user); // joe\n * ```\n *\n * ```ts\n * // Specify a fully qualified string pattern.\n * const pattern = new URLPattern(\"https://example.com/books/:id\");\n * console.log(pattern.test(\"https://example.com/books/123\")); // true\n * console.log(pattern.test(\"https://deno.land/books/123\")); // false\n * ```\n *\n * ```ts\n * // Specify a relative string pattern with a base URL.\n * const pattern = new URLPattern(\"/article/:id\", \"https://blog.example.com\");\n * console.log(pattern.test(\"https://blog.example.com/article\")); // false\n * console.log(pattern.test(\"https://blog.example.com/article/123\")); // true\n * ```\n */\ninterface URLPattern {\n  /**\n   * Test if the given input matches the stored pattern.\n   *\n   * The input can either be provided as an absolute URL string with an optional base,\n   * relative URL string with a required base, or as individual components\n   * in the form of an `URLPatternInit` object.\n   *\n   * ```ts\n   * const pattern = new URLPattern(\"https://example.com/books/:id\");\n   *\n   * // Test an absolute url string.\n   * console.log(pattern.test(\"https://example.com/books/123\")); // true\n   *\n   * // Test a relative url with a base.\n   * console.log(pattern.test(\"/books/123\", \"https://example.com\")); // true\n   *\n   * // Test an object of url components.\n   * console.log(pattern.test({ pathname: \"/books/123\" })); // true\n   * ```\n   */\n  test(input: URLPatternInput, baseURL?: string): boolean;\n\n  /**\n   * Match the given input against the stored pattern.\n   *\n   * The input can either be provided as an absolute URL string with an optional base,\n   * relative URL string with a required base, or as individual components\n   * in the form of an `URLPatternInit` object.\n   *\n   * ```ts\n   * const pattern = new URLPattern(\"https://example.com/books/:id\");\n   *\n   * // Match an absolute url string.\n   * let match = pattern.exec(\"https://example.com/books/123\");\n   * console.log(match.pathname.groups.id); // 123\n   *\n   * // Match a relative url with a base.\n   * match = pattern.exec(\"/books/123\", \"https://example.com\");\n   * console.log(match.pathname.groups.id); // 123\n   *\n   * // Match an object of url components.\n   * match = pattern.exec({ pathname: \"/books/123\" });\n   * console.log(match.pathname.groups.id); // 123\n   * ```\n   */\n  exec(input: URLPatternInput, baseURL?: string): URLPatternResult | null;\n\n  /** The pattern string for the `protocol`. */\n  readonly protocol: string;\n  /** The pattern string for the `username`. */\n  readonly username: string;\n  /** The pattern string for the `password`. */\n  readonly password: string;\n  /** The pattern string for the `hostname`. */\n  readonly hostname: string;\n  /** The pattern string for the `port`. */\n  readonly port: string;\n  /** The pattern string for the `pathname`. */\n  readonly pathname: string;\n  /** The pattern string for the `search`. */\n  readonly search: string;\n  /** The pattern string for the `hash`. */\n  readonly hash: string;\n}\n\n/**\n * The URLPattern API provides a web platform primitive for matching URLs based\n * on a convenient pattern syntax.\n *\n * The syntax is based on path-to-regexp. Wildcards, named capture groups,\n * regular groups, and group modifiers are all supported.\n *\n * ```ts\n * // Specify the pattern as structured data.\n * const pattern = new URLPattern({ pathname: \"/users/:user\" });\n * const match = pattern.exec(\"https://blog.example.com/users/joe\");\n * console.log(match.pathname.groups.user); // joe\n * ```\n *\n * ```ts\n * // Specify a fully qualified string pattern.\n * const pattern = new URLPattern(\"https://example.com/books/:id\");\n * console.log(pattern.test(\"https://example.com/books/123\")); // true\n * console.log(pattern.test(\"https://deno.land/books/123\")); // false\n * ```\n *\n * ```ts\n * // Specify a relative string pattern with a base URL.\n * const pattern = new URLPattern(\"/article/:id\", \"https://blog.example.com\");\n * console.log(pattern.test(\"https://blog.example.com/article\")); // false\n * console.log(pattern.test(\"https://blog.example.com/article/123\")); // true\n * ```\n */\ndeclare var URLPattern: {\n  readonly prototype: URLPattern;\n  new (input: URLPatternInput, baseURL?: string): URLPattern;\n};\n\ninterface ErrorConstructor {\n  /** See https://v8.dev/docs/stack-trace-api#stack-trace-collection-for-custom-exceptions. */\n  captureStackTrace(error: Object, constructor?: Function): void;\n}\n",
+  "typeReferenceDirectives": []
+}

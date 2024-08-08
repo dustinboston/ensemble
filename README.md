@@ -2,35 +2,60 @@
 
 > ENSEMBLE: Novel Synthesis of Eich, McCarthy, Berners-Lee, Lie, etc.
 
-ENSEMBLE is a _web_ programming language. It combines JavaScript, HTML, and CSS with a Lisp-like syntax that should be familiar to modern web developers.
+ENSEMBLE is a _web_ programming language that combines JavaScript, HTML, and CSS
+with a Lisp-like syntax.
 
 ## Syntax
 
-ENSEMBLE:
-
-```js
-[global fib [function [n] 
-    [if [<= n 1] n
-        [+ [fib [- n 1]] [fib [- n 2]]]]]]
+```clojure
+(var fibonacci (function (n)
+  (if (<= n 1) n 
+    (+ (fibonacci (- n 1)) 
+       (fibonacci (- n 2))))));
 ```
 
-ENSEMBLE JavaScript DSL:
+## Development
 
-```js
-import {$, dsl} from 'ensemble';
-const fib = Symbol("fib"), n = Symbol("fib"); // Or use Symbol.for inline
+- Install [Deno](https://deno.land/)
+- Clone https://github.com/dustinboston/ensemble
+- Run `deno task repl`
 
-dsl([$.global, fib, [$.function, [n],
-    [$.if, [$.lte, n, 1], [n],
-        [$.add, [fib, [$.sub, n, 1]], [fib, [$.sub, n, 2]]]]]]);
+## Tests
+
+Run all test suites:
+
+```sh
+./test.sh
 ```
 
-Regular JavaScript:
+Run a single test suite:
 
-```js
-function fib(n) {
-    if (n <= 1) return n;
-    return (fib(n - 1)) + (fib( n - 2));
-}
+```sh
+./test.sh [--e2e] [--fun] [--unit]
 ```
 
+## Standards
+
+- [TypeScript Do's and Don'ts: Don't use `any`][TypeScript]
+- [Making TypeScript Truly "Strongly Typed"][Zemskov]
+- [The power of 10: rules for developing safety-critical code][Holzman]
+- [JPL Institutional Coding Standard for the C Programming Language][JPL]
+
+## Credits
+
+- This project is based on [Make-a-Lisp (MAL)][Martin]
+- With data from the [MDN content repository][MDN]
+- And learnings from [Crafting Interpreters][Nystrom]
+
+## License
+
+See [LICENSE](LICENSE)
+
+[Holzman]: https://ieeexplore.ieee.org/document/1642624
+[JPL]: https://web.archive.org/web/20111015064908/http://lars-lab.jpl.nasa.gov/JPL_Coding_Standard_C.pdf
+[Martin]: https://github.com/kanaka/mal
+[MDN]: https://github.com/mdn/content/tree/main/files/jsondata
+[Nystrom]: https://craftinginterpreters.com/
+[Peters]: https://github.com/tdp2110/crafting-interpreters-rs
+[TypeScript]: https://www.typescriptlang.org/docs/handbook/declaration-files/do-s-and-don-ts.html#any
+[Zemskov]: https://betterprogramming.pub/making-typescript-truly-strongly-typed-c3a8947434a2

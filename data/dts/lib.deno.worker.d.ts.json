@@ -1,0 +1,2611 @@
+{
+  "endOfFileToken": {
+    "kind": "EndOfFileToken"
+  },
+  "fileName": "data/dts/lib.deno.worker.d.ts",
+  "hasNoDefaultLib": true,
+  "isDeclarationFile": true,
+  "kind": "SourceFile",
+  "libReferenceDirectives": [
+    {
+      "fileName": "deno.ns"
+    },
+    {
+      "fileName": "deno.shared_globals"
+    },
+    {
+      "fileName": "esnext"
+    },
+    {
+      "fileName": "deno.cache"
+    }
+  ],
+  "referencedFiles": [],
+  "statements": [
+    {
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "StringLiteral",
+            "text": "error"
+          },
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "ErrorEvent"
+            }
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "StringLiteral",
+            "text": "unhandledrejection"
+          },
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "PromiseRejectionEvent"
+            }
+          }
+        }
+      ],
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "WorkerGlobalScopeEventMap"
+      }
+    },
+    {
+      "heritageClauses": [
+        {
+          "kind": "HeritageClause",
+          "token": "ExtendsKeyword",
+          "types": [
+            {
+              "expression": {
+                "kind": "Identifier",
+                "text": "EventTarget"
+              },
+              "kind": "ExpressionWithTypeArguments"
+            }
+          ]
+        }
+      ],
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "PropertySignature",
+          "modifiers": [
+            {
+              "kind": "ReadonlyKeyword"
+            }
+          ],
+          "name": {
+            "kind": "Identifier",
+            "text": "location"
+          },
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "WorkerLocation"
+            }
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "modifiers": [
+            {
+              "kind": "ReadonlyKeyword"
+            }
+          ],
+          "name": {
+            "kind": "Identifier",
+            "text": "navigator"
+          },
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "WorkerNavigator"
+            }
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "onerror"
+          },
+          "type": {
+            "kind": "UnionType",
+            "types": [
+              {
+                "kind": "ParenthesizedType",
+                "type": {
+                  "kind": "FunctionType",
+                  "parameters": [
+                    {
+                      "kind": "Parameter",
+                      "name": {
+                        "kind": "Identifier",
+                        "text": "this"
+                      },
+                      "type": {
+                        "kind": "TypeReference",
+                        "typeName": {
+                          "kind": "Identifier",
+                          "text": "WorkerGlobalScope"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "Parameter",
+                      "name": {
+                        "kind": "Identifier",
+                        "text": "ev"
+                      },
+                      "type": {
+                        "kind": "TypeReference",
+                        "typeName": {
+                          "kind": "Identifier",
+                          "text": "ErrorEvent"
+                        }
+                      }
+                    }
+                  ],
+                  "type": {
+                    "kind": "AnyKeyword"
+                  }
+                }
+              },
+              {
+                "kind": "LiteralType",
+                "literal": {
+                  "kind": "NullKeyword"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "onunhandledrejection"
+          },
+          "type": {
+            "kind": "UnionType",
+            "types": [
+              {
+                "kind": "ParenthesizedType",
+                "type": {
+                  "kind": "FunctionType",
+                  "parameters": [
+                    {
+                      "kind": "Parameter",
+                      "name": {
+                        "kind": "Identifier",
+                        "text": "this"
+                      },
+                      "type": {
+                        "kind": "TypeReference",
+                        "typeName": {
+                          "kind": "Identifier",
+                          "text": "WorkerGlobalScope"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "Parameter",
+                      "name": {
+                        "kind": "Identifier",
+                        "text": "ev"
+                      },
+                      "type": {
+                        "kind": "TypeReference",
+                        "typeName": {
+                          "kind": "Identifier",
+                          "text": "PromiseRejectionEvent"
+                        }
+                      }
+                    }
+                  ],
+                  "type": {
+                    "kind": "AnyKeyword"
+                  }
+                }
+              },
+              {
+                "kind": "LiteralType",
+                "literal": {
+                  "kind": "NullKeyword"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "modifiers": [
+            {
+              "kind": "ReadonlyKeyword"
+            }
+          ],
+          "name": {
+            "kind": "Identifier",
+            "text": "self"
+          },
+          "type": {
+            "kind": "IntersectionType",
+            "types": [
+              {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "WorkerGlobalScope"
+                }
+              },
+              {
+                "exprName": {
+                  "kind": "Identifier",
+                  "text": "globalThis"
+                },
+                "kind": "TypeQuery"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "addEventListener"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "type"
+              },
+              "type": {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "K"
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "listener"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "this"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "WorkerGlobalScope"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "ev"
+                    },
+                    "type": {
+                      "indexType": {
+                        "kind": "TypeReference",
+                        "typeName": {
+                          "kind": "Identifier",
+                          "text": "K"
+                        }
+                      },
+                      "kind": "IndexedAccessType",
+                      "objectType": {
+                        "kind": "TypeReference",
+                        "typeName": {
+                          "kind": "Identifier",
+                          "text": "WorkerGlobalScopeEventMap"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "AnyKeyword"
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "options"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "UnionType",
+                "types": [
+                  {
+                    "kind": "BooleanKeyword"
+                  },
+                  {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "AddEventListenerOptions"
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "type": {
+            "kind": "VoidKeyword"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "addEventListener"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "type"
+              },
+              "type": {
+                "kind": "StringKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "listener"
+              },
+              "type": {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "EventListenerOrEventListenerObject"
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "options"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "UnionType",
+                "types": [
+                  {
+                    "kind": "BooleanKeyword"
+                  },
+                  {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "AddEventListenerOptions"
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "type": {
+            "kind": "VoidKeyword"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "removeEventListener"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "type"
+              },
+              "type": {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "K"
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "listener"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "this"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "WorkerGlobalScope"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "ev"
+                    },
+                    "type": {
+                      "indexType": {
+                        "kind": "TypeReference",
+                        "typeName": {
+                          "kind": "Identifier",
+                          "text": "K"
+                        }
+                      },
+                      "kind": "IndexedAccessType",
+                      "objectType": {
+                        "kind": "TypeReference",
+                        "typeName": {
+                          "kind": "Identifier",
+                          "text": "WorkerGlobalScopeEventMap"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "AnyKeyword"
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "options"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "UnionType",
+                "types": [
+                  {
+                    "kind": "BooleanKeyword"
+                  },
+                  {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "EventListenerOptions"
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "type": {
+            "kind": "VoidKeyword"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "removeEventListener"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "type"
+              },
+              "type": {
+                "kind": "StringKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "listener"
+              },
+              "type": {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "EventListenerOrEventListenerObject"
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "options"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "UnionType",
+                "types": [
+                  {
+                    "kind": "BooleanKeyword"
+                  },
+                  {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "EventListenerOptions"
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "type": {
+            "kind": "VoidKeyword"
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "Deno"
+          },
+          "type": {
+            "exprName": {
+              "kind": "Identifier",
+              "text": "Deno"
+            },
+            "kind": "TypeQuery"
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "caches"
+          },
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "CacheStorage"
+            }
+          }
+        }
+      ],
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "WorkerGlobalScope"
+      }
+    },
+    {
+      "declarationList": {
+        "declarations": [
+          {
+            "kind": "VariableDeclaration",
+            "name": {
+              "kind": "Identifier",
+              "text": "WorkerGlobalScope"
+            },
+            "type": {
+              "kind": "TypeLiteral",
+              "members": [
+                {
+                  "kind": "PropertySignature",
+                  "modifiers": [
+                    {
+                      "kind": "ReadonlyKeyword"
+                    }
+                  ],
+                  "name": {
+                    "kind": "Identifier",
+                    "text": "prototype"
+                  },
+                  "type": {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "WorkerGlobalScope"
+                    }
+                  }
+                },
+                {
+                  "kind": "ConstructSignature",
+                  "parameters": [],
+                  "type": {
+                    "kind": "NeverKeyword"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "kind": "VariableDeclarationList"
+      },
+      "kind": "FirstStatement",
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ]
+    },
+    {
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "PropertySignature",
+          "modifiers": [
+            {
+              "kind": "ReadonlyKeyword"
+            }
+          ],
+          "name": {
+            "kind": "Identifier",
+            "text": "gpu"
+          },
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "GPU"
+            }
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "modifiers": [
+            {
+              "kind": "ReadonlyKeyword"
+            }
+          ],
+          "name": {
+            "kind": "Identifier",
+            "text": "hardwareConcurrency"
+          },
+          "type": {
+            "kind": "NumberKeyword"
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "modifiers": [
+            {
+              "kind": "ReadonlyKeyword"
+            }
+          ],
+          "name": {
+            "kind": "Identifier",
+            "text": "userAgent"
+          },
+          "type": {
+            "kind": "StringKeyword"
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "modifiers": [
+            {
+              "kind": "ReadonlyKeyword"
+            }
+          ],
+          "name": {
+            "kind": "Identifier",
+            "text": "language"
+          },
+          "type": {
+            "kind": "StringKeyword"
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "modifiers": [
+            {
+              "kind": "ReadonlyKeyword"
+            }
+          ],
+          "name": {
+            "kind": "Identifier",
+            "text": "languages"
+          },
+          "type": {
+            "elementType": {
+              "kind": "StringKeyword"
+            },
+            "kind": "ArrayType"
+          }
+        }
+      ],
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "WorkerNavigator"
+      }
+    },
+    {
+      "declarationList": {
+        "declarations": [
+          {
+            "kind": "VariableDeclaration",
+            "name": {
+              "kind": "Identifier",
+              "text": "WorkerNavigator"
+            },
+            "type": {
+              "kind": "TypeLiteral",
+              "members": [
+                {
+                  "kind": "PropertySignature",
+                  "modifiers": [
+                    {
+                      "kind": "ReadonlyKeyword"
+                    }
+                  ],
+                  "name": {
+                    "kind": "Identifier",
+                    "text": "prototype"
+                  },
+                  "type": {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "WorkerNavigator"
+                    }
+                  }
+                },
+                {
+                  "kind": "ConstructSignature",
+                  "parameters": [],
+                  "type": {
+                    "kind": "NeverKeyword"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "kind": "VariableDeclarationList"
+      },
+      "kind": "FirstStatement",
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ]
+    },
+    {
+      "declarationList": {
+        "declarations": [
+          {
+            "kind": "VariableDeclaration",
+            "name": {
+              "kind": "Identifier",
+              "text": "navigator"
+            },
+            "type": {
+              "kind": "TypeReference",
+              "typeName": {
+                "kind": "Identifier",
+                "text": "WorkerNavigator"
+              }
+            }
+          }
+        ],
+        "kind": "VariableDeclarationList"
+      },
+      "kind": "FirstStatement",
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ]
+    },
+    {
+      "heritageClauses": [
+        {
+          "kind": "HeritageClause",
+          "token": "ExtendsKeyword",
+          "types": [
+            {
+              "expression": {
+                "kind": "Identifier",
+                "text": "WorkerGlobalScopeEventMap"
+              },
+              "kind": "ExpressionWithTypeArguments"
+            }
+          ]
+        }
+      ],
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "StringLiteral",
+            "text": "message"
+          },
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "MessageEvent"
+            }
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "StringLiteral",
+            "text": "messageerror"
+          },
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "MessageEvent"
+            }
+          }
+        }
+      ],
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "DedicatedWorkerGlobalScopeEventMap"
+      }
+    },
+    {
+      "heritageClauses": [
+        {
+          "kind": "HeritageClause",
+          "token": "ExtendsKeyword",
+          "types": [
+            {
+              "expression": {
+                "kind": "Identifier",
+                "text": "WorkerGlobalScope"
+              },
+              "kind": "ExpressionWithTypeArguments"
+            }
+          ]
+        }
+      ],
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "PropertySignature",
+          "modifiers": [
+            {
+              "kind": "ReadonlyKeyword"
+            }
+          ],
+          "name": {
+            "kind": "Identifier",
+            "text": "name"
+          },
+          "type": {
+            "kind": "StringKeyword"
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "onmessage"
+          },
+          "type": {
+            "kind": "UnionType",
+            "types": [
+              {
+                "kind": "ParenthesizedType",
+                "type": {
+                  "kind": "FunctionType",
+                  "parameters": [
+                    {
+                      "kind": "Parameter",
+                      "name": {
+                        "kind": "Identifier",
+                        "text": "this"
+                      },
+                      "type": {
+                        "kind": "TypeReference",
+                        "typeName": {
+                          "kind": "Identifier",
+                          "text": "DedicatedWorkerGlobalScope"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "Parameter",
+                      "name": {
+                        "kind": "Identifier",
+                        "text": "ev"
+                      },
+                      "type": {
+                        "kind": "TypeReference",
+                        "typeName": {
+                          "kind": "Identifier",
+                          "text": "MessageEvent"
+                        }
+                      }
+                    }
+                  ],
+                  "type": {
+                    "kind": "AnyKeyword"
+                  }
+                }
+              },
+              {
+                "kind": "LiteralType",
+                "literal": {
+                  "kind": "NullKeyword"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "onmessageerror"
+          },
+          "type": {
+            "kind": "UnionType",
+            "types": [
+              {
+                "kind": "ParenthesizedType",
+                "type": {
+                  "kind": "FunctionType",
+                  "parameters": [
+                    {
+                      "kind": "Parameter",
+                      "name": {
+                        "kind": "Identifier",
+                        "text": "this"
+                      },
+                      "type": {
+                        "kind": "TypeReference",
+                        "typeName": {
+                          "kind": "Identifier",
+                          "text": "DedicatedWorkerGlobalScope"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "Parameter",
+                      "name": {
+                        "kind": "Identifier",
+                        "text": "ev"
+                      },
+                      "type": {
+                        "kind": "TypeReference",
+                        "typeName": {
+                          "kind": "Identifier",
+                          "text": "MessageEvent"
+                        }
+                      }
+                    }
+                  ],
+                  "type": {
+                    "kind": "AnyKeyword"
+                  }
+                }
+              },
+              {
+                "kind": "LiteralType",
+                "literal": {
+                  "kind": "NullKeyword"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "close"
+          },
+          "parameters": [],
+          "type": {
+            "kind": "VoidKeyword"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "postMessage"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "message"
+              },
+              "type": {
+                "kind": "AnyKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "transfer"
+              },
+              "type": {
+                "elementType": {
+                  "kind": "TypeReference",
+                  "typeName": {
+                    "kind": "Identifier",
+                    "text": "Transferable"
+                  }
+                },
+                "kind": "ArrayType"
+              }
+            }
+          ],
+          "type": {
+            "kind": "VoidKeyword"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "postMessage"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "message"
+              },
+              "type": {
+                "kind": "AnyKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "options"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "StructuredSerializeOptions"
+                }
+              }
+            }
+          ],
+          "type": {
+            "kind": "VoidKeyword"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "addEventListener"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "type"
+              },
+              "type": {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "K"
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "listener"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "this"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "DedicatedWorkerGlobalScope"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "ev"
+                    },
+                    "type": {
+                      "indexType": {
+                        "kind": "TypeReference",
+                        "typeName": {
+                          "kind": "Identifier",
+                          "text": "K"
+                        }
+                      },
+                      "kind": "IndexedAccessType",
+                      "objectType": {
+                        "kind": "TypeReference",
+                        "typeName": {
+                          "kind": "Identifier",
+                          "text": "DedicatedWorkerGlobalScopeEventMap"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "AnyKeyword"
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "options"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "UnionType",
+                "types": [
+                  {
+                    "kind": "BooleanKeyword"
+                  },
+                  {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "AddEventListenerOptions"
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "type": {
+            "kind": "VoidKeyword"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "addEventListener"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "type"
+              },
+              "type": {
+                "kind": "StringKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "listener"
+              },
+              "type": {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "EventListenerOrEventListenerObject"
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "options"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "UnionType",
+                "types": [
+                  {
+                    "kind": "BooleanKeyword"
+                  },
+                  {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "AddEventListenerOptions"
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "type": {
+            "kind": "VoidKeyword"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "removeEventListener"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "type"
+              },
+              "type": {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "K"
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "listener"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "this"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "DedicatedWorkerGlobalScope"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "ev"
+                    },
+                    "type": {
+                      "indexType": {
+                        "kind": "TypeReference",
+                        "typeName": {
+                          "kind": "Identifier",
+                          "text": "K"
+                        }
+                      },
+                      "kind": "IndexedAccessType",
+                      "objectType": {
+                        "kind": "TypeReference",
+                        "typeName": {
+                          "kind": "Identifier",
+                          "text": "DedicatedWorkerGlobalScopeEventMap"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "AnyKeyword"
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "options"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "UnionType",
+                "types": [
+                  {
+                    "kind": "BooleanKeyword"
+                  },
+                  {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "EventListenerOptions"
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "type": {
+            "kind": "VoidKeyword"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "removeEventListener"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "type"
+              },
+              "type": {
+                "kind": "StringKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "listener"
+              },
+              "type": {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "EventListenerOrEventListenerObject"
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "options"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "UnionType",
+                "types": [
+                  {
+                    "kind": "BooleanKeyword"
+                  },
+                  {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "EventListenerOptions"
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "type": {
+            "kind": "VoidKeyword"
+          }
+        }
+      ],
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "DedicatedWorkerGlobalScope"
+      }
+    },
+    {
+      "declarationList": {
+        "declarations": [
+          {
+            "kind": "VariableDeclaration",
+            "name": {
+              "kind": "Identifier",
+              "text": "DedicatedWorkerGlobalScope"
+            },
+            "type": {
+              "kind": "TypeLiteral",
+              "members": [
+                {
+                  "kind": "PropertySignature",
+                  "modifiers": [
+                    {
+                      "kind": "ReadonlyKeyword"
+                    }
+                  ],
+                  "name": {
+                    "kind": "Identifier",
+                    "text": "prototype"
+                  },
+                  "type": {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "DedicatedWorkerGlobalScope"
+                    }
+                  }
+                },
+                {
+                  "kind": "ConstructSignature",
+                  "parameters": [],
+                  "type": {
+                    "kind": "NeverKeyword"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "kind": "VariableDeclarationList"
+      },
+      "kind": "FirstStatement",
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ]
+    },
+    {
+      "declarationList": {
+        "declarations": [
+          {
+            "kind": "VariableDeclaration",
+            "name": {
+              "kind": "Identifier",
+              "text": "name"
+            },
+            "type": {
+              "kind": "StringKeyword"
+            }
+          }
+        ],
+        "kind": "VariableDeclarationList"
+      },
+      "kind": "FirstStatement",
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ]
+    },
+    {
+      "declarationList": {
+        "declarations": [
+          {
+            "kind": "VariableDeclaration",
+            "name": {
+              "kind": "Identifier",
+              "text": "onmessage"
+            },
+            "type": {
+              "kind": "UnionType",
+              "types": [
+                {
+                  "kind": "ParenthesizedType",
+                  "type": {
+                    "kind": "FunctionType",
+                    "parameters": [
+                      {
+                        "kind": "Parameter",
+                        "name": {
+                          "kind": "Identifier",
+                          "text": "this"
+                        },
+                        "type": {
+                          "kind": "TypeReference",
+                          "typeName": {
+                            "kind": "Identifier",
+                            "text": "DedicatedWorkerGlobalScope"
+                          }
+                        }
+                      },
+                      {
+                        "kind": "Parameter",
+                        "name": {
+                          "kind": "Identifier",
+                          "text": "ev"
+                        },
+                        "type": {
+                          "kind": "TypeReference",
+                          "typeName": {
+                            "kind": "Identifier",
+                            "text": "MessageEvent"
+                          }
+                        }
+                      }
+                    ],
+                    "type": {
+                      "kind": "AnyKeyword"
+                    }
+                  }
+                },
+                {
+                  "kind": "LiteralType",
+                  "literal": {
+                    "kind": "NullKeyword"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "kind": "VariableDeclarationList"
+      },
+      "kind": "FirstStatement",
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ]
+    },
+    {
+      "declarationList": {
+        "declarations": [
+          {
+            "kind": "VariableDeclaration",
+            "name": {
+              "kind": "Identifier",
+              "text": "onmessageerror"
+            },
+            "type": {
+              "kind": "UnionType",
+              "types": [
+                {
+                  "kind": "ParenthesizedType",
+                  "type": {
+                    "kind": "FunctionType",
+                    "parameters": [
+                      {
+                        "kind": "Parameter",
+                        "name": {
+                          "kind": "Identifier",
+                          "text": "this"
+                        },
+                        "type": {
+                          "kind": "TypeReference",
+                          "typeName": {
+                            "kind": "Identifier",
+                            "text": "DedicatedWorkerGlobalScope"
+                          }
+                        }
+                      },
+                      {
+                        "kind": "Parameter",
+                        "name": {
+                          "kind": "Identifier",
+                          "text": "ev"
+                        },
+                        "type": {
+                          "kind": "TypeReference",
+                          "typeName": {
+                            "kind": "Identifier",
+                            "text": "MessageEvent"
+                          }
+                        }
+                      }
+                    ],
+                    "type": {
+                      "kind": "AnyKeyword"
+                    }
+                  }
+                },
+                {
+                  "kind": "LiteralType",
+                  "literal": {
+                    "kind": "NullKeyword"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "kind": "VariableDeclarationList"
+      },
+      "kind": "FirstStatement",
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ]
+    },
+    {
+      "kind": "FunctionDeclaration",
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "close"
+      },
+      "parameters": [],
+      "type": {
+        "kind": "VoidKeyword"
+      }
+    },
+    {
+      "kind": "FunctionDeclaration",
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "postMessage"
+      },
+      "parameters": [
+        {
+          "kind": "Parameter",
+          "name": {
+            "kind": "Identifier",
+            "text": "message"
+          },
+          "type": {
+            "kind": "AnyKeyword"
+          }
+        },
+        {
+          "kind": "Parameter",
+          "name": {
+            "kind": "Identifier",
+            "text": "transfer"
+          },
+          "type": {
+            "elementType": {
+              "kind": "TypeReference",
+              "typeName": {
+                "kind": "Identifier",
+                "text": "Transferable"
+              }
+            },
+            "kind": "ArrayType"
+          }
+        }
+      ],
+      "type": {
+        "kind": "VoidKeyword"
+      }
+    },
+    {
+      "kind": "FunctionDeclaration",
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "postMessage"
+      },
+      "parameters": [
+        {
+          "kind": "Parameter",
+          "name": {
+            "kind": "Identifier",
+            "text": "message"
+          },
+          "type": {
+            "kind": "AnyKeyword"
+          }
+        },
+        {
+          "kind": "Parameter",
+          "name": {
+            "kind": "Identifier",
+            "text": "options"
+          },
+          "questionToken": {
+            "kind": "QuestionToken"
+          },
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "StructuredSerializeOptions"
+            }
+          }
+        }
+      ],
+      "type": {
+        "kind": "VoidKeyword"
+      }
+    },
+    {
+      "declarationList": {
+        "declarations": [
+          {
+            "kind": "VariableDeclaration",
+            "name": {
+              "kind": "Identifier",
+              "text": "navigator"
+            },
+            "type": {
+              "kind": "TypeReference",
+              "typeName": {
+                "kind": "Identifier",
+                "text": "WorkerNavigator"
+              }
+            }
+          }
+        ],
+        "kind": "VariableDeclarationList"
+      },
+      "kind": "FirstStatement",
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ]
+    },
+    {
+      "declarationList": {
+        "declarations": [
+          {
+            "kind": "VariableDeclaration",
+            "name": {
+              "kind": "Identifier",
+              "text": "onerror"
+            },
+            "type": {
+              "kind": "UnionType",
+              "types": [
+                {
+                  "kind": "ParenthesizedType",
+                  "type": {
+                    "kind": "FunctionType",
+                    "parameters": [
+                      {
+                        "kind": "Parameter",
+                        "name": {
+                          "kind": "Identifier",
+                          "text": "this"
+                        },
+                        "type": {
+                          "kind": "TypeReference",
+                          "typeName": {
+                            "kind": "Identifier",
+                            "text": "DedicatedWorkerGlobalScope"
+                          }
+                        }
+                      },
+                      {
+                        "kind": "Parameter",
+                        "name": {
+                          "kind": "Identifier",
+                          "text": "ev"
+                        },
+                        "type": {
+                          "kind": "TypeReference",
+                          "typeName": {
+                            "kind": "Identifier",
+                            "text": "ErrorEvent"
+                          }
+                        }
+                      }
+                    ],
+                    "type": {
+                      "kind": "AnyKeyword"
+                    }
+                  }
+                },
+                {
+                  "kind": "LiteralType",
+                  "literal": {
+                    "kind": "NullKeyword"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "kind": "VariableDeclarationList"
+      },
+      "kind": "FirstStatement",
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ]
+    },
+    {
+      "declarationList": {
+        "declarations": [
+          {
+            "kind": "VariableDeclaration",
+            "name": {
+              "kind": "Identifier",
+              "text": "onunhandledrejection"
+            },
+            "type": {
+              "kind": "UnionType",
+              "types": [
+                {
+                  "kind": "ParenthesizedType",
+                  "type": {
+                    "kind": "FunctionType",
+                    "parameters": [
+                      {
+                        "kind": "Parameter",
+                        "name": {
+                          "kind": "Identifier",
+                          "text": "this"
+                        },
+                        "type": {
+                          "kind": "TypeReference",
+                          "typeName": {
+                            "kind": "Identifier",
+                            "text": "DedicatedWorkerGlobalScope"
+                          }
+                        }
+                      },
+                      {
+                        "kind": "Parameter",
+                        "name": {
+                          "kind": "Identifier",
+                          "text": "ev"
+                        },
+                        "type": {
+                          "kind": "TypeReference",
+                          "typeName": {
+                            "kind": "Identifier",
+                            "text": "PromiseRejectionEvent"
+                          }
+                        }
+                      }
+                    ],
+                    "type": {
+                      "kind": "AnyKeyword"
+                    }
+                  }
+                },
+                {
+                  "kind": "LiteralType",
+                  "literal": {
+                    "kind": "NullKeyword"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "kind": "VariableDeclarationList"
+      },
+      "kind": "FirstStatement",
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ]
+    },
+    {
+      "declarationList": {
+        "declarations": [
+          {
+            "kind": "VariableDeclaration",
+            "name": {
+              "kind": "Identifier",
+              "text": "self"
+            },
+            "type": {
+              "kind": "IntersectionType",
+              "types": [
+                {
+                  "kind": "TypeReference",
+                  "typeName": {
+                    "kind": "Identifier",
+                    "text": "WorkerGlobalScope"
+                  }
+                },
+                {
+                  "exprName": {
+                    "kind": "Identifier",
+                    "text": "globalThis"
+                  },
+                  "kind": "TypeQuery"
+                }
+              ]
+            }
+          }
+        ],
+        "kind": "VariableDeclarationList"
+      },
+      "kind": "FirstStatement",
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ]
+    },
+    {
+      "kind": "FunctionDeclaration",
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "addEventListener"
+      },
+      "parameters": [
+        {
+          "kind": "Parameter",
+          "name": {
+            "kind": "Identifier",
+            "text": "type"
+          },
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "K"
+            }
+          }
+        },
+        {
+          "kind": "Parameter",
+          "name": {
+            "kind": "Identifier",
+            "text": "listener"
+          },
+          "type": {
+            "kind": "FunctionType",
+            "parameters": [
+              {
+                "kind": "Parameter",
+                "name": {
+                  "kind": "Identifier",
+                  "text": "this"
+                },
+                "type": {
+                  "kind": "TypeReference",
+                  "typeName": {
+                    "kind": "Identifier",
+                    "text": "DedicatedWorkerGlobalScope"
+                  }
+                }
+              },
+              {
+                "kind": "Parameter",
+                "name": {
+                  "kind": "Identifier",
+                  "text": "ev"
+                },
+                "type": {
+                  "indexType": {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "K"
+                    }
+                  },
+                  "kind": "IndexedAccessType",
+                  "objectType": {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "DedicatedWorkerGlobalScopeEventMap"
+                    }
+                  }
+                }
+              }
+            ],
+            "type": {
+              "kind": "AnyKeyword"
+            }
+          }
+        },
+        {
+          "kind": "Parameter",
+          "name": {
+            "kind": "Identifier",
+            "text": "options"
+          },
+          "questionToken": {
+            "kind": "QuestionToken"
+          },
+          "type": {
+            "kind": "UnionType",
+            "types": [
+              {
+                "kind": "BooleanKeyword"
+              },
+              {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "AddEventListenerOptions"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "type": {
+        "kind": "VoidKeyword"
+      }
+    },
+    {
+      "kind": "FunctionDeclaration",
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "addEventListener"
+      },
+      "parameters": [
+        {
+          "kind": "Parameter",
+          "name": {
+            "kind": "Identifier",
+            "text": "type"
+          },
+          "type": {
+            "kind": "StringKeyword"
+          }
+        },
+        {
+          "kind": "Parameter",
+          "name": {
+            "kind": "Identifier",
+            "text": "listener"
+          },
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "EventListenerOrEventListenerObject"
+            }
+          }
+        },
+        {
+          "kind": "Parameter",
+          "name": {
+            "kind": "Identifier",
+            "text": "options"
+          },
+          "questionToken": {
+            "kind": "QuestionToken"
+          },
+          "type": {
+            "kind": "UnionType",
+            "types": [
+              {
+                "kind": "BooleanKeyword"
+              },
+              {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "AddEventListenerOptions"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "type": {
+        "kind": "VoidKeyword"
+      }
+    },
+    {
+      "kind": "FunctionDeclaration",
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "removeEventListener"
+      },
+      "parameters": [
+        {
+          "kind": "Parameter",
+          "name": {
+            "kind": "Identifier",
+            "text": "type"
+          },
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "K"
+            }
+          }
+        },
+        {
+          "kind": "Parameter",
+          "name": {
+            "kind": "Identifier",
+            "text": "listener"
+          },
+          "type": {
+            "kind": "FunctionType",
+            "parameters": [
+              {
+                "kind": "Parameter",
+                "name": {
+                  "kind": "Identifier",
+                  "text": "this"
+                },
+                "type": {
+                  "kind": "TypeReference",
+                  "typeName": {
+                    "kind": "Identifier",
+                    "text": "DedicatedWorkerGlobalScope"
+                  }
+                }
+              },
+              {
+                "kind": "Parameter",
+                "name": {
+                  "kind": "Identifier",
+                  "text": "ev"
+                },
+                "type": {
+                  "indexType": {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "K"
+                    }
+                  },
+                  "kind": "IndexedAccessType",
+                  "objectType": {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "DedicatedWorkerGlobalScopeEventMap"
+                    }
+                  }
+                }
+              }
+            ],
+            "type": {
+              "kind": "AnyKeyword"
+            }
+          }
+        },
+        {
+          "kind": "Parameter",
+          "name": {
+            "kind": "Identifier",
+            "text": "options"
+          },
+          "questionToken": {
+            "kind": "QuestionToken"
+          },
+          "type": {
+            "kind": "UnionType",
+            "types": [
+              {
+                "kind": "BooleanKeyword"
+              },
+              {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "EventListenerOptions"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "type": {
+        "kind": "VoidKeyword"
+      }
+    },
+    {
+      "kind": "FunctionDeclaration",
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "removeEventListener"
+      },
+      "parameters": [
+        {
+          "kind": "Parameter",
+          "name": {
+            "kind": "Identifier",
+            "text": "type"
+          },
+          "type": {
+            "kind": "StringKeyword"
+          }
+        },
+        {
+          "kind": "Parameter",
+          "name": {
+            "kind": "Identifier",
+            "text": "listener"
+          },
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "EventListenerOrEventListenerObject"
+            }
+          }
+        },
+        {
+          "kind": "Parameter",
+          "name": {
+            "kind": "Identifier",
+            "text": "options"
+          },
+          "questionToken": {
+            "kind": "QuestionToken"
+          },
+          "type": {
+            "kind": "UnionType",
+            "types": [
+              {
+                "kind": "BooleanKeyword"
+              },
+              {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "EventListenerOptions"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "type": {
+        "kind": "VoidKeyword"
+      }
+    },
+    {
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "PropertySignature",
+          "modifiers": [
+            {
+              "kind": "ReadonlyKeyword"
+            }
+          ],
+          "name": {
+            "kind": "Identifier",
+            "text": "hash"
+          },
+          "type": {
+            "kind": "StringKeyword"
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "modifiers": [
+            {
+              "kind": "ReadonlyKeyword"
+            }
+          ],
+          "name": {
+            "kind": "Identifier",
+            "text": "host"
+          },
+          "type": {
+            "kind": "StringKeyword"
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "modifiers": [
+            {
+              "kind": "ReadonlyKeyword"
+            }
+          ],
+          "name": {
+            "kind": "Identifier",
+            "text": "hostname"
+          },
+          "type": {
+            "kind": "StringKeyword"
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "modifiers": [
+            {
+              "kind": "ReadonlyKeyword"
+            }
+          ],
+          "name": {
+            "kind": "Identifier",
+            "text": "href"
+          },
+          "type": {
+            "kind": "StringKeyword"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "toString"
+          },
+          "parameters": [],
+          "type": {
+            "kind": "StringKeyword"
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "modifiers": [
+            {
+              "kind": "ReadonlyKeyword"
+            }
+          ],
+          "name": {
+            "kind": "Identifier",
+            "text": "origin"
+          },
+          "type": {
+            "kind": "StringKeyword"
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "modifiers": [
+            {
+              "kind": "ReadonlyKeyword"
+            }
+          ],
+          "name": {
+            "kind": "Identifier",
+            "text": "pathname"
+          },
+          "type": {
+            "kind": "StringKeyword"
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "modifiers": [
+            {
+              "kind": "ReadonlyKeyword"
+            }
+          ],
+          "name": {
+            "kind": "Identifier",
+            "text": "port"
+          },
+          "type": {
+            "kind": "StringKeyword"
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "modifiers": [
+            {
+              "kind": "ReadonlyKeyword"
+            }
+          ],
+          "name": {
+            "kind": "Identifier",
+            "text": "protocol"
+          },
+          "type": {
+            "kind": "StringKeyword"
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "modifiers": [
+            {
+              "kind": "ReadonlyKeyword"
+            }
+          ],
+          "name": {
+            "kind": "Identifier",
+            "text": "search"
+          },
+          "type": {
+            "kind": "StringKeyword"
+          }
+        }
+      ],
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "WorkerLocation"
+      }
+    },
+    {
+      "declarationList": {
+        "declarations": [
+          {
+            "kind": "VariableDeclaration",
+            "name": {
+              "kind": "Identifier",
+              "text": "WorkerLocation"
+            },
+            "type": {
+              "kind": "TypeLiteral",
+              "members": [
+                {
+                  "kind": "PropertySignature",
+                  "modifiers": [
+                    {
+                      "kind": "ReadonlyKeyword"
+                    }
+                  ],
+                  "name": {
+                    "kind": "Identifier",
+                    "text": "prototype"
+                  },
+                  "type": {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "WorkerLocation"
+                    }
+                  }
+                },
+                {
+                  "kind": "ConstructSignature",
+                  "parameters": [],
+                  "type": {
+                    "kind": "NeverKeyword"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "kind": "VariableDeclarationList"
+      },
+      "kind": "FirstStatement",
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ]
+    },
+    {
+      "declarationList": {
+        "declarations": [
+          {
+            "kind": "VariableDeclaration",
+            "name": {
+              "kind": "Identifier",
+              "text": "location"
+            },
+            "type": {
+              "kind": "TypeReference",
+              "typeName": {
+                "kind": "Identifier",
+                "text": "WorkerLocation"
+              }
+            }
+          }
+        ],
+        "kind": "VariableDeclarationList"
+      },
+      "kind": "FirstStatement",
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ]
+    }
+  ],
+  "text": "// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.\n\n/// <reference no-default-lib=\"true\" />\n/// <reference lib=\"deno.ns\" />\n/// <reference lib=\"deno.shared_globals\" />\n/// <reference lib=\"esnext\" />\n/// <reference lib=\"deno.cache\" />\n\n/** @category Workers */\ndeclare interface WorkerGlobalScopeEventMap {\n  \"error\": ErrorEvent;\n  \"unhandledrejection\": PromiseRejectionEvent;\n}\n\n/** @category Workers */\ndeclare interface WorkerGlobalScope extends EventTarget {\n  readonly location: WorkerLocation;\n  readonly navigator: WorkerNavigator;\n  onerror: ((this: WorkerGlobalScope, ev: ErrorEvent) => any) | null;\n  onunhandledrejection:\n    | ((this: WorkerGlobalScope, ev: PromiseRejectionEvent) => any)\n    | null;\n\n  readonly self: WorkerGlobalScope & typeof globalThis;\n\n  addEventListener<K extends keyof WorkerGlobalScopeEventMap>(\n    type: K,\n    listener: (\n      this: WorkerGlobalScope,\n      ev: WorkerGlobalScopeEventMap[K],\n    ) => any,\n    options?: boolean | AddEventListenerOptions,\n  ): void;\n  addEventListener(\n    type: string,\n    listener: EventListenerOrEventListenerObject,\n    options?: boolean | AddEventListenerOptions,\n  ): void;\n  removeEventListener<K extends keyof WorkerGlobalScopeEventMap>(\n    type: K,\n    listener: (\n      this: WorkerGlobalScope,\n      ev: WorkerGlobalScopeEventMap[K],\n    ) => any,\n    options?: boolean | EventListenerOptions,\n  ): void;\n  removeEventListener(\n    type: string,\n    listener: EventListenerOrEventListenerObject,\n    options?: boolean | EventListenerOptions,\n  ): void;\n\n  Deno: typeof Deno;\n  caches: CacheStorage;\n}\n\n/** @category Workers */\ndeclare var WorkerGlobalScope: {\n  readonly prototype: WorkerGlobalScope;\n  new (): never;\n};\n\n/** @category Platform */\ndeclare interface WorkerNavigator {\n  readonly gpu: GPU;\n  readonly hardwareConcurrency: number;\n  readonly userAgent: string;\n  readonly language: string;\n  readonly languages: string[];\n}\n\n/** @category Platform */\ndeclare var WorkerNavigator: {\n  readonly prototype: WorkerNavigator;\n  new (): never;\n};\n\n/** @category Platform */\ndeclare var navigator: WorkerNavigator;\n\n/** @category Workers */\ndeclare interface DedicatedWorkerGlobalScopeEventMap\n  extends WorkerGlobalScopeEventMap {\n  \"message\": MessageEvent;\n  \"messageerror\": MessageEvent;\n}\n\n/** @category Platform */\ndeclare interface DedicatedWorkerGlobalScope extends WorkerGlobalScope {\n  readonly name: string;\n  onmessage:\n    | ((this: DedicatedWorkerGlobalScope, ev: MessageEvent) => any)\n    | null;\n  onmessageerror:\n    | ((this: DedicatedWorkerGlobalScope, ev: MessageEvent) => any)\n    | null;\n  close(): void;\n  postMessage(message: any, transfer: Transferable[]): void;\n  postMessage(message: any, options?: StructuredSerializeOptions): void;\n  addEventListener<K extends keyof DedicatedWorkerGlobalScopeEventMap>(\n    type: K,\n    listener: (\n      this: DedicatedWorkerGlobalScope,\n      ev: DedicatedWorkerGlobalScopeEventMap[K],\n    ) => any,\n    options?: boolean | AddEventListenerOptions,\n  ): void;\n  addEventListener(\n    type: string,\n    listener: EventListenerOrEventListenerObject,\n    options?: boolean | AddEventListenerOptions,\n  ): void;\n  removeEventListener<K extends keyof DedicatedWorkerGlobalScopeEventMap>(\n    type: K,\n    listener: (\n      this: DedicatedWorkerGlobalScope,\n      ev: DedicatedWorkerGlobalScopeEventMap[K],\n    ) => any,\n    options?: boolean | EventListenerOptions,\n  ): void;\n  removeEventListener(\n    type: string,\n    listener: EventListenerOrEventListenerObject,\n    options?: boolean | EventListenerOptions,\n  ): void;\n}\n\n/** @category Platform */\ndeclare var DedicatedWorkerGlobalScope: {\n  readonly prototype: DedicatedWorkerGlobalScope;\n  new (): never;\n};\n\n/** @category Workers */\ndeclare var name: string;\n/** @category Workers */\ndeclare var onmessage:\n  | ((this: DedicatedWorkerGlobalScope, ev: MessageEvent) => any)\n  | null;\n/** @category Workers */\ndeclare var onmessageerror:\n  | ((this: DedicatedWorkerGlobalScope, ev: MessageEvent) => any)\n  | null;\n/** @category Workers */\ndeclare function close(): void;\n/** @category Workers */\ndeclare function postMessage(message: any, transfer: Transferable[]): void;\n/** @category Workers */\ndeclare function postMessage(\n  message: any,\n  options?: StructuredSerializeOptions,\n): void;\n/** @category Platform */\ndeclare var navigator: WorkerNavigator;\n/** @category Platform */\ndeclare var onerror:\n  | ((this: DedicatedWorkerGlobalScope, ev: ErrorEvent) => any)\n  | null;\n/** @category Observability */\ndeclare var onunhandledrejection:\n  | ((this: DedicatedWorkerGlobalScope, ev: PromiseRejectionEvent) => any)\n  | null;\n/** @category Workers */\ndeclare var self: WorkerGlobalScope & typeof globalThis;\n/** @category Events */\ndeclare function addEventListener<\n  K extends keyof DedicatedWorkerGlobalScopeEventMap,\n>(\n  type: K,\n  listener: (\n    this: DedicatedWorkerGlobalScope,\n    ev: DedicatedWorkerGlobalScopeEventMap[K],\n  ) => any,\n  options?: boolean | AddEventListenerOptions,\n): void;\n/** @category Events */\ndeclare function addEventListener(\n  type: string,\n  listener: EventListenerOrEventListenerObject,\n  options?: boolean | AddEventListenerOptions,\n): void;\n/** @category Events */\ndeclare function removeEventListener<\n  K extends keyof DedicatedWorkerGlobalScopeEventMap,\n>(\n  type: K,\n  listener: (\n    this: DedicatedWorkerGlobalScope,\n    ev: DedicatedWorkerGlobalScopeEventMap[K],\n  ) => any,\n  options?: boolean | EventListenerOptions,\n): void;\n/** @category Events */\ndeclare function removeEventListener(\n  type: string,\n  listener: EventListenerOrEventListenerObject,\n  options?: boolean | EventListenerOptions,\n): void;\n\n// TODO(nayeemrmn): Move this to `extensions/web` where its implementation is.\n// The types there must first be split into window, worker and global types.\n/** The absolute location of the script executed by the Worker. Such an object\n * is initialized for each worker and is available via the\n * WorkerGlobalScope.location property obtained by calling self.location.\n *\n * @category Platform\n */\ndeclare interface WorkerLocation {\n  readonly hash: string;\n  readonly host: string;\n  readonly hostname: string;\n  readonly href: string;\n  toString(): string;\n  readonly origin: string;\n  readonly pathname: string;\n  readonly port: string;\n  readonly protocol: string;\n  readonly search: string;\n}\n\n// TODO(nayeemrmn): Move this to `extensions/web` where its implementation is.\n// The types there must first be split into window, worker and global types.\n/** The absolute location of the script executed by the Worker. Such an object\n * is initialized for each worker and is available via the\n * WorkerGlobalScope.location property obtained by calling self.location.\n *\n * @category Platform\n */\ndeclare var WorkerLocation: {\n  readonly prototype: WorkerLocation;\n  new (): never;\n};\n\n// TODO(nayeemrmn): Move this to `extensions/web` where its implementation is.\n// The types there must first be split into window, worker and global types.\n/** @category Platform */\ndeclare var location: WorkerLocation;\n",
+  "typeReferenceDirectives": []
+}

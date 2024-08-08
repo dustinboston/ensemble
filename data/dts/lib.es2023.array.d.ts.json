@@ -1,0 +1,5089 @@
+{
+  "endOfFileToken": {
+    "kind": "EndOfFileToken"
+  },
+  "fileName": "data/dts/lib.es2023.array.d.ts",
+  "hasNoDefaultLib": true,
+  "isDeclarationFile": true,
+  "kind": "SourceFile",
+  "libReferenceDirectives": [],
+  "referencedFiles": [],
+  "statements": [
+    {
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "findLast"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "predicate"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "value"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "T"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "index"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "array"
+                    },
+                    "type": {
+                      "elementType": {
+                        "kind": "TypeReference",
+                        "typeName": {
+                          "kind": "Identifier",
+                          "text": "T"
+                        }
+                      },
+                      "kind": "ArrayType"
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "FirstTypeNode",
+                  "parameterName": {
+                    "kind": "Identifier",
+                    "text": "value"
+                  },
+                  "type": {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "S"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "thisArg"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "AnyKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "UnionType",
+            "types": [
+              {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "S"
+                }
+              },
+              {
+                "kind": "UndefinedKeyword"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "findLast"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "predicate"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "value"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "T"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "index"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "array"
+                    },
+                    "type": {
+                      "elementType": {
+                        "kind": "TypeReference",
+                        "typeName": {
+                          "kind": "Identifier",
+                          "text": "T"
+                        }
+                      },
+                      "kind": "ArrayType"
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "UnknownKeyword"
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "thisArg"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "AnyKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "UnionType",
+            "types": [
+              {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "T"
+                }
+              },
+              {
+                "kind": "UndefinedKeyword"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "findLastIndex"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "predicate"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "value"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "T"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "index"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "array"
+                    },
+                    "type": {
+                      "elementType": {
+                        "kind": "TypeReference",
+                        "typeName": {
+                          "kind": "Identifier",
+                          "text": "T"
+                        }
+                      },
+                      "kind": "ArrayType"
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "UnknownKeyword"
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "thisArg"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "AnyKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "NumberKeyword"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "toReversed"
+          },
+          "parameters": [],
+          "type": {
+            "elementType": {
+              "kind": "TypeReference",
+              "typeName": {
+                "kind": "Identifier",
+                "text": "T"
+              }
+            },
+            "kind": "ArrayType"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "toSorted"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "compareFn"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "a"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "T"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "b"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "T"
+                      }
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "NumberKeyword"
+                }
+              }
+            }
+          ],
+          "type": {
+            "elementType": {
+              "kind": "TypeReference",
+              "typeName": {
+                "kind": "Identifier",
+                "text": "T"
+              }
+            },
+            "kind": "ArrayType"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "toSpliced"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "start"
+              },
+              "type": {
+                "kind": "NumberKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "deleteCount"
+              },
+              "type": {
+                "kind": "NumberKeyword"
+              }
+            },
+            {
+              "dotDotDotToken": {
+                "kind": "DotDotDotToken"
+              },
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "items"
+              },
+              "type": {
+                "elementType": {
+                  "kind": "TypeReference",
+                  "typeName": {
+                    "kind": "Identifier",
+                    "text": "T"
+                  }
+                },
+                "kind": "ArrayType"
+              }
+            }
+          ],
+          "type": {
+            "elementType": {
+              "kind": "TypeReference",
+              "typeName": {
+                "kind": "Identifier",
+                "text": "T"
+              }
+            },
+            "kind": "ArrayType"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "toSpliced"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "start"
+              },
+              "type": {
+                "kind": "NumberKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "deleteCount"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "NumberKeyword"
+              }
+            }
+          ],
+          "type": {
+            "elementType": {
+              "kind": "TypeReference",
+              "typeName": {
+                "kind": "Identifier",
+                "text": "T"
+              }
+            },
+            "kind": "ArrayType"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "with"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "index"
+              },
+              "type": {
+                "kind": "NumberKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "value"
+              },
+              "type": {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "T"
+                }
+              }
+            }
+          ],
+          "type": {
+            "elementType": {
+              "kind": "TypeReference",
+              "typeName": {
+                "kind": "Identifier",
+                "text": "T"
+              }
+            },
+            "kind": "ArrayType"
+          }
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "Array"
+      }
+    },
+    {
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "findLast"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "predicate"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "value"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "T"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "index"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "array"
+                    },
+                    "type": {
+                      "kind": "TypeOperator",
+                      "type": {
+                        "elementType": {
+                          "kind": "TypeReference",
+                          "typeName": {
+                            "kind": "Identifier",
+                            "text": "T"
+                          }
+                        },
+                        "kind": "ArrayType"
+                      }
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "FirstTypeNode",
+                  "parameterName": {
+                    "kind": "Identifier",
+                    "text": "value"
+                  },
+                  "type": {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "S"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "thisArg"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "AnyKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "UnionType",
+            "types": [
+              {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "S"
+                }
+              },
+              {
+                "kind": "UndefinedKeyword"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "findLast"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "predicate"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "value"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "T"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "index"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "array"
+                    },
+                    "type": {
+                      "kind": "TypeOperator",
+                      "type": {
+                        "elementType": {
+                          "kind": "TypeReference",
+                          "typeName": {
+                            "kind": "Identifier",
+                            "text": "T"
+                          }
+                        },
+                        "kind": "ArrayType"
+                      }
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "UnknownKeyword"
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "thisArg"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "AnyKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "UnionType",
+            "types": [
+              {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "T"
+                }
+              },
+              {
+                "kind": "UndefinedKeyword"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "findLastIndex"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "predicate"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "value"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "T"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "index"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "array"
+                    },
+                    "type": {
+                      "kind": "TypeOperator",
+                      "type": {
+                        "elementType": {
+                          "kind": "TypeReference",
+                          "typeName": {
+                            "kind": "Identifier",
+                            "text": "T"
+                          }
+                        },
+                        "kind": "ArrayType"
+                      }
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "UnknownKeyword"
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "thisArg"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "AnyKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "NumberKeyword"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "toReversed"
+          },
+          "parameters": [],
+          "type": {
+            "elementType": {
+              "kind": "TypeReference",
+              "typeName": {
+                "kind": "Identifier",
+                "text": "T"
+              }
+            },
+            "kind": "ArrayType"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "toSorted"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "compareFn"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "a"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "T"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "b"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "T"
+                      }
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "NumberKeyword"
+                }
+              }
+            }
+          ],
+          "type": {
+            "elementType": {
+              "kind": "TypeReference",
+              "typeName": {
+                "kind": "Identifier",
+                "text": "T"
+              }
+            },
+            "kind": "ArrayType"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "toSpliced"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "start"
+              },
+              "type": {
+                "kind": "NumberKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "deleteCount"
+              },
+              "type": {
+                "kind": "NumberKeyword"
+              }
+            },
+            {
+              "dotDotDotToken": {
+                "kind": "DotDotDotToken"
+              },
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "items"
+              },
+              "type": {
+                "elementType": {
+                  "kind": "TypeReference",
+                  "typeName": {
+                    "kind": "Identifier",
+                    "text": "T"
+                  }
+                },
+                "kind": "ArrayType"
+              }
+            }
+          ],
+          "type": {
+            "elementType": {
+              "kind": "TypeReference",
+              "typeName": {
+                "kind": "Identifier",
+                "text": "T"
+              }
+            },
+            "kind": "ArrayType"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "toSpliced"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "start"
+              },
+              "type": {
+                "kind": "NumberKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "deleteCount"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "NumberKeyword"
+              }
+            }
+          ],
+          "type": {
+            "elementType": {
+              "kind": "TypeReference",
+              "typeName": {
+                "kind": "Identifier",
+                "text": "T"
+              }
+            },
+            "kind": "ArrayType"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "with"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "index"
+              },
+              "type": {
+                "kind": "NumberKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "value"
+              },
+              "type": {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "T"
+                }
+              }
+            }
+          ],
+          "type": {
+            "elementType": {
+              "kind": "TypeReference",
+              "typeName": {
+                "kind": "Identifier",
+                "text": "T"
+              }
+            },
+            "kind": "ArrayType"
+          }
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "ReadonlyArray"
+      }
+    },
+    {
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "findLast"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "predicate"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "value"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "index"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "array"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "Int8Array"
+                      }
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "FirstTypeNode",
+                  "parameterName": {
+                    "kind": "Identifier",
+                    "text": "value"
+                  },
+                  "type": {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "S"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "thisArg"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "AnyKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "UnionType",
+            "types": [
+              {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "S"
+                }
+              },
+              {
+                "kind": "UndefinedKeyword"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "findLast"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "predicate"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "value"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "index"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "array"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "Int8Array"
+                      }
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "UnknownKeyword"
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "thisArg"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "AnyKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "UnionType",
+            "types": [
+              {
+                "kind": "NumberKeyword"
+              },
+              {
+                "kind": "UndefinedKeyword"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "findLastIndex"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "predicate"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "value"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "index"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "array"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "Int8Array"
+                      }
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "UnknownKeyword"
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "thisArg"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "AnyKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "NumberKeyword"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "toReversed"
+          },
+          "parameters": [],
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "Uint8Array"
+            }
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "toSorted"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "compareFn"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "a"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "b"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "NumberKeyword"
+                }
+              }
+            }
+          ],
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "Uint8Array"
+            }
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "with"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "index"
+              },
+              "type": {
+                "kind": "NumberKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "value"
+              },
+              "type": {
+                "kind": "NumberKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "Uint8Array"
+            }
+          }
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "Int8Array"
+      }
+    },
+    {
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "findLast"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "predicate"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "value"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "index"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "array"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "Uint8Array"
+                      }
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "FirstTypeNode",
+                  "parameterName": {
+                    "kind": "Identifier",
+                    "text": "value"
+                  },
+                  "type": {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "S"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "thisArg"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "AnyKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "UnionType",
+            "types": [
+              {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "S"
+                }
+              },
+              {
+                "kind": "UndefinedKeyword"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "findLast"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "predicate"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "value"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "index"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "array"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "Uint8Array"
+                      }
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "UnknownKeyword"
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "thisArg"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "AnyKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "UnionType",
+            "types": [
+              {
+                "kind": "NumberKeyword"
+              },
+              {
+                "kind": "UndefinedKeyword"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "findLastIndex"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "predicate"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "value"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "index"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "array"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "Uint8Array"
+                      }
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "UnknownKeyword"
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "thisArg"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "AnyKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "NumberKeyword"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "toReversed"
+          },
+          "parameters": [],
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "Uint8Array"
+            }
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "toSorted"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "compareFn"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "a"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "b"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "NumberKeyword"
+                }
+              }
+            }
+          ],
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "Uint8Array"
+            }
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "with"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "index"
+              },
+              "type": {
+                "kind": "NumberKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "value"
+              },
+              "type": {
+                "kind": "NumberKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "Uint8Array"
+            }
+          }
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "Uint8Array"
+      }
+    },
+    {
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "findLast"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "predicate"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "value"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "index"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "array"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "Uint8ClampedArray"
+                      }
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "FirstTypeNode",
+                  "parameterName": {
+                    "kind": "Identifier",
+                    "text": "value"
+                  },
+                  "type": {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "S"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "thisArg"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "AnyKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "UnionType",
+            "types": [
+              {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "S"
+                }
+              },
+              {
+                "kind": "UndefinedKeyword"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "findLast"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "predicate"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "value"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "index"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "array"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "Uint8ClampedArray"
+                      }
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "UnknownKeyword"
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "thisArg"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "AnyKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "UnionType",
+            "types": [
+              {
+                "kind": "NumberKeyword"
+              },
+              {
+                "kind": "UndefinedKeyword"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "findLastIndex"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "predicate"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "value"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "index"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "array"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "Uint8ClampedArray"
+                      }
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "UnknownKeyword"
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "thisArg"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "AnyKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "NumberKeyword"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "toReversed"
+          },
+          "parameters": [],
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "Uint8ClampedArray"
+            }
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "toSorted"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "compareFn"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "a"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "b"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "NumberKeyword"
+                }
+              }
+            }
+          ],
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "Uint8ClampedArray"
+            }
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "with"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "index"
+              },
+              "type": {
+                "kind": "NumberKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "value"
+              },
+              "type": {
+                "kind": "NumberKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "Uint8ClampedArray"
+            }
+          }
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "Uint8ClampedArray"
+      }
+    },
+    {
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "findLast"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "predicate"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "value"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "index"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "array"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "Int16Array"
+                      }
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "FirstTypeNode",
+                  "parameterName": {
+                    "kind": "Identifier",
+                    "text": "value"
+                  },
+                  "type": {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "S"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "thisArg"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "AnyKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "UnionType",
+            "types": [
+              {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "S"
+                }
+              },
+              {
+                "kind": "UndefinedKeyword"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "findLast"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "predicate"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "value"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "index"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "array"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "Int16Array"
+                      }
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "UnknownKeyword"
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "thisArg"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "AnyKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "UnionType",
+            "types": [
+              {
+                "kind": "NumberKeyword"
+              },
+              {
+                "kind": "UndefinedKeyword"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "findLastIndex"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "predicate"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "value"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "index"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "array"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "Int16Array"
+                      }
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "UnknownKeyword"
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "thisArg"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "AnyKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "NumberKeyword"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "toReversed"
+          },
+          "parameters": [],
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "Int16Array"
+            }
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "toSorted"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "compareFn"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "a"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "b"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "NumberKeyword"
+                }
+              }
+            }
+          ],
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "Int16Array"
+            }
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "with"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "index"
+              },
+              "type": {
+                "kind": "NumberKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "value"
+              },
+              "type": {
+                "kind": "NumberKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "Int16Array"
+            }
+          }
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "Int16Array"
+      }
+    },
+    {
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "findLast"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "predicate"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "value"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "index"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "array"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "Uint16Array"
+                      }
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "FirstTypeNode",
+                  "parameterName": {
+                    "kind": "Identifier",
+                    "text": "value"
+                  },
+                  "type": {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "S"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "thisArg"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "AnyKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "UnionType",
+            "types": [
+              {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "S"
+                }
+              },
+              {
+                "kind": "UndefinedKeyword"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "findLast"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "predicate"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "value"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "index"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "array"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "Uint16Array"
+                      }
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "UnknownKeyword"
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "thisArg"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "AnyKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "UnionType",
+            "types": [
+              {
+                "kind": "NumberKeyword"
+              },
+              {
+                "kind": "UndefinedKeyword"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "findLastIndex"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "predicate"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "value"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "index"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "array"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "Uint16Array"
+                      }
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "UnknownKeyword"
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "thisArg"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "AnyKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "NumberKeyword"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "toReversed"
+          },
+          "parameters": [],
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "Uint16Array"
+            }
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "toSorted"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "compareFn"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "a"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "b"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "NumberKeyword"
+                }
+              }
+            }
+          ],
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "Uint16Array"
+            }
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "with"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "index"
+              },
+              "type": {
+                "kind": "NumberKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "value"
+              },
+              "type": {
+                "kind": "NumberKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "Uint16Array"
+            }
+          }
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "Uint16Array"
+      }
+    },
+    {
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "findLast"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "predicate"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "value"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "index"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "array"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "Int32Array"
+                      }
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "FirstTypeNode",
+                  "parameterName": {
+                    "kind": "Identifier",
+                    "text": "value"
+                  },
+                  "type": {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "S"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "thisArg"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "AnyKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "UnionType",
+            "types": [
+              {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "S"
+                }
+              },
+              {
+                "kind": "UndefinedKeyword"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "findLast"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "predicate"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "value"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "index"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "array"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "Int32Array"
+                      }
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "UnknownKeyword"
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "thisArg"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "AnyKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "UnionType",
+            "types": [
+              {
+                "kind": "NumberKeyword"
+              },
+              {
+                "kind": "UndefinedKeyword"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "findLastIndex"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "predicate"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "value"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "index"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "array"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "Int32Array"
+                      }
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "UnknownKeyword"
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "thisArg"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "AnyKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "NumberKeyword"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "toReversed"
+          },
+          "parameters": [],
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "Int32Array"
+            }
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "toSorted"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "compareFn"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "a"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "b"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "NumberKeyword"
+                }
+              }
+            }
+          ],
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "Int32Array"
+            }
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "with"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "index"
+              },
+              "type": {
+                "kind": "NumberKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "value"
+              },
+              "type": {
+                "kind": "NumberKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "Int32Array"
+            }
+          }
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "Int32Array"
+      }
+    },
+    {
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "findLast"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "predicate"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "value"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "index"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "array"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "Uint32Array"
+                      }
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "FirstTypeNode",
+                  "parameterName": {
+                    "kind": "Identifier",
+                    "text": "value"
+                  },
+                  "type": {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "S"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "thisArg"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "AnyKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "UnionType",
+            "types": [
+              {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "S"
+                }
+              },
+              {
+                "kind": "UndefinedKeyword"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "findLast"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "predicate"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "value"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "index"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "array"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "Uint32Array"
+                      }
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "UnknownKeyword"
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "thisArg"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "AnyKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "UnionType",
+            "types": [
+              {
+                "kind": "NumberKeyword"
+              },
+              {
+                "kind": "UndefinedKeyword"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "findLastIndex"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "predicate"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "value"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "index"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "array"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "Uint32Array"
+                      }
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "UnknownKeyword"
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "thisArg"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "AnyKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "NumberKeyword"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "toReversed"
+          },
+          "parameters": [],
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "Uint32Array"
+            }
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "toSorted"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "compareFn"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "a"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "b"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "NumberKeyword"
+                }
+              }
+            }
+          ],
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "Uint32Array"
+            }
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "with"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "index"
+              },
+              "type": {
+                "kind": "NumberKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "value"
+              },
+              "type": {
+                "kind": "NumberKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "Uint32Array"
+            }
+          }
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "Uint32Array"
+      }
+    },
+    {
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "findLast"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "predicate"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "value"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "index"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "array"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "Float32Array"
+                      }
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "FirstTypeNode",
+                  "parameterName": {
+                    "kind": "Identifier",
+                    "text": "value"
+                  },
+                  "type": {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "S"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "thisArg"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "AnyKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "UnionType",
+            "types": [
+              {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "S"
+                }
+              },
+              {
+                "kind": "UndefinedKeyword"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "findLast"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "predicate"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "value"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "index"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "array"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "Float32Array"
+                      }
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "UnknownKeyword"
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "thisArg"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "AnyKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "UnionType",
+            "types": [
+              {
+                "kind": "NumberKeyword"
+              },
+              {
+                "kind": "UndefinedKeyword"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "findLastIndex"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "predicate"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "value"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "index"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "array"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "Float32Array"
+                      }
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "UnknownKeyword"
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "thisArg"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "AnyKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "NumberKeyword"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "toReversed"
+          },
+          "parameters": [],
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "Float32Array"
+            }
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "toSorted"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "compareFn"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "a"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "b"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "NumberKeyword"
+                }
+              }
+            }
+          ],
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "Float32Array"
+            }
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "with"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "index"
+              },
+              "type": {
+                "kind": "NumberKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "value"
+              },
+              "type": {
+                "kind": "NumberKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "Float32Array"
+            }
+          }
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "Float32Array"
+      }
+    },
+    {
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "findLast"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "predicate"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "value"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "index"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "array"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "Float64Array"
+                      }
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "FirstTypeNode",
+                  "parameterName": {
+                    "kind": "Identifier",
+                    "text": "value"
+                  },
+                  "type": {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "S"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "thisArg"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "AnyKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "UnionType",
+            "types": [
+              {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "S"
+                }
+              },
+              {
+                "kind": "UndefinedKeyword"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "findLast"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "predicate"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "value"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "index"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "array"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "Float64Array"
+                      }
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "UnknownKeyword"
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "thisArg"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "AnyKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "UnionType",
+            "types": [
+              {
+                "kind": "NumberKeyword"
+              },
+              {
+                "kind": "UndefinedKeyword"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "findLastIndex"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "predicate"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "value"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "index"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "array"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "Float64Array"
+                      }
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "UnknownKeyword"
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "thisArg"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "AnyKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "NumberKeyword"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "toReversed"
+          },
+          "parameters": [],
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "Float64Array"
+            }
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "toSorted"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "compareFn"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "a"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "b"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "NumberKeyword"
+                }
+              }
+            }
+          ],
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "Float64Array"
+            }
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "with"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "index"
+              },
+              "type": {
+                "kind": "NumberKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "value"
+              },
+              "type": {
+                "kind": "NumberKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "Float64Array"
+            }
+          }
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "Float64Array"
+      }
+    },
+    {
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "findLast"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "predicate"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "value"
+                    },
+                    "type": {
+                      "kind": "BigIntKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "index"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "array"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "BigInt64Array"
+                      }
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "FirstTypeNode",
+                  "parameterName": {
+                    "kind": "Identifier",
+                    "text": "value"
+                  },
+                  "type": {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "S"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "thisArg"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "AnyKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "UnionType",
+            "types": [
+              {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "S"
+                }
+              },
+              {
+                "kind": "UndefinedKeyword"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "findLast"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "predicate"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "value"
+                    },
+                    "type": {
+                      "kind": "BigIntKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "index"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "array"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "BigInt64Array"
+                      }
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "UnknownKeyword"
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "thisArg"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "AnyKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "UnionType",
+            "types": [
+              {
+                "kind": "BigIntKeyword"
+              },
+              {
+                "kind": "UndefinedKeyword"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "findLastIndex"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "predicate"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "value"
+                    },
+                    "type": {
+                      "kind": "BigIntKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "index"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "array"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "BigInt64Array"
+                      }
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "UnknownKeyword"
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "thisArg"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "AnyKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "NumberKeyword"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "toReversed"
+          },
+          "parameters": [],
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "BigInt64Array"
+            }
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "toSorted"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "compareFn"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "a"
+                    },
+                    "type": {
+                      "kind": "BigIntKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "b"
+                    },
+                    "type": {
+                      "kind": "BigIntKeyword"
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "NumberKeyword"
+                }
+              }
+            }
+          ],
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "BigInt64Array"
+            }
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "with"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "index"
+              },
+              "type": {
+                "kind": "NumberKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "value"
+              },
+              "type": {
+                "kind": "BigIntKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "BigInt64Array"
+            }
+          }
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "BigInt64Array"
+      }
+    },
+    {
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "findLast"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "predicate"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "value"
+                    },
+                    "type": {
+                      "kind": "BigIntKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "index"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "array"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "BigUint64Array"
+                      }
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "FirstTypeNode",
+                  "parameterName": {
+                    "kind": "Identifier",
+                    "text": "value"
+                  },
+                  "type": {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "S"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "thisArg"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "AnyKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "UnionType",
+            "types": [
+              {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "S"
+                }
+              },
+              {
+                "kind": "UndefinedKeyword"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "findLast"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "predicate"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "value"
+                    },
+                    "type": {
+                      "kind": "BigIntKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "index"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "array"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "BigUint64Array"
+                      }
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "UnknownKeyword"
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "thisArg"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "AnyKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "UnionType",
+            "types": [
+              {
+                "kind": "BigIntKeyword"
+              },
+              {
+                "kind": "UndefinedKeyword"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "findLastIndex"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "predicate"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "value"
+                    },
+                    "type": {
+                      "kind": "BigIntKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "index"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "array"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "BigUint64Array"
+                      }
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "UnknownKeyword"
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "thisArg"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "AnyKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "NumberKeyword"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "toReversed"
+          },
+          "parameters": [],
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "BigUint64Array"
+            }
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "toSorted"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "compareFn"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "a"
+                    },
+                    "type": {
+                      "kind": "BigIntKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "b"
+                    },
+                    "type": {
+                      "kind": "BigIntKeyword"
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "NumberKeyword"
+                }
+              }
+            }
+          ],
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "BigUint64Array"
+            }
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "with"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "index"
+              },
+              "type": {
+                "kind": "NumberKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "value"
+              },
+              "type": {
+                "kind": "BigIntKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "BigUint64Array"
+            }
+          }
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "BigUint64Array"
+      }
+    }
+  ],
+  "text": "/*! *****************************************************************************\nCopyright (c) Microsoft Corporation. All rights reserved.\nLicensed under the Apache License, Version 2.0 (the \"License\"); you may not use\nthis file except in compliance with the License. You may obtain a copy of the\nLicense at http://www.apache.org/licenses/LICENSE-2.0\n\nTHIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY\nKIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED\nWARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,\nMERCHANTABLITY OR NON-INFRINGEMENT.\n\nSee the Apache Version 2.0 License for specific language governing permissions\nand limitations under the License.\n***************************************************************************** */\n\n\n/// <reference no-default-lib=\"true\"/>\n\ninterface Array<T> {\n    /**\n     * Returns the value of the last element in the array where predicate is true, and undefined\n     * otherwise.\n     * @param predicate findLast calls predicate once for each element of the array, in descending\n     * order, until it finds one where predicate returns true. If such an element is found, findLast\n     * immediately returns that element value. Otherwise, findLast returns undefined.\n     * @param thisArg If provided, it will be used as the this value for each invocation of\n     * predicate. If it is not provided, undefined is used instead.\n     */\n    findLast<S extends T>(predicate: (value: T, index: number, array: T[]) => value is S, thisArg?: any): S | undefined;\n    findLast(predicate: (value: T, index: number, array: T[]) => unknown, thisArg?: any): T | undefined;\n\n    /**\n     * Returns the index of the last element in the array where predicate is true, and -1\n     * otherwise.\n     * @param predicate findLastIndex calls predicate once for each element of the array, in descending\n     * order, until it finds one where predicate returns true. If such an element is found,\n     * findLastIndex immediately returns that element index. Otherwise, findLastIndex returns -1.\n     * @param thisArg If provided, it will be used as the this value for each invocation of\n     * predicate. If it is not provided, undefined is used instead.\n     */\n    findLastIndex(predicate: (value: T, index: number, array: T[]) => unknown, thisArg?: any): number;\n\n    /**\n     * Returns a copy of an array with its elements reversed.\n     */\n    toReversed(): T[];\n\n    /**\n     * Returns a copy of an array with its elements sorted.\n     * @param compareFn Function used to determine the order of the elements. It is expected to return\n     * a negative value if the first argument is less than the second argument, zero if they're equal, and a positive\n     * value otherwise. If omitted, the elements are sorted in ascending, ASCII character order.\n     * ```ts\n     * [11, 2, 22, 1].toSorted((a, b) => a - b) // [1, 2, 11, 22]\n     * ```\n     */\n    toSorted(compareFn?: (a: T, b: T) => number): T[];\n\n    /**\n     * Copies an array and removes elements and, if necessary, inserts new elements in their place. Returns the copied array.\n     * @param start The zero-based location in the array from which to start removing elements.\n     * @param deleteCount The number of elements to remove.\n     * @param items Elements to insert into the copied array in place of the deleted elements.\n     * @returns The copied array.\n     */\n    toSpliced(start: number, deleteCount: number, ...items: T[]): T[];\n\n    /**\n     * Copies an array and removes elements while returning the remaining elements.\n     * @param start The zero-based location in the array from which to start removing elements.\n     * @param deleteCount The number of elements to remove.\n     * @returns A copy of the original array with the remaining elements.\n     */\n    toSpliced(start: number, deleteCount?: number): T[];\n\n    /**\n     * Copies an array, then overwrites the value at the provided index with the\n     * given value. If the index is negative, then it replaces from the end\n     * of the array.\n     * @param index The index of the value to overwrite. If the index is\n     * negative, then it replaces from the end of the array.\n     * @param value The value to write into the copied array.\n     * @returns The copied array with the updated value.\n     */\n    with(index: number, value: T): T[];\n}\n\ninterface ReadonlyArray<T> {\n    /**\n     * Returns the value of the last element in the array where predicate is true, and undefined\n     * otherwise.\n     * @param predicate findLast calls predicate once for each element of the array, in descending\n     * order, until it finds one where predicate returns true. If such an element is found, findLast\n     * immediately returns that element value. Otherwise, findLast returns undefined.\n     * @param thisArg If provided, it will be used as the this value for each invocation of\n     * predicate. If it is not provided, undefined is used instead.\n     */\n    findLast<S extends T>(\n        predicate: (value: T, index: number, array: readonly T[]) => value is S,\n        thisArg?: any,\n    ): S | undefined;\n    findLast(\n        predicate: (value: T, index: number, array: readonly T[]) => unknown,\n        thisArg?: any,\n    ): T | undefined;\n\n    /**\n     * Returns the index of the last element in the array where predicate is true, and -1\n     * otherwise.\n     * @param predicate findLastIndex calls predicate once for each element of the array, in descending\n     * order, until it finds one where predicate returns true. If such an element is found,\n     * findLastIndex immediately returns that element index. Otherwise, findLastIndex returns -1.\n     * @param thisArg If provided, it will be used as the this value for each invocation of\n     * predicate. If it is not provided, undefined is used instead.\n     */\n    findLastIndex(\n        predicate: (value: T, index: number, array: readonly T[]) => unknown,\n        thisArg?: any,\n    ): number;\n\n    /**\n     * Copies the array and returns the copied array with all of its elements reversed.\n     */\n    toReversed(): T[];\n\n    /**\n     * Copies and sorts the array.\n     * @param compareFn Function used to determine the order of the elements. It is expected to return\n     * a negative value if the first argument is less than the second argument, zero if they're equal, and a positive\n     * value otherwise. If omitted, the elements are sorted in ascending, ASCII character order.\n     * ```ts\n     * [11, 2, 22, 1].toSorted((a, b) => a - b) // [1, 2, 11, 22]\n     * ```\n     */\n    toSorted(compareFn?: (a: T, b: T) => number): T[];\n\n    /**\n     * Copies an array and removes elements while, if necessary, inserting new elements in their place, returning the remaining elements.\n     * @param start The zero-based location in the array from which to start removing elements.\n     * @param deleteCount The number of elements to remove.\n     * @param items Elements to insert into the copied array in place of the deleted elements.\n     * @returns A copy of the original array with the remaining elements.\n     */\n    toSpliced(start: number, deleteCount: number, ...items: T[]): T[];\n\n    /**\n     * Copies an array and removes elements while returning the remaining elements.\n     * @param start The zero-based location in the array from which to start removing elements.\n     * @param deleteCount The number of elements to remove.\n     * @returns A copy of the original array with the remaining elements.\n     */\n    toSpliced(start: number, deleteCount?: number): T[];\n\n    /**\n     * Copies an array, then overwrites the value at the provided index with the\n     * given value. If the index is negative, then it replaces from the end\n     * of the array\n     * @param index The index of the value to overwrite. If the index is\n     * negative, then it replaces from the end of the array.\n     * @param value The value to insert into the copied array.\n     * @returns A copy of the original array with the inserted value.\n     */\n    with(index: number, value: T): T[];\n}\n\ninterface Int8Array {\n    /**\n     * Returns the value of the last element in the array where predicate is true, and undefined\n     * otherwise.\n     * @param predicate findLast calls predicate once for each element of the array, in descending\n     * order, until it finds one where predicate returns true. If such an element is found, findLast\n     * immediately returns that element value. Otherwise, findLast returns undefined.\n     * @param thisArg If provided, it will be used as the this value for each invocation of\n     * predicate. If it is not provided, undefined is used instead.\n     */\n    findLast<S extends number>(\n        predicate: (\n            value: number,\n            index: number,\n            array: Int8Array,\n        ) => value is S,\n        thisArg?: any,\n    ): S | undefined;\n    findLast(\n        predicate: (value: number, index: number, array: Int8Array) => unknown,\n        thisArg?: any,\n    ): number | undefined;\n\n    /**\n     * Returns the index of the last element in the array where predicate is true, and -1\n     * otherwise.\n     * @param predicate findLastIndex calls predicate once for each element of the array, in descending\n     * order, until it finds one where predicate returns true. If such an element is found,\n     * findLastIndex immediately returns that element index. Otherwise, findLastIndex returns -1.\n     * @param thisArg If provided, it will be used as the this value for each invocation of\n     * predicate. If it is not provided, undefined is used instead.\n     */\n    findLastIndex(\n        predicate: (value: number, index: number, array: Int8Array) => unknown,\n        thisArg?: any,\n    ): number;\n\n    /**\n     * Copies the array and returns the copy with the elements in reverse order.\n     */\n    toReversed(): Uint8Array;\n\n    /**\n     * Copies and sorts the array.\n     * @param compareFn Function used to determine the order of the elements. It is expected to return\n     * a negative value if the first argument is less than the second argument, zero if they're equal, and a positive\n     * value otherwise. If omitted, the elements are sorted in ascending order.\n     * ```ts\n     * const myNums = Uint8Array.from([11, 2, 22, 1]);\n     * myNums.toSorted((a, b) => a - b) // Uint8Array(4) [1, 2, 11, 22]\n     * ```\n     */\n    toSorted(compareFn?: (a: number, b: number) => number): Uint8Array;\n\n    /**\n     * Copies the array and inserts the given number at the provided index.\n     * @param index The index of the value to overwrite. If the index is\n     * negative, then it replaces from the end of the array.\n     * @param value The value to insert into the copied array.\n     * @returns A copy of the original array with the inserted value.\n     */\n    with(index: number, value: number): Uint8Array;\n}\n\ninterface Uint8Array {\n    /**\n     * Returns the value of the last element in the array where predicate is true, and undefined\n     * otherwise.\n     * @param predicate findLast calls predicate once for each element of the array, in descending\n     * order, until it finds one where predicate returns true. If such an element is found, findLast\n     * immediately returns that element value. Otherwise, findLast returns undefined.\n     * @param thisArg If provided, it will be used as the this value for each invocation of\n     * predicate. If it is not provided, undefined is used instead.\n     */\n    findLast<S extends number>(\n        predicate: (\n            value: number,\n            index: number,\n            array: Uint8Array,\n        ) => value is S,\n        thisArg?: any,\n    ): S | undefined;\n    findLast(\n        predicate: (value: number, index: number, array: Uint8Array) => unknown,\n        thisArg?: any,\n    ): number | undefined;\n\n    /**\n     * Returns the index of the last element in the array where predicate is true, and -1\n     * otherwise.\n     * @param predicate findLastIndex calls predicate once for each element of the array, in descending\n     * order, until it finds one where predicate returns true. If such an element is found,\n     * findLastIndex immediately returns that element index. Otherwise, findLastIndex returns -1.\n     * @param thisArg If provided, it will be used as the this value for each invocation of\n     * predicate. If it is not provided, undefined is used instead.\n     */\n    findLastIndex(\n        predicate: (value: number, index: number, array: Uint8Array) => unknown,\n        thisArg?: any,\n    ): number;\n\n    /**\n     * Copies the array and returns the copy with the elements in reverse order.\n     */\n    toReversed(): Uint8Array;\n\n    /**\n     * Copies and sorts the array.\n     * @param compareFn Function used to determine the order of the elements. It is expected to return\n     * a negative value if the first argument is less than the second argument, zero if they're equal, and a positive\n     * value otherwise. If omitted, the elements are sorted in ascending order.\n     * ```ts\n     * const myNums = Uint8Array.from([11, 2, 22, 1]);\n     * myNums.toSorted((a, b) => a - b) // Uint8Array(4) [1, 2, 11, 22]\n     * ```\n     */\n    toSorted(compareFn?: (a: number, b: number) => number): Uint8Array;\n\n    /**\n     * Copies the array and inserts the given number at the provided index.\n     * @param index The index of the value to overwrite. If the index is\n     * negative, then it replaces from the end of the array.\n     * @param value The value to insert into the copied array.\n     * @returns A copy of the original array with the inserted value.\n     */\n    with(index: number, value: number): Uint8Array;\n}\n\ninterface Uint8ClampedArray {\n    /**\n     * Returns the value of the last element in the array where predicate is true, and undefined\n     * otherwise.\n     * @param predicate findLast calls predicate once for each element of the array, in descending\n     * order, until it finds one where predicate returns true. If such an element is found, findLast\n     * immediately returns that element value. Otherwise, findLast returns undefined.\n     * @param thisArg If provided, it will be used as the this value for each invocation of\n     * predicate. If it is not provided, undefined is used instead.\n     */\n    findLast<S extends number>(\n        predicate: (\n            value: number,\n            index: number,\n            array: Uint8ClampedArray,\n        ) => value is S,\n        thisArg?: any,\n    ): S | undefined;\n    findLast(\n        predicate: (\n            value: number,\n            index: number,\n            array: Uint8ClampedArray,\n        ) => unknown,\n        thisArg?: any,\n    ): number | undefined;\n\n    /**\n     * Returns the index of the last element in the array where predicate is true, and -1\n     * otherwise.\n     * @param predicate findLastIndex calls predicate once for each element of the array, in descending\n     * order, until it finds one where predicate returns true. If such an element is found,\n     * findLastIndex immediately returns that element index. Otherwise, findLastIndex returns -1.\n     * @param thisArg If provided, it will be used as the this value for each invocation of\n     * predicate. If it is not provided, undefined is used instead.\n     */\n    findLastIndex(\n        predicate: (\n            value: number,\n            index: number,\n            array: Uint8ClampedArray,\n        ) => unknown,\n        thisArg?: any,\n    ): number;\n\n    /**\n     * Copies the array and returns the copy with the elements in reverse order.\n     */\n    toReversed(): Uint8ClampedArray;\n\n    /**\n     * Copies and sorts the array.\n     * @param compareFn Function used to determine the order of the elements. It is expected to return\n     * a negative value if the first argument is less than the second argument, zero if they're equal, and a positive\n     * value otherwise. If omitted, the elements are sorted in ascending order.\n     * ```ts\n     * const myNums = Uint8ClampedArray.from([11, 2, 22, 1]);\n     * myNums.toSorted((a, b) => a - b) // Uint8ClampedArray(4) [1, 2, 11, 22]\n     * ```\n     */\n    toSorted(compareFn?: (a: number, b: number) => number): Uint8ClampedArray;\n\n    /**\n     * Copies the array and inserts the given number at the provided index.\n     * @param index The index of the value to overwrite. If the index is\n     * negative, then it replaces from the end of the array.\n     * @param value The value to insert into the copied array.\n     * @returns A copy of the original array with the inserted value.\n     */\n    with(index: number, value: number): Uint8ClampedArray;\n}\n\ninterface Int16Array {\n    /**\n     * Returns the value of the last element in the array where predicate is true, and undefined\n     * otherwise.\n     * @param predicate findLast calls predicate once for each element of the array, in descending\n     * order, until it finds one where predicate returns true. If such an element is found, findLast\n     * immediately returns that element value. Otherwise, findLast returns undefined.\n     * @param thisArg If provided, it will be used as the this value for each invocation of\n     * predicate. If it is not provided, undefined is used instead.\n     */\n    findLast<S extends number>(\n        predicate: (\n            value: number,\n            index: number,\n            array: Int16Array,\n        ) => value is S,\n        thisArg?: any,\n    ): S | undefined;\n    findLast(\n        predicate: (value: number, index: number, array: Int16Array) => unknown,\n        thisArg?: any,\n    ): number | undefined;\n\n    /**\n     * Returns the index of the last element in the array where predicate is true, and -1\n     * otherwise.\n     * @param predicate findLastIndex calls predicate once for each element of the array, in descending\n     * order, until it finds one where predicate returns true. If such an element is found,\n     * findLastIndex immediately returns that element index. Otherwise, findLastIndex returns -1.\n     * @param thisArg If provided, it will be used as the this value for each invocation of\n     * predicate. If it is not provided, undefined is used instead.\n     */\n    findLastIndex(\n        predicate: (value: number, index: number, array: Int16Array) => unknown,\n        thisArg?: any,\n    ): number;\n\n    /**\n     * Copies the array and returns the copy with the elements in reverse order.\n     */\n    toReversed(): Int16Array;\n\n    /**\n     * Copies and sorts the array.\n     * @param compareFn Function used to determine the order of the elements. It is expected to return\n     * a negative value if the first argument is less than the second argument, zero if they're equal, and a positive\n     * value otherwise. If omitted, the elements are sorted in ascending order.\n     * ```ts\n     * const myNums = Int16Array.from([11, 2, -22, 1]);\n     * myNums.toSorted((a, b) => a - b) // Int16Array(4) [-22, 1, 2, 11]\n     * ```\n     */\n    toSorted(compareFn?: (a: number, b: number) => number): Int16Array;\n\n    /**\n     * Copies the array and inserts the given number at the provided index.\n     * @param index The index of the value to overwrite. If the index is\n     * negative, then it replaces from the end of the array.\n     * @param value The value to insert into the copied array.\n     * @returns A copy of the original array with the inserted value.\n     */\n    with(index: number, value: number): Int16Array;\n}\n\ninterface Uint16Array {\n    /**\n     * Returns the value of the last element in the array where predicate is true, and undefined\n     * otherwise.\n     * @param predicate findLast calls predicate once for each element of the array, in descending\n     * order, until it finds one where predicate returns true. If such an element is found, findLast\n     * immediately returns that element value. Otherwise, findLast returns undefined.\n     * @param thisArg If provided, it will be used as the this value for each invocation of\n     * predicate. If it is not provided, undefined is used instead.\n     */\n    findLast<S extends number>(\n        predicate: (\n            value: number,\n            index: number,\n            array: Uint16Array,\n        ) => value is S,\n        thisArg?: any,\n    ): S | undefined;\n    findLast(\n        predicate: (\n            value: number,\n            index: number,\n            array: Uint16Array,\n        ) => unknown,\n        thisArg?: any,\n    ): number | undefined;\n\n    /**\n     * Returns the index of the last element in the array where predicate is true, and -1\n     * otherwise.\n     * @param predicate findLastIndex calls predicate once for each element of the array, in descending\n     * order, until it finds one where predicate returns true. If such an element is found,\n     * findLastIndex immediately returns that element index. Otherwise, findLastIndex returns -1.\n     * @param thisArg If provided, it will be used as the this value for each invocation of\n     * predicate. If it is not provided, undefined is used instead.\n     */\n    findLastIndex(\n        predicate: (\n            value: number,\n            index: number,\n            array: Uint16Array,\n        ) => unknown,\n        thisArg?: any,\n    ): number;\n\n    /**\n     * Copies the array and returns the copy with the elements in reverse order.\n     */\n    toReversed(): Uint16Array;\n\n    /**\n     * Copies and sorts the array.\n     * @param compareFn Function used to determine the order of the elements. It is expected to return\n     * a negative value if the first argument is less than the second argument, zero if they're equal, and a positive\n     * value otherwise. If omitted, the elements are sorted in ascending order.\n     * ```ts\n     * const myNums = Uint16Array.from([11, 2, 22, 1]);\n     * myNums.toSorted((a, b) => a - b) // Uint16Array(4) [1, 2, 11, 22]\n     * ```\n     */\n    toSorted(compareFn?: (a: number, b: number) => number): Uint16Array;\n\n    /**\n     * Copies the array and inserts the given number at the provided index.\n     * @param index The index of the value to overwrite. If the index is\n     * negative, then it replaces from the end of the array.\n     * @param value The value to insert into the copied array.\n     * @returns A copy of the original array with the inserted value.\n     */\n    with(index: number, value: number): Uint16Array;\n}\n\ninterface Int32Array {\n    /**\n     * Returns the value of the last element in the array where predicate is true, and undefined\n     * otherwise.\n     * @param predicate findLast calls predicate once for each element of the array, in descending\n     * order, until it finds one where predicate returns true. If such an element is found, findLast\n     * immediately returns that element value. Otherwise, findLast returns undefined.\n     * @param thisArg If provided, it will be used as the this value for each invocation of\n     * predicate. If it is not provided, undefined is used instead.\n     */\n    findLast<S extends number>(\n        predicate: (\n            value: number,\n            index: number,\n            array: Int32Array,\n        ) => value is S,\n        thisArg?: any,\n    ): S | undefined;\n    findLast(\n        predicate: (value: number, index: number, array: Int32Array) => unknown,\n        thisArg?: any,\n    ): number | undefined;\n\n    /**\n     * Returns the index of the last element in the array where predicate is true, and -1\n     * otherwise.\n     * @param predicate findLastIndex calls predicate once for each element of the array, in descending\n     * order, until it finds one where predicate returns true. If such an element is found,\n     * findLastIndex immediately returns that element index. Otherwise, findLastIndex returns -1.\n     * @param thisArg If provided, it will be used as the this value for each invocation of\n     * predicate. If it is not provided, undefined is used instead.\n     */\n    findLastIndex(\n        predicate: (value: number, index: number, array: Int32Array) => unknown,\n        thisArg?: any,\n    ): number;\n\n    /**\n     * Copies the array and returns the copy with the elements in reverse order.\n     */\n    toReversed(): Int32Array;\n\n    /**\n     * Copies and sorts the array.\n     * @param compareFn Function used to determine the order of the elements. It is expected to return\n     * a negative value if the first argument is less than the second argument, zero if they're equal, and a positive\n     * value otherwise. If omitted, the elements are sorted in ascending order.\n     * ```ts\n     * const myNums = Int32Array.from([11, 2, -22, 1]);\n     * myNums.toSorted((a, b) => a - b) // Int32Array(4) [-22, 1, 2, 11]\n     * ```\n     */\n    toSorted(compareFn?: (a: number, b: number) => number): Int32Array;\n\n    /**\n     * Copies the array and inserts the given number at the provided index.\n     * @param index The index of the value to overwrite. If the index is\n     * negative, then it replaces from the end of the array.\n     * @param value The value to insert into the copied array.\n     * @returns A copy of the original array with the inserted value.\n     */\n    with(index: number, value: number): Int32Array;\n}\n\ninterface Uint32Array {\n    /**\n     * Returns the value of the last element in the array where predicate is true, and undefined\n     * otherwise.\n     * @param predicate findLast calls predicate once for each element of the array, in descending\n     * order, until it finds one where predicate returns true. If such an element is found, findLast\n     * immediately returns that element value. Otherwise, findLast returns undefined.\n     * @param thisArg If provided, it will be used as the this value for each invocation of\n     * predicate. If it is not provided, undefined is used instead.\n     */\n    findLast<S extends number>(\n        predicate: (\n            value: number,\n            index: number,\n            array: Uint32Array,\n        ) => value is S,\n        thisArg?: any,\n    ): S | undefined;\n    findLast(\n        predicate: (\n            value: number,\n            index: number,\n            array: Uint32Array,\n        ) => unknown,\n        thisArg?: any,\n    ): number | undefined;\n\n    /**\n     * Returns the index of the last element in the array where predicate is true, and -1\n     * otherwise.\n     * @param predicate findLastIndex calls predicate once for each element of the array, in descending\n     * order, until it finds one where predicate returns true. If such an element is found,\n     * findLastIndex immediately returns that element index. Otherwise, findLastIndex returns -1.\n     * @param thisArg If provided, it will be used as the this value for each invocation of\n     * predicate. If it is not provided, undefined is used instead.\n     */\n    findLastIndex(\n        predicate: (\n            value: number,\n            index: number,\n            array: Uint32Array,\n        ) => unknown,\n        thisArg?: any,\n    ): number;\n\n    /**\n     * Copies the array and returns the copy with the elements in reverse order.\n     */\n    toReversed(): Uint32Array;\n\n    /**\n     * Copies and sorts the array.\n     * @param compareFn Function used to determine the order of the elements. It is expected to return\n     * a negative value if the first argument is less than the second argument, zero if they're equal, and a positive\n     * value otherwise. If omitted, the elements are sorted in ascending order.\n     * ```ts\n     * const myNums = Uint32Array.from([11, 2, 22, 1]);\n     * myNums.toSorted((a, b) => a - b) // Uint32Array(4) [1, 2, 11, 22]\n     * ```\n     */\n    toSorted(compareFn?: (a: number, b: number) => number): Uint32Array;\n\n    /**\n     * Copies the array and inserts the given number at the provided index.\n     * @param index The index of the value to overwrite. If the index is\n     * negative, then it replaces from the end of the array.\n     * @param value The value to insert into the copied array.\n     * @returns A copy of the original array with the inserted value.\n     */\n    with(index: number, value: number): Uint32Array;\n}\n\ninterface Float32Array {\n    /**\n     * Returns the value of the last element in the array where predicate is true, and undefined\n     * otherwise.\n     * @param predicate findLast calls predicate once for each element of the array, in descending\n     * order, until it finds one where predicate returns true. If such an element is found, findLast\n     * immediately returns that element value. Otherwise, findLast returns undefined.\n     * @param thisArg If provided, it will be used as the this value for each invocation of\n     * predicate. If it is not provided, undefined is used instead.\n     */\n    findLast<S extends number>(\n        predicate: (\n            value: number,\n            index: number,\n            array: Float32Array,\n        ) => value is S,\n        thisArg?: any,\n    ): S | undefined;\n    findLast(\n        predicate: (\n            value: number,\n            index: number,\n            array: Float32Array,\n        ) => unknown,\n        thisArg?: any,\n    ): number | undefined;\n\n    /**\n     * Returns the index of the last element in the array where predicate is true, and -1\n     * otherwise.\n     * @param predicate findLastIndex calls predicate once for each element of the array, in descending\n     * order, until it finds one where predicate returns true. If such an element is found,\n     * findLastIndex immediately returns that element index. Otherwise, findLastIndex returns -1.\n     * @param thisArg If provided, it will be used as the this value for each invocation of\n     * predicate. If it is not provided, undefined is used instead.\n     */\n    findLastIndex(\n        predicate: (\n            value: number,\n            index: number,\n            array: Float32Array,\n        ) => unknown,\n        thisArg?: any,\n    ): number;\n\n    /**\n     * Copies the array and returns the copy with the elements in reverse order.\n     */\n    toReversed(): Float32Array;\n\n    /**\n     * Copies and sorts the array.\n     * @param compareFn Function used to determine the order of the elements. It is expected to return\n     * a negative value if the first argument is less than the second argument, zero if they're equal, and a positive\n     * value otherwise. If omitted, the elements are sorted in ascending order.\n     * ```ts\n     * const myNums = Float32Array.from([11.25, 2, -22.5, 1]);\n     * myNums.toSorted((a, b) => a - b) // Float32Array(4) [-22.5, 1, 2, 11.5]\n     * ```\n     */\n    toSorted(compareFn?: (a: number, b: number) => number): Float32Array;\n\n    /**\n     * Copies the array and inserts the given number at the provided index.\n     * @param index The index of the value to overwrite. If the index is\n     * negative, then it replaces from the end of the array.\n     * @param value The value to insert into the copied array.\n     * @returns A copy of the original array with the inserted value.\n     */\n    with(index: number, value: number): Float32Array;\n}\n\ninterface Float64Array {\n    /**\n     * Returns the value of the last element in the array where predicate is true, and undefined\n     * otherwise.\n     * @param predicate findLast calls predicate once for each element of the array, in descending\n     * order, until it finds one where predicate returns true. If such an element is found, findLast\n     * immediately returns that element value. Otherwise, findLast returns undefined.\n     * @param thisArg If provided, it will be used as the this value for each invocation of\n     * predicate. If it is not provided, undefined is used instead.\n     */\n    findLast<S extends number>(\n        predicate: (\n            value: number,\n            index: number,\n            array: Float64Array,\n        ) => value is S,\n        thisArg?: any,\n    ): S | undefined;\n    findLast(\n        predicate: (\n            value: number,\n            index: number,\n            array: Float64Array,\n        ) => unknown,\n        thisArg?: any,\n    ): number | undefined;\n\n    /**\n     * Returns the index of the last element in the array where predicate is true, and -1\n     * otherwise.\n     * @param predicate findLastIndex calls predicate once for each element of the array, in descending\n     * order, until it finds one where predicate returns true. If such an element is found,\n     * findLastIndex immediately returns that element index. Otherwise, findLastIndex returns -1.\n     * @param thisArg If provided, it will be used as the this value for each invocation of\n     * predicate. If it is not provided, undefined is used instead.\n     */\n    findLastIndex(\n        predicate: (\n            value: number,\n            index: number,\n            array: Float64Array,\n        ) => unknown,\n        thisArg?: any,\n    ): number;\n\n    /**\n     * Copies the array and returns the copy with the elements in reverse order.\n     */\n    toReversed(): Float64Array;\n\n    /**\n     * Copies and sorts the array.\n     * @param compareFn Function used to determine the order of the elements. It is expected to return\n     * a negative value if the first argument is less than the second argument, zero if they're equal, and a positive\n     * value otherwise. If omitted, the elements are sorted in ascending order.\n     * ```ts\n     * const myNums = Float64Array.from([11.25, 2, -22.5, 1]);\n     * myNums.toSorted((a, b) => a - b) // Float64Array(4) [-22.5, 1, 2, 11.5]\n     * ```\n     */\n    toSorted(compareFn?: (a: number, b: number) => number): Float64Array;\n\n    /**\n     * Copies the array and inserts the given number at the provided index.\n     * @param index The index of the value to overwrite. If the index is\n     * negative, then it replaces from the end of the array.\n     * @param value The value to insert into the copied array.\n     * @returns A copy of the original array with the inserted value.\n     */\n    with(index: number, value: number): Float64Array;\n}\n\ninterface BigInt64Array {\n    /**\n     * Returns the value of the last element in the array where predicate is true, and undefined\n     * otherwise.\n     * @param predicate findLast calls predicate once for each element of the array, in descending\n     * order, until it finds one where predicate returns true. If such an element is found, findLast\n     * immediately returns that element value. Otherwise, findLast returns undefined.\n     * @param thisArg If provided, it will be used as the this value for each invocation of\n     * predicate. If it is not provided, undefined is used instead.\n     */\n    findLast<S extends bigint>(\n        predicate: (\n            value: bigint,\n            index: number,\n            array: BigInt64Array,\n        ) => value is S,\n        thisArg?: any,\n    ): S | undefined;\n    findLast(\n        predicate: (\n            value: bigint,\n            index: number,\n            array: BigInt64Array,\n        ) => unknown,\n        thisArg?: any,\n    ): bigint | undefined;\n\n    /**\n     * Returns the index of the last element in the array where predicate is true, and -1\n     * otherwise.\n     * @param predicate findLastIndex calls predicate once for each element of the array, in descending\n     * order, until it finds one where predicate returns true. If such an element is found,\n     * findLastIndex immediately returns that element index. Otherwise, findLastIndex returns -1.\n     * @param thisArg If provided, it will be used as the this value for each invocation of\n     * predicate. If it is not provided, undefined is used instead.\n     */\n    findLastIndex(\n        predicate: (\n            value: bigint,\n            index: number,\n            array: BigInt64Array,\n        ) => unknown,\n        thisArg?: any,\n    ): number;\n\n    /**\n     * Copies the array and returns the copy with the elements in reverse order.\n     */\n    toReversed(): BigInt64Array;\n\n    /**\n     * Copies and sorts the array.\n     * @param compareFn Function used to determine the order of the elements. It is expected to return\n     * a negative value if the first argument is less than the second argument, zero if they're equal, and a positive\n     * value otherwise. If omitted, the elements are sorted in ascending order.\n     * ```ts\n     * const myNums = BigInt64Array.from([11n, 2n, -22n, 1n]);\n     * myNums.toSorted((a, b) => Number(a - b)) // BigInt64Array(4) [-22n, 1n, 2n, 11n]\n     * ```\n     */\n    toSorted(compareFn?: (a: bigint, b: bigint) => number): BigInt64Array;\n\n    /**\n     * Copies the array and inserts the given bigint at the provided index.\n     * @param index The index of the value to overwrite. If the index is\n     * negative, then it replaces from the end of the array.\n     * @param value The value to insert into the copied array.\n     * @returns A copy of the original array with the inserted value.\n     */\n    with(index: number, value: bigint): BigInt64Array;\n}\n\ninterface BigUint64Array {\n    /**\n     * Returns the value of the last element in the array where predicate is true, and undefined\n     * otherwise.\n     * @param predicate findLast calls predicate once for each element of the array, in descending\n     * order, until it finds one where predicate returns true. If such an element is found, findLast\n     * immediately returns that element value. Otherwise, findLast returns undefined.\n     * @param thisArg If provided, it will be used as the this value for each invocation of\n     * predicate. If it is not provided, undefined is used instead.\n     */\n    findLast<S extends bigint>(\n        predicate: (\n            value: bigint,\n            index: number,\n            array: BigUint64Array,\n        ) => value is S,\n        thisArg?: any,\n    ): S | undefined;\n    findLast(\n        predicate: (\n            value: bigint,\n            index: number,\n            array: BigUint64Array,\n        ) => unknown,\n        thisArg?: any,\n    ): bigint | undefined;\n\n    /**\n     * Returns the index of the last element in the array where predicate is true, and -1\n     * otherwise.\n     * @param predicate findLastIndex calls predicate once for each element of the array, in descending\n     * order, until it finds one where predicate returns true. If such an element is found,\n     * findLastIndex immediately returns that element index. Otherwise, findLastIndex returns -1.\n     * @param thisArg If provided, it will be used as the this value for each invocation of\n     * predicate. If it is not provided, undefined is used instead.\n     */\n    findLastIndex(\n        predicate: (\n            value: bigint,\n            index: number,\n            array: BigUint64Array,\n        ) => unknown,\n        thisArg?: any,\n    ): number;\n\n    /**\n     * Copies the array and returns the copy with the elements in reverse order.\n     */\n    toReversed(): BigUint64Array;\n\n    /**\n     * Copies and sorts the array.\n     * @param compareFn Function used to determine the order of the elements. It is expected to return\n     * a negative value if the first argument is less than the second argument, zero if they're equal, and a positive\n     * value otherwise. If omitted, the elements are sorted in ascending order.\n     * ```ts\n     * const myNums = BigUint64Array.from([11n, 2n, 22n, 1n]);\n     * myNums.toSorted((a, b) => Number(a - b)) // BigUint64Array(4) [1n, 2n, 11n, 22n]\n     * ```\n     */\n    toSorted(compareFn?: (a: bigint, b: bigint) => number): BigUint64Array;\n\n    /**\n     * Copies the array and inserts the given bigint at the provided index.\n     * @param index The index of the value to overwrite. If the index is\n     * negative, then it replaces from the end of the array.\n     * @param value The value to insert into the copied array.\n     * @returns A copy of the original array with the inserted value.\n     */\n    with(index: number, value: bigint): BigUint64Array;\n}\n",
+  "typeReferenceDirectives": []
+}

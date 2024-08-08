@@ -1,0 +1,342 @@
+{
+  "endOfFileToken": {
+    "kind": "EndOfFileToken"
+  },
+  "fileName": "data/dts/lib.es2017.object.d.ts",
+  "hasNoDefaultLib": true,
+  "isDeclarationFile": true,
+  "kind": "SourceFile",
+  "libReferenceDirectives": [],
+  "referencedFiles": [],
+  "statements": [
+    {
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "values"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "o"
+              },
+              "type": {
+                "kind": "UnionType",
+                "types": [
+                  {
+                    "kind": "TypeLiteral",
+                    "members": [
+                      {
+                        "kind": "IndexSignature",
+                        "parameters": [
+                          {
+                            "kind": "Parameter",
+                            "name": {
+                              "kind": "Identifier",
+                              "text": "s"
+                            },
+                            "type": {
+                              "kind": "StringKeyword"
+                            }
+                          }
+                        ],
+                        "type": {
+                          "kind": "TypeReference",
+                          "typeName": {
+                            "kind": "Identifier",
+                            "text": "T"
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "TypeReference",
+                    "typeArguments": [
+                      {
+                        "kind": "TypeReference",
+                        "typeName": {
+                          "kind": "Identifier",
+                          "text": "T"
+                        }
+                      }
+                    ],
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "ArrayLike"
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "type": {
+            "elementType": {
+              "kind": "TypeReference",
+              "typeName": {
+                "kind": "Identifier",
+                "text": "T"
+              }
+            },
+            "kind": "ArrayType"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "values"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "o"
+              },
+              "type": {
+                "kind": "TypeLiteral",
+                "members": []
+              }
+            }
+          ],
+          "type": {
+            "elementType": {
+              "kind": "AnyKeyword"
+            },
+            "kind": "ArrayType"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "entries"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "o"
+              },
+              "type": {
+                "kind": "UnionType",
+                "types": [
+                  {
+                    "kind": "TypeLiteral",
+                    "members": [
+                      {
+                        "kind": "IndexSignature",
+                        "parameters": [
+                          {
+                            "kind": "Parameter",
+                            "name": {
+                              "kind": "Identifier",
+                              "text": "s"
+                            },
+                            "type": {
+                              "kind": "StringKeyword"
+                            }
+                          }
+                        ],
+                        "type": {
+                          "kind": "TypeReference",
+                          "typeName": {
+                            "kind": "Identifier",
+                            "text": "T"
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "TypeReference",
+                    "typeArguments": [
+                      {
+                        "kind": "TypeReference",
+                        "typeName": {
+                          "kind": "Identifier",
+                          "text": "T"
+                        }
+                      }
+                    ],
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "ArrayLike"
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "type": {
+            "elementType": {
+              "elements": [
+                {
+                  "kind": "StringKeyword"
+                },
+                {
+                  "kind": "TypeReference",
+                  "typeName": {
+                    "kind": "Identifier",
+                    "text": "T"
+                  }
+                }
+              ],
+              "kind": "TupleType"
+            },
+            "kind": "ArrayType"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "entries"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "o"
+              },
+              "type": {
+                "kind": "TypeLiteral",
+                "members": []
+              }
+            }
+          ],
+          "type": {
+            "elementType": {
+              "elements": [
+                {
+                  "kind": "StringKeyword"
+                },
+                {
+                  "kind": "AnyKeyword"
+                }
+              ],
+              "kind": "TupleType"
+            },
+            "kind": "ArrayType"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "getOwnPropertyDescriptors"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "o"
+              },
+              "type": {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "T"
+                }
+              }
+            }
+          ],
+          "type": {
+            "kind": "IntersectionType",
+            "types": [
+              {
+                "kind": "MappedType",
+                "members": [],
+                "type": {
+                  "kind": "TypeReference",
+                  "typeArguments": [
+                    {
+                      "indexType": {
+                        "kind": "TypeReference",
+                        "typeName": {
+                          "kind": "Identifier",
+                          "text": "P"
+                        }
+                      },
+                      "kind": "IndexedAccessType",
+                      "objectType": {
+                        "kind": "TypeReference",
+                        "typeName": {
+                          "kind": "Identifier",
+                          "text": "T"
+                        }
+                      }
+                    }
+                  ],
+                  "typeName": {
+                    "kind": "Identifier",
+                    "text": "TypedPropertyDescriptor"
+                  }
+                },
+                "typeParameter": {
+                  "constraint": {
+                    "kind": "TypeOperator",
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "T"
+                      }
+                    }
+                  },
+                  "kind": "TypeParameter",
+                  "name": {
+                    "kind": "Identifier",
+                    "text": "P"
+                  }
+                }
+              },
+              {
+                "kind": "TypeLiteral",
+                "members": [
+                  {
+                    "kind": "IndexSignature",
+                    "parameters": [
+                      {
+                        "kind": "Parameter",
+                        "name": {
+                          "kind": "Identifier",
+                          "text": "x"
+                        },
+                        "type": {
+                          "kind": "StringKeyword"
+                        }
+                      }
+                    ],
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "PropertyDescriptor"
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "ObjectConstructor"
+      }
+    }
+  ],
+  "text": "/*! *****************************************************************************\nCopyright (c) Microsoft Corporation. All rights reserved.\nLicensed under the Apache License, Version 2.0 (the \"License\"); you may not use\nthis file except in compliance with the License. You may obtain a copy of the\nLicense at http://www.apache.org/licenses/LICENSE-2.0\n\nTHIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY\nKIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED\nWARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,\nMERCHANTABLITY OR NON-INFRINGEMENT.\n\nSee the Apache Version 2.0 License for specific language governing permissions\nand limitations under the License.\n***************************************************************************** */\n\n\n/// <reference no-default-lib=\"true\"/>\n\ninterface ObjectConstructor {\n    /**\n     * Returns an array of values of the enumerable properties of an object\n     * @param o Object that contains the properties and methods. This can be an object that you created or an existing Document Object Model (DOM) object.\n     */\n    values<T>(o: { [s: string]: T; } | ArrayLike<T>): T[];\n\n    /**\n     * Returns an array of values of the enumerable properties of an object\n     * @param o Object that contains the properties and methods. This can be an object that you created or an existing Document Object Model (DOM) object.\n     */\n    values(o: {}): any[];\n\n    /**\n     * Returns an array of key/values of the enumerable properties of an object\n     * @param o Object that contains the properties and methods. This can be an object that you created or an existing Document Object Model (DOM) object.\n     */\n    entries<T>(o: { [s: string]: T; } | ArrayLike<T>): [string, T][];\n\n    /**\n     * Returns an array of key/values of the enumerable properties of an object\n     * @param o Object that contains the properties and methods. This can be an object that you created or an existing Document Object Model (DOM) object.\n     */\n    entries(o: {}): [string, any][];\n\n    /**\n     * Returns an object containing all own property descriptors of an object\n     * @param o Object that contains the properties and methods. This can be an object that you created or an existing Document Object Model (DOM) object.\n     */\n    getOwnPropertyDescriptors<T>(o: T): { [P in keyof T]: TypedPropertyDescriptor<T[P]>; } & { [x: string]: PropertyDescriptor; };\n}\n",
+  "typeReferenceDirectives": []
+}

@@ -1,0 +1,50 @@
+{
+	"compilerOptions": {
+		"allowJs": false,
+		"checkJs": false,
+		"strict": true,
+		"lib": ["esnext", "dom", "dom.iterable", "dom.asynciterable", "deno.ns"]
+	},
+	"nodeModulesDir": false,
+	"tasks": {
+		"coverage": "./scripts/coverage.sh",
+		"docs": "./scripts/docs.sh",
+		"dts-json": "./scripts/dts-json.sh",
+		"repl": "deno run -A ./ensemble.ts",
+		"serve-coverage": "python -m http.server -d ./coverage",
+		"serve-docs": "python -m http.server -d ./docs",
+		"test-e2e": "./scripts/test.sh --e2e",
+		"test-fun": "./scripts/test.sh --fun",
+		"test-unit": "./scripts/test.sh --unit",
+		"test": "./scripts/test.sh"
+	},
+	"lint": {
+		"exclude": [
+			"coverage",
+			"data",
+			"docs",
+			"examples",
+			"scripts"
+		],
+		"rules": {
+			"tags": ["recommended"],
+			"include": [],
+			"exclude": []
+		}
+	},
+	"fmt": {
+		"useTabs": true,
+		"lineWidth": 80,
+		"indentWidth": 4,
+		"semiColons": true,
+		"singleQuote": true,
+		"proseWrap": "always",
+		"exclude": [
+			"coverage",
+			"data",
+			"docs",
+			"examples",
+			"scripts"
+		]
+	}
+}

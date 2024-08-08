@@ -1,0 +1,841 @@
+{
+  "endOfFileToken": {
+    "kind": "EndOfFileToken"
+  },
+  "fileName": "data/dts/lib.es2022.error.d.ts",
+  "hasNoDefaultLib": true,
+  "isDeclarationFile": true,
+  "kind": "SourceFile",
+  "libReferenceDirectives": [],
+  "referencedFiles": [],
+  "statements": [
+    {
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "cause"
+          },
+          "questionToken": {
+            "kind": "QuestionToken"
+          },
+          "type": {
+            "kind": "UnknownKeyword"
+          }
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "ErrorOptions"
+      }
+    },
+    {
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "cause"
+          },
+          "questionToken": {
+            "kind": "QuestionToken"
+          },
+          "type": {
+            "kind": "UnknownKeyword"
+          }
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "Error"
+      }
+    },
+    {
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "ConstructSignature",
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "message"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "StringKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "options"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "ErrorOptions"
+                }
+              }
+            }
+          ],
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "Error"
+            }
+          }
+        },
+        {
+          "kind": "CallSignature",
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "message"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "StringKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "options"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "ErrorOptions"
+                }
+              }
+            }
+          ],
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "Error"
+            }
+          }
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "ErrorConstructor"
+      }
+    },
+    {
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "ConstructSignature",
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "message"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "StringKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "options"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "ErrorOptions"
+                }
+              }
+            }
+          ],
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "EvalError"
+            }
+          }
+        },
+        {
+          "kind": "CallSignature",
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "message"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "StringKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "options"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "ErrorOptions"
+                }
+              }
+            }
+          ],
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "EvalError"
+            }
+          }
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "EvalErrorConstructor"
+      }
+    },
+    {
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "ConstructSignature",
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "message"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "StringKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "options"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "ErrorOptions"
+                }
+              }
+            }
+          ],
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "RangeError"
+            }
+          }
+        },
+        {
+          "kind": "CallSignature",
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "message"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "StringKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "options"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "ErrorOptions"
+                }
+              }
+            }
+          ],
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "RangeError"
+            }
+          }
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "RangeErrorConstructor"
+      }
+    },
+    {
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "ConstructSignature",
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "message"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "StringKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "options"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "ErrorOptions"
+                }
+              }
+            }
+          ],
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "ReferenceError"
+            }
+          }
+        },
+        {
+          "kind": "CallSignature",
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "message"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "StringKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "options"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "ErrorOptions"
+                }
+              }
+            }
+          ],
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "ReferenceError"
+            }
+          }
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "ReferenceErrorConstructor"
+      }
+    },
+    {
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "ConstructSignature",
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "message"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "StringKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "options"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "ErrorOptions"
+                }
+              }
+            }
+          ],
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "SyntaxError"
+            }
+          }
+        },
+        {
+          "kind": "CallSignature",
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "message"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "StringKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "options"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "ErrorOptions"
+                }
+              }
+            }
+          ],
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "SyntaxError"
+            }
+          }
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "SyntaxErrorConstructor"
+      }
+    },
+    {
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "ConstructSignature",
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "message"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "StringKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "options"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "ErrorOptions"
+                }
+              }
+            }
+          ],
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "TypeError"
+            }
+          }
+        },
+        {
+          "kind": "CallSignature",
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "message"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "StringKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "options"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "ErrorOptions"
+                }
+              }
+            }
+          ],
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "TypeError"
+            }
+          }
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "TypeErrorConstructor"
+      }
+    },
+    {
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "ConstructSignature",
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "message"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "StringKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "options"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "ErrorOptions"
+                }
+              }
+            }
+          ],
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "URIError"
+            }
+          }
+        },
+        {
+          "kind": "CallSignature",
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "message"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "StringKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "options"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "ErrorOptions"
+                }
+              }
+            }
+          ],
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "URIError"
+            }
+          }
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "URIErrorConstructor"
+      }
+    },
+    {
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "ConstructSignature",
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "errors"
+              },
+              "type": {
+                "kind": "TypeReference",
+                "typeArguments": [
+                  {
+                    "kind": "AnyKeyword"
+                  }
+                ],
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "Iterable"
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "message"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "StringKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "options"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "ErrorOptions"
+                }
+              }
+            }
+          ],
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "AggregateError"
+            }
+          }
+        },
+        {
+          "kind": "CallSignature",
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "errors"
+              },
+              "type": {
+                "kind": "TypeReference",
+                "typeArguments": [
+                  {
+                    "kind": "AnyKeyword"
+                  }
+                ],
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "Iterable"
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "message"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "StringKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "options"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "ErrorOptions"
+                }
+              }
+            }
+          ],
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "AggregateError"
+            }
+          }
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "AggregateErrorConstructor"
+      }
+    }
+  ],
+  "text": "/*! *****************************************************************************\nCopyright (c) Microsoft Corporation. All rights reserved.\nLicensed under the Apache License, Version 2.0 (the \"License\"); you may not use\nthis file except in compliance with the License. You may obtain a copy of the\nLicense at http://www.apache.org/licenses/LICENSE-2.0\n\nTHIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY\nKIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED\nWARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,\nMERCHANTABLITY OR NON-INFRINGEMENT.\n\nSee the Apache Version 2.0 License for specific language governing permissions\nand limitations under the License.\n***************************************************************************** */\n\n\n/// <reference no-default-lib=\"true\"/>\n\ninterface ErrorOptions {\n    cause?: unknown;\n}\n\ninterface Error {\n    cause?: unknown;\n}\n\ninterface ErrorConstructor {\n    new (message?: string, options?: ErrorOptions): Error;\n    (message?: string, options?: ErrorOptions): Error;\n}\n\ninterface EvalErrorConstructor {\n    new (message?: string, options?: ErrorOptions): EvalError;\n    (message?: string, options?: ErrorOptions): EvalError;\n}\n\ninterface RangeErrorConstructor {\n    new (message?: string, options?: ErrorOptions): RangeError;\n    (message?: string, options?: ErrorOptions): RangeError;\n}\n\ninterface ReferenceErrorConstructor {\n    new (message?: string, options?: ErrorOptions): ReferenceError;\n    (message?: string, options?: ErrorOptions): ReferenceError;\n}\n\ninterface SyntaxErrorConstructor {\n    new (message?: string, options?: ErrorOptions): SyntaxError;\n    (message?: string, options?: ErrorOptions): SyntaxError;\n}\n\ninterface TypeErrorConstructor {\n    new (message?: string, options?: ErrorOptions): TypeError;\n    (message?: string, options?: ErrorOptions): TypeError;\n}\n\ninterface URIErrorConstructor {\n    new (message?: string, options?: ErrorOptions): URIError;\n    (message?: string, options?: ErrorOptions): URIError;\n}\n\ninterface AggregateErrorConstructor {\n    new (\n        errors: Iterable<any>,\n        message?: string,\n        options?: ErrorOptions,\n    ): AggregateError;\n    (\n        errors: Iterable<any>,\n        message?: string,\n        options?: ErrorOptions,\n    ): AggregateError;\n}\n",
+  "typeReferenceDirectives": []
+}

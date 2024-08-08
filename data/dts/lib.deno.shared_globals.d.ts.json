@@ -1,0 +1,4673 @@
+{
+  "endOfFileToken": {
+    "kind": "EndOfFileToken"
+  },
+  "fileName": "data/dts/lib.deno.shared_globals.d.ts",
+  "hasNoDefaultLib": true,
+  "isDeclarationFile": true,
+  "kind": "SourceFile",
+  "libReferenceDirectives": [
+    {
+      "fileName": "esnext"
+    },
+    {
+      "fileName": "deno.console"
+    },
+    {
+      "fileName": "deno.url"
+    },
+    {
+      "fileName": "deno.web"
+    },
+    {
+      "fileName": "deno.webgpu"
+    },
+    {
+      "fileName": "deno.canvas"
+    },
+    {
+      "fileName": "deno.fetch"
+    },
+    {
+      "fileName": "deno.websocket"
+    },
+    {
+      "fileName": "deno.crypto"
+    }
+  ],
+  "referencedFiles": [],
+  "statements": [
+    {
+      "body": {
+        "kind": "ModuleBlock",
+        "statements": [
+          {
+            "heritageClauses": [
+              {
+                "kind": "HeritageClause",
+                "token": "ExtendsKeyword",
+                "types": [
+                  {
+                    "expression": {
+                      "kind": "Identifier",
+                      "text": "Error"
+                    },
+                    "kind": "ExpressionWithTypeArguments"
+                  }
+                ]
+              }
+            ],
+            "kind": "ClassDeclaration",
+            "members": [
+              {
+                "kind": "Constructor",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "message"
+                    },
+                    "questionToken": {
+                      "kind": "QuestionToken"
+                    },
+                    "type": {
+                      "kind": "StringKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "options"
+                    },
+                    "questionToken": {
+                      "kind": "QuestionToken"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "ErrorOptions"
+                      }
+                    }
+                  }
+                ]
+              }
+            ],
+            "modifiers": [
+              {
+                "kind": "ExportKeyword"
+              }
+            ],
+            "name": {
+              "kind": "Identifier",
+              "text": "CompileError"
+            }
+          },
+          {
+            "kind": "ClassDeclaration",
+            "members": [
+              {
+                "kind": "Constructor",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "descriptor"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "GlobalDescriptor"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "v"
+                    },
+                    "questionToken": {
+                      "kind": "QuestionToken"
+                    },
+                    "type": {
+                      "kind": "AnyKeyword"
+                    }
+                  }
+                ]
+              },
+              {
+                "kind": "PropertyDeclaration",
+                "name": {
+                  "kind": "Identifier",
+                  "text": "value"
+                },
+                "type": {
+                  "kind": "AnyKeyword"
+                }
+              },
+              {
+                "kind": "MethodDeclaration",
+                "name": {
+                  "kind": "Identifier",
+                  "text": "valueOf"
+                },
+                "parameters": [],
+                "type": {
+                  "kind": "AnyKeyword"
+                }
+              }
+            ],
+            "modifiers": [
+              {
+                "kind": "ExportKeyword"
+              }
+            ],
+            "name": {
+              "kind": "Identifier",
+              "text": "Global"
+            }
+          },
+          {
+            "kind": "ClassDeclaration",
+            "members": [
+              {
+                "kind": "Constructor",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "module"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "Module"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "importObject"
+                    },
+                    "questionToken": {
+                      "kind": "QuestionToken"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "Imports"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "kind": "PropertyDeclaration",
+                "modifiers": [
+                  {
+                    "kind": "ReadonlyKeyword"
+                  }
+                ],
+                "name": {
+                  "kind": "Identifier",
+                  "text": "exports"
+                },
+                "type": {
+                  "kind": "TypeReference",
+                  "typeName": {
+                    "kind": "Identifier",
+                    "text": "Exports"
+                  }
+                }
+              }
+            ],
+            "modifiers": [
+              {
+                "kind": "ExportKeyword"
+              }
+            ],
+            "name": {
+              "kind": "Identifier",
+              "text": "Instance"
+            }
+          },
+          {
+            "heritageClauses": [
+              {
+                "kind": "HeritageClause",
+                "token": "ExtendsKeyword",
+                "types": [
+                  {
+                    "expression": {
+                      "kind": "Identifier",
+                      "text": "Error"
+                    },
+                    "kind": "ExpressionWithTypeArguments"
+                  }
+                ]
+              }
+            ],
+            "kind": "ClassDeclaration",
+            "members": [
+              {
+                "kind": "Constructor",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "message"
+                    },
+                    "questionToken": {
+                      "kind": "QuestionToken"
+                    },
+                    "type": {
+                      "kind": "StringKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "options"
+                    },
+                    "questionToken": {
+                      "kind": "QuestionToken"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "ErrorOptions"
+                      }
+                    }
+                  }
+                ]
+              }
+            ],
+            "modifiers": [
+              {
+                "kind": "ExportKeyword"
+              }
+            ],
+            "name": {
+              "kind": "Identifier",
+              "text": "LinkError"
+            }
+          },
+          {
+            "kind": "ClassDeclaration",
+            "members": [
+              {
+                "kind": "Constructor",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "descriptor"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "MemoryDescriptor"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "kind": "PropertyDeclaration",
+                "modifiers": [
+                  {
+                    "kind": "ReadonlyKeyword"
+                  }
+                ],
+                "name": {
+                  "kind": "Identifier",
+                  "text": "buffer"
+                },
+                "type": {
+                  "kind": "UnionType",
+                  "types": [
+                    {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "ArrayBuffer"
+                      }
+                    },
+                    {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "SharedArrayBuffer"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "kind": "MethodDeclaration",
+                "name": {
+                  "kind": "Identifier",
+                  "text": "grow"
+                },
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "delta"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "NumberKeyword"
+                }
+              }
+            ],
+            "modifiers": [
+              {
+                "kind": "ExportKeyword"
+              }
+            ],
+            "name": {
+              "kind": "Identifier",
+              "text": "Memory"
+            }
+          },
+          {
+            "kind": "ClassDeclaration",
+            "members": [
+              {
+                "kind": "Constructor",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "bytes"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "BufferSource"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "kind": "MethodDeclaration",
+                "modifiers": [
+                  {
+                    "kind": "StaticKeyword"
+                  }
+                ],
+                "name": {
+                  "kind": "Identifier",
+                  "text": "customSections"
+                },
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "moduleObject"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "Module"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "sectionName"
+                    },
+                    "type": {
+                      "kind": "StringKeyword"
+                    }
+                  }
+                ],
+                "type": {
+                  "elementType": {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "ArrayBuffer"
+                    }
+                  },
+                  "kind": "ArrayType"
+                }
+              },
+              {
+                "kind": "MethodDeclaration",
+                "modifiers": [
+                  {
+                    "kind": "StaticKeyword"
+                  }
+                ],
+                "name": {
+                  "kind": "Identifier",
+                  "text": "exports"
+                },
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "moduleObject"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "Module"
+                      }
+                    }
+                  }
+                ],
+                "type": {
+                  "elementType": {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "ModuleExportDescriptor"
+                    }
+                  },
+                  "kind": "ArrayType"
+                }
+              },
+              {
+                "kind": "MethodDeclaration",
+                "modifiers": [
+                  {
+                    "kind": "StaticKeyword"
+                  }
+                ],
+                "name": {
+                  "kind": "Identifier",
+                  "text": "imports"
+                },
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "moduleObject"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "Module"
+                      }
+                    }
+                  }
+                ],
+                "type": {
+                  "elementType": {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "ModuleImportDescriptor"
+                    }
+                  },
+                  "kind": "ArrayType"
+                }
+              }
+            ],
+            "modifiers": [
+              {
+                "kind": "ExportKeyword"
+              }
+            ],
+            "name": {
+              "kind": "Identifier",
+              "text": "Module"
+            }
+          },
+          {
+            "heritageClauses": [
+              {
+                "kind": "HeritageClause",
+                "token": "ExtendsKeyword",
+                "types": [
+                  {
+                    "expression": {
+                      "kind": "Identifier",
+                      "text": "Error"
+                    },
+                    "kind": "ExpressionWithTypeArguments"
+                  }
+                ]
+              }
+            ],
+            "kind": "ClassDeclaration",
+            "members": [
+              {
+                "kind": "Constructor",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "message"
+                    },
+                    "questionToken": {
+                      "kind": "QuestionToken"
+                    },
+                    "type": {
+                      "kind": "StringKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "options"
+                    },
+                    "questionToken": {
+                      "kind": "QuestionToken"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "ErrorOptions"
+                      }
+                    }
+                  }
+                ]
+              }
+            ],
+            "modifiers": [
+              {
+                "kind": "ExportKeyword"
+              }
+            ],
+            "name": {
+              "kind": "Identifier",
+              "text": "RuntimeError"
+            }
+          },
+          {
+            "kind": "ClassDeclaration",
+            "members": [
+              {
+                "kind": "Constructor",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "descriptor"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "TableDescriptor"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "kind": "PropertyDeclaration",
+                "modifiers": [
+                  {
+                    "kind": "ReadonlyKeyword"
+                  }
+                ],
+                "name": {
+                  "kind": "Identifier",
+                  "text": "length"
+                },
+                "type": {
+                  "kind": "NumberKeyword"
+                }
+              },
+              {
+                "kind": "MethodDeclaration",
+                "name": {
+                  "kind": "Identifier",
+                  "text": "get"
+                },
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "index"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "UnionType",
+                  "types": [
+                    {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "Function"
+                      }
+                    },
+                    {
+                      "kind": "LiteralType",
+                      "literal": {
+                        "kind": "NullKeyword"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "kind": "MethodDeclaration",
+                "name": {
+                  "kind": "Identifier",
+                  "text": "grow"
+                },
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "delta"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "NumberKeyword"
+                }
+              },
+              {
+                "kind": "MethodDeclaration",
+                "name": {
+                  "kind": "Identifier",
+                  "text": "set"
+                },
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "index"
+                    },
+                    "type": {
+                      "kind": "NumberKeyword"
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "value"
+                    },
+                    "type": {
+                      "kind": "UnionType",
+                      "types": [
+                        {
+                          "kind": "TypeReference",
+                          "typeName": {
+                            "kind": "Identifier",
+                            "text": "Function"
+                          }
+                        },
+                        {
+                          "kind": "LiteralType",
+                          "literal": {
+                            "kind": "NullKeyword"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "VoidKeyword"
+                }
+              }
+            ],
+            "modifiers": [
+              {
+                "kind": "ExportKeyword"
+              }
+            ],
+            "name": {
+              "kind": "Identifier",
+              "text": "Table"
+            }
+          },
+          {
+            "kind": "InterfaceDeclaration",
+            "members": [
+              {
+                "kind": "PropertySignature",
+                "name": {
+                  "kind": "Identifier",
+                  "text": "mutable"
+                },
+                "questionToken": {
+                  "kind": "QuestionToken"
+                },
+                "type": {
+                  "kind": "BooleanKeyword"
+                }
+              },
+              {
+                "kind": "PropertySignature",
+                "name": {
+                  "kind": "Identifier",
+                  "text": "value"
+                },
+                "type": {
+                  "kind": "TypeReference",
+                  "typeName": {
+                    "kind": "Identifier",
+                    "text": "ValueType"
+                  }
+                }
+              }
+            ],
+            "modifiers": [
+              {
+                "kind": "ExportKeyword"
+              }
+            ],
+            "name": {
+              "kind": "Identifier",
+              "text": "GlobalDescriptor"
+            }
+          },
+          {
+            "kind": "InterfaceDeclaration",
+            "members": [
+              {
+                "kind": "PropertySignature",
+                "name": {
+                  "kind": "Identifier",
+                  "text": "initial"
+                },
+                "type": {
+                  "kind": "NumberKeyword"
+                }
+              },
+              {
+                "kind": "PropertySignature",
+                "name": {
+                  "kind": "Identifier",
+                  "text": "maximum"
+                },
+                "questionToken": {
+                  "kind": "QuestionToken"
+                },
+                "type": {
+                  "kind": "NumberKeyword"
+                }
+              },
+              {
+                "kind": "PropertySignature",
+                "name": {
+                  "kind": "Identifier",
+                  "text": "shared"
+                },
+                "questionToken": {
+                  "kind": "QuestionToken"
+                },
+                "type": {
+                  "kind": "BooleanKeyword"
+                }
+              }
+            ],
+            "modifiers": [
+              {
+                "kind": "ExportKeyword"
+              }
+            ],
+            "name": {
+              "kind": "Identifier",
+              "text": "MemoryDescriptor"
+            }
+          },
+          {
+            "kind": "InterfaceDeclaration",
+            "members": [
+              {
+                "kind": "PropertySignature",
+                "name": {
+                  "kind": "Identifier",
+                  "text": "kind"
+                },
+                "type": {
+                  "kind": "TypeReference",
+                  "typeName": {
+                    "kind": "Identifier",
+                    "text": "ImportExportKind"
+                  }
+                }
+              },
+              {
+                "kind": "PropertySignature",
+                "name": {
+                  "kind": "Identifier",
+                  "text": "name"
+                },
+                "type": {
+                  "kind": "StringKeyword"
+                }
+              }
+            ],
+            "modifiers": [
+              {
+                "kind": "ExportKeyword"
+              }
+            ],
+            "name": {
+              "kind": "Identifier",
+              "text": "ModuleExportDescriptor"
+            }
+          },
+          {
+            "kind": "InterfaceDeclaration",
+            "members": [
+              {
+                "kind": "PropertySignature",
+                "name": {
+                  "kind": "Identifier",
+                  "text": "kind"
+                },
+                "type": {
+                  "kind": "TypeReference",
+                  "typeName": {
+                    "kind": "Identifier",
+                    "text": "ImportExportKind"
+                  }
+                }
+              },
+              {
+                "kind": "PropertySignature",
+                "name": {
+                  "kind": "Identifier",
+                  "text": "module"
+                },
+                "type": {
+                  "kind": "StringKeyword"
+                }
+              },
+              {
+                "kind": "PropertySignature",
+                "name": {
+                  "kind": "Identifier",
+                  "text": "name"
+                },
+                "type": {
+                  "kind": "StringKeyword"
+                }
+              }
+            ],
+            "modifiers": [
+              {
+                "kind": "ExportKeyword"
+              }
+            ],
+            "name": {
+              "kind": "Identifier",
+              "text": "ModuleImportDescriptor"
+            }
+          },
+          {
+            "kind": "InterfaceDeclaration",
+            "members": [
+              {
+                "kind": "PropertySignature",
+                "name": {
+                  "kind": "Identifier",
+                  "text": "element"
+                },
+                "type": {
+                  "kind": "TypeReference",
+                  "typeName": {
+                    "kind": "Identifier",
+                    "text": "TableKind"
+                  }
+                }
+              },
+              {
+                "kind": "PropertySignature",
+                "name": {
+                  "kind": "Identifier",
+                  "text": "initial"
+                },
+                "type": {
+                  "kind": "NumberKeyword"
+                }
+              },
+              {
+                "kind": "PropertySignature",
+                "name": {
+                  "kind": "Identifier",
+                  "text": "maximum"
+                },
+                "questionToken": {
+                  "kind": "QuestionToken"
+                },
+                "type": {
+                  "kind": "NumberKeyword"
+                }
+              }
+            ],
+            "modifiers": [
+              {
+                "kind": "ExportKeyword"
+              }
+            ],
+            "name": {
+              "kind": "Identifier",
+              "text": "TableDescriptor"
+            }
+          },
+          {
+            "kind": "InterfaceDeclaration",
+            "members": [
+              {
+                "kind": "PropertySignature",
+                "name": {
+                  "kind": "Identifier",
+                  "text": "instance"
+                },
+                "type": {
+                  "kind": "TypeReference",
+                  "typeName": {
+                    "kind": "Identifier",
+                    "text": "Instance"
+                  }
+                }
+              },
+              {
+                "kind": "PropertySignature",
+                "name": {
+                  "kind": "Identifier",
+                  "text": "module"
+                },
+                "type": {
+                  "kind": "TypeReference",
+                  "typeName": {
+                    "kind": "Identifier",
+                    "text": "Module"
+                  }
+                }
+              }
+            ],
+            "modifiers": [
+              {
+                "kind": "ExportKeyword"
+              }
+            ],
+            "name": {
+              "kind": "Identifier",
+              "text": "WebAssemblyInstantiatedSource"
+            }
+          },
+          {
+            "kind": "TypeAliasDeclaration",
+            "modifiers": [
+              {
+                "kind": "ExportKeyword"
+              }
+            ],
+            "name": {
+              "kind": "Identifier",
+              "text": "ImportExportKind"
+            },
+            "type": {
+              "kind": "UnionType",
+              "types": [
+                {
+                  "kind": "LiteralType",
+                  "literal": {
+                    "kind": "StringLiteral",
+                    "text": "function"
+                  }
+                },
+                {
+                  "kind": "LiteralType",
+                  "literal": {
+                    "kind": "StringLiteral",
+                    "text": "global"
+                  }
+                },
+                {
+                  "kind": "LiteralType",
+                  "literal": {
+                    "kind": "StringLiteral",
+                    "text": "memory"
+                  }
+                },
+                {
+                  "kind": "LiteralType",
+                  "literal": {
+                    "kind": "StringLiteral",
+                    "text": "table"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "kind": "TypeAliasDeclaration",
+            "modifiers": [
+              {
+                "kind": "ExportKeyword"
+              }
+            ],
+            "name": {
+              "kind": "Identifier",
+              "text": "TableKind"
+            },
+            "type": {
+              "kind": "LiteralType",
+              "literal": {
+                "kind": "StringLiteral",
+                "text": "anyfunc"
+              }
+            }
+          },
+          {
+            "kind": "TypeAliasDeclaration",
+            "modifiers": [
+              {
+                "kind": "ExportKeyword"
+              }
+            ],
+            "name": {
+              "kind": "Identifier",
+              "text": "ValueType"
+            },
+            "type": {
+              "kind": "UnionType",
+              "types": [
+                {
+                  "kind": "LiteralType",
+                  "literal": {
+                    "kind": "StringLiteral",
+                    "text": "f32"
+                  }
+                },
+                {
+                  "kind": "LiteralType",
+                  "literal": {
+                    "kind": "StringLiteral",
+                    "text": "f64"
+                  }
+                },
+                {
+                  "kind": "LiteralType",
+                  "literal": {
+                    "kind": "StringLiteral",
+                    "text": "i32"
+                  }
+                },
+                {
+                  "kind": "LiteralType",
+                  "literal": {
+                    "kind": "StringLiteral",
+                    "text": "i64"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "kind": "TypeAliasDeclaration",
+            "modifiers": [
+              {
+                "kind": "ExportKeyword"
+              }
+            ],
+            "name": {
+              "kind": "Identifier",
+              "text": "ExportValue"
+            },
+            "type": {
+              "kind": "UnionType",
+              "types": [
+                {
+                  "kind": "TypeReference",
+                  "typeName": {
+                    "kind": "Identifier",
+                    "text": "Function"
+                  }
+                },
+                {
+                  "kind": "TypeReference",
+                  "typeName": {
+                    "kind": "Identifier",
+                    "text": "Global"
+                  }
+                },
+                {
+                  "kind": "TypeReference",
+                  "typeName": {
+                    "kind": "Identifier",
+                    "text": "Memory"
+                  }
+                },
+                {
+                  "kind": "TypeReference",
+                  "typeName": {
+                    "kind": "Identifier",
+                    "text": "Table"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "kind": "TypeAliasDeclaration",
+            "modifiers": [
+              {
+                "kind": "ExportKeyword"
+              }
+            ],
+            "name": {
+              "kind": "Identifier",
+              "text": "Exports"
+            },
+            "type": {
+              "kind": "TypeReference",
+              "typeArguments": [
+                {
+                  "kind": "StringKeyword"
+                },
+                {
+                  "kind": "TypeReference",
+                  "typeName": {
+                    "kind": "Identifier",
+                    "text": "ExportValue"
+                  }
+                }
+              ],
+              "typeName": {
+                "kind": "Identifier",
+                "text": "Record"
+              }
+            }
+          },
+          {
+            "kind": "TypeAliasDeclaration",
+            "modifiers": [
+              {
+                "kind": "ExportKeyword"
+              }
+            ],
+            "name": {
+              "kind": "Identifier",
+              "text": "ImportValue"
+            },
+            "type": {
+              "kind": "UnionType",
+              "types": [
+                {
+                  "kind": "TypeReference",
+                  "typeName": {
+                    "kind": "Identifier",
+                    "text": "ExportValue"
+                  }
+                },
+                {
+                  "kind": "NumberKeyword"
+                }
+              ]
+            }
+          },
+          {
+            "kind": "TypeAliasDeclaration",
+            "modifiers": [
+              {
+                "kind": "ExportKeyword"
+              }
+            ],
+            "name": {
+              "kind": "Identifier",
+              "text": "ModuleImports"
+            },
+            "type": {
+              "kind": "TypeReference",
+              "typeArguments": [
+                {
+                  "kind": "StringKeyword"
+                },
+                {
+                  "kind": "TypeReference",
+                  "typeName": {
+                    "kind": "Identifier",
+                    "text": "ImportValue"
+                  }
+                }
+              ],
+              "typeName": {
+                "kind": "Identifier",
+                "text": "Record"
+              }
+            }
+          },
+          {
+            "kind": "TypeAliasDeclaration",
+            "modifiers": [
+              {
+                "kind": "ExportKeyword"
+              }
+            ],
+            "name": {
+              "kind": "Identifier",
+              "text": "Imports"
+            },
+            "type": {
+              "kind": "TypeReference",
+              "typeArguments": [
+                {
+                  "kind": "StringKeyword"
+                },
+                {
+                  "kind": "TypeReference",
+                  "typeName": {
+                    "kind": "Identifier",
+                    "text": "ModuleImports"
+                  }
+                }
+              ],
+              "typeName": {
+                "kind": "Identifier",
+                "text": "Record"
+              }
+            }
+          },
+          {
+            "kind": "FunctionDeclaration",
+            "modifiers": [
+              {
+                "kind": "ExportKeyword"
+              }
+            ],
+            "name": {
+              "kind": "Identifier",
+              "text": "compile"
+            },
+            "parameters": [
+              {
+                "kind": "Parameter",
+                "name": {
+                  "kind": "Identifier",
+                  "text": "bytes"
+                },
+                "type": {
+                  "kind": "TypeReference",
+                  "typeName": {
+                    "kind": "Identifier",
+                    "text": "BufferSource"
+                  }
+                }
+              }
+            ],
+            "type": {
+              "kind": "TypeReference",
+              "typeArguments": [
+                {
+                  "kind": "TypeReference",
+                  "typeName": {
+                    "kind": "Identifier",
+                    "text": "Module"
+                  }
+                }
+              ],
+              "typeName": {
+                "kind": "Identifier",
+                "text": "Promise"
+              }
+            }
+          },
+          {
+            "kind": "FunctionDeclaration",
+            "modifiers": [
+              {
+                "kind": "ExportKeyword"
+              }
+            ],
+            "name": {
+              "kind": "Identifier",
+              "text": "compileStreaming"
+            },
+            "parameters": [
+              {
+                "kind": "Parameter",
+                "name": {
+                  "kind": "Identifier",
+                  "text": "source"
+                },
+                "type": {
+                  "kind": "UnionType",
+                  "types": [
+                    {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "Response"
+                      }
+                    },
+                    {
+                      "kind": "TypeReference",
+                      "typeArguments": [
+                        {
+                          "kind": "TypeReference",
+                          "typeName": {
+                            "kind": "Identifier",
+                            "text": "Response"
+                          }
+                        }
+                      ],
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "Promise"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "type": {
+              "kind": "TypeReference",
+              "typeArguments": [
+                {
+                  "kind": "TypeReference",
+                  "typeName": {
+                    "kind": "Identifier",
+                    "text": "Module"
+                  }
+                }
+              ],
+              "typeName": {
+                "kind": "Identifier",
+                "text": "Promise"
+              }
+            }
+          },
+          {
+            "kind": "FunctionDeclaration",
+            "modifiers": [
+              {
+                "kind": "ExportKeyword"
+              }
+            ],
+            "name": {
+              "kind": "Identifier",
+              "text": "instantiate"
+            },
+            "parameters": [
+              {
+                "kind": "Parameter",
+                "name": {
+                  "kind": "Identifier",
+                  "text": "bytes"
+                },
+                "type": {
+                  "kind": "TypeReference",
+                  "typeName": {
+                    "kind": "Identifier",
+                    "text": "BufferSource"
+                  }
+                }
+              },
+              {
+                "kind": "Parameter",
+                "name": {
+                  "kind": "Identifier",
+                  "text": "importObject"
+                },
+                "questionToken": {
+                  "kind": "QuestionToken"
+                },
+                "type": {
+                  "kind": "TypeReference",
+                  "typeName": {
+                    "kind": "Identifier",
+                    "text": "Imports"
+                  }
+                }
+              }
+            ],
+            "type": {
+              "kind": "TypeReference",
+              "typeArguments": [
+                {
+                  "kind": "TypeReference",
+                  "typeName": {
+                    "kind": "Identifier",
+                    "text": "WebAssemblyInstantiatedSource"
+                  }
+                }
+              ],
+              "typeName": {
+                "kind": "Identifier",
+                "text": "Promise"
+              }
+            }
+          },
+          {
+            "kind": "FunctionDeclaration",
+            "modifiers": [
+              {
+                "kind": "ExportKeyword"
+              }
+            ],
+            "name": {
+              "kind": "Identifier",
+              "text": "instantiate"
+            },
+            "parameters": [
+              {
+                "kind": "Parameter",
+                "name": {
+                  "kind": "Identifier",
+                  "text": "moduleObject"
+                },
+                "type": {
+                  "kind": "TypeReference",
+                  "typeName": {
+                    "kind": "Identifier",
+                    "text": "Module"
+                  }
+                }
+              },
+              {
+                "kind": "Parameter",
+                "name": {
+                  "kind": "Identifier",
+                  "text": "importObject"
+                },
+                "questionToken": {
+                  "kind": "QuestionToken"
+                },
+                "type": {
+                  "kind": "TypeReference",
+                  "typeName": {
+                    "kind": "Identifier",
+                    "text": "Imports"
+                  }
+                }
+              }
+            ],
+            "type": {
+              "kind": "TypeReference",
+              "typeArguments": [
+                {
+                  "kind": "TypeReference",
+                  "typeName": {
+                    "kind": "Identifier",
+                    "text": "Instance"
+                  }
+                }
+              ],
+              "typeName": {
+                "kind": "Identifier",
+                "text": "Promise"
+              }
+            }
+          },
+          {
+            "kind": "FunctionDeclaration",
+            "modifiers": [
+              {
+                "kind": "ExportKeyword"
+              }
+            ],
+            "name": {
+              "kind": "Identifier",
+              "text": "instantiateStreaming"
+            },
+            "parameters": [
+              {
+                "kind": "Parameter",
+                "name": {
+                  "kind": "Identifier",
+                  "text": "response"
+                },
+                "type": {
+                  "kind": "UnionType",
+                  "types": [
+                    {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "Response"
+                      }
+                    },
+                    {
+                      "kind": "TypeReference",
+                      "typeArguments": [
+                        {
+                          "kind": "TypeReference",
+                          "typeName": {
+                            "kind": "Identifier",
+                            "text": "Response"
+                          }
+                        }
+                      ],
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "PromiseLike"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "kind": "Parameter",
+                "name": {
+                  "kind": "Identifier",
+                  "text": "importObject"
+                },
+                "questionToken": {
+                  "kind": "QuestionToken"
+                },
+                "type": {
+                  "kind": "TypeReference",
+                  "typeName": {
+                    "kind": "Identifier",
+                    "text": "Imports"
+                  }
+                }
+              }
+            ],
+            "type": {
+              "kind": "TypeReference",
+              "typeArguments": [
+                {
+                  "kind": "TypeReference",
+                  "typeName": {
+                    "kind": "Identifier",
+                    "text": "WebAssemblyInstantiatedSource"
+                  }
+                }
+              ],
+              "typeName": {
+                "kind": "Identifier",
+                "text": "Promise"
+              }
+            }
+          },
+          {
+            "kind": "FunctionDeclaration",
+            "modifiers": [
+              {
+                "kind": "ExportKeyword"
+              }
+            ],
+            "name": {
+              "kind": "Identifier",
+              "text": "validate"
+            },
+            "parameters": [
+              {
+                "kind": "Parameter",
+                "name": {
+                  "kind": "Identifier",
+                  "text": "bytes"
+                },
+                "type": {
+                  "kind": "TypeReference",
+                  "typeName": {
+                    "kind": "Identifier",
+                    "text": "BufferSource"
+                  }
+                }
+              }
+            ],
+            "type": {
+              "kind": "BooleanKeyword"
+            }
+          }
+        ]
+      },
+      "kind": "ModuleDeclaration",
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "WebAssembly"
+      }
+    },
+    {
+      "kind": "FunctionDeclaration",
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "setTimeout"
+      },
+      "parameters": [
+        {
+          "kind": "Parameter",
+          "name": {
+            "kind": "Identifier",
+            "text": "cb"
+          },
+          "type": {
+            "kind": "FunctionType",
+            "parameters": [
+              {
+                "dotDotDotToken": {
+                  "kind": "DotDotDotToken"
+                },
+                "kind": "Parameter",
+                "name": {
+                  "kind": "Identifier",
+                  "text": "args"
+                },
+                "type": {
+                  "elementType": {
+                    "kind": "AnyKeyword"
+                  },
+                  "kind": "ArrayType"
+                }
+              }
+            ],
+            "type": {
+              "kind": "VoidKeyword"
+            }
+          }
+        },
+        {
+          "kind": "Parameter",
+          "name": {
+            "kind": "Identifier",
+            "text": "delay"
+          },
+          "questionToken": {
+            "kind": "QuestionToken"
+          },
+          "type": {
+            "kind": "NumberKeyword"
+          }
+        },
+        {
+          "dotDotDotToken": {
+            "kind": "DotDotDotToken"
+          },
+          "kind": "Parameter",
+          "name": {
+            "kind": "Identifier",
+            "text": "args"
+          },
+          "type": {
+            "elementType": {
+              "kind": "AnyKeyword"
+            },
+            "kind": "ArrayType"
+          }
+        }
+      ],
+      "type": {
+        "kind": "NumberKeyword"
+      }
+    },
+    {
+      "kind": "FunctionDeclaration",
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "setInterval"
+      },
+      "parameters": [
+        {
+          "kind": "Parameter",
+          "name": {
+            "kind": "Identifier",
+            "text": "cb"
+          },
+          "type": {
+            "kind": "FunctionType",
+            "parameters": [
+              {
+                "dotDotDotToken": {
+                  "kind": "DotDotDotToken"
+                },
+                "kind": "Parameter",
+                "name": {
+                  "kind": "Identifier",
+                  "text": "args"
+                },
+                "type": {
+                  "elementType": {
+                    "kind": "AnyKeyword"
+                  },
+                  "kind": "ArrayType"
+                }
+              }
+            ],
+            "type": {
+              "kind": "VoidKeyword"
+            }
+          }
+        },
+        {
+          "kind": "Parameter",
+          "name": {
+            "kind": "Identifier",
+            "text": "delay"
+          },
+          "questionToken": {
+            "kind": "QuestionToken"
+          },
+          "type": {
+            "kind": "NumberKeyword"
+          }
+        },
+        {
+          "dotDotDotToken": {
+            "kind": "DotDotDotToken"
+          },
+          "kind": "Parameter",
+          "name": {
+            "kind": "Identifier",
+            "text": "args"
+          },
+          "type": {
+            "elementType": {
+              "kind": "AnyKeyword"
+            },
+            "kind": "ArrayType"
+          }
+        }
+      ],
+      "type": {
+        "kind": "NumberKeyword"
+      }
+    },
+    {
+      "kind": "FunctionDeclaration",
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "clearInterval"
+      },
+      "parameters": [
+        {
+          "kind": "Parameter",
+          "name": {
+            "kind": "Identifier",
+            "text": "id"
+          },
+          "questionToken": {
+            "kind": "QuestionToken"
+          },
+          "type": {
+            "kind": "NumberKeyword"
+          }
+        }
+      ],
+      "type": {
+        "kind": "VoidKeyword"
+      }
+    },
+    {
+      "kind": "FunctionDeclaration",
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "clearTimeout"
+      },
+      "parameters": [
+        {
+          "kind": "Parameter",
+          "name": {
+            "kind": "Identifier",
+            "text": "id"
+          },
+          "questionToken": {
+            "kind": "QuestionToken"
+          },
+          "type": {
+            "kind": "NumberKeyword"
+          }
+        }
+      ],
+      "type": {
+        "kind": "VoidKeyword"
+      }
+    },
+    {
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "CallSignature",
+          "parameters": [],
+          "type": {
+            "kind": "VoidKeyword"
+          }
+        }
+      ],
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "VoidFunction"
+      }
+    },
+    {
+      "kind": "FunctionDeclaration",
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "queueMicrotask"
+      },
+      "parameters": [
+        {
+          "kind": "Parameter",
+          "name": {
+            "kind": "Identifier",
+            "text": "func"
+          },
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "VoidFunction"
+            }
+          }
+        }
+      ],
+      "type": {
+        "kind": "VoidKeyword"
+      }
+    },
+    {
+      "kind": "FunctionDeclaration",
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "dispatchEvent"
+      },
+      "parameters": [
+        {
+          "kind": "Parameter",
+          "name": {
+            "kind": "Identifier",
+            "text": "event"
+          },
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "Event"
+            }
+          }
+        }
+      ],
+      "type": {
+        "kind": "BooleanKeyword"
+      }
+    },
+    {
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "PropertySignature",
+          "modifiers": [
+            {
+              "kind": "ReadonlyKeyword"
+            }
+          ],
+          "name": {
+            "kind": "Identifier",
+            "text": "length"
+          },
+          "type": {
+            "kind": "NumberKeyword"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "contains"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "string"
+              },
+              "type": {
+                "kind": "StringKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "BooleanKeyword"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "item"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "index"
+              },
+              "type": {
+                "kind": "NumberKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "UnionType",
+            "types": [
+              {
+                "kind": "StringKeyword"
+              },
+              {
+                "kind": "LiteralType",
+                "literal": {
+                  "kind": "NullKeyword"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "IndexSignature",
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "index"
+              },
+              "type": {
+                "kind": "NumberKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "StringKeyword"
+          }
+        }
+      ],
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "DOMStringList"
+      }
+    },
+    {
+      "kind": "TypeAliasDeclaration",
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "BufferSource"
+      },
+      "type": {
+        "kind": "UnionType",
+        "types": [
+          {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "ArrayBufferView"
+            }
+          },
+          {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "ArrayBuffer"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "declarationList": {
+        "declarations": [
+          {
+            "kind": "VariableDeclaration",
+            "name": {
+              "kind": "Identifier",
+              "text": "console"
+            },
+            "type": {
+              "kind": "TypeReference",
+              "typeName": {
+                "kind": "Identifier",
+                "text": "Console"
+              }
+            }
+          }
+        ],
+        "kind": "VariableDeclarationList"
+      },
+      "kind": "FirstStatement",
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ]
+    },
+    {
+      "heritageClauses": [
+        {
+          "kind": "HeritageClause",
+          "token": "ExtendsKeyword",
+          "types": [
+            {
+              "expression": {
+                "kind": "Identifier",
+                "text": "EventInit"
+              },
+              "kind": "ExpressionWithTypeArguments"
+            }
+          ]
+        }
+      ],
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "message"
+          },
+          "questionToken": {
+            "kind": "QuestionToken"
+          },
+          "type": {
+            "kind": "StringKeyword"
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "filename"
+          },
+          "questionToken": {
+            "kind": "QuestionToken"
+          },
+          "type": {
+            "kind": "StringKeyword"
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "lineno"
+          },
+          "questionToken": {
+            "kind": "QuestionToken"
+          },
+          "type": {
+            "kind": "NumberKeyword"
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "colno"
+          },
+          "questionToken": {
+            "kind": "QuestionToken"
+          },
+          "type": {
+            "kind": "NumberKeyword"
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "error"
+          },
+          "questionToken": {
+            "kind": "QuestionToken"
+          },
+          "type": {
+            "kind": "AnyKeyword"
+          }
+        }
+      ],
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "ErrorEventInit"
+      }
+    },
+    {
+      "heritageClauses": [
+        {
+          "kind": "HeritageClause",
+          "token": "ExtendsKeyword",
+          "types": [
+            {
+              "expression": {
+                "kind": "Identifier",
+                "text": "Event"
+              },
+              "kind": "ExpressionWithTypeArguments"
+            }
+          ]
+        }
+      ],
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "PropertySignature",
+          "modifiers": [
+            {
+              "kind": "ReadonlyKeyword"
+            }
+          ],
+          "name": {
+            "kind": "Identifier",
+            "text": "message"
+          },
+          "type": {
+            "kind": "StringKeyword"
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "modifiers": [
+            {
+              "kind": "ReadonlyKeyword"
+            }
+          ],
+          "name": {
+            "kind": "Identifier",
+            "text": "filename"
+          },
+          "type": {
+            "kind": "StringKeyword"
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "modifiers": [
+            {
+              "kind": "ReadonlyKeyword"
+            }
+          ],
+          "name": {
+            "kind": "Identifier",
+            "text": "lineno"
+          },
+          "type": {
+            "kind": "NumberKeyword"
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "modifiers": [
+            {
+              "kind": "ReadonlyKeyword"
+            }
+          ],
+          "name": {
+            "kind": "Identifier",
+            "text": "colno"
+          },
+          "type": {
+            "kind": "NumberKeyword"
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "modifiers": [
+            {
+              "kind": "ReadonlyKeyword"
+            }
+          ],
+          "name": {
+            "kind": "Identifier",
+            "text": "error"
+          },
+          "type": {
+            "kind": "AnyKeyword"
+          }
+        }
+      ],
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "ErrorEvent"
+      }
+    },
+    {
+      "declarationList": {
+        "declarations": [
+          {
+            "kind": "VariableDeclaration",
+            "name": {
+              "kind": "Identifier",
+              "text": "ErrorEvent"
+            },
+            "type": {
+              "kind": "TypeLiteral",
+              "members": [
+                {
+                  "kind": "PropertySignature",
+                  "modifiers": [
+                    {
+                      "kind": "ReadonlyKeyword"
+                    }
+                  ],
+                  "name": {
+                    "kind": "Identifier",
+                    "text": "prototype"
+                  },
+                  "type": {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "ErrorEvent"
+                    }
+                  }
+                },
+                {
+                  "kind": "ConstructSignature",
+                  "parameters": [
+                    {
+                      "kind": "Parameter",
+                      "name": {
+                        "kind": "Identifier",
+                        "text": "type"
+                      },
+                      "type": {
+                        "kind": "StringKeyword"
+                      }
+                    },
+                    {
+                      "kind": "Parameter",
+                      "name": {
+                        "kind": "Identifier",
+                        "text": "eventInitDict"
+                      },
+                      "questionToken": {
+                        "kind": "QuestionToken"
+                      },
+                      "type": {
+                        "kind": "TypeReference",
+                        "typeName": {
+                          "kind": "Identifier",
+                          "text": "ErrorEventInit"
+                        }
+                      }
+                    }
+                  ],
+                  "type": {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "ErrorEvent"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "kind": "VariableDeclarationList"
+      },
+      "kind": "FirstStatement",
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ]
+    },
+    {
+      "heritageClauses": [
+        {
+          "kind": "HeritageClause",
+          "token": "ExtendsKeyword",
+          "types": [
+            {
+              "expression": {
+                "kind": "Identifier",
+                "text": "EventInit"
+              },
+              "kind": "ExpressionWithTypeArguments"
+            }
+          ]
+        }
+      ],
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "promise"
+          },
+          "type": {
+            "kind": "TypeReference",
+            "typeArguments": [
+              {
+                "kind": "AnyKeyword"
+              }
+            ],
+            "typeName": {
+              "kind": "Identifier",
+              "text": "Promise"
+            }
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "reason"
+          },
+          "questionToken": {
+            "kind": "QuestionToken"
+          },
+          "type": {
+            "kind": "AnyKeyword"
+          }
+        }
+      ],
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "PromiseRejectionEventInit"
+      }
+    },
+    {
+      "heritageClauses": [
+        {
+          "kind": "HeritageClause",
+          "token": "ExtendsKeyword",
+          "types": [
+            {
+              "expression": {
+                "kind": "Identifier",
+                "text": "Event"
+              },
+              "kind": "ExpressionWithTypeArguments"
+            }
+          ]
+        }
+      ],
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "PropertySignature",
+          "modifiers": [
+            {
+              "kind": "ReadonlyKeyword"
+            }
+          ],
+          "name": {
+            "kind": "Identifier",
+            "text": "promise"
+          },
+          "type": {
+            "kind": "TypeReference",
+            "typeArguments": [
+              {
+                "kind": "AnyKeyword"
+              }
+            ],
+            "typeName": {
+              "kind": "Identifier",
+              "text": "Promise"
+            }
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "modifiers": [
+            {
+              "kind": "ReadonlyKeyword"
+            }
+          ],
+          "name": {
+            "kind": "Identifier",
+            "text": "reason"
+          },
+          "type": {
+            "kind": "AnyKeyword"
+          }
+        }
+      ],
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "PromiseRejectionEvent"
+      }
+    },
+    {
+      "declarationList": {
+        "declarations": [
+          {
+            "kind": "VariableDeclaration",
+            "name": {
+              "kind": "Identifier",
+              "text": "PromiseRejectionEvent"
+            },
+            "type": {
+              "kind": "TypeLiteral",
+              "members": [
+                {
+                  "kind": "PropertySignature",
+                  "modifiers": [
+                    {
+                      "kind": "ReadonlyKeyword"
+                    }
+                  ],
+                  "name": {
+                    "kind": "Identifier",
+                    "text": "prototype"
+                  },
+                  "type": {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "PromiseRejectionEvent"
+                    }
+                  }
+                },
+                {
+                  "kind": "ConstructSignature",
+                  "parameters": [
+                    {
+                      "kind": "Parameter",
+                      "name": {
+                        "kind": "Identifier",
+                        "text": "type"
+                      },
+                      "type": {
+                        "kind": "StringKeyword"
+                      }
+                    },
+                    {
+                      "kind": "Parameter",
+                      "name": {
+                        "kind": "Identifier",
+                        "text": "eventInitDict"
+                      },
+                      "questionToken": {
+                        "kind": "QuestionToken"
+                      },
+                      "type": {
+                        "kind": "TypeReference",
+                        "typeName": {
+                          "kind": "Identifier",
+                          "text": "PromiseRejectionEventInit"
+                        }
+                      }
+                    }
+                  ],
+                  "type": {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "PromiseRejectionEvent"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "kind": "VariableDeclarationList"
+      },
+      "kind": "FirstStatement",
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ]
+    },
+    {
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "StringLiteral",
+            "text": "error"
+          },
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "ErrorEvent"
+            }
+          }
+        }
+      ],
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "AbstractWorkerEventMap"
+      }
+    },
+    {
+      "heritageClauses": [
+        {
+          "kind": "HeritageClause",
+          "token": "ExtendsKeyword",
+          "types": [
+            {
+              "expression": {
+                "kind": "Identifier",
+                "text": "AbstractWorkerEventMap"
+              },
+              "kind": "ExpressionWithTypeArguments"
+            }
+          ]
+        }
+      ],
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "StringLiteral",
+            "text": "message"
+          },
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "MessageEvent"
+            }
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "StringLiteral",
+            "text": "messageerror"
+          },
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "MessageEvent"
+            }
+          }
+        }
+      ],
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "WorkerEventMap"
+      }
+    },
+    {
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "type"
+          },
+          "questionToken": {
+            "kind": "QuestionToken"
+          },
+          "type": {
+            "kind": "UnionType",
+            "types": [
+              {
+                "kind": "LiteralType",
+                "literal": {
+                  "kind": "StringLiteral",
+                  "text": "classic"
+                }
+              },
+              {
+                "kind": "LiteralType",
+                "literal": {
+                  "kind": "StringLiteral",
+                  "text": "module"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "name"
+          },
+          "questionToken": {
+            "kind": "QuestionToken"
+          },
+          "type": {
+            "kind": "StringKeyword"
+          }
+        }
+      ],
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "WorkerOptions"
+      }
+    },
+    {
+      "heritageClauses": [
+        {
+          "kind": "HeritageClause",
+          "token": "ExtendsKeyword",
+          "types": [
+            {
+              "expression": {
+                "kind": "Identifier",
+                "text": "EventTarget"
+              },
+              "kind": "ExpressionWithTypeArguments"
+            }
+          ]
+        }
+      ],
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "onerror"
+          },
+          "type": {
+            "kind": "FunctionType",
+            "parameters": [
+              {
+                "kind": "Parameter",
+                "name": {
+                  "kind": "Identifier",
+                  "text": "this"
+                },
+                "type": {
+                  "kind": "TypeReference",
+                  "typeName": {
+                    "kind": "Identifier",
+                    "text": "Worker"
+                  }
+                }
+              },
+              {
+                "kind": "Parameter",
+                "name": {
+                  "kind": "Identifier",
+                  "text": "e"
+                },
+                "type": {
+                  "kind": "TypeReference",
+                  "typeName": {
+                    "kind": "Identifier",
+                    "text": "ErrorEvent"
+                  }
+                }
+              }
+            ],
+            "type": {
+              "kind": "UnionType",
+              "types": [
+                {
+                  "kind": "AnyKeyword"
+                },
+                {
+                  "kind": "LiteralType",
+                  "literal": {
+                    "kind": "NullKeyword"
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "onmessage"
+          },
+          "type": {
+            "kind": "FunctionType",
+            "parameters": [
+              {
+                "kind": "Parameter",
+                "name": {
+                  "kind": "Identifier",
+                  "text": "this"
+                },
+                "type": {
+                  "kind": "TypeReference",
+                  "typeName": {
+                    "kind": "Identifier",
+                    "text": "Worker"
+                  }
+                }
+              },
+              {
+                "kind": "Parameter",
+                "name": {
+                  "kind": "Identifier",
+                  "text": "e"
+                },
+                "type": {
+                  "kind": "TypeReference",
+                  "typeName": {
+                    "kind": "Identifier",
+                    "text": "MessageEvent"
+                  }
+                }
+              }
+            ],
+            "type": {
+              "kind": "UnionType",
+              "types": [
+                {
+                  "kind": "AnyKeyword"
+                },
+                {
+                  "kind": "LiteralType",
+                  "literal": {
+                    "kind": "NullKeyword"
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "onmessageerror"
+          },
+          "type": {
+            "kind": "FunctionType",
+            "parameters": [
+              {
+                "kind": "Parameter",
+                "name": {
+                  "kind": "Identifier",
+                  "text": "this"
+                },
+                "type": {
+                  "kind": "TypeReference",
+                  "typeName": {
+                    "kind": "Identifier",
+                    "text": "Worker"
+                  }
+                }
+              },
+              {
+                "kind": "Parameter",
+                "name": {
+                  "kind": "Identifier",
+                  "text": "e"
+                },
+                "type": {
+                  "kind": "TypeReference",
+                  "typeName": {
+                    "kind": "Identifier",
+                    "text": "MessageEvent"
+                  }
+                }
+              }
+            ],
+            "type": {
+              "kind": "UnionType",
+              "types": [
+                {
+                  "kind": "AnyKeyword"
+                },
+                {
+                  "kind": "LiteralType",
+                  "literal": {
+                    "kind": "NullKeyword"
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "postMessage"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "message"
+              },
+              "type": {
+                "kind": "AnyKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "transfer"
+              },
+              "type": {
+                "elementType": {
+                  "kind": "TypeReference",
+                  "typeName": {
+                    "kind": "Identifier",
+                    "text": "Transferable"
+                  }
+                },
+                "kind": "ArrayType"
+              }
+            }
+          ],
+          "type": {
+            "kind": "VoidKeyword"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "postMessage"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "message"
+              },
+              "type": {
+                "kind": "AnyKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "options"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "StructuredSerializeOptions"
+                }
+              }
+            }
+          ],
+          "type": {
+            "kind": "VoidKeyword"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "addEventListener"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "type"
+              },
+              "type": {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "K"
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "listener"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "this"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "Worker"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "ev"
+                    },
+                    "type": {
+                      "indexType": {
+                        "kind": "TypeReference",
+                        "typeName": {
+                          "kind": "Identifier",
+                          "text": "K"
+                        }
+                      },
+                      "kind": "IndexedAccessType",
+                      "objectType": {
+                        "kind": "TypeReference",
+                        "typeName": {
+                          "kind": "Identifier",
+                          "text": "WorkerEventMap"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "AnyKeyword"
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "options"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "UnionType",
+                "types": [
+                  {
+                    "kind": "BooleanKeyword"
+                  },
+                  {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "AddEventListenerOptions"
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "type": {
+            "kind": "VoidKeyword"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "addEventListener"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "type"
+              },
+              "type": {
+                "kind": "StringKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "listener"
+              },
+              "type": {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "EventListenerOrEventListenerObject"
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "options"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "UnionType",
+                "types": [
+                  {
+                    "kind": "BooleanKeyword"
+                  },
+                  {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "AddEventListenerOptions"
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "type": {
+            "kind": "VoidKeyword"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "removeEventListener"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "type"
+              },
+              "type": {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "K"
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "listener"
+              },
+              "type": {
+                "kind": "FunctionType",
+                "parameters": [
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "this"
+                    },
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "Worker"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "Parameter",
+                    "name": {
+                      "kind": "Identifier",
+                      "text": "ev"
+                    },
+                    "type": {
+                      "indexType": {
+                        "kind": "TypeReference",
+                        "typeName": {
+                          "kind": "Identifier",
+                          "text": "K"
+                        }
+                      },
+                      "kind": "IndexedAccessType",
+                      "objectType": {
+                        "kind": "TypeReference",
+                        "typeName": {
+                          "kind": "Identifier",
+                          "text": "WorkerEventMap"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "type": {
+                  "kind": "AnyKeyword"
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "options"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "UnionType",
+                "types": [
+                  {
+                    "kind": "BooleanKeyword"
+                  },
+                  {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "EventListenerOptions"
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "type": {
+            "kind": "VoidKeyword"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "removeEventListener"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "type"
+              },
+              "type": {
+                "kind": "StringKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "listener"
+              },
+              "type": {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "EventListenerOrEventListenerObject"
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "options"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "UnionType",
+                "types": [
+                  {
+                    "kind": "BooleanKeyword"
+                  },
+                  {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "EventListenerOptions"
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "type": {
+            "kind": "VoidKeyword"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "terminate"
+          },
+          "parameters": [],
+          "type": {
+            "kind": "VoidKeyword"
+          }
+        }
+      ],
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "Worker"
+      }
+    },
+    {
+      "declarationList": {
+        "declarations": [
+          {
+            "kind": "VariableDeclaration",
+            "name": {
+              "kind": "Identifier",
+              "text": "Worker"
+            },
+            "type": {
+              "kind": "TypeLiteral",
+              "members": [
+                {
+                  "kind": "PropertySignature",
+                  "modifiers": [
+                    {
+                      "kind": "ReadonlyKeyword"
+                    }
+                  ],
+                  "name": {
+                    "kind": "Identifier",
+                    "text": "prototype"
+                  },
+                  "type": {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "Worker"
+                    }
+                  }
+                },
+                {
+                  "kind": "ConstructSignature",
+                  "parameters": [
+                    {
+                      "kind": "Parameter",
+                      "name": {
+                        "kind": "Identifier",
+                        "text": "specifier"
+                      },
+                      "type": {
+                        "kind": "UnionType",
+                        "types": [
+                          {
+                            "kind": "StringKeyword"
+                          },
+                          {
+                            "kind": "TypeReference",
+                            "typeName": {
+                              "kind": "Identifier",
+                              "text": "URL"
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "kind": "Parameter",
+                      "name": {
+                        "kind": "Identifier",
+                        "text": "options"
+                      },
+                      "questionToken": {
+                        "kind": "QuestionToken"
+                      },
+                      "type": {
+                        "kind": "TypeReference",
+                        "typeName": {
+                          "kind": "Identifier",
+                          "text": "WorkerOptions"
+                        }
+                      }
+                    }
+                  ],
+                  "type": {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "Worker"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "kind": "VariableDeclarationList"
+      },
+      "kind": "FirstStatement",
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ]
+    },
+    {
+      "kind": "TypeAliasDeclaration",
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "PerformanceEntryList"
+      },
+      "type": {
+        "elementType": {
+          "kind": "TypeReference",
+          "typeName": {
+            "kind": "Identifier",
+            "text": "PerformanceEntry"
+          }
+        },
+        "kind": "ArrayType"
+      }
+    },
+    {
+      "heritageClauses": [
+        {
+          "kind": "HeritageClause",
+          "token": "ExtendsKeyword",
+          "types": [
+            {
+              "expression": {
+                "kind": "Identifier",
+                "text": "EventTarget"
+              },
+              "kind": "ExpressionWithTypeArguments"
+            }
+          ]
+        }
+      ],
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "PropertySignature",
+          "modifiers": [
+            {
+              "kind": "ReadonlyKeyword"
+            }
+          ],
+          "name": {
+            "kind": "Identifier",
+            "text": "timeOrigin"
+          },
+          "type": {
+            "kind": "NumberKeyword"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "clearMarks"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "markName"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "StringKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "VoidKeyword"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "clearMeasures"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "measureName"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "StringKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "VoidKeyword"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "getEntries"
+          },
+          "parameters": [],
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "PerformanceEntryList"
+            }
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "getEntriesByName"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "name"
+              },
+              "type": {
+                "kind": "StringKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "type"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "StringKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "PerformanceEntryList"
+            }
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "getEntriesByType"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "type"
+              },
+              "type": {
+                "kind": "StringKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "PerformanceEntryList"
+            }
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "mark"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "markName"
+              },
+              "type": {
+                "kind": "StringKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "options"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "PerformanceMarkOptions"
+                }
+              }
+            }
+          ],
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "PerformanceMark"
+            }
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "measure"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "measureName"
+              },
+              "type": {
+                "kind": "StringKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "options"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "PerformanceMeasureOptions"
+                }
+              }
+            }
+          ],
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "PerformanceMeasure"
+            }
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "measure"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "measureName"
+              },
+              "type": {
+                "kind": "StringKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "startMark"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "StringKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "endMark"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "StringKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "PerformanceMeasure"
+            }
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "now"
+          },
+          "parameters": [],
+          "type": {
+            "kind": "NumberKeyword"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "toJSON"
+          },
+          "parameters": [],
+          "type": {
+            "kind": "AnyKeyword"
+          }
+        }
+      ],
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "Performance"
+      }
+    },
+    {
+      "declarationList": {
+        "declarations": [
+          {
+            "kind": "VariableDeclaration",
+            "name": {
+              "kind": "Identifier",
+              "text": "Performance"
+            },
+            "type": {
+              "kind": "TypeLiteral",
+              "members": [
+                {
+                  "kind": "PropertySignature",
+                  "modifiers": [
+                    {
+                      "kind": "ReadonlyKeyword"
+                    }
+                  ],
+                  "name": {
+                    "kind": "Identifier",
+                    "text": "prototype"
+                  },
+                  "type": {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "Performance"
+                    }
+                  }
+                },
+                {
+                  "kind": "ConstructSignature",
+                  "parameters": [],
+                  "type": {
+                    "kind": "NeverKeyword"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "kind": "VariableDeclarationList"
+      },
+      "kind": "FirstStatement",
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ]
+    },
+    {
+      "declarationList": {
+        "declarations": [
+          {
+            "kind": "VariableDeclaration",
+            "name": {
+              "kind": "Identifier",
+              "text": "performance"
+            },
+            "type": {
+              "kind": "TypeReference",
+              "typeName": {
+                "kind": "Identifier",
+                "text": "Performance"
+              }
+            }
+          }
+        ],
+        "kind": "VariableDeclarationList"
+      },
+      "kind": "FirstStatement",
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ]
+    },
+    {
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "detail"
+          },
+          "questionToken": {
+            "kind": "QuestionToken"
+          },
+          "type": {
+            "kind": "AnyKeyword"
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "startTime"
+          },
+          "questionToken": {
+            "kind": "QuestionToken"
+          },
+          "type": {
+            "kind": "NumberKeyword"
+          }
+        }
+      ],
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "PerformanceMarkOptions"
+      }
+    },
+    {
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "detail"
+          },
+          "questionToken": {
+            "kind": "QuestionToken"
+          },
+          "type": {
+            "kind": "AnyKeyword"
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "start"
+          },
+          "questionToken": {
+            "kind": "QuestionToken"
+          },
+          "type": {
+            "kind": "UnionType",
+            "types": [
+              {
+                "kind": "StringKeyword"
+              },
+              {
+                "kind": "NumberKeyword"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "duration"
+          },
+          "questionToken": {
+            "kind": "QuestionToken"
+          },
+          "type": {
+            "kind": "NumberKeyword"
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "end"
+          },
+          "questionToken": {
+            "kind": "QuestionToken"
+          },
+          "type": {
+            "kind": "UnionType",
+            "types": [
+              {
+                "kind": "StringKeyword"
+              },
+              {
+                "kind": "NumberKeyword"
+              }
+            ]
+          }
+        }
+      ],
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "PerformanceMeasureOptions"
+      }
+    },
+    {
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "PropertySignature",
+          "modifiers": [
+            {
+              "kind": "ReadonlyKeyword"
+            }
+          ],
+          "name": {
+            "kind": "Identifier",
+            "text": "duration"
+          },
+          "type": {
+            "kind": "NumberKeyword"
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "modifiers": [
+            {
+              "kind": "ReadonlyKeyword"
+            }
+          ],
+          "name": {
+            "kind": "Identifier",
+            "text": "entryType"
+          },
+          "type": {
+            "kind": "StringKeyword"
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "modifiers": [
+            {
+              "kind": "ReadonlyKeyword"
+            }
+          ],
+          "name": {
+            "kind": "Identifier",
+            "text": "name"
+          },
+          "type": {
+            "kind": "StringKeyword"
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "modifiers": [
+            {
+              "kind": "ReadonlyKeyword"
+            }
+          ],
+          "name": {
+            "kind": "Identifier",
+            "text": "startTime"
+          },
+          "type": {
+            "kind": "NumberKeyword"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "toJSON"
+          },
+          "parameters": [],
+          "type": {
+            "kind": "AnyKeyword"
+          }
+        }
+      ],
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "PerformanceEntry"
+      }
+    },
+    {
+      "declarationList": {
+        "declarations": [
+          {
+            "kind": "VariableDeclaration",
+            "name": {
+              "kind": "Identifier",
+              "text": "PerformanceEntry"
+            },
+            "type": {
+              "kind": "TypeLiteral",
+              "members": [
+                {
+                  "kind": "PropertySignature",
+                  "modifiers": [
+                    {
+                      "kind": "ReadonlyKeyword"
+                    }
+                  ],
+                  "name": {
+                    "kind": "Identifier",
+                    "text": "prototype"
+                  },
+                  "type": {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "PerformanceEntry"
+                    }
+                  }
+                },
+                {
+                  "kind": "ConstructSignature",
+                  "parameters": [],
+                  "type": {
+                    "kind": "NeverKeyword"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "kind": "VariableDeclarationList"
+      },
+      "kind": "FirstStatement",
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ]
+    },
+    {
+      "heritageClauses": [
+        {
+          "kind": "HeritageClause",
+          "token": "ExtendsKeyword",
+          "types": [
+            {
+              "expression": {
+                "kind": "Identifier",
+                "text": "PerformanceEntry"
+              },
+              "kind": "ExpressionWithTypeArguments"
+            }
+          ]
+        }
+      ],
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "PropertySignature",
+          "modifiers": [
+            {
+              "kind": "ReadonlyKeyword"
+            }
+          ],
+          "name": {
+            "kind": "Identifier",
+            "text": "detail"
+          },
+          "type": {
+            "kind": "AnyKeyword"
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "modifiers": [
+            {
+              "kind": "ReadonlyKeyword"
+            }
+          ],
+          "name": {
+            "kind": "Identifier",
+            "text": "entryType"
+          },
+          "type": {
+            "kind": "LiteralType",
+            "literal": {
+              "kind": "StringLiteral",
+              "text": "mark"
+            }
+          }
+        }
+      ],
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "PerformanceMark"
+      }
+    },
+    {
+      "declarationList": {
+        "declarations": [
+          {
+            "kind": "VariableDeclaration",
+            "name": {
+              "kind": "Identifier",
+              "text": "PerformanceMark"
+            },
+            "type": {
+              "kind": "TypeLiteral",
+              "members": [
+                {
+                  "kind": "PropertySignature",
+                  "modifiers": [
+                    {
+                      "kind": "ReadonlyKeyword"
+                    }
+                  ],
+                  "name": {
+                    "kind": "Identifier",
+                    "text": "prototype"
+                  },
+                  "type": {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "PerformanceMark"
+                    }
+                  }
+                },
+                {
+                  "kind": "ConstructSignature",
+                  "parameters": [
+                    {
+                      "kind": "Parameter",
+                      "name": {
+                        "kind": "Identifier",
+                        "text": "name"
+                      },
+                      "type": {
+                        "kind": "StringKeyword"
+                      }
+                    },
+                    {
+                      "kind": "Parameter",
+                      "name": {
+                        "kind": "Identifier",
+                        "text": "options"
+                      },
+                      "questionToken": {
+                        "kind": "QuestionToken"
+                      },
+                      "type": {
+                        "kind": "TypeReference",
+                        "typeName": {
+                          "kind": "Identifier",
+                          "text": "PerformanceMarkOptions"
+                        }
+                      }
+                    }
+                  ],
+                  "type": {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "PerformanceMark"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "kind": "VariableDeclarationList"
+      },
+      "kind": "FirstStatement",
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ]
+    },
+    {
+      "heritageClauses": [
+        {
+          "kind": "HeritageClause",
+          "token": "ExtendsKeyword",
+          "types": [
+            {
+              "expression": {
+                "kind": "Identifier",
+                "text": "PerformanceEntry"
+              },
+              "kind": "ExpressionWithTypeArguments"
+            }
+          ]
+        }
+      ],
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "PropertySignature",
+          "modifiers": [
+            {
+              "kind": "ReadonlyKeyword"
+            }
+          ],
+          "name": {
+            "kind": "Identifier",
+            "text": "detail"
+          },
+          "type": {
+            "kind": "AnyKeyword"
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "modifiers": [
+            {
+              "kind": "ReadonlyKeyword"
+            }
+          ],
+          "name": {
+            "kind": "Identifier",
+            "text": "entryType"
+          },
+          "type": {
+            "kind": "LiteralType",
+            "literal": {
+              "kind": "StringLiteral",
+              "text": "measure"
+            }
+          }
+        }
+      ],
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "PerformanceMeasure"
+      }
+    },
+    {
+      "declarationList": {
+        "declarations": [
+          {
+            "kind": "VariableDeclaration",
+            "name": {
+              "kind": "Identifier",
+              "text": "PerformanceMeasure"
+            },
+            "type": {
+              "kind": "TypeLiteral",
+              "members": [
+                {
+                  "kind": "PropertySignature",
+                  "modifiers": [
+                    {
+                      "kind": "ReadonlyKeyword"
+                    }
+                  ],
+                  "name": {
+                    "kind": "Identifier",
+                    "text": "prototype"
+                  },
+                  "type": {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "PerformanceMeasure"
+                    }
+                  }
+                },
+                {
+                  "kind": "ConstructSignature",
+                  "parameters": [],
+                  "type": {
+                    "kind": "NeverKeyword"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "kind": "VariableDeclarationList"
+      },
+      "kind": "FirstStatement",
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ]
+    },
+    {
+      "heritageClauses": [
+        {
+          "kind": "HeritageClause",
+          "token": "ExtendsKeyword",
+          "types": [
+            {
+              "expression": {
+                "kind": "Identifier",
+                "text": "EventInit"
+              },
+              "kind": "ExpressionWithTypeArguments"
+            }
+          ]
+        }
+      ],
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "detail"
+          },
+          "questionToken": {
+            "kind": "QuestionToken"
+          },
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "T"
+            }
+          }
+        }
+      ],
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "CustomEventInit"
+      }
+    },
+    {
+      "heritageClauses": [
+        {
+          "kind": "HeritageClause",
+          "token": "ExtendsKeyword",
+          "types": [
+            {
+              "expression": {
+                "kind": "Identifier",
+                "text": "Event"
+              },
+              "kind": "ExpressionWithTypeArguments"
+            }
+          ]
+        }
+      ],
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "PropertySignature",
+          "modifiers": [
+            {
+              "kind": "ReadonlyKeyword"
+            }
+          ],
+          "name": {
+            "kind": "Identifier",
+            "text": "detail"
+          },
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "T"
+            }
+          }
+        }
+      ],
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "CustomEvent"
+      }
+    },
+    {
+      "declarationList": {
+        "declarations": [
+          {
+            "kind": "VariableDeclaration",
+            "name": {
+              "kind": "Identifier",
+              "text": "CustomEvent"
+            },
+            "type": {
+              "kind": "TypeLiteral",
+              "members": [
+                {
+                  "kind": "PropertySignature",
+                  "modifiers": [
+                    {
+                      "kind": "ReadonlyKeyword"
+                    }
+                  ],
+                  "name": {
+                    "kind": "Identifier",
+                    "text": "prototype"
+                  },
+                  "type": {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "CustomEvent"
+                    }
+                  }
+                },
+                {
+                  "kind": "ConstructSignature",
+                  "parameters": [
+                    {
+                      "kind": "Parameter",
+                      "name": {
+                        "kind": "Identifier",
+                        "text": "typeArg"
+                      },
+                      "type": {
+                        "kind": "StringKeyword"
+                      }
+                    },
+                    {
+                      "kind": "Parameter",
+                      "name": {
+                        "kind": "Identifier",
+                        "text": "eventInitDict"
+                      },
+                      "questionToken": {
+                        "kind": "QuestionToken"
+                      },
+                      "type": {
+                        "kind": "TypeReference",
+                        "typeArguments": [
+                          {
+                            "kind": "TypeReference",
+                            "typeName": {
+                              "kind": "Identifier",
+                              "text": "T"
+                            }
+                          }
+                        ],
+                        "typeName": {
+                          "kind": "Identifier",
+                          "text": "CustomEventInit"
+                        }
+                      }
+                    }
+                  ],
+                  "type": {
+                    "kind": "TypeReference",
+                    "typeArguments": [
+                      {
+                        "kind": "TypeReference",
+                        "typeName": {
+                          "kind": "Identifier",
+                          "text": "T"
+                        }
+                      }
+                    ],
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "CustomEvent"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "kind": "VariableDeclarationList"
+      },
+      "kind": "FirstStatement",
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ]
+    },
+    {
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "captureStackTrace"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "error"
+              },
+              "type": {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "Object"
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "constructor"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "Function"
+                }
+              }
+            }
+          ],
+          "type": {
+            "kind": "VoidKeyword"
+          }
+        }
+      ],
+      "modifiers": [
+        {
+          "kind": "DeclareKeyword"
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "ErrorConstructor"
+      }
+    }
+  ],
+  "text": "// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.\n\n// Documentation partially adapted from [MDN](https://developer.mozilla.org/),\n// by Mozilla Contributors, which is licensed under CC-BY-SA 2.5.\n\n/// <reference no-default-lib=\"true\" />\n/// <reference lib=\"esnext\" />\n/// <reference lib=\"deno.console\" />\n/// <reference lib=\"deno.url\" />\n/// <reference lib=\"deno.web\" />\n/// <reference lib=\"deno.webgpu\" />\n/// <reference lib=\"deno.canvas\" />\n/// <reference lib=\"deno.fetch\" />\n/// <reference lib=\"deno.websocket\" />\n/// <reference lib=\"deno.crypto\" />\n\n/** @category WASM */\ndeclare namespace WebAssembly {\n  /**\n   * The `WebAssembly.CompileError` object indicates an error during WebAssembly decoding or validation.\n   *\n   * [MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WebAssembly/CompileError)\n   *\n   * @category WASM\n   */\n  export class CompileError extends Error {\n    /** Creates a new `WebAssembly.CompileError` object. */\n    constructor(message?: string, options?: ErrorOptions);\n  }\n\n  /**\n   * A `WebAssembly.Global` object represents a global variable instance, accessible from\n   * both JavaScript and importable/exportable across one or more `WebAssembly.Module`\n   * instances. This allows dynamic linking of multiple modules.\n   *\n   * [MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WebAssembly/Global)\n   *\n   * @category WASM\n   */\n  export class Global {\n    /** Creates a new `Global` object. */\n    constructor(descriptor: GlobalDescriptor, v?: any);\n\n    /**\n     * The value contained inside the global variable — this can be used to directly set\n     * and get the global's value.\n     */\n    value: any;\n\n    /** Old-style method that returns the value contained inside the global variable. */\n    valueOf(): any;\n  }\n\n  /**\n   * A `WebAssembly.Instance` object is a stateful, executable instance of a `WebAssembly.Module`.\n   * Instance objects contain all the Exported WebAssembly functions that allow calling into\n   * WebAssembly code from JavaScript.\n   *\n   * [MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WebAssembly/Instance)\n   *\n   * @category WASM\n   */\n  export class Instance {\n    /** Creates a new Instance object. */\n    constructor(module: Module, importObject?: Imports);\n\n    /**\n     * Returns an object containing as its members all the functions exported from the\n     * WebAssembly module instance, to allow them to be accessed and used by JavaScript.\n     * Read-only.\n     */\n    readonly exports: Exports;\n  }\n\n  /**\n   * The `WebAssembly.LinkError` object indicates an error during module instantiation\n   * (besides traps from the start function).\n   *\n   * [MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WebAssembly/LinkError)\n   *\n   * @category WASM\n   */\n  export class LinkError extends Error {\n    /** Creates a new WebAssembly.LinkError object. */\n    constructor(message?: string, options?: ErrorOptions);\n  }\n\n  /**\n   * The `WebAssembly.Memory` object is a resizable `ArrayBuffer` or `SharedArrayBuffer` that\n   * holds the raw bytes of memory accessed by a WebAssembly Instance.\n   *\n   * A memory created by JavaScript or in WebAssembly code will be accessible and mutable\n   * from both JavaScript and WebAssembly.\n   *\n   * [MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WebAssembly/Memory)\n   *\n   * @category WASM\n   */\n  export class Memory {\n    /** Creates a new `Memory` object. */\n    constructor(descriptor: MemoryDescriptor);\n\n    /** An accessor property that returns the buffer contained in the memory. */\n    readonly buffer: ArrayBuffer | SharedArrayBuffer;\n\n    /**\n     * Increases the size of the memory instance by a specified number of WebAssembly\n     * pages (each one is 64KB in size).\n     */\n    grow(delta: number): number;\n  }\n\n  /**\n   * A `WebAssembly.Module` object contains stateless WebAssembly code that has already been compiled\n   * by the browser — this can be efficiently shared with Workers, and instantiated multiple times.\n   *\n   * [MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WebAssembly/Module)\n   *\n   * @category WASM\n   */\n  export class Module {\n    /** Creates a new `Module` object. */\n    constructor(bytes: BufferSource);\n\n    /**\n     * Given a `Module` and string, returns a copy of the contents of all custom sections in the\n     * module with the given string name.\n     */\n    static customSections(\n      moduleObject: Module,\n      sectionName: string,\n    ): ArrayBuffer[];\n\n    /** Given a `Module`, returns an array containing descriptions of all the declared exports. */\n    static exports(moduleObject: Module): ModuleExportDescriptor[];\n\n    /** Given a `Module`, returns an array containing descriptions of all the declared imports. */\n    static imports(moduleObject: Module): ModuleImportDescriptor[];\n  }\n\n  /**\n   * The `WebAssembly.RuntimeError` object is the error type that is thrown whenever WebAssembly\n   * specifies a trap.\n   *\n   * [MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WebAssembly/RuntimeError)\n   *\n   * @category WASM\n   */\n  export class RuntimeError extends Error {\n    /** Creates a new `WebAssembly.RuntimeError` object. */\n    constructor(message?: string, options?: ErrorOptions);\n  }\n\n  /**\n   * The `WebAssembly.Table()` object is a JavaScript wrapper object — an array-like structure\n   * representing a WebAssembly Table, which stores function references. A table created by\n   * JavaScript or in WebAssembly code will be accessible and mutable from both JavaScript\n   * and WebAssembly.\n   *\n   * [MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WebAssembly/Table)\n   *\n   * @category WASM\n   */\n  export class Table {\n    /** Creates a new `Table` object. */\n    constructor(descriptor: TableDescriptor);\n\n    /** Returns the length of the table, i.e. the number of elements. */\n    readonly length: number;\n\n    /** Accessor function — gets the element stored at a given index. */\n    get(index: number): Function | null;\n\n    /** Increases the size of the `Table` instance by a specified number of elements. */\n    grow(delta: number): number;\n\n    /** Sets an element stored at a given index to a given value. */\n    set(index: number, value: Function | null): void;\n  }\n\n  /** The `GlobalDescriptor` describes the options you can pass to\n   * `new WebAssembly.Global()`.\n   *\n   * @category WASM\n   */\n  export interface GlobalDescriptor {\n    mutable?: boolean;\n    value: ValueType;\n  }\n\n  /** The `MemoryDescriptor` describes the options you can pass to\n   * `new WebAssembly.Memory()`.\n   *\n   * @category WASM\n   */\n  export interface MemoryDescriptor {\n    initial: number;\n    maximum?: number;\n    shared?: boolean;\n  }\n\n  /** A `ModuleExportDescriptor` is the description of a declared export in a\n   * `WebAssembly.Module`.\n   *\n   * @category WASM\n   */\n  export interface ModuleExportDescriptor {\n    kind: ImportExportKind;\n    name: string;\n  }\n\n  /** A `ModuleImportDescriptor` is the description of a declared import in a\n   * `WebAssembly.Module`.\n   *\n   * @category WASM\n   */\n  export interface ModuleImportDescriptor {\n    kind: ImportExportKind;\n    module: string;\n    name: string;\n  }\n\n  /** The `TableDescriptor` describes the options you can pass to\n   * `new WebAssembly.Table()`.\n   *\n   * @category WASM\n   */\n  export interface TableDescriptor {\n    element: TableKind;\n    initial: number;\n    maximum?: number;\n  }\n\n  /** The value returned from `WebAssembly.instantiate`.\n   *\n   * @category WASM\n   */\n  export interface WebAssemblyInstantiatedSource {\n    /* A `WebAssembly.Instance` object that contains all the exported WebAssembly functions. */\n    instance: Instance;\n\n    /**\n     * A `WebAssembly.Module` object representing the compiled WebAssembly module.\n     * This `Module` can be instantiated again, or shared via postMessage().\n     */\n    module: Module;\n  }\n\n  /** @category WASM */\n  export type ImportExportKind = \"function\" | \"global\" | \"memory\" | \"table\";\n  /** @category WASM */\n  export type TableKind = \"anyfunc\";\n  /** @category WASM */\n  export type ValueType = \"f32\" | \"f64\" | \"i32\" | \"i64\";\n  /** @category WASM */\n  export type ExportValue = Function | Global | Memory | Table;\n  /** @category WASM */\n  export type Exports = Record<string, ExportValue>;\n  /** @category WASM */\n  export type ImportValue = ExportValue | number;\n  /** @category WASM */\n  export type ModuleImports = Record<string, ImportValue>;\n  /** @category WASM */\n  export type Imports = Record<string, ModuleImports>;\n\n  /**\n   * The `WebAssembly.compile()` function compiles WebAssembly binary code into a\n   * `WebAssembly.Module` object. This function is useful if it is necessary to compile\n   * a module before it can be instantiated (otherwise, the `WebAssembly.instantiate()`\n   * function should be used).\n   *\n   * [MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WebAssembly/compile)\n   *\n   * @category WASM\n   */\n  export function compile(bytes: BufferSource): Promise<Module>;\n\n  /**\n   * The `WebAssembly.compileStreaming()` function compiles a `WebAssembly.Module`\n   * directly from a streamed underlying source. This function is useful if it is\n   * necessary to a compile a module before it can be instantiated (otherwise, the\n   * `WebAssembly.instantiateStreaming()` function should be used).\n   *\n   * [MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WebAssembly/compileStreaming)\n   *\n   * @category WASM\n   */\n  export function compileStreaming(\n    source: Response | Promise<Response>,\n  ): Promise<Module>;\n\n  /**\n   * The WebAssembly.instantiate() function allows you to compile and instantiate\n   * WebAssembly code.\n   *\n   * This overload takes the WebAssembly binary code, in the form of a typed\n   * array or ArrayBuffer, and performs both compilation and instantiation in one step.\n   * The returned Promise resolves to both a compiled WebAssembly.Module and its first\n   * WebAssembly.Instance.\n   *\n   * [MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WebAssembly/instantiate)\n   *\n   * @category WASM\n   */\n  export function instantiate(\n    bytes: BufferSource,\n    importObject?: Imports,\n  ): Promise<WebAssemblyInstantiatedSource>;\n\n  /**\n   * The WebAssembly.instantiate() function allows you to compile and instantiate\n   * WebAssembly code.\n   *\n   * This overload takes an already-compiled WebAssembly.Module and returns\n   * a Promise that resolves to an Instance of that Module. This overload is useful\n   * if the Module has already been compiled.\n   *\n   * [MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WebAssembly/instantiate)\n   *\n   * @category WASM\n   */\n  export function instantiate(\n    moduleObject: Module,\n    importObject?: Imports,\n  ): Promise<Instance>;\n\n  /**\n   * The `WebAssembly.instantiateStreaming()` function compiles and instantiates a\n   * WebAssembly module directly from a streamed underlying source. This is the most\n   * efficient, optimized way to load wasm code.\n   *\n   * [MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WebAssembly/instantiateStreaming)\n   *\n   * @category WASM\n   */\n  export function instantiateStreaming(\n    response: Response | PromiseLike<Response>,\n    importObject?: Imports,\n  ): Promise<WebAssemblyInstantiatedSource>;\n\n  /**\n   * The `WebAssembly.validate()` function validates a given typed array of\n   * WebAssembly binary code, returning whether the bytes form a valid wasm\n   * module (`true`) or not (`false`).\n   *\n   * [MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WebAssembly/validate)\n   *\n   * @category WASM\n   */\n  export function validate(bytes: BufferSource): boolean;\n}\n\n/** Sets a timer which executes a function once after the delay (in milliseconds) elapses. Returns\n * an id which may be used to cancel the timeout.\n *\n * ```ts\n * setTimeout(() => { console.log('hello'); }, 500);\n * ```\n *\n * @category Platform\n */\ndeclare function setTimeout(\n  /** callback function to execute when timer expires */\n  cb: (...args: any[]) => void,\n  /** delay in ms */\n  delay?: number,\n  /** arguments passed to callback function */\n  ...args: any[]\n): number;\n\n/** Repeatedly calls a function , with a fixed time delay between each call.\n *\n * ```ts\n * // Outputs 'hello' to the console every 500ms\n * setInterval(() => { console.log('hello'); }, 500);\n * ```\n *\n * @category Platform\n */\ndeclare function setInterval(\n  /** callback function to execute when timer expires */\n  cb: (...args: any[]) => void,\n  /** delay in ms */\n  delay?: number,\n  /** arguments passed to callback function */\n  ...args: any[]\n): number;\n\n/** Cancels a timed, repeating action which was previously started by a call\n * to `setInterval()`\n *\n * ```ts\n * const id = setInterval(() => {console.log('hello');}, 500);\n * // ...\n * clearInterval(id);\n * ```\n *\n * @category Platform\n */\ndeclare function clearInterval(id?: number): void;\n\n/** Cancels a scheduled action initiated by `setTimeout()`\n *\n * ```ts\n * const id = setTimeout(() => {console.log('hello');}, 500);\n * // ...\n * clearTimeout(id);\n * ```\n *\n * @category Platform\n */\ndeclare function clearTimeout(id?: number): void;\n\n/** @category Platform */\ndeclare interface VoidFunction {\n  (): void;\n}\n\n/** A microtask is a short function which is executed after the function or\n * module which created it exits and only if the JavaScript execution stack is\n * empty, but before returning control to the event loop being used to drive the\n * script's execution environment. This event loop may be either the main event\n * loop or the event loop driving a web worker.\n *\n * ```ts\n * queueMicrotask(() => { console.log('This event loop stack is complete'); });\n * ```\n *\n * @category Platform\n */\ndeclare function queueMicrotask(func: VoidFunction): void;\n\n/** Dispatches an event in the global scope, synchronously invoking any\n * registered event listeners for this event in the appropriate order. Returns\n * false if event is cancelable and at least one of the event handlers which\n * handled this event called Event.preventDefault(). Otherwise it returns true.\n *\n * ```ts\n * dispatchEvent(new Event('unload'));\n * ```\n *\n * @category Events\n */\ndeclare function dispatchEvent(event: Event): boolean;\n\n/** @category Platform */\ndeclare interface DOMStringList {\n  /** Returns the number of strings in strings. */\n  readonly length: number;\n  /** Returns true if strings contains string, and false otherwise. */\n  contains(string: string): boolean;\n  /** Returns the string with index index from strings. */\n  item(index: number): string | null;\n  [index: number]: string;\n}\n\n/** @category Platform */\ndeclare type BufferSource = ArrayBufferView | ArrayBuffer;\n\n/** @category I/O */\ndeclare var console: Console;\n\n/** @category Events */\ndeclare interface ErrorEventInit extends EventInit {\n  message?: string;\n  filename?: string;\n  lineno?: number;\n  colno?: number;\n  error?: any;\n}\n\n/** @category Events */\ndeclare interface ErrorEvent extends Event {\n  readonly message: string;\n  readonly filename: string;\n  readonly lineno: number;\n  readonly colno: number;\n  readonly error: any;\n}\n\n/** @category Events */\ndeclare var ErrorEvent: {\n  readonly prototype: ErrorEvent;\n  new (type: string, eventInitDict?: ErrorEventInit): ErrorEvent;\n};\n\n/** @category Events */\ndeclare interface PromiseRejectionEventInit extends EventInit {\n  promise: Promise<any>;\n  reason?: any;\n}\n\n/** @category Events */\ndeclare interface PromiseRejectionEvent extends Event {\n  readonly promise: Promise<any>;\n  readonly reason: any;\n}\n\n/** @category Events */\ndeclare var PromiseRejectionEvent: {\n  readonly prototype: PromiseRejectionEvent;\n  new (\n    type: string,\n    eventInitDict?: PromiseRejectionEventInit,\n  ): PromiseRejectionEvent;\n};\n\n/** @category Workers */\ndeclare interface AbstractWorkerEventMap {\n  \"error\": ErrorEvent;\n}\n\n/** @category Workers */\ndeclare interface WorkerEventMap extends AbstractWorkerEventMap {\n  \"message\": MessageEvent;\n  \"messageerror\": MessageEvent;\n}\n\n/** @category Workers */\ndeclare interface WorkerOptions {\n  type?: \"classic\" | \"module\";\n  name?: string;\n}\n\n/** @category Workers */\ndeclare interface Worker extends EventTarget {\n  onerror: (this: Worker, e: ErrorEvent) => any | null;\n  onmessage: (this: Worker, e: MessageEvent) => any | null;\n  onmessageerror: (this: Worker, e: MessageEvent) => any | null;\n  postMessage(message: any, transfer: Transferable[]): void;\n  postMessage(message: any, options?: StructuredSerializeOptions): void;\n  addEventListener<K extends keyof WorkerEventMap>(\n    type: K,\n    listener: (this: Worker, ev: WorkerEventMap[K]) => any,\n    options?: boolean | AddEventListenerOptions,\n  ): void;\n  addEventListener(\n    type: string,\n    listener: EventListenerOrEventListenerObject,\n    options?: boolean | AddEventListenerOptions,\n  ): void;\n  removeEventListener<K extends keyof WorkerEventMap>(\n    type: K,\n    listener: (this: Worker, ev: WorkerEventMap[K]) => any,\n    options?: boolean | EventListenerOptions,\n  ): void;\n  removeEventListener(\n    type: string,\n    listener: EventListenerOrEventListenerObject,\n    options?: boolean | EventListenerOptions,\n  ): void;\n  terminate(): void;\n}\n\n/** @category Workers */\ndeclare var Worker: {\n  readonly prototype: Worker;\n  new (specifier: string | URL, options?: WorkerOptions): Worker;\n};\n\n/** @category Performance */\ndeclare type PerformanceEntryList = PerformanceEntry[];\n\n/** @category Performance */\ndeclare interface Performance extends EventTarget {\n  /** Returns a timestamp representing the start of the performance measurement. */\n  readonly timeOrigin: number;\n\n  /** Removes the stored timestamp with the associated name. */\n  clearMarks(markName?: string): void;\n\n  /** Removes stored timestamp with the associated name. */\n  clearMeasures(measureName?: string): void;\n\n  getEntries(): PerformanceEntryList;\n  getEntriesByName(name: string, type?: string): PerformanceEntryList;\n  getEntriesByType(type: string): PerformanceEntryList;\n\n  /** Stores a timestamp with the associated name (a \"mark\"). */\n  mark(markName: string, options?: PerformanceMarkOptions): PerformanceMark;\n\n  /** Stores the `DOMHighResTimeStamp` duration between two marks along with the\n   * associated name (a \"measure\"). */\n  measure(\n    measureName: string,\n    options?: PerformanceMeasureOptions,\n  ): PerformanceMeasure;\n  /** Stores the `DOMHighResTimeStamp` duration between two marks along with the\n   * associated name (a \"measure\"). */\n  measure(\n    measureName: string,\n    startMark?: string,\n    endMark?: string,\n  ): PerformanceMeasure;\n\n  /** Returns a current time from Deno's start in milliseconds.\n   *\n   * Use the permission flag `--allow-hrtime` to return a precise value.\n   *\n   * ```ts\n   * const t = performance.now();\n   * console.log(`${t} ms since start!`);\n   * ```\n   *\n   * @tags allow-hrtime\n   */\n  now(): number;\n\n  /** Returns a JSON representation of the performance object. */\n  toJSON(): any;\n}\n\n/** @category Performance */\ndeclare var Performance: {\n  readonly prototype: Performance;\n  new (): never;\n};\n\n/** @category Performance */\ndeclare var performance: Performance;\n\n/** @category Performance */\ndeclare interface PerformanceMarkOptions {\n  /** Metadata to be included in the mark. */\n  detail?: any;\n\n  /** Timestamp to be used as the mark time. */\n  startTime?: number;\n}\n\n/** @category Performance */\ndeclare interface PerformanceMeasureOptions {\n  /** Metadata to be included in the measure. */\n  detail?: any;\n\n  /** Timestamp to be used as the start time or string to be used as start\n   * mark. */\n  start?: string | number;\n\n  /** Duration between the start and end times. */\n  duration?: number;\n\n  /** Timestamp to be used as the end time or string to be used as end mark. */\n  end?: string | number;\n}\n\n/** Encapsulates a single performance metric that is part of the performance\n * timeline. A performance entry can be directly created by making a performance\n * mark or measure (for example by calling the `.mark()` method) at an explicit\n * point in an application.\n *\n * @category Performance\n */\ndeclare interface PerformanceEntry {\n  readonly duration: number;\n  readonly entryType: string;\n  readonly name: string;\n  readonly startTime: number;\n  toJSON(): any;\n}\n\n/** Encapsulates a single performance metric that is part of the performance\n * timeline. A performance entry can be directly created by making a performance\n * mark or measure (for example by calling the `.mark()` method) at an explicit\n * point in an application.\n *\n * @category Performance\n */\ndeclare var PerformanceEntry: {\n  readonly prototype: PerformanceEntry;\n  new (): never;\n};\n\n/** `PerformanceMark` is an abstract interface for `PerformanceEntry` objects\n * with an entryType of `\"mark\"`. Entries of this type are created by calling\n * `performance.mark()` to add a named `DOMHighResTimeStamp` (the mark) to the\n * performance timeline.\n *\n * @category Performance\n */\ndeclare interface PerformanceMark extends PerformanceEntry {\n  readonly detail: any;\n  readonly entryType: \"mark\";\n}\n\n/** `PerformanceMark` is an abstract interface for `PerformanceEntry` objects\n * with an entryType of `\"mark\"`. Entries of this type are created by calling\n * `performance.mark()` to add a named `DOMHighResTimeStamp` (the mark) to the\n * performance timeline.\n *\n * @category Performance\n */\ndeclare var PerformanceMark: {\n  readonly prototype: PerformanceMark;\n  new (name: string, options?: PerformanceMarkOptions): PerformanceMark;\n};\n\n/** `PerformanceMeasure` is an abstract interface for `PerformanceEntry` objects\n * with an entryType of `\"measure\"`. Entries of this type are created by calling\n * `performance.measure()` to add a named `DOMHighResTimeStamp` (the measure)\n * between two marks to the performance timeline.\n *\n * @category Performance\n */\ndeclare interface PerformanceMeasure extends PerformanceEntry {\n  readonly detail: any;\n  readonly entryType: \"measure\";\n}\n\n/** `PerformanceMeasure` is an abstract interface for `PerformanceEntry` objects\n * with an entryType of `\"measure\"`. Entries of this type are created by calling\n * `performance.measure()` to add a named `DOMHighResTimeStamp` (the measure)\n * between two marks to the performance timeline.\n *\n * @category Performance\n */\ndeclare var PerformanceMeasure: {\n  readonly prototype: PerformanceMeasure;\n  new (): never;\n};\n\n/** @category Events */\ndeclare interface CustomEventInit<T = any> extends EventInit {\n  detail?: T;\n}\n\n/** @category Events */\ndeclare interface CustomEvent<T = any> extends Event {\n  /** Returns any custom data event was created with. Typically used for\n   * synthetic events. */\n  readonly detail: T;\n}\n\n/** @category Events */\ndeclare var CustomEvent: {\n  readonly prototype: CustomEvent;\n  new <T>(typeArg: string, eventInitDict?: CustomEventInit<T>): CustomEvent<T>;\n};\n\n/** @category Platform */\ndeclare interface ErrorConstructor {\n  /** See https://v8.dev/docs/stack-trace-api#stack-trace-collection-for-custom-exceptions. */\n  captureStackTrace(error: Object, constructor?: Function): void;\n  // TODO(nayeemrmn): Support `Error.prepareStackTrace()`. We currently use this\n  // internally in a way that makes it unavailable for users.\n}\n",
+  "typeReferenceDirectives": []
+}

@@ -1,0 +1,310 @@
+{
+  "endOfFileToken": {
+    "kind": "EndOfFileToken"
+  },
+  "fileName": "data/dts/lib.es2020.promise.d.ts",
+  "hasNoDefaultLib": true,
+  "isDeclarationFile": true,
+  "kind": "SourceFile",
+  "libReferenceDirectives": [],
+  "referencedFiles": [],
+  "statements": [
+    {
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "status"
+          },
+          "type": {
+            "kind": "LiteralType",
+            "literal": {
+              "kind": "StringLiteral",
+              "text": "fulfilled"
+            }
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "value"
+          },
+          "type": {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "T"
+            }
+          }
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "PromiseFulfilledResult"
+      }
+    },
+    {
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "status"
+          },
+          "type": {
+            "kind": "LiteralType",
+            "literal": {
+              "kind": "StringLiteral",
+              "text": "rejected"
+            }
+          }
+        },
+        {
+          "kind": "PropertySignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "reason"
+          },
+          "type": {
+            "kind": "AnyKeyword"
+          }
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "PromiseRejectedResult"
+      }
+    },
+    {
+      "kind": "TypeAliasDeclaration",
+      "name": {
+        "kind": "Identifier",
+        "text": "PromiseSettledResult"
+      },
+      "type": {
+        "kind": "UnionType",
+        "types": [
+          {
+            "kind": "TypeReference",
+            "typeArguments": [
+              {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "T"
+                }
+              }
+            ],
+            "typeName": {
+              "kind": "Identifier",
+              "text": "PromiseFulfilledResult"
+            }
+          },
+          {
+            "kind": "TypeReference",
+            "typeName": {
+              "kind": "Identifier",
+              "text": "PromiseRejectedResult"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "allSettled"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "values"
+              },
+              "type": {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "T"
+                }
+              }
+            }
+          ],
+          "type": {
+            "kind": "TypeReference",
+            "typeArguments": [
+              {
+                "kind": "MappedType",
+                "members": [],
+                "readonlyToken": {
+                  "kind": "MinusToken"
+                },
+                "type": {
+                  "kind": "TypeReference",
+                  "typeArguments": [
+                    {
+                      "kind": "TypeReference",
+                      "typeArguments": [
+                        {
+                          "indexType": {
+                            "kind": "TypeReference",
+                            "typeName": {
+                              "kind": "Identifier",
+                              "text": "P"
+                            }
+                          },
+                          "kind": "IndexedAccessType",
+                          "objectType": {
+                            "kind": "TypeReference",
+                            "typeName": {
+                              "kind": "Identifier",
+                              "text": "T"
+                            }
+                          }
+                        }
+                      ],
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "Awaited"
+                      }
+                    }
+                  ],
+                  "typeName": {
+                    "kind": "Identifier",
+                    "text": "PromiseSettledResult"
+                  }
+                },
+                "typeParameter": {
+                  "constraint": {
+                    "kind": "TypeOperator",
+                    "type": {
+                      "kind": "TypeReference",
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "T"
+                      }
+                    }
+                  },
+                  "kind": "TypeParameter",
+                  "name": {
+                    "kind": "Identifier",
+                    "text": "P"
+                  }
+                }
+              }
+            ],
+            "typeName": {
+              "kind": "Identifier",
+              "text": "Promise"
+            }
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "allSettled"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "values"
+              },
+              "type": {
+                "kind": "TypeReference",
+                "typeArguments": [
+                  {
+                    "kind": "UnionType",
+                    "types": [
+                      {
+                        "kind": "TypeReference",
+                        "typeName": {
+                          "kind": "Identifier",
+                          "text": "T"
+                        }
+                      },
+                      {
+                        "kind": "TypeReference",
+                        "typeArguments": [
+                          {
+                            "kind": "TypeReference",
+                            "typeName": {
+                              "kind": "Identifier",
+                              "text": "T"
+                            }
+                          }
+                        ],
+                        "typeName": {
+                          "kind": "Identifier",
+                          "text": "PromiseLike"
+                        }
+                      }
+                    ]
+                  }
+                ],
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "Iterable"
+                }
+              }
+            }
+          ],
+          "type": {
+            "kind": "TypeReference",
+            "typeArguments": [
+              {
+                "elementType": {
+                  "kind": "TypeReference",
+                  "typeArguments": [
+                    {
+                      "kind": "TypeReference",
+                      "typeArguments": [
+                        {
+                          "kind": "TypeReference",
+                          "typeName": {
+                            "kind": "Identifier",
+                            "text": "T"
+                          }
+                        }
+                      ],
+                      "typeName": {
+                        "kind": "Identifier",
+                        "text": "Awaited"
+                      }
+                    }
+                  ],
+                  "typeName": {
+                    "kind": "Identifier",
+                    "text": "PromiseSettledResult"
+                  }
+                },
+                "kind": "ArrayType"
+              }
+            ],
+            "typeName": {
+              "kind": "Identifier",
+              "text": "Promise"
+            }
+          }
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "PromiseConstructor"
+      }
+    }
+  ],
+  "text": "/*! *****************************************************************************\nCopyright (c) Microsoft Corporation. All rights reserved.\nLicensed under the Apache License, Version 2.0 (the \"License\"); you may not use\nthis file except in compliance with the License. You may obtain a copy of the\nLicense at http://www.apache.org/licenses/LICENSE-2.0\n\nTHIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY\nKIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED\nWARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,\nMERCHANTABLITY OR NON-INFRINGEMENT.\n\nSee the Apache Version 2.0 License for specific language governing permissions\nand limitations under the License.\n***************************************************************************** */\n\n\n/// <reference no-default-lib=\"true\"/>\n\ninterface PromiseFulfilledResult<T> {\n    status: \"fulfilled\";\n    value: T;\n}\n\ninterface PromiseRejectedResult {\n    status: \"rejected\";\n    reason: any;\n}\n\ntype PromiseSettledResult<T> = PromiseFulfilledResult<T> | PromiseRejectedResult;\n\ninterface PromiseConstructor {\n    /**\n     * Creates a Promise that is resolved with an array of results when all\n     * of the provided Promises resolve or reject.\n     * @param values An array of Promises.\n     * @returns A new Promise.\n     */\n    allSettled<T extends readonly unknown[] | []>(values: T): Promise<{ -readonly [P in keyof T]: PromiseSettledResult<Awaited<T[P]>>; }>;\n\n    /**\n     * Creates a Promise that is resolved with an array of results when all\n     * of the provided Promises resolve or reject.\n     * @param values An array of Promises.\n     * @returns A new Promise.\n     */\n    allSettled<T>(values: Iterable<T | PromiseLike<T>>): Promise<PromiseSettledResult<Awaited<T>>[]>;\n}\n",
+  "typeReferenceDirectives": []
+}

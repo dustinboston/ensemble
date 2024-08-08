@@ -1,0 +1,379 @@
+{
+  "endOfFileToken": {
+    "kind": "EndOfFileToken"
+  },
+  "fileName": "data/dts/lib.es2018.asynciterable.d.ts",
+  "hasNoDefaultLib": true,
+  "isDeclarationFile": true,
+  "kind": "SourceFile",
+  "libReferenceDirectives": [
+    {
+      "fileName": "es2015.symbol"
+    },
+    {
+      "fileName": "es2015.iterable"
+    }
+  ],
+  "referencedFiles": [],
+  "statements": [
+    {
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "PropertySignature",
+          "modifiers": [
+            {
+              "kind": "ReadonlyKeyword"
+            }
+          ],
+          "name": {
+            "kind": "Identifier",
+            "text": "asyncIterator"
+          },
+          "type": {
+            "kind": "TypeOperator",
+            "type": {
+              "kind": "SymbolKeyword"
+            }
+          }
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "SymbolConstructor"
+      }
+    },
+    {
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "next"
+          },
+          "parameters": [
+            {
+              "dotDotDotToken": {
+                "kind": "DotDotDotToken"
+              },
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "args"
+              },
+              "type": {
+                "kind": "UnionType",
+                "types": [
+                  {
+                    "elements": [],
+                    "kind": "TupleType"
+                  },
+                  {
+                    "elements": [
+                      {
+                        "kind": "TypeReference",
+                        "typeName": {
+                          "kind": "Identifier",
+                          "text": "TNext"
+                        }
+                      }
+                    ],
+                    "kind": "TupleType"
+                  }
+                ]
+              }
+            }
+          ],
+          "type": {
+            "kind": "TypeReference",
+            "typeArguments": [
+              {
+                "kind": "TypeReference",
+                "typeArguments": [
+                  {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "T"
+                    }
+                  },
+                  {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "TReturn"
+                    }
+                  }
+                ],
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "IteratorResult"
+                }
+              }
+            ],
+            "typeName": {
+              "kind": "Identifier",
+              "text": "Promise"
+            }
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "return"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "value"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "UnionType",
+                "types": [
+                  {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "TReturn"
+                    }
+                  },
+                  {
+                    "kind": "TypeReference",
+                    "typeArguments": [
+                      {
+                        "kind": "TypeReference",
+                        "typeName": {
+                          "kind": "Identifier",
+                          "text": "TReturn"
+                        }
+                      }
+                    ],
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "PromiseLike"
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "questionToken": {
+            "kind": "QuestionToken"
+          },
+          "type": {
+            "kind": "TypeReference",
+            "typeArguments": [
+              {
+                "kind": "TypeReference",
+                "typeArguments": [
+                  {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "T"
+                    }
+                  },
+                  {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "TReturn"
+                    }
+                  }
+                ],
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "IteratorResult"
+                }
+              }
+            ],
+            "typeName": {
+              "kind": "Identifier",
+              "text": "Promise"
+            }
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "throw"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "e"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "AnyKeyword"
+              }
+            }
+          ],
+          "questionToken": {
+            "kind": "QuestionToken"
+          },
+          "type": {
+            "kind": "TypeReference",
+            "typeArguments": [
+              {
+                "kind": "TypeReference",
+                "typeArguments": [
+                  {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "T"
+                    }
+                  },
+                  {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "TReturn"
+                    }
+                  }
+                ],
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "IteratorResult"
+                }
+              }
+            ],
+            "typeName": {
+              "kind": "Identifier",
+              "text": "Promise"
+            }
+          }
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "AsyncIterator"
+      }
+    },
+    {
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "expression": {
+              "expression": {
+                "kind": "Identifier",
+                "text": "Symbol"
+              },
+              "kind": "PropertyAccessExpression",
+              "name": {
+                "kind": "Identifier",
+                "text": "asyncIterator"
+              }
+            },
+            "kind": "ComputedPropertyName"
+          },
+          "parameters": [],
+          "type": {
+            "kind": "TypeReference",
+            "typeArguments": [
+              {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "T"
+                }
+              }
+            ],
+            "typeName": {
+              "kind": "Identifier",
+              "text": "AsyncIterator"
+            }
+          }
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "AsyncIterable"
+      }
+    },
+    {
+      "heritageClauses": [
+        {
+          "kind": "HeritageClause",
+          "token": "ExtendsKeyword",
+          "types": [
+            {
+              "expression": {
+                "kind": "Identifier",
+                "text": "AsyncIterator"
+              },
+              "kind": "ExpressionWithTypeArguments",
+              "typeArguments": [
+                {
+                  "kind": "TypeReference",
+                  "typeName": {
+                    "kind": "Identifier",
+                    "text": "T"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "expression": {
+              "expression": {
+                "kind": "Identifier",
+                "text": "Symbol"
+              },
+              "kind": "PropertyAccessExpression",
+              "name": {
+                "kind": "Identifier",
+                "text": "asyncIterator"
+              }
+            },
+            "kind": "ComputedPropertyName"
+          },
+          "parameters": [],
+          "type": {
+            "kind": "TypeReference",
+            "typeArguments": [
+              {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "T"
+                }
+              }
+            ],
+            "typeName": {
+              "kind": "Identifier",
+              "text": "AsyncIterableIterator"
+            }
+          }
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "AsyncIterableIterator"
+      }
+    }
+  ],
+  "text": "/*! *****************************************************************************\nCopyright (c) Microsoft Corporation. All rights reserved.\nLicensed under the Apache License, Version 2.0 (the \"License\"); you may not use\nthis file except in compliance with the License. You may obtain a copy of the\nLicense at http://www.apache.org/licenses/LICENSE-2.0\n\nTHIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY\nKIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED\nWARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,\nMERCHANTABLITY OR NON-INFRINGEMENT.\n\nSee the Apache Version 2.0 License for specific language governing permissions\nand limitations under the License.\n***************************************************************************** */\n\n\n/// <reference no-default-lib=\"true\"/>\n\n/// <reference lib=\"es2015.symbol\" />\n/// <reference lib=\"es2015.iterable\" />\n\ninterface SymbolConstructor {\n    /**\n     * A method that returns the default async iterator for an object. Called by the semantics of\n     * the for-await-of statement.\n     */\n    readonly asyncIterator: unique symbol;\n}\n\ninterface AsyncIterator<T, TReturn = any, TNext = undefined> {\n    // NOTE: 'next' is defined using a tuple to ensure we report the correct assignability errors in all places.\n    next(...args: [] | [TNext]): Promise<IteratorResult<T, TReturn>>;\n    return?(value?: TReturn | PromiseLike<TReturn>): Promise<IteratorResult<T, TReturn>>;\n    throw?(e?: any): Promise<IteratorResult<T, TReturn>>;\n}\n\ninterface AsyncIterable<T> {\n    [Symbol.asyncIterator](): AsyncIterator<T>;\n}\n\ninterface AsyncIterableIterator<T> extends AsyncIterator<T> {\n    [Symbol.asyncIterator](): AsyncIterableIterator<T>;\n}\n",
+  "typeReferenceDirectives": []
+}

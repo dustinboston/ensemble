@@ -1,0 +1,677 @@
+{
+  "endOfFileToken": {
+    "kind": "EndOfFileToken"
+  },
+  "fileName": "data/dts/lib.es2020.sharedmemory.d.ts",
+  "hasNoDefaultLib": true,
+  "isDeclarationFile": true,
+  "kind": "SourceFile",
+  "libReferenceDirectives": [],
+  "referencedFiles": [],
+  "statements": [
+    {
+      "kind": "InterfaceDeclaration",
+      "members": [
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "add"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "typedArray"
+              },
+              "type": {
+                "kind": "UnionType",
+                "types": [
+                  {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "BigInt64Array"
+                    }
+                  },
+                  {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "BigUint64Array"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "index"
+              },
+              "type": {
+                "kind": "NumberKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "value"
+              },
+              "type": {
+                "kind": "BigIntKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "BigIntKeyword"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "and"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "typedArray"
+              },
+              "type": {
+                "kind": "UnionType",
+                "types": [
+                  {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "BigInt64Array"
+                    }
+                  },
+                  {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "BigUint64Array"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "index"
+              },
+              "type": {
+                "kind": "NumberKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "value"
+              },
+              "type": {
+                "kind": "BigIntKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "BigIntKeyword"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "compareExchange"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "typedArray"
+              },
+              "type": {
+                "kind": "UnionType",
+                "types": [
+                  {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "BigInt64Array"
+                    }
+                  },
+                  {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "BigUint64Array"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "index"
+              },
+              "type": {
+                "kind": "NumberKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "expectedValue"
+              },
+              "type": {
+                "kind": "BigIntKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "replacementValue"
+              },
+              "type": {
+                "kind": "BigIntKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "BigIntKeyword"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "exchange"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "typedArray"
+              },
+              "type": {
+                "kind": "UnionType",
+                "types": [
+                  {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "BigInt64Array"
+                    }
+                  },
+                  {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "BigUint64Array"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "index"
+              },
+              "type": {
+                "kind": "NumberKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "value"
+              },
+              "type": {
+                "kind": "BigIntKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "BigIntKeyword"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "load"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "typedArray"
+              },
+              "type": {
+                "kind": "UnionType",
+                "types": [
+                  {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "BigInt64Array"
+                    }
+                  },
+                  {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "BigUint64Array"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "index"
+              },
+              "type": {
+                "kind": "NumberKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "BigIntKeyword"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "or"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "typedArray"
+              },
+              "type": {
+                "kind": "UnionType",
+                "types": [
+                  {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "BigInt64Array"
+                    }
+                  },
+                  {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "BigUint64Array"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "index"
+              },
+              "type": {
+                "kind": "NumberKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "value"
+              },
+              "type": {
+                "kind": "BigIntKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "BigIntKeyword"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "store"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "typedArray"
+              },
+              "type": {
+                "kind": "UnionType",
+                "types": [
+                  {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "BigInt64Array"
+                    }
+                  },
+                  {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "BigUint64Array"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "index"
+              },
+              "type": {
+                "kind": "NumberKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "value"
+              },
+              "type": {
+                "kind": "BigIntKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "BigIntKeyword"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "sub"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "typedArray"
+              },
+              "type": {
+                "kind": "UnionType",
+                "types": [
+                  {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "BigInt64Array"
+                    }
+                  },
+                  {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "BigUint64Array"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "index"
+              },
+              "type": {
+                "kind": "NumberKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "value"
+              },
+              "type": {
+                "kind": "BigIntKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "BigIntKeyword"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "wait"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "typedArray"
+              },
+              "type": {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "BigInt64Array"
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "index"
+              },
+              "type": {
+                "kind": "NumberKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "value"
+              },
+              "type": {
+                "kind": "BigIntKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "timeout"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "NumberKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "UnionType",
+            "types": [
+              {
+                "kind": "LiteralType",
+                "literal": {
+                  "kind": "StringLiteral",
+                  "text": "ok"
+                }
+              },
+              {
+                "kind": "LiteralType",
+                "literal": {
+                  "kind": "StringLiteral",
+                  "text": "not-equal"
+                }
+              },
+              {
+                "kind": "LiteralType",
+                "literal": {
+                  "kind": "StringLiteral",
+                  "text": "timed-out"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "notify"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "typedArray"
+              },
+              "type": {
+                "kind": "TypeReference",
+                "typeName": {
+                  "kind": "Identifier",
+                  "text": "BigInt64Array"
+                }
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "index"
+              },
+              "type": {
+                "kind": "NumberKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "count"
+              },
+              "questionToken": {
+                "kind": "QuestionToken"
+              },
+              "type": {
+                "kind": "NumberKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "NumberKeyword"
+          }
+        },
+        {
+          "kind": "MethodSignature",
+          "name": {
+            "kind": "Identifier",
+            "text": "xor"
+          },
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "typedArray"
+              },
+              "type": {
+                "kind": "UnionType",
+                "types": [
+                  {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "BigInt64Array"
+                    }
+                  },
+                  {
+                    "kind": "TypeReference",
+                    "typeName": {
+                      "kind": "Identifier",
+                      "text": "BigUint64Array"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "index"
+              },
+              "type": {
+                "kind": "NumberKeyword"
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "Identifier",
+                "text": "value"
+              },
+              "type": {
+                "kind": "BigIntKeyword"
+              }
+            }
+          ],
+          "type": {
+            "kind": "BigIntKeyword"
+          }
+        }
+      ],
+      "name": {
+        "kind": "Identifier",
+        "text": "Atomics"
+      }
+    }
+  ],
+  "text": "/*! *****************************************************************************\nCopyright (c) Microsoft Corporation. All rights reserved.\nLicensed under the Apache License, Version 2.0 (the \"License\"); you may not use\nthis file except in compliance with the License. You may obtain a copy of the\nLicense at http://www.apache.org/licenses/LICENSE-2.0\n\nTHIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY\nKIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED\nWARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,\nMERCHANTABLITY OR NON-INFRINGEMENT.\n\nSee the Apache Version 2.0 License for specific language governing permissions\nand limitations under the License.\n***************************************************************************** */\n\n\n/// <reference no-default-lib=\"true\"/>\n\ninterface Atomics {\n    /**\n     * Adds a value to the value at the given position in the array, returning the original value.\n     * Until this atomic operation completes, any other read or write operation against the array\n     * will block.\n     */\n    add(typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;\n\n    /**\n     * Stores the bitwise AND of a value with the value at the given position in the array,\n     * returning the original value. Until this atomic operation completes, any other read or\n     * write operation against the array will block.\n     */\n    and(typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;\n\n    /**\n     * Replaces the value at the given position in the array if the original value equals the given\n     * expected value, returning the original value. Until this atomic operation completes, any\n     * other read or write operation against the array will block.\n     */\n    compareExchange(typedArray: BigInt64Array | BigUint64Array, index: number, expectedValue: bigint, replacementValue: bigint): bigint;\n\n    /**\n     * Replaces the value at the given position in the array, returning the original value. Until\n     * this atomic operation completes, any other read or write operation against the array will\n     * block.\n     */\n    exchange(typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;\n\n    /**\n     * Returns the value at the given position in the array. Until this atomic operation completes,\n     * any other read or write operation against the array will block.\n     */\n    load(typedArray: BigInt64Array | BigUint64Array, index: number): bigint;\n\n    /**\n     * Stores the bitwise OR of a value with the value at the given position in the array,\n     * returning the original value. Until this atomic operation completes, any other read or write\n     * operation against the array will block.\n     */\n    or(typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;\n\n    /**\n     * Stores a value at the given position in the array, returning the new value. Until this\n     * atomic operation completes, any other read or write operation against the array will block.\n     */\n    store(typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;\n\n    /**\n     * Subtracts a value from the value at the given position in the array, returning the original\n     * value. Until this atomic operation completes, any other read or write operation against the\n     * array will block.\n     */\n    sub(typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;\n\n    /**\n     * If the value at the given position in the array is equal to the provided value, the current\n     * agent is put to sleep causing execution to suspend until the timeout expires (returning\n     * `\"timed-out\"`) or until the agent is awoken (returning `\"ok\"`); otherwise, returns\n     * `\"not-equal\"`.\n     */\n    wait(typedArray: BigInt64Array, index: number, value: bigint, timeout?: number): \"ok\" | \"not-equal\" | \"timed-out\";\n\n    /**\n     * Wakes up sleeping agents that are waiting on the given index of the array, returning the\n     * number of agents that were awoken.\n     * @param typedArray A shared BigInt64Array.\n     * @param index The position in the typedArray to wake up on.\n     * @param count The number of sleeping agents to notify. Defaults to +Infinity.\n     */\n    notify(typedArray: BigInt64Array, index: number, count?: number): number;\n\n    /**\n     * Stores the bitwise XOR of a value with the value at the given position in the array,\n     * returning the original value. Until this atomic operation completes, any other read or write\n     * operation against the array will block.\n     */\n    xor(typedArray: BigInt64Array | BigUint64Array, index: number, value: bigint): bigint;\n}\n",
+  "typeReferenceDirectives": []
+}
