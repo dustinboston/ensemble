@@ -254,9 +254,7 @@ export function evaluate(node: types.AstNode, appEnv: env.Env): types.AstNode {
 			return node;
 		}
 
-		const symbolValue = node.value[0] instanceof types.SymbolNode
-			? node.value[0].value
-			: 'goto_default_clause';
+		const symbolValue = node.value[0] instanceof types.SymbolNode ? node.value[0].value : 'goto_default_clause';
 		let result: types.ContinueReturn;
 
 		switch (symbolValue) {

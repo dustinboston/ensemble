@@ -2,8 +2,7 @@
 
 > ENSEMBLE: Novel Synthesis of Eich, McCarthy, Berners-Lee, Lie, etc.
 
-ENSEMBLE is a _web_ programming language that combines JavaScript, HTML, and CSS
-with a Lisp-like syntax.
+ENSEMBLE is a _web_ programming language that combines JavaScript, HTML, and CSS with a Lisp-like syntax.
 
 ## Syntax
 

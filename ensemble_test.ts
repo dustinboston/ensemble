@@ -1,9 +1,4 @@
-import {
-	assertEquals,
-	assertExists,
-	assertInstanceOf,
-	assertThrows,
-} from './tests/deps.ts';
+import { assertEquals, assertExists, assertInstanceOf, assertThrows } from './tests/deps.ts';
 import { add } from './core.ts';
 import { Env } from './env.ts';
 import {
@@ -37,7 +32,6 @@ import {
 	MapNode,
 	NilNode,
 	NumberNode,
-	returnResult,
 	StringNode,
 	SymbolNode,
 	VectorNode,

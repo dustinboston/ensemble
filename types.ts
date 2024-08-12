@@ -13,7 +13,7 @@ import { type Env } from './env.ts';
  */
 
 export abstract class AstNode {
-  abstract value: unknown;
+	abstract value: unknown;
 }
 
 /**
@@ -22,9 +22,9 @@ export abstract class AstNode {
  * @param value - The data that this class represents.
  */
 export class SymbolNode extends AstNode {
-  constructor(public value: string) {
-    super();
-  }
+	constructor(public value: string) {
+		super();
+	}
 }
 
 /**
@@ -33,12 +33,12 @@ export class SymbolNode extends AstNode {
  * @param value - The data that this class represents.
  */
 export class ListNode extends AstNode {
-  constructor(
-    public value: AstNode[],
-    public metadata: AstNode = new NilNode(),
-  ) {
-    super();
-  }
+	constructor(
+		public value: AstNode[],
+		public metadata: AstNode = new NilNode(),
+	) {
+		super();
+	}
 }
 
 /**
@@ -47,12 +47,12 @@ export class ListNode extends AstNode {
  * @param value - The data that this class represents.
  */
 export class VectorNode extends AstNode {
-  constructor(
-    public value: AstNode[],
-    public metadata: AstNode = new NilNode(),
-  ) {
-    super();
-  }
+	constructor(
+		public value: AstNode[],
+		public metadata: AstNode = new NilNode(),
+	) {
+		super();
+	}
 }
 
 /**
@@ -61,9 +61,9 @@ export class VectorNode extends AstNode {
  * @param value - The data that this class represents.
  */
 export class AtomNode extends AstNode {
-  constructor(public value: unknown, public metadata: AstNode = new NilNode()) {
-    super();
-  }
+	constructor(public value: unknown, public metadata: AstNode = new NilNode()) {
+		super();
+	}
 }
 
 /**
@@ -72,9 +72,9 @@ export class AtomNode extends AstNode {
  * @param value - The data that this class represents.
  */
 export class BooleanNode extends AstNode {
-  constructor(public value: boolean) {
-    super();
-  }
+	constructor(public value: boolean) {
+		super();
+	}
 }
 
 /**
@@ -87,12 +87,12 @@ export class BooleanNode extends AstNode {
  * @param value - The data that this class represents.
  */
 export class MapNode extends AstNode {
-  constructor(
-    public value: Map<string, AstNode> = new Map<string, AstNode>(),
-    public metadata: AstNode = new NilNode(),
-  ) {
-    super();
-  }
+	constructor(
+		public value: Map<string, AstNode> = new Map<string, AstNode>(),
+		public metadata: AstNode = new NilNode(),
+	) {
+		super();
+	}
 }
 
 /**
@@ -101,16 +101,16 @@ export class MapNode extends AstNode {
  * @param value - The data that this class represents.
  */
 export class ErrorNode extends AstNode {
-  constructor(public value: AstNode) {
-    super();
-  }
+	constructor(public value: AstNode) {
+		super();
+	}
 }
 
 export type Closure = (...args: AstNode[]) => AstNode;
 export type ClosureMetadata = {
-  ast: AstNode;
-  env: Env;
-  parameters: SymbolNode[];
+	ast: AstNode;
+	env: Env;
+	parameters: SymbolNode[];
 };
 
 /**
@@ -123,14 +123,14 @@ export type ClosureMetadata = {
  * @param metadata - Additional data to associate with this node.
  */
 export class FunctionNode extends AstNode {
-  constructor(
-    public value: Closure,
-    public closureMeta?: ClosureMetadata,
-    public isMacro = false,
-    public metadata: AstNode = new NilNode(),
-  ) {
-    super();
-  }
+	constructor(
+		public value: Closure,
+		public closureMeta?: ClosureMetadata,
+		public isMacro = false,
+		public metadata: AstNode = new NilNode(),
+	) {
+		super();
+	}
 }
 
 /**
@@ -139,9 +139,9 @@ export class FunctionNode extends AstNode {
  * @param value - The data that this class represents.
  */
 export class KeywordNode extends AstNode {
-  constructor(public value: string) {
-    super();
-  }
+	constructor(public value: string) {
+		super();
+	}
 }
 
 /**
@@ -150,9 +150,9 @@ export class KeywordNode extends AstNode {
  * @param value - The data that this class represents.
  */
 export class NilNode extends AstNode {
-  constructor(public value: unknown = null) {
-    super();
-  }
+	constructor(public value: unknown = null) {
+		super();
+	}
 }
 
 /**
@@ -161,9 +161,9 @@ export class NilNode extends AstNode {
  * @param value - The data that this class represents.
  */
 export class NumberNode extends AstNode {
-  constructor(public value: number) {
-    super();
-  }
+	constructor(public value: number) {
+		super();
+	}
 }
 
 /**
@@ -172,9 +172,9 @@ export class NumberNode extends AstNode {
  * @param value - The data that this class represents.
  */
 export class StringNode extends AstNode {
-  constructor(public value: string) {
-    super();
-  }
+	constructor(public value: string) {
+		super();
+	}
 }
 
 /**
@@ -183,12 +183,12 @@ export class StringNode extends AstNode {
  * @param value - The data that this class represents.
  */
 export class DomNode extends AstNode {
-  constructor(
-    public value: Map<string, AstNode> = new Map<string, AstNode>(),
-    public metadata: AstNode = new NilNode(),
-  ) {
-    super();
-  }
+	constructor(
+		public value: Map<string, AstNode> = new Map<string, AstNode>(),
+		public metadata: AstNode = new NilNode(),
+	) {
+		super();
+	}
 }
 
 // ASSERTION FUNCTIONS
@@ -202,9 +202,9 @@ export class DomNode extends AstNode {
  * @example assertDomNode(myNode);
  */
 export function assertDomNode(node: unknown): asserts node is DomNode {
-  if (!(node instanceof DomNode)) {
-    throw new TypeError('Invalid DomNode');
-  }
+	if (!(node instanceof DomNode)) {
+		throw new TypeError('Invalid DomNode');
+	}
 }
 
 /**
@@ -215,9 +215,9 @@ export function assertDomNode(node: unknown): asserts node is DomNode {
  * @example assertAstNode(myNode);
  */
 export function assertAstNode(node: unknown): asserts node is AstNode {
-  if (!(node instanceof AstNode)) {
-    throw new TypeError('Invalid AstNode');
-  }
+	if (!(node instanceof AstNode)) {
+		throw new TypeError('Invalid AstNode');
+	}
 }
 
 /**
@@ -228,9 +228,9 @@ export function assertAstNode(node: unknown): asserts node is AstNode {
  * @example assertAtomNode(myNode);
  */
 export function assertAtomNode(node: unknown): asserts node is AtomNode {
-  if (!(node instanceof AtomNode)) {
-    throw new TypeError('Invalid AtomNode');
-  }
+	if (!(node instanceof AtomNode)) {
+		throw new TypeError('Invalid AtomNode');
+	}
 }
 
 /**
@@ -241,9 +241,9 @@ export function assertAtomNode(node: unknown): asserts node is AtomNode {
  * @example assertBooleanNode(myNode);
  */
 export function assertBooleanNode(node: unknown): asserts node is BooleanNode {
-  if (!(node instanceof BooleanNode)) {
-    throw new TypeError('Invalid BooleanNode');
-  }
+	if (!(node instanceof BooleanNode)) {
+		throw new TypeError('Invalid BooleanNode');
+	}
 }
 
 /**
@@ -254,9 +254,9 @@ export function assertBooleanNode(node: unknown): asserts node is BooleanNode {
  * @example assertMapNode(myNode);
  */
 export function assertMapNode(node: unknown): asserts node is MapNode {
-  if (!(node instanceof MapNode)) {
-    throw new TypeError('Invalid MapNode');
-  }
+	if (!(node instanceof MapNode)) {
+		throw new TypeError('Invalid MapNode');
+	}
 }
 
 /**
@@ -267,9 +267,9 @@ export function assertMapNode(node: unknown): asserts node is MapNode {
  * @example assertErrorNode(myNode);
  */
 export function assertErrorNode(node: unknown): asserts node is ErrorNode {
-  if (!(node instanceof ErrorNode)) {
-    throw new TypeError('Invalid ErrorNode');
-  }
+	if (!(node instanceof ErrorNode)) {
+		throw new TypeError('Invalid ErrorNode');
+	}
 }
 
 /**
@@ -280,11 +280,11 @@ export function assertErrorNode(node: unknown): asserts node is ErrorNode {
  * @example assertFunctionNode(myNode);
  */
 export function assertFunctionNode(
-  node: unknown,
+	node: unknown,
 ): asserts node is FunctionNode {
-  if (!(node instanceof FunctionNode)) {
-    throw new TypeError('Invalid FunctionNode');
-  }
+	if (!(node instanceof FunctionNode)) {
+		throw new TypeError('Invalid FunctionNode');
+	}
 }
 
 /**
@@ -295,9 +295,9 @@ export function assertFunctionNode(
  * @example assertKeywordNode(myNode);
  */
 export function assertKeywordNode(node: unknown): asserts node is KeywordNode {
-  if (!(node instanceof KeywordNode)) {
-    throw new TypeError('Invalid KeywordNode');
-  }
+	if (!(node instanceof KeywordNode)) {
+		throw new TypeError('Invalid KeywordNode');
+	}
 }
 
 /**
@@ -308,9 +308,9 @@ export function assertKeywordNode(node: unknown): asserts node is KeywordNode {
  * @example assertListNode(myNode);
  */
 export function assertListNode(node: unknown): asserts node is ListNode {
-  if (!(node instanceof ListNode)) {
-    throw new TypeError('Invalid ListNode');
-  }
+	if (!(node instanceof ListNode)) {
+		throw new TypeError('Invalid ListNode');
+	}
 }
 
 /**
@@ -321,9 +321,9 @@ export function assertListNode(node: unknown): asserts node is ListNode {
  * @example assertNilNode(myNode);
  */
 export function assertNilNode(node: unknown): asserts node is NilNode {
-  if (!(node instanceof NilNode)) {
-    throw new TypeError('Invalid NilNode');
-  }
+	if (!(node instanceof NilNode)) {
+		throw new TypeError('Invalid NilNode');
+	}
 }
 
 /**
@@ -334,9 +334,9 @@ export function assertNilNode(node: unknown): asserts node is NilNode {
  * @example assertNumberNode(myNode);
  */
 export function assertNumberNode(node: unknown): asserts node is NumberNode {
-  if (!(node instanceof NumberNode)) {
-    throw new TypeError('Invalid NumberNode');
-  }
+	if (!(node instanceof NumberNode)) {
+		throw new TypeError('Invalid NumberNode');
+	}
 }
 
 /**
@@ -347,9 +347,9 @@ export function assertNumberNode(node: unknown): asserts node is NumberNode {
  * @example assertStringNode(myNode);
  */
 export function assertStringNode(node: unknown): asserts node is StringNode {
-  if (!(node instanceof StringNode)) {
-    throw new TypeError('Invalid StringNode');
-  }
+	if (!(node instanceof StringNode)) {
+		throw new TypeError('Invalid StringNode');
+	}
 }
 
 /**
@@ -360,9 +360,9 @@ export function assertStringNode(node: unknown): asserts node is StringNode {
  * @example assertSymbolNode(myNode);
  */
 export function assertSymbolNode(node: unknown): asserts node is SymbolNode {
-  if (!(node instanceof SymbolNode)) {
-    throw new TypeError('Invalid SymbolNode');
-  }
+	if (!(node instanceof SymbolNode)) {
+		throw new TypeError('Invalid SymbolNode');
+	}
 }
 
 /**
@@ -373,9 +373,152 @@ export function assertSymbolNode(node: unknown): asserts node is SymbolNode {
  * @example assertVectorNode(myNode);
  */
 export function assertVectorNode(node: unknown): asserts node is VectorNode {
-  if (!(node instanceof VectorNode)) {
-    throw new TypeError('Invalid VectorNode');
-  }
+	if (!(node instanceof VectorNode)) {
+		throw new TypeError('Invalid VectorNode');
+	}
+}
+
+// TYPE GUARDS
+// =============================================================================
+
+/**
+ * Type guard to check if a node is an instance of DomNode.
+ * @param node - The node to check.
+ * @returns True if the node is an instance of DomNode, else false.
+ * @example isDomNode(myNode);
+ */
+export function isDomNode(node: unknown): node is DomNode {
+	return (node instanceof DomNode) ? true : false;
+}
+
+/**
+ * Type guard to check if a node is an instance of AstNode.
+ * @param node - The node to check.
+ * @returns True if the node is an instance of AstNode, else false.
+ * @example isAstNode(myNode);
+ */
+export function isAstNode(node: unknown): node is AstNode {
+	return (node instanceof AstNode) ? true : false;
+}
+
+/**
+ * Type guard to check if a node is an instance of AtomNode.
+ * @param node - The node to check.
+ * @returns True if the node is an instance of AtomNode, else false.
+ * @example isAtomNode(myNode);
+ */
+export function isAtomNode(node: unknown): node is AtomNode {
+	return (node instanceof AtomNode) ? true : false;
+}
+
+/**
+ * Type guard to check if a node is an instance of BooleanNode.
+ * @param node - The node to check.
+ * @returns True if the node is an instance of BooleanNode, else false.
+ * @example isBooleanNode(myNode);
+ */
+export function isBooleanNode(node: unknown): node is BooleanNode {
+	return (node instanceof BooleanNode) ? true : false;
+}
+
+/**
+ * Type guard to check if a node is an instance of MapNode.
+ * @param node - The node to check.
+ * @returns True if the node is an instance of MapNode, else false.
+ * @example isMapNode(myNode);
+ */
+export function isMapNode(node: unknown): node is MapNode {
+	return (node instanceof MapNode) ? true : false;
+}
+
+/**
+ * Type guard to check if a node is an instance of ErrorNode.
+ * @param node - The node to check.
+ * @returns True if the node is an instance of ErrorNode, else false.
+ * @example isErrorNode(myNode);
+ */
+export function isErrorNode(node: unknown): node is ErrorNode {
+	return (node instanceof ErrorNode) ? true : false;
+}
+
+/**
+ * Type guard to check if a node is an instance of FunctionNode.
+ * @param node - The node to check.
+ * @returns True if the node is an instance of FunctionNode, else false.
+ * @example isFunctionNode(myNode);
+ */
+export function isFunctionNode(node: unknown): node is FunctionNode {
+	return (node instanceof FunctionNode) ? true : false;
+}
+
+/**
+ * Type guard to check if a node is an instance of KeywordNode.
+ * @param node - The node to check.
+ * @returns True if the node is an instance of KeywordNode, else false.
+ * @example isKeywordNode(myNode);
+ */
+export function isKeywordNode(node: unknown): node is KeywordNode {
+	return (node instanceof KeywordNode) ? true : false;
+}
+
+/**
+ * Type guard to check if a node is an instance of ListNode.
+ * @param node - The node to check.
+ * @returns True if the node is an instance of ListNode, else false.
+ * @example isListNode(myNode);
+ */
+export function isListNode(node: unknown): node is ListNode {
+	return (node instanceof ListNode) ? true : false;
+}
+
+/**
+ * Type guard to check if a node is an instance of NilNode.
+ * @param node - The node to check.
+ * @returns True if the node is an instance of NilNode, else false.
+ * @example isNilNode(myNode);
+ */
+export function isNilNode(node: unknown): node is NilNode {
+	return (node instanceof NilNode) ? true : false;
+}
+
+/**
+ * Type guard to check if a node is an instance of NumberNode.
+ * @param node - The node to check.
+ * @returns True if the node is an instance of NumberNode, else false.
+ * @example isNumberNode(myNode);
+ */
+export function isNumberNode(node: unknown): node is NumberNode {
+	return (node instanceof NumberNode) ? true : false;
+}
+
+/**
+ * Type guard to check if a node is an instance of StringNode.
+ * @param node - The node to check.
+ * @returns True if the node is an instance of StringNode, else false.
+ * @example isStringNode(myNode);
+ */
+export function isStringNode(node: unknown): node is StringNode {
+	return (node instanceof StringNode) ? true : false;
+}
+
+/**
+ * Type guard to check if a node is an instance of SymbolNode.
+ * @param node - The node to check.
+ * @returns True if the node is an instance of SymbolNode, else false.
+ * @example isSymbolNode(myNode);
+ */
+export function isSymbolNode(node: unknown): node is SymbolNode {
+	return (node instanceof SymbolNode) ? true : false;
+}
+
+/**
+ * Type guard to check if a node is an instance of VectorNode.
+ * @param node - The node to check.
+ * @returns True if the node is an instance of VectorNode, else false.
+ * @example isVectorNode(myNode);
+ */
+export function isVectorNode(node: unknown): node is VectorNode {
+	return (node instanceof VectorNode) ? true : false;
 }
 
 // TYPES
@@ -385,38 +528,38 @@ export type MapKeyNode = KeywordNode | StringNode | SymbolNode;
 export type Seq = VectorNode | ListNode;
 
 export type MetadataTypes =
-  | FunctionNode
-  | ListNode
-  | VectorNode
-  | MapNode
-  | DomNode;
+	| FunctionNode
+	| ListNode
+	| VectorNode
+	| MapNode
+	| DomNode;
 
 type SymbolValues =
-  | 'def!'
-  | 'let*'
-  | 'quote'
-  | 'quasiquoteexpand'
-  | 'quasiquote'
-  | 'defmacro!'
-  | 'macroexpand'
-  | 'do'
-  | 'if'
-  | 'fn*'
-  | 'try*'
-  | 'catch*'
-  | 'default'
-  // JS interop
-  | 'globalThis'
-  | 'var'
-  | 'let'
-  | 'const'
-  | 'function'
-  | '=>'
-  | 'try'
-  | 'catch';
+	| 'def!'
+	| 'let*'
+	| 'quote'
+	| 'quasiquoteexpand'
+	| 'quasiquote'
+	| 'defmacro!'
+	| 'macroexpand'
+	| 'do'
+	| 'if'
+	| 'fn*'
+	| 'try*'
+	| 'catch*'
+	| 'default'
+	// JS interop
+	| 'globalThis'
+	| 'var'
+	| 'let'
+	| 'const'
+	| 'function'
+	| '=>'
+	| 'try'
+	| 'catch';
 
 export type SymWithValue<Value extends SymbolValues> = SymbolNode & {
-  value: Value;
+	value: Value;
 };
 
 /// ============================================================================
@@ -431,7 +574,7 @@ export type SymWithValue<Value extends SymbolValues> = SymbolNode & {
  * @example isSameClass({ a: 1 }, { b: 2 }) // true
  */
 export function isSameClass<T, U>(object1: T, object2: U): boolean {
-  return Object.getPrototypeOf(object1) === Object.getPrototypeOf(object2);
+	return Object.getPrototypeOf(object1) === Object.getPrototypeOf(object2);
 }
 
 /**
@@ -442,9 +585,9 @@ export function isSameClass<T, U>(object1: T, object2: U): boolean {
  * @example assertEq(astNode1, astNode2) // no output if equal, error if not
  */
 export function assertEq(a: AstNode, b: AstNode): void {
-  if (!isEqualTo(a, b)) {
-    throw new Error('Values are note equal');
-  }
+	if (!isEqualTo(a, b)) {
+		throw new Error('Values are note equal');
+	}
 }
 
 /**
@@ -454,9 +597,9 @@ export function assertEq(a: AstNode, b: AstNode): void {
  * @example assertDefined(undefined) // throws error
  */
 export function assertDefined<T>(object: unknown): asserts object is T {
-  if (object === undefined) {
-    throw new Error('Value is undefined');
-  }
+	if (object === undefined) {
+		throw new Error('Value is undefined');
+	}
 }
 
 /**
@@ -466,7 +609,7 @@ export function assertDefined<T>(object: unknown): asserts object is T {
  * @example isDefined(undefined) // false
  */
 export function isDefined<T>(object: unknown): object is T {
-  return object !== undefined;
+	return object !== undefined;
 }
 
 /**
@@ -476,9 +619,9 @@ export function isDefined<T>(object: unknown): object is T {
  * @example assertTrue(false) // throws error
  */
 export function assertTrue(object: unknown): asserts object is true {
-  if (object === false) {
-    throw new Error('Value is not true');
-  }
+	if (object === false) {
+		throw new Error('Value is not true');
+	}
 }
 
 /**
@@ -490,27 +633,27 @@ export function assertTrue(object: unknown): asserts object is true {
  * @example isAstTruthy(astNode) // returns true if the Ast node is "truthy"
  */
 export function isAstTruthy(a: AstNode): boolean {
-  if (a instanceof AtomNode) {
-    if (a.value instanceof AstNode !== true) {
-      return Boolean(a.value);
-    }
-    return isAstTruthy(a.value);
-  }
+	if (a instanceof AtomNode) {
+		if (a.value instanceof AstNode !== true) {
+			return Boolean(a.value);
+		}
+		return isAstTruthy(a.value);
+	}
 
-  if (a instanceof BooleanNode) {
-    return a.value;
-  }
+	if (a instanceof BooleanNode) {
+		return a.value;
+	}
 
-  const nilAst = a;
-  if (nilAst instanceof NilNode) {
-    return false;
-  }
+	const nilAst = a;
+	if (nilAst instanceof NilNode) {
+		return false;
+	}
 
-  if (a instanceof NumberNode) {
-    return true;
-  }
+	if (a instanceof NumberNode) {
+		return true;
+	}
 
-  return Boolean(a.value);
+	return Boolean(a.value);
 }
 
 /**
@@ -521,9 +664,9 @@ export function isAstTruthy(a: AstNode): boolean {
  * @example isSequential(listOrVece) // returns true if it is a list or a vector
  */
 export function isSequentialNode(
-  value: unknown,
+	value: unknown,
 ): value is ListNode | VectorNode {
-  return value instanceof ListNode || value instanceof VectorNode;
+	return value instanceof ListNode || value instanceof VectorNode;
 }
 
 /**
@@ -533,11 +676,11 @@ export function isSequentialNode(
  * @example assertSequential(listOrVec) // no output if valid, else error
  */
 export function assertSequential<T extends ListNode | VectorNode>(
-  value: unknown,
+	value: unknown,
 ): asserts value is T {
-  if (!(value instanceof ListNode) && !(value instanceof VectorNode)) {
-    throw new TypeError('Invalid sequential type');
-  }
+	if (!(value instanceof ListNode) && !(value instanceof VectorNode)) {
+		throw new TypeError('Invalid sequential type');
+	}
 }
 
 /**
@@ -547,15 +690,15 @@ export function assertSequential<T extends ListNode | VectorNode>(
  * @example assertDictKey(dictKeyCandidate) // no output if valid, error if not
  */
 export function assertMapKeyNode<T extends MapKeyNode>(
-  value: unknown,
+	value: unknown,
 ): asserts value is T {
-  if (
-    !(value instanceof StringNode) &&
-    !(value instanceof SymbolNode) &&
-    !(value instanceof KeywordNode)
-  ) {
-    throw new TypeError('Invalid dictionary key');
-  }
+	if (
+		!(value instanceof StringNode) &&
+		!(value instanceof SymbolNode) &&
+		!(value instanceof KeywordNode)
+	) {
+		throw new TypeError('Invalid dictionary key');
+	}
 }
 
 /**
@@ -566,11 +709,11 @@ export function assertMapKeyNode<T extends MapKeyNode>(
  * @example isDictKey("myKey") // returns true
  */
 export function isMapKeyNode(value: unknown): value is MapKeyNode {
-  return (
-    value instanceof StringNode ||
-    value instanceof SymbolNode ||
-    value instanceof KeywordNode
-  );
+	return (
+		value instanceof StringNode ||
+		value instanceof SymbolNode ||
+		value instanceof KeywordNode
+	);
 }
 
 /**
@@ -581,17 +724,17 @@ export function isMapKeyNode(value: unknown): value is MapKeyNode {
  * @example assertMetadataType(myValue)
  */
 export function assertMetadataType(
-  value: unknown,
+	value: unknown,
 ): asserts value is MetadataTypes {
-  if (
-    !(value instanceof FunctionNode) &&
-    !(value instanceof ListNode) &&
-    !(value instanceof VectorNode) &&
-    !(value instanceof MapNode) &&
-    !(value instanceof DomNode)
-  ) {
-    throw new TypeError('Invalid metadata type');
-  }
+	if (
+		!(value instanceof FunctionNode) &&
+		!(value instanceof ListNode) &&
+		!(value instanceof VectorNode) &&
+		!(value instanceof MapNode) &&
+		!(value instanceof DomNode)
+	) {
+		throw new TypeError('Invalid metadata type');
+	}
 }
 
 /**
@@ -602,12 +745,12 @@ export function assertMetadataType(
  * @example assertArgumentCount(3, 3)
  */
 export function assertArgumentCount(
-  actualCount: number,
-  expectedCount: number,
+	actualCount: number,
+	expectedCount: number,
 ): void {
-  if (actualCount !== expectedCount) {
-    throw new Error(`Wanted ${expectedCount} arguments but got ${actualCount}`);
-  }
+	if (actualCount !== expectedCount) {
+		throw new Error(`Wanted ${expectedCount} arguments but got ${actualCount}`);
+	}
 }
 
 /**
@@ -619,13 +762,13 @@ export function assertArgumentCount(
  * @example assertVariableArgumentCount(3, 1, 3)
  */
 export function assertVariableArgumentCount(
-  actualCount: number,
-  minExpectedCount: number,
-  maxExpectedCount: number,
+	actualCount: number,
+	minExpectedCount: number,
+	maxExpectedCount: number,
 ): void {
-  if (actualCount < minExpectedCount || actualCount > maxExpectedCount) {
-    throw new Error('Unexpected number of arguments');
-  }
+	if (actualCount < minExpectedCount || actualCount > maxExpectedCount) {
+		throw new Error('Unexpected number of arguments');
+	}
 }
 
 /**
@@ -639,12 +782,12 @@ export function assertVariableArgumentCount(
  * @example assertMinimumArgumentCount(1, 2); // Error: Unexpected minimum...
  */
 export function assertMinimumArgumentCount(
-  actualCount: number,
-  minExpectedCount: number,
+	actualCount: number,
+	minExpectedCount: number,
 ): void {
-  if (actualCount < minExpectedCount) {
-    throw new Error('Unexpected minimum number of arguments');
-  }
+	if (actualCount < minExpectedCount) {
+		throw new Error('Unexpected minimum number of arguments');
+	}
 }
 
 /**
@@ -655,10 +798,24 @@ export function assertMinimumArgumentCount(
  * @example assertEvenArgumentCount(3); // Error: Uneven number of arguments
  */
 export function assertEvenArgumentCount(maybeEven: number): void {
-  if (maybeEven % 2 !== 0) {
-    throw new Error('Uneven number of arguments');
-  }
+	if (maybeEven % 2 !== 0) {
+		throw new Error('Uneven number of arguments');
+	}
 }
+
+type TypeClass =
+	| typeof SymbolNode
+	| typeof ListNode
+	| typeof VectorNode
+	| typeof AtomNode
+	| typeof BooleanNode
+	| typeof MapNode
+	| typeof ErrorNode
+	| typeof FunctionNode
+	| typeof KeywordNode
+	| typeof NilNode
+	| typeof NumberNode
+	| typeof StringNode;
 
 /**
  * Validates the type of each element in an array of Ast objects.
@@ -672,26 +829,23 @@ export function assertEvenArgumentCount(maybeEven: number): void {
  * @example assertSequentialValues([num1, str1], Num); // Error
  */
 export function assertSequentialValues<R extends AstNode>(
-  sequentialValues: AstNode[],
-  typeClass:
-    | typeof SymbolNode
-    | typeof ListNode
-    | typeof VectorNode
-    | typeof AtomNode
-    | typeof BooleanNode
-    | typeof MapNode
-    | typeof ErrorNode
-    | typeof FunctionNode
-    | typeof KeywordNode
-    | typeof NilNode
-    | typeof NumberNode
-    | typeof StringNode,
+	sequentialValues: AstNode[],
+	typeClass: TypeClass,
 ): asserts sequentialValues is R[] {
-  for (const p of sequentialValues) {
-    if (!(p instanceof typeClass)) {
-      throw new TypeError('All values must be of the same type');
-    }
-  }
+	for (const p of sequentialValues) {
+		if (!(p instanceof typeClass)) {
+			throw new TypeError('All values must be of the same type');
+		}
+	}
+}
+
+export function assertIsOneOf<R extends AstNode>(
+	astNode: AstNode,
+	typeClasses: TypeClass[],
+): asserts astNode is R {
+	if (!typeClasses.some((typeClass) => astNode instanceof typeClass)) {
+		throw new TypeError('Invalid type');
+	}
 }
 
 /**
@@ -707,46 +861,46 @@ export function assertSequentialValues<R extends AstNode>(
  * @example isEqualTo(astNode1, astNode2);
  */
 export function isEqualTo(a: AstNode, b: AstNode): BooleanNode {
-  if (isSequentialNode(a) && isSequentialNode(b)) {
-    if (a.value.length !== b.value.length) {
-      return new BooleanNode(false);
-    }
+	if (isSequentialNode(a) && isSequentialNode(b)) {
+		if (a.value.length !== b.value.length) {
+			return new BooleanNode(false);
+		}
 
-    for (let i = 0; i < a.value.length; i++) {
-      if (!isEqualTo(a.value[i], b.value[i]).value) {
-        return new BooleanNode(false);
-      }
-    }
+		for (let i = 0; i < a.value.length; i++) {
+			if (!isEqualTo(a.value[i], b.value[i]).value) {
+				return new BooleanNode(false);
+			}
+		}
 
-    return new BooleanNode(true);
-  }
+		return new BooleanNode(true);
+	}
 
-  if (a instanceof MapNode && b instanceof MapNode) {
-    if (a.value.size !== b.value.size) {
-      return new BooleanNode(false);
-    }
+	if (a instanceof MapNode && b instanceof MapNode) {
+		if (a.value.size !== b.value.size) {
+			return new BooleanNode(false);
+		}
 
-    for (const [aKeyString, aValue] of a.value) {
-      const bValue = b.value.get(aKeyString);
-      if (bValue === undefined) {
-        return new BooleanNode(false);
-      }
+		for (const [aKeyString, aValue] of a.value) {
+			const bValue = b.value.get(aKeyString);
+			if (bValue === undefined) {
+				return new BooleanNode(false);
+			}
 
-      const recurResult = isEqualTo(aValue, bValue);
-      if (!recurResult.value) {
-        return new BooleanNode(false);
-      }
-    }
+			const recurResult = isEqualTo(aValue, bValue);
+			if (!recurResult.value) {
+				return new BooleanNode(false);
+			}
+		}
 
-    return new BooleanNode(true);
-  }
+		return new BooleanNode(true);
+	}
 
-  if (!isSameClass(a, b)) {
-    return new BooleanNode(false);
-  }
+	if (!isSameClass(a, b)) {
+		return new BooleanNode(false);
+	}
 
-  const result = a.value === b.value;
-  return new BooleanNode(result);
+	const result = a.value === b.value;
+	return new BooleanNode(result);
 }
 
 /**
@@ -758,17 +912,17 @@ export function isEqualTo(a: AstNode, b: AstNode): BooleanNode {
  * @example listStartsWithSymbol(listNode);
  */
 export function listStartsWithSymbol(
-  listNode: AstNode,
-  symbolValue?: string,
+	listNode: AstNode,
+	symbolValue?: string,
 ): listNode is ListNode & { value: [SymbolNode] } {
-  const isListWithSymbol = listNode instanceof ListNode &&
-    listNode.value[0] instanceof SymbolNode;
+	const isListWithSymbol = listNode instanceof ListNode &&
+		listNode.value[0] instanceof SymbolNode;
 
-  if (isListWithSymbol && symbolValue !== undefined) {
-    return listNode.value[0].value === symbolValue;
-  }
+	if (isListWithSymbol && symbolValue !== undefined) {
+		return listNode.value[0].value === symbolValue;
+	}
 
-  return isListWithSymbol;
+	return isListWithSymbol;
 }
 
 /**
@@ -781,9 +935,9 @@ export function listStartsWithSymbol(
  * @example assertEqual("foo", "bar"); // Error thrown: Unexpected value
  */
 export function assertEqual<T = string>(actual: T, expected: T): void {
-  if (actual !== expected) {
-    throw new Error(`Unexpected value '${actual}', wanted ${expected}`);
-  }
+	if (actual !== expected) {
+		throw new Error(`Unexpected value '${actual}', wanted ${expected}`);
+	}
 }
 
 /**
@@ -796,12 +950,12 @@ export function assertEqual<T = string>(actual: T, expected: T): void {
  * @example assertGreaterThanEqual(5, 3); // No error thrown
  */
 export function assertGreaterThanEqual<T = string>(
-  actual: T,
-  expected: T,
+	actual: T,
+	expected: T,
 ): void {
-  if (actual >= expected) {
-    throw new Error('Unexpected value');
-  }
+	if (actual >= expected) {
+		throw new Error('Unexpected value');
+	}
 }
 
 /**
@@ -814,20 +968,20 @@ export function assertGreaterThanEqual<T = string>(
  * @example assertSymWithValue(mySym, "expectedValue");
  */
 export function assertSymWithValue<Value extends SymbolValues>(
-  sym: SymbolNode,
-  value: Value,
+	sym: SymbolNode,
+	value: Value,
 ): asserts sym is SymWithValue<Value> {
-  assertEqual(sym.value, value);
+	assertEqual(sym.value, value);
 }
 
 export type TryCatchAst = ListNode & {
-  value: [
-    SymWithValue<'try*' | 'try'>,
-    AstNode,
-    ListNode & {
-      value: [SymWithValue<'catch*' | 'catch'>, AstNode];
-    },
-  ];
+	value: [
+		SymWithValue<'try*' | 'try'>,
+		AstNode,
+		ListNode & {
+			value: [SymWithValue<'catch*' | 'catch'>, AstNode];
+		},
+	];
 };
 
 /**
@@ -840,34 +994,34 @@ export type TryCatchAst = ListNode & {
  * @example assertTryCatch(tryCatchAstNode);
  */
 export function assertTryCatch(a: AstNode): asserts a is TryCatchAst {
-  assertListNode(a);
-  assertVariableArgumentCount(a.value.length, 2, 3);
-  const symbolNode = a.value[0];
-  assertSymbolNode(symbolNode);
-  if (symbolNode.value !== 'try' && symbolNode.value !== 'try*') {
-    throw new Error('use `try` or `try*` in try/catch expressions');
-  }
-  // assertSymWithValue(a.value[0], 'try*');
-  assertAstNode(a.value[1]);
-  if (a.value[2]) {
-    assertListNode(a.value[2]);
-    assertArgumentCount(a.value[2].value.length, 3);
-    assertSymbolNode(a.value[2].value[0]);
-    const catchNode = a.value[2].value[0];
-    if (catchNode.value !== 'catch' && catchNode.value !== 'catch*') {
-      throw new Error('use `catch` or `catch*` in try/catch expressions');
-    }
-    assertSymbolNode(a.value[2].value[1]);
-    assertAstNode(a.value[2].value[2]);
-  }
+	assertListNode(a);
+	assertVariableArgumentCount(a.value.length, 2, 3);
+	const symbolNode = a.value[0];
+	assertSymbolNode(symbolNode);
+	if (symbolNode.value !== 'try' && symbolNode.value !== 'try*') {
+		throw new Error('use `try` or `try*` in try/catch expressions');
+	}
+	// assertSymWithValue(a.value[0], 'try*');
+	assertAstNode(a.value[1]);
+	if (a.value[2]) {
+		assertListNode(a.value[2]);
+		assertArgumentCount(a.value[2].value.length, 3);
+		assertSymbolNode(a.value[2].value[0]);
+		const catchNode = a.value[2].value[0];
+		if (catchNode.value !== 'catch' && catchNode.value !== 'catch*') {
+			throw new Error('use `catch` or `catch*` in try/catch expressions');
+		}
+		assertSymbolNode(a.value[2].value[1]);
+		assertAstNode(a.value[2].value[2]);
+	}
 }
 
 export type DefAst = ListNode & {
-  value: [
-    SymWithValue<'def!' | 'globalThis' | 'var'>,
-    SymbolNode | StringNode | KeywordNode,
-    AstNode,
-  ];
+	value: [
+		SymWithValue<'def!' | 'globalThis' | 'var'>,
+		SymbolNode | StringNode | KeywordNode,
+		AstNode,
+	];
 };
 
 /**
@@ -881,29 +1035,29 @@ export type DefAst = ListNode & {
  * @example (def! x "x")
  */
 export function assertDef(a: AstNode): asserts a is DefAst {
-  assertListNode(a); // (...)
-  assertArgumentCount(a.value.length, 3); // (1 2 3)
-  assertSymbolNode(a.value[0]); // (sym 2 3)
-  // assertSymWithValue(a.value[0], "def!"); // '(def! 2 3)
-  const symbolNode = a.value[0];
-  if (
-    symbolNode.value !== 'def!' &&
-    symbolNode.value !== 'globalThis' &&
-    symbolNode.value !== 'var'
-  ) {
-    throw new Error('use `def!`, `globalThis`, or `var` in def! expressions');
-  }
-  assertMapKeyNode(a.value[1]); // (def! DictKeys 3)
-  assertAstNode(a.value[2]); // (def! DictKeys Ast)
+	assertListNode(a); // (...)
+	assertArgumentCount(a.value.length, 3); // (1 2 3)
+	assertSymbolNode(a.value[0]); // (sym 2 3)
+	// assertSymWithValue(a.value[0], "def!"); // '(def! 2 3)
+	const symbolNode = a.value[0];
+	if (
+		symbolNode.value !== 'def!' &&
+		symbolNode.value !== 'globalThis' &&
+		symbolNode.value !== 'var'
+	) {
+		throw new Error('use `def!`, `globalThis`, or `var` in def! expressions');
+	}
+	assertMapKeyNode(a.value[1]); // (def! DictKeys 3)
+	assertAstNode(a.value[2]); // (def! DictKeys Ast)
 }
 
 export type LetAst = ListNode & {
-  value: [
-    SymWithValue<'let*' | 'let' | 'const'>,
-    (VectorNode | ListNode) & {
-      value: Array<SymbolNode | AstNode>;
-    },
-  ];
+	value: [
+		SymWithValue<'let*' | 'let' | 'const'>,
+		(VectorNode | ListNode) & {
+			value: Array<SymbolNode | AstNode>;
+		},
+	];
 };
 
 /**
@@ -917,29 +1071,29 @@ export type LetAst = ListNode & {
  * @example (let* (z 9) z)
  */
 export function assertLet(a: AstNode): asserts a is LetAst {
-  assertListNode(a); // (...)
-  assertArgumentCount(a.value.length, 3); // (1 2 3)
-  assertSymbolNode(a.value[0]); // (sym 2 3)
-  // assertSymWithValue(a.value[0], "let*"); // (let* 2 3)
-  const symbolNode = a.value[0];
-  if (
-    symbolNode.value !== 'let*' &&
-    symbolNode.value !== 'let' &&
-    symbolNode.value !== 'const'
-  ) {
-    throw new Error('use `let*`, `let`, or `const` in let* expressions');
-  }
-  assertSequential(a.value[1]); // (let* Seq 3)
-  assertAstNode(a.value[2]); // (let* Seq Ast)
-  assertEvenArgumentCount(a.value[1].value.length); // (let* (any*2) Ast)
-  for (let i = 0; i < a.value[1].value.length; i += 2) {
-    assertSymbolNode(a.value[1].value[i]); // (let* ((Sym any)*) Ast)
-    assertAstNode(a.value[1].value[i + 1]); // (let* ((Sym Ast)*) Ast)
-  }
+	assertListNode(a); // (...)
+	assertArgumentCount(a.value.length, 3); // (1 2 3)
+	assertSymbolNode(a.value[0]); // (sym 2 3)
+	// assertSymWithValue(a.value[0], "let*"); // (let* 2 3)
+	const symbolNode = a.value[0];
+	if (
+		symbolNode.value !== 'let*' &&
+		symbolNode.value !== 'let' &&
+		symbolNode.value !== 'const'
+	) {
+		throw new Error('use `let*`, `let`, or `const` in let* expressions');
+	}
+	assertSequential(a.value[1]); // (let* Seq 3)
+	assertAstNode(a.value[2]); // (let* Seq Ast)
+	assertEvenArgumentCount(a.value[1].value.length); // (let* (any*2) Ast)
+	for (let i = 0; i < a.value[1].value.length; i += 2) {
+		assertSymbolNode(a.value[1].value[i]); // (let* ((Sym any)*) Ast)
+		assertAstNode(a.value[1].value[i + 1]); // (let* ((Sym Ast)*) Ast)
+	}
 }
 
 export type QuoteAst = ListNode & {
-  value: [SymWithValue<'quote'>, AstNode];
+	value: [SymWithValue<'quote'>, AstNode];
 };
 
 /**
@@ -953,15 +1107,15 @@ export type QuoteAst = ListNode & {
  * @example (quote (1 2 3))
  */
 export function assertQuote(a: AstNode): asserts a is QuoteAst {
-  assertListNode(a); // (...)
-  assertArgumentCount(a.value.length, 2); // (1 2)
-  assertSymbolNode(a.value[0]); // (sym 2)
-  assertSymWithValue(a.value[0], 'quote'); // '(quote 2)
-  assertAstNode(a.value[1]); // (quote Ast)
+	assertListNode(a); // (...)
+	assertArgumentCount(a.value.length, 2); // (1 2)
+	assertSymbolNode(a.value[0]); // (sym 2)
+	assertSymWithValue(a.value[0], 'quote'); // '(quote 2)
+	assertAstNode(a.value[1]); // (quote Ast)
 }
 
 export type QuasiQuoteExpandAst = ListNode & {
-  value: [SymWithValue<'quasiquoteexpand'>, AstNode];
+	value: [SymWithValue<'quasiquoteexpand'>, AstNode];
 };
 
 /**
@@ -976,18 +1130,18 @@ export type QuasiQuoteExpandAst = ListNode & {
  * @example (quasiquoteexpand a)
  */
 export function assertQuasiQuoteExpand(
-  a: AstNode,
+	a: AstNode,
 ): asserts a is QuasiQuoteExpandAst {
-  const symbol = 'quasiquoteexpand';
-  assertListNode(a); // (...)
-  assertArgumentCount(a.value.length, 2); // (1 2)
-  assertSymbolNode(a.value[0]); // (sym 2)
-  assertSymWithValue(a.value[0], symbol); // '(quasiquoteexpand 2)
-  assertAstNode(a.value[1]); // (quasiquoteexpand Ast)
+	const symbol = 'quasiquoteexpand';
+	assertListNode(a); // (...)
+	assertArgumentCount(a.value.length, 2); // (1 2)
+	assertSymbolNode(a.value[0]); // (sym 2)
+	assertSymWithValue(a.value[0], symbol); // '(quasiquoteexpand 2)
+	assertAstNode(a.value[1]); // (quasiquoteexpand Ast)
 }
 
 export type QuasiQuoteAst = ListNode & {
-  value: [SymWithValue<'quasiquote'>, AstNode];
+	value: [SymWithValue<'quasiquote'>, AstNode];
 };
 
 /**
@@ -1001,16 +1155,16 @@ export type QuasiQuoteAst = ListNode & {
  * @example (quasiquote a)
  */
 export function assertQuasiQuote(a: AstNode): asserts a is QuasiQuoteAst {
-  const symbol = 'quasiquote';
-  assertListNode(a); // (...)
-  assertArgumentCount(a.value.length, 2); // (1 2)
-  assertSymbolNode(a.value[0]); // (sym 2)
-  assertSymWithValue(a.value[0], symbol); // '(quasiquote 2)
-  assertAstNode(a.value[1]); // (quasiquote Ast)
+	const symbol = 'quasiquote';
+	assertListNode(a); // (...)
+	assertArgumentCount(a.value.length, 2); // (1 2)
+	assertSymbolNode(a.value[0]); // (sym 2)
+	assertSymWithValue(a.value[0], symbol); // '(quasiquote 2)
+	assertAstNode(a.value[1]); // (quasiquote Ast)
 }
 
 export type DefMacroAst = ListNode & {
-  value: [SymWithValue<'defmacro!'>, MapKeyNode, AstNode];
+	value: [SymWithValue<'defmacro!'>, MapKeyNode, AstNode];
 };
 
 /**
@@ -1024,17 +1178,17 @@ export type DefMacroAst = ListNode & {
  * @example (defmacro! one (fn* () 1))
  */
 export function assertDefMacro(a: AstNode): asserts a is DefMacroAst {
-  const symbol = 'defmacro!';
-  assertListNode(a); // (...)
-  assertArgumentCount(a.value.length, 3); // (1 2 3)
-  assertSymbolNode(a.value[0]); // (sym 2 3)
-  assertSymWithValue(a.value[0], symbol); // '(defmacro! 2 3)
-  assertMapKeyNode(a.value[1]); // (defmacro! DictKeys 3)
-  assertAstNode(a.value[2]); // (defmacro! DictKeys Ast)
+	const symbol = 'defmacro!';
+	assertListNode(a); // (...)
+	assertArgumentCount(a.value.length, 3); // (1 2 3)
+	assertSymbolNode(a.value[0]); // (sym 2 3)
+	assertSymWithValue(a.value[0], symbol); // '(defmacro! 2 3)
+	assertMapKeyNode(a.value[1]); // (defmacro! DictKeys 3)
+	assertAstNode(a.value[2]); // (defmacro! DictKeys Ast)
 }
 
 export type DoAst = ListNode & {
-  value: [SymWithValue<'do'>, ...AstNode[]];
+	value: [SymWithValue<'do'>, ...AstNode[]];
 };
 
 /**
@@ -1048,18 +1202,18 @@ export type DoAst = ListNode & {
  * @example (do (prn 101) (prn 102) (+ 1 2))
  */
 export function assertDo(a: AstNode): asserts a is DoAst {
-  const symbol = 'do';
-  assertListNode(a); // (...)
-  assertMinimumArgumentCount(a.value.length, 1); // (1 n*)
-  assertSymbolNode(a.value[0]); // (sym 2)
-  assertSymWithValue(a.value[0], symbol); // (do n*)
-  for (const node of a.value.slice(1)) {
-    assertAstNode(node); // (do ast*)
-  }
+	const symbol = 'do';
+	assertListNode(a); // (...)
+	assertMinimumArgumentCount(a.value.length, 1); // (1 n*)
+	assertSymbolNode(a.value[0]); // (sym 2)
+	assertSymWithValue(a.value[0], symbol); // (do n*)
+	for (const node of a.value.slice(1)) {
+		assertAstNode(node); // (do ast*)
+	}
 }
 
 export type IfAst = ListNode & {
-  value: [SymWithValue<'if'>, AstNode, AstNode, AstNode];
+	value: [SymWithValue<'if'>, AstNode, AstNode, AstNode];
 };
 
 /**
@@ -1073,26 +1227,26 @@ export type IfAst = ListNode & {
  * @example (if true 7 8)
  */
 export function assertIf(a: AstNode): asserts a is IfAst {
-  const symbol = 'if';
-  assertListNode(a); // (...)
-  assertVariableArgumentCount(a.value.length, 3, 4); // (1 2 3 4)
-  assertSymbolNode(a.value[0]); // (sym 2 3 4)
-  assertSymWithValue(a.value[0], symbol); // (if 2 3 4)
-  assertAstNode(a.value[1]); // (if Ast 3 4)
-  assertAstNode(a.value[2]); // (if Ast Ast 4)
-  if (isDefined(a.value[3])) {
-    assertAstNode(a.value[3]); // (if Ast Ast Ast)
-  }
+	const symbol = 'if';
+	assertListNode(a); // (...)
+	assertVariableArgumentCount(a.value.length, 3, 4); // (1 2 3 4)
+	assertSymbolNode(a.value[0]); // (sym 2 3 4)
+	assertSymWithValue(a.value[0], symbol); // (if 2 3 4)
+	assertAstNode(a.value[1]); // (if Ast 3 4)
+	assertAstNode(a.value[2]); // (if Ast Ast 4)
+	if (isDefined(a.value[3])) {
+		assertAstNode(a.value[3]); // (if Ast Ast Ast)
+	}
 }
 
 export type FnAst = ListNode & {
-  value: [
-    SymWithValue<'fn*' | 'function' | '=>'>,
-    Seq & {
-      value: SymbolNode[];
-    },
-    AstNode,
-  ];
+	value: [
+		SymWithValue<'fn*' | 'function' | '=>'>,
+		Seq & {
+			value: SymbolNode[];
+		},
+		AstNode,
+	];
 };
 
 /**
@@ -1107,28 +1261,28 @@ export type FnAst = ListNode & {
  * @example ( (fn* (a b) (+ b a)) 3 4)
  */
 export function assertFn(a: AstNode): asserts a is FnAst {
-  // (...)
-  assertListNode(a);
-  // (1 2 3)
-  assertArgumentCount(a.value.length, 3);
-  // (sym 2 3)
-  assertSymbolNode(a.value[0]);
-  // (fn* 2 3)
-  const symbolNode = a.value[0];
-  if (!['fn*', 'function', '=>'].includes(symbolNode.value)) {
-    throw new Error('use `fn*`, `function`, of `=>` in fn* expressions');
-  }
-  // (if Seq 3)
-  assertSequential(a.value[1]);
-  // (if (Sym*) 3)
-  assertSequentialValues<SymbolNode>(a.value[1].value, SymbolNode);
-  // (if (Sym*) Ast)
-  assertAstNode(a.value[2]);
+	// (...)
+	assertListNode(a);
+	// (1 2 3)
+	assertArgumentCount(a.value.length, 3);
+	// (sym 2 3)
+	assertSymbolNode(a.value[0]);
+	// (fn* 2 3)
+	const symbolNode = a.value[0];
+	if (!['fn*', 'function', '=>'].includes(symbolNode.value)) {
+		throw new Error('use `fn*`, `function`, of `=>` in fn* expressions');
+	}
+	// (if Seq 3)
+	assertSequential(a.value[1]);
+	// (if (Sym*) 3)
+	assertSequentialValues<SymbolNode>(a.value[1].value, SymbolNode);
+	// (if (Sym*) Ast)
+	assertAstNode(a.value[2]);
 }
 
 export type ContinueResult = {
-  continue: { ast: AstNode; env: Env };
-  return: undefined;
+	continue: { ast: AstNode; env: Env };
+	return: undefined;
 };
 export type ReturnResult = { return: AstNode; continue: undefined };
 export type ContinueReturn = ContinueResult | ReturnResult;
@@ -1145,10 +1299,10 @@ export type ContinueReturn = ContinueResult | ReturnResult;
  * @example continueResult(astNode, envContext); // Get a continue result object
  */
 export function continueResult(ast: AstNode, env: Env): ContinueResult {
-  return {
-    continue: { ast, env },
-    return: undefined,
-  };
+	return {
+		continue: { ast, env },
+		return: undefined,
+	};
 }
 
 /**
@@ -1161,10 +1315,10 @@ export function continueResult(ast: AstNode, env: Env): ContinueResult {
  * @example returnResult(astNode); // Get a return result object
  */
 export function returnResult(ast: AstNode): ReturnResult {
-  return {
-    continue: undefined,
-    return: ast,
-  };
+	return {
+		continue: undefined,
+		return: ast,
+	};
 }
 
 /**
@@ -1177,8 +1331,8 @@ export function returnResult(ast: AstNode): ReturnResult {
  * @example prepend(accArray, astNode); // Prepend astNode to accArray
  */
 export const prepend = (acc: AstNode[], curr: AstNode): AstNode[] => [
-  curr,
-  ...acc,
+	curr,
+	...acc,
 ];
 
 /**
@@ -1191,8 +1345,8 @@ export const prepend = (acc: AstNode[], curr: AstNode): AstNode[] => [
  * @example append(accArray, astNode); // Append astNode to accArray
  */
 export const append = (acc: AstNode[], curr: AstNode): AstNode[] => [
-  ...acc,
-  curr,
+	...acc,
+	curr,
 ];
 
 /**
@@ -1205,59 +1359,59 @@ export const append = (acc: AstNode[], curr: AstNode): AstNode[] => [
  * @example copy(astNode); // Creates a deep copy of astNode
  */
 export function copy(ast: AstNode): AstNode {
-  if (ast instanceof AtomNode) {
-    return copyAtomNode(ast);
-  }
+	if (ast instanceof AtomNode) {
+		return copyAtomNode(ast);
+	}
 
-  if (ast instanceof BooleanNode) {
-    return copyBooleanNode(ast);
-  }
+	if (ast instanceof BooleanNode) {
+		return copyBooleanNode(ast);
+	}
 
-  if (ast instanceof MapNode) {
-    return copyMapNode(ast);
-  }
+	if (ast instanceof MapNode) {
+		return copyMapNode(ast);
+	}
 
-  if (ast instanceof ErrorNode) {
-    return copyErrorNode(ast);
-  }
+	if (ast instanceof ErrorNode) {
+		return copyErrorNode(ast);
+	}
 
-  if (ast instanceof FunctionNode) {
-    return copyFunctionNode(ast);
-  }
+	if (ast instanceof FunctionNode) {
+		return copyFunctionNode(ast);
+	}
 
-  if (ast instanceof KeywordNode) {
-    return copyKeywordNode(ast);
-  }
+	if (ast instanceof KeywordNode) {
+		return copyKeywordNode(ast);
+	}
 
-  if (ast instanceof ListNode) {
-    return copyListNode(ast);
-  }
+	if (ast instanceof ListNode) {
+		return copyListNode(ast);
+	}
 
-  if (ast instanceof NilNode) {
-    return copyNilNode(ast);
-  }
+	if (ast instanceof NilNode) {
+		return copyNilNode(ast);
+	}
 
-  if (ast instanceof NumberNode) {
-    return copyNumberNode(ast);
-  }
+	if (ast instanceof NumberNode) {
+		return copyNumberNode(ast);
+	}
 
-  if (ast instanceof StringNode) {
-    return copyStringNode(ast);
-  }
+	if (ast instanceof StringNode) {
+		return copyStringNode(ast);
+	}
 
-  if (ast instanceof SymbolNode) {
-    return copySymbolNode(ast);
-  }
+	if (ast instanceof SymbolNode) {
+		return copySymbolNode(ast);
+	}
 
-  if (ast instanceof VectorNode) {
-    return copyVectorNode(ast);
-  }
+	if (ast instanceof VectorNode) {
+		return copyVectorNode(ast);
+	}
 
-  if (ast instanceof DomNode) {
-    return copyDomNode(ast);
-  }
+	if (ast instanceof DomNode) {
+		return copyDomNode(ast);
+	}
 
-  throw new Error('Unmatched object');
+	throw new Error('Unmatched object');
 }
 
 /**
@@ -1269,10 +1423,10 @@ export function copy(ast: AstNode): AstNode {
  * @example copyAtom(atomNode); // Creates a copy of atomNode
  */
 export function copyAtomNode(a: AtomNode): AtomNode {
-  if (a.value instanceof AstNode === false) {
-    return new AtomNode(structuredClone(a.value));
-  }
-  return new AtomNode(copy(a.value));
+	if (a.value instanceof AstNode === false) {
+		return new AtomNode(structuredClone(a.value));
+	}
+	return new AtomNode(copy(a.value));
 }
 
 /**
@@ -1284,7 +1438,7 @@ export function copyAtomNode(a: AtomNode): AtomNode {
  * @example copyBool(boolNode); // Creates a copy of boolNode
  */
 export function copyBooleanNode(a: BooleanNode): BooleanNode {
-  return new BooleanNode(a.value);
+	return new BooleanNode(a.value);
 }
 
 /**
@@ -1296,9 +1450,9 @@ export function copyBooleanNode(a: BooleanNode): BooleanNode {
  * @example copyDict(dictNode); // Creates a copy of dictNode
  */
 export function copyMapNode(a: MapNode): MapNode {
-  const dict = new MapNode(new Map(a.value));
-  dict.metadata = copy(a.metadata);
-  return dict;
+	const dict = new MapNode(new Map(a.value));
+	dict.metadata = copy(a.metadata);
+	return dict;
 }
 
 /**
@@ -1310,9 +1464,9 @@ export function copyMapNode(a: MapNode): MapNode {
  * @example copyDomNode(domNodeInstance); // Creates a copy of domNodeInstance
  */
 export function copyDomNode(a: MapNode): MapNode {
-  const domNode = new DomNode(new Map(a.value));
-  domNode.metadata = copy(a.metadata);
-  return domNode;
+	const domNode = new DomNode(new Map(a.value));
+	domNode.metadata = copy(a.metadata);
+	return domNode;
 }
 
 /**
@@ -1324,7 +1478,7 @@ export function copyDomNode(a: MapNode): MapNode {
  * @example copyErr(errNode); // Creates a copy of errNode
  */
 export function copyErrorNode(a: ErrorNode): ErrorNode {
-  return new ErrorNode(copy(a.value));
+	return new ErrorNode(copy(a.value));
 }
 
 /**
@@ -1337,19 +1491,19 @@ export function copyErrorNode(a: ErrorNode): ErrorNode {
  * @example copyFunc(funcNode); // Creates a copy of funcNode
  */
 export function copyFunctionNode(a: FunctionNode): FunctionNode {
-  const func = new FunctionNode(a.value);
-  func.isMacro = a.isMacro;
-  func.metadata = copy(a.metadata);
-  if (a.closureMeta) {
-    const cl = a.closureMeta;
-    func.closureMeta = {
-      ast: copy(cl.ast),
-      env: cl.env, // Copy env?
-      parameters: cl.parameters.map((sym) => new SymbolNode(sym.value)),
-    };
-  }
+	const func = new FunctionNode(a.value);
+	func.isMacro = a.isMacro;
+	func.metadata = copy(a.metadata);
+	if (a.closureMeta) {
+		const cl = a.closureMeta;
+		func.closureMeta = {
+			ast: copy(cl.ast),
+			env: cl.env, // Copy env?
+			parameters: cl.parameters.map((sym) => new SymbolNode(sym.value)),
+		};
+	}
 
-  return func;
+	return func;
 }
 
 /**
@@ -1361,7 +1515,7 @@ export function copyFunctionNode(a: FunctionNode): FunctionNode {
  * @example copyKey(keyNode); // Creates a copy of keyNode
  */
 export function copyKeywordNode(a: KeywordNode): KeywordNode {
-  return new KeywordNode(a.value);
+	return new KeywordNode(a.value);
 }
 
 /**
@@ -1373,9 +1527,9 @@ export function copyKeywordNode(a: KeywordNode): KeywordNode {
  * @example copyList(listNode); // Creates a copy of listNode
  */
 export function copyListNode(a: ListNode): ListNode {
-  const list = new ListNode(a.value.map((value) => copy(value)));
-  list.metadata = copy(a.metadata);
-  return list;
+	const list = new ListNode(a.value.map((value) => copy(value)));
+	list.metadata = copy(a.metadata);
+	return list;
 }
 
 /**
@@ -1387,7 +1541,7 @@ export function copyListNode(a: ListNode): ListNode {
  * @example copyNil(nilNode); // Creates a new Nil node
  */
 export function copyNilNode(_ast: NilNode): NilNode {
-  return new NilNode();
+	return new NilNode();
 }
 
 /**
@@ -1398,7 +1552,7 @@ export function copyNilNode(_ast: NilNode): NilNode {
  * @example copyNum(numNode); // Creates a copy of numNode
  */
 export function copyNumberNode(a: NumberNode): NumberNode {
-  return new NumberNode(a.value);
+	return new NumberNode(a.value);
 }
 
 /**
@@ -1409,7 +1563,7 @@ export function copyNumberNode(a: NumberNode): NumberNode {
  * @example copyStr(strNode); // Creates a copy of strNode
  */
 export function copyStringNode(a: StringNode): StringNode {
-  return new StringNode(a.value);
+	return new StringNode(a.value);
 }
 
 /**
@@ -1420,7 +1574,7 @@ export function copyStringNode(a: StringNode): StringNode {
  * @example copySym(symNode); // Creates a copy of symNode
  */
 export function copySymbolNode(a: SymbolNode): SymbolNode {
-  return new SymbolNode(a.value);
+	return new SymbolNode(a.value);
 }
 
 /**
@@ -1432,9 +1586,9 @@ export function copySymbolNode(a: SymbolNode): SymbolNode {
  * @example copyVec(vecNode); // Creates a copy of vecNode
  */
 export function copyVectorNode(a: VectorNode): VectorNode {
-  const vec = new VectorNode(a.value.map((value) => copy(value)));
-  vec.metadata = copy(a.metadata);
-  return vec;
+	const vec = new VectorNode(a.value.map((value) => copy(value)));
+	vec.metadata = copy(a.metadata);
+	return vec;
 }
 
 /**
@@ -1450,11 +1604,11 @@ export function copyVectorNode(a: VectorNode): VectorNode {
  * @example mapSet(new Map(), makeStr('foo'), makeStr('bar'));
  */
 export function setMapElement(
-  map: Map<string, AstNode>,
-  key: MapKeyNode,
-  value: AstNode,
+	map: Map<string, AstNode>,
+	key: MapKeyNode,
+	value: AstNode,
 ): void {
-  map.set(convertMapKeyToString(key), value);
+	map.set(convertMapKeyToString(key), value);
 }
 
 /**
@@ -1466,10 +1620,10 @@ export function setMapElement(
  * @example mapDelete(new Map([['foo', makeStr('bar')]]));
  */
 export function deleteMapElement(
-  map: Map<string, AstNode>,
-  key: MapKeyNode,
+	map: Map<string, AstNode>,
+	key: MapKeyNode,
 ): void {
-  map.delete(convertMapKeyToString(key));
+	map.delete(convertMapKeyToString(key));
 }
 
 /**
@@ -1480,10 +1634,10 @@ export function deleteMapElement(
  * @example mapHas(myMap, makeSym('foobar'));
  */
 export function hasMapElement(
-  map: Map<string, AstNode>,
-  key: MapKeyNode,
+	map: Map<string, AstNode>,
+	key: MapKeyNode,
 ): boolean {
-  return map.has(convertMapKeyToString(key));
+	return map.has(convertMapKeyToString(key));
 }
 
 /**
@@ -1498,10 +1652,10 @@ export function hasMapElement(
  * @example mapGet(myMap, makeSym('foobar'));
  */
 export function getMapElement(
-  map: Map<string, AstNode>,
-  key: MapKeyNode,
+	map: Map<string, AstNode>,
+	key: MapKeyNode,
 ): AstNode | undefined {
-  return map.get(convertMapKeyToString(key));
+	return map.get(convertMapKeyToString(key));
 }
 
 /**
@@ -1511,8 +1665,8 @@ export function getMapElement(
  * @example mapKeys(myMap);
  */
 export function getMapKeys(map: Map<string, AstNode>): ListNode {
-  const keys = [...map.keys()];
-  return new ListNode(keys.map((key) => convertStringToMapKey(key)));
+	const keys = [...map.keys()];
+	return new ListNode(keys.map((key) => convertStringToMapKey(key)));
 }
 
 /**
@@ -1527,17 +1681,17 @@ export function getMapKeys(map: Map<string, AstNode>): ListNode {
  * @example dictKeyToStr(makeSym('foobar')) //=> 'foobar'
  */
 export function convertMapKeyToString(ast: MapKeyNode): string {
-  const key = ast; // Key has : at the beginning
-  if (key instanceof KeywordNode) {
-    return key.value;
-  }
+	const key = ast; // Key has : at the beginning
+	if (key instanceof KeywordNode) {
+		return key.value;
+	}
 
-  const string_ = ast; // Str must be re-quoted
-  if (string_ instanceof StringNode) {
-    return `"${string_.value}"`;
-  }
+	const string_ = ast; // Str must be re-quoted
+	if (string_ instanceof StringNode) {
+		return `"${string_.value}"`;
+	}
 
-  return ast.value; // Sym
+	return ast.value; // Sym
 }
 
 /**
@@ -1547,15 +1701,15 @@ export function convertMapKeyToString(ast: MapKeyNode): string {
  * @example mapKeyToDictKey(':foobar') //=> Key {value: ':foobar'}
  */
 export function convertStringToMapKey(key: string): MapKeyNode {
-  if (key.startsWith(':')) {
-    return new KeywordNode(key);
-  }
+	if (key.startsWith(':')) {
+		return new KeywordNode(key);
+	}
 
-  if (key.startsWith('"')) {
-    return new StringNode(key.slice(1, -1));
-  }
+	if (key.startsWith('"')) {
+		return new StringNode(key.slice(1, -1));
+	}
 
-  return new SymbolNode(key);
+	return new SymbolNode(key);
 }
 
 /**
@@ -1565,17 +1719,17 @@ export function convertStringToMapKey(key: string): MapKeyNode {
  * @example dekey(':keyword'); //=> 'keyword'
  */
 export function dekey(key: string | MapKeyNode): string {
-  const value = isMapKeyNode(key) ? key.value : key;
+	const value = isMapKeyNode(key) ? key.value : key;
 
-  if (value.startsWith(':')) {
-    return value.slice(1);
-  }
+	if (value.startsWith(':')) {
+		return value.slice(1);
+	}
 
-  if (value.startsWith('"') && value.endsWith('"')) {
-    return value.slice(1, -1);
-  }
+	if (value.startsWith('"') && value.endsWith('"')) {
+		return value.slice(1, -1);
+	}
 
-  return value;
+	return value;
 }
 
 /**
@@ -1585,8 +1739,8 @@ export function dekey(key: string | MapKeyNode): string {
  * @example mapValues(myMap)
  */
 export function getMapValues(map: Map<string, AstNode>): ListNode {
-  const values = [...map.values()];
-  return new ListNode(values);
+	const values = [...map.values()];
+	return new ListNode(values);
 }
 
 /**
@@ -1597,12 +1751,12 @@ export function getMapValues(map: Map<string, AstNode>): ListNode {
  * @example mapFlat(myMap);
  */
 export function mapFlat(map: Map<string, AstNode>): AstNode[] {
-  const flat: AstNode[] = [];
-  for (const [key, value] of map.entries()) {
-    flat.push(convertStringToMapKey(key), value);
-  }
+	const flat: AstNode[] = [];
+	for (const [key, value] of map.entries()) {
+		flat.push(convertStringToMapKey(key), value);
+	}
 
-  return flat;
+	return flat;
 }
 
 /**
@@ -1617,8 +1771,8 @@ export function mapFlat(map: Map<string, AstNode>): AstNode[] {
  * // "Filename: foo, Rest: mal.clj"
  */
 export function splitAtFirstDot(filename: string): string[] {
-  const firstDotIndex = filename.indexOf('.');
-  return [filename.slice(0, firstDotIndex), filename.slice(firstDotIndex + 1)];
+	const firstDotIndex = filename.indexOf('.');
+	return [filename.slice(0, firstDotIndex), filename.slice(firstDotIndex + 1)];
 }
 
 /**
@@ -1628,12 +1782,12 @@ export function splitAtFirstDot(filename: string): string[] {
  * @example entitize('Bread & Butter'); //=> 'Bread &amp; Butter'
  */
 export function entitize(unsafe: string): string {
-  return unsafe
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&apos;');
+	return unsafe
+		.replaceAll('&', '&amp;')
+		.replaceAll('<', '&lt;')
+		.replaceAll('>', '&gt;')
+		.replaceAll('"', '&quot;')
+		.replaceAll("'", '&apos;');
 }
 
 /**
@@ -1643,7 +1797,7 @@ export function entitize(unsafe: string): string {
  * @example normalizeWhitespace('    str     '); //=> ' str '
  */
 export function normalizeWhitespace(string_: string): string {
-  return string_.replaceAll('\n', ' ').replaceAll(/\s{2,}/g, ' ');
+	return string_.replaceAll('\n', ' ').replaceAll(/\s{2,}/g, ' ');
 }
 
 /**
@@ -1658,10 +1812,10 @@ export function normalizeWhitespace(string_: string): string {
  * @example slash('foo\nbar'); //=> 'foo\\nbar'
  */
 export function slash(string_: string): string {
-  return string_
-    .replaceAll('\\', '\\\\')
-    .replaceAll('"', '\\"')
-    .replaceAll('\n', '\\n');
+	return string_
+		.replaceAll('\\', '\\\\')
+		.replaceAll('"', '\\"')
+		.replaceAll('\n', '\\n');
 }
 
 /**
@@ -1671,122 +1825,122 @@ export function slash(string_: string): string {
  * @example toAst('foobar') //=> Str { value: 'foobar' }
  */
 export function toAst(jsValue: unknown): AstNode {
-  if (Deno.env.get('DEBUG')) {
-    console.log(`Converting JavaScript value to AstNode`);
-  }
+	if (Deno.env.get('DEBUG')) {
+		console.log(`Converting JavaScript value to AstNode`);
+	}
 
-  if (jsValue instanceof AstNode) {
-    return jsValue;
-  }
+	if (jsValue instanceof AstNode) {
+		return jsValue;
+	}
 
-  if (typeof jsValue === 'undefined' || jsValue === null) {
-    if (Deno.env.get('DEBUG')) console.log('Found a null or undefined');
-    return new NilNode();
-  }
+	if (typeof jsValue === 'undefined' || jsValue === null) {
+		if (Deno.env.get('DEBUG')) console.log('Found a null or undefined');
+		return new NilNode();
+	}
 
-  if (typeof jsValue === 'number') {
-    if (Deno.env.get('DEBUG')) console.log('Found a number');
-    return new NumberNode(jsValue);
-  }
+	if (typeof jsValue === 'number') {
+		if (Deno.env.get('DEBUG')) console.log('Found a number');
+		return new NumberNode(jsValue);
+	}
 
-  if (typeof jsValue === 'string') {
-    if (jsValue.startsWith('"')) {
-      if (Deno.env.get('DEBUG')) console.log('Found a string');
-      return new StringNode(jsValue);
-    }
+	if (typeof jsValue === 'string') {
+		if (jsValue.startsWith('"')) {
+			if (Deno.env.get('DEBUG')) console.log('Found a string');
+			return new StringNode(jsValue);
+		}
 
-    if (jsValue.startsWith(':')) {
-      if (Deno.env.get('DEBUG')) console.log('Found a keyword');
-      return new KeywordNode(jsValue);
-    }
+		if (jsValue.startsWith(':')) {
+			if (Deno.env.get('DEBUG')) console.log('Found a keyword');
+			return new KeywordNode(jsValue);
+		}
 
-    if (Deno.env.get('DEBUG')) console.log('Found a symbol');
-    return new SymbolNode(jsValue);
-  }
+		if (Deno.env.get('DEBUG')) console.log('Found a symbol');
+		return new SymbolNode(jsValue);
+	}
 
-  if (typeof jsValue === 'boolean') {
-    if (Deno.env.get('DEBUG')) console.log('Found a boolean');
-    return new BooleanNode(jsValue);
-  }
+	if (typeof jsValue === 'boolean') {
+		if (Deno.env.get('DEBUG')) console.log('Found a boolean');
+		return new BooleanNode(jsValue);
+	}
 
-  if (jsValue instanceof Error) {
-    if (Deno.env.get('DEBUG')) console.log('Found an error');
-    return new ErrorNode(new StringNode(jsValue.message));
-  }
+	if (jsValue instanceof Error) {
+		if (Deno.env.get('DEBUG')) console.log('Found an error');
+		return new ErrorNode(new StringNode(jsValue.message));
+	}
 
-  if (Array.isArray(jsValue) || jsValue instanceof Set) {
-    if (Deno.env.get('DEBUG')) console.log('Found an array or set');
-    const vector = new VectorNode([]);
-    for (const element of jsValue) {
-      const ast = toAst(element);
-      vector.value.push(ast);
-    }
-    return vector;
-  }
+	if (Array.isArray(jsValue) || jsValue instanceof Set) {
+		if (Deno.env.get('DEBUG')) console.log('Found an array or set');
+		const vector = new VectorNode([]);
+		for (const element of jsValue) {
+			const ast = toAst(element);
+			vector.value.push(ast);
+		}
+		return vector;
+	}
 
-  if (jsValue instanceof Map) {
-    if (Deno.env.get('DEBUG')) console.log('Found a map');
-    const map = new Map<string, AstNode>();
-    for (const [maybeString, unknownValue] of jsValue.entries()) {
-      const key = String(maybeString);
-      const value = toAst(unknownValue);
-      map.set(key, value);
-    }
+	if (jsValue instanceof Map) {
+		if (Deno.env.get('DEBUG')) console.log('Found a map');
+		const map = new Map<string, AstNode>();
+		for (const [maybeString, unknownValue] of jsValue.entries()) {
+			const key = String(maybeString);
+			const value = toAst(unknownValue);
+			map.set(key, value);
+		}
 
-    return new MapNode(map);
-  }
+		return new MapNode(map);
+	}
 
-  if (typeof jsValue === 'function') {
-    if (Deno.env.get('DEBUG')) {
-      console.log(`Found a function, "${jsValue.name}"`);
-    }
+	if (typeof jsValue === 'function') {
+		if (Deno.env.get('DEBUG')) {
+			console.log(`Found a function, "${jsValue.name}"`);
+		}
 
-    return new FunctionNode(
-      (...args: AstNode[]): AstNode => {
-        try {
-          console.log('Firing a function!', args);
-          const result = jsValue(...args.map((x) => x.value));
-          console.log('Fired a function', result);
-          // const ast = toAst(result);
-          console.log('Converted function result to Ast', result);
-          return result;
-        } catch (error: unknown) {
-          console.log('Failed a function', error);
-          if (error instanceof Error) {
-            return new ErrorNode(
-              new StringNode(error.message),
-            );
-          }
+		return new FunctionNode(
+			(...args: AstNode[]): AstNode => {
+				try {
+					console.log('Firing a function!', args);
+					const result = jsValue(...args.map((x) => x.value));
+					console.log('Fired a function', result);
+					// const ast = toAst(result);
+					console.log('Converted function result to Ast', result);
+					return result;
+				} catch (error: unknown) {
+					console.log('Failed a function', error);
+					if (error instanceof Error) {
+						return new ErrorNode(
+							new StringNode(error.message),
+						);
+					}
 
-          return new ErrorNode(
-            new StringNode(JSON.stringify(error)),
-          );
-        }
-      },
-    );
-  }
+					return new ErrorNode(
+						new StringNode(JSON.stringify(error)),
+					);
+				}
+			},
+		);
+	}
 
-  if (typeof jsValue === 'object' && jsValue.constructor === Object) {
-    if (Deno.env.get('DEBUG')) console.log('Found an object');
-    const map = new MapNode(new Map());
-    for (const [key, value] of Object.entries(jsValue)) {
-      const ast = toAst(value);
-      map.value.set(key, ast);
-    }
+	if (typeof jsValue === 'object' && jsValue.constructor === Object) {
+		if (Deno.env.get('DEBUG')) console.log('Found an object');
+		const map = new MapNode(new Map());
+		for (const [key, value] of Object.entries(jsValue)) {
+			const ast = toAst(value);
+			map.value.set(key, ast);
+		}
 
-    return map;
-  }
+		return map;
+	}
 
-  // Handle "everything and like such as":
-  // symbol', 'bigint', classes, Date, RegExp, Int8Array, Uint8Array,
-  // Uint8ClampedArray, Int16Array, Uint16Array, Int32Array, Uint32Array,
-  // BigInt64Array, BigUint64Array, Float32Array, Float64Array, WeakMap,
-  // WeakSet, ArrayBuffer, SharedArrayBuffer, DataView, Promise, Intl.Collator,
-  // Intl.Collator, Intl.DateTimeFormat, Intl.DisplayNames, Intl.ListFormat,
-  // Intl.Locale, Intl.NumberFormat, Intl.PluralRules, Intl.RelativeTimeFormat,
-  // Intl.Segmenter, Proxy
-  if (Deno.env.get('DEBUG')) console.log('Found an unhandled type');
-  return new AtomNode(jsValue);
+	// Handle "everything and like such as":
+	// symbol', 'bigint', classes, Date, RegExp, Int8Array, Uint8Array,
+	// Uint8ClampedArray, Int16Array, Uint16Array, Int32Array, Uint32Array,
+	// BigInt64Array, BigUint64Array, Float32Array, Float64Array, WeakMap,
+	// WeakSet, ArrayBuffer, SharedArrayBuffer, DataView, Promise, Intl.Collator,
+	// Intl.Collator, Intl.DateTimeFormat, Intl.DisplayNames, Intl.ListFormat,
+	// Intl.Locale, Intl.NumberFormat, Intl.PluralRules, Intl.RelativeTimeFormat,
+	// Intl.Segmenter, Proxy
+	if (Deno.env.get('DEBUG')) console.log('Found an unhandled type');
+	return new AtomNode(jsValue);
 }
 
 /**
@@ -1797,22 +1951,22 @@ export function toAst(jsValue: unknown): AstNode {
  * @returns A new FunctionNode with the curried function.
  */
 export function curriedFunction(...args: AstNode[]): AstNode {
-  if (Deno.env.get('DEBUG')) {
-    console.log(`Currying a function with args ${JSON.stringify(args)}`);
-  }
-  assertMinimumArgumentCount(args.length, 1);
-  assertFunctionNode(args[0]);
+	if (Deno.env.get('DEBUG')) {
+		console.log(`Currying a function with args ${JSON.stringify(args)}`);
+	}
+	assertMinimumArgumentCount(args.length, 1);
+	assertFunctionNode(args[0]);
 
-  const [fn, ...rest] = args;
-  return new FunctionNode(() => {
-    if (Deno.env.get('DEBUG')) {
-      console.log(`Calling curried function with args ${JSON.stringify(rest)}`);
-    }
-    const result = fn.value.call(null, ...rest);
-    if (Deno.env.get('DEBUG')) {
-      console.log(`Curried function returned ${String(result.value)}`);
-    }
+	const [fn, ...rest] = args;
+	return new FunctionNode(() => {
+		if (Deno.env.get('DEBUG')) {
+			console.log(`Calling curried function with args ${JSON.stringify(rest)}`);
+		}
+		const result = fn.value.call(null, ...rest);
+		if (Deno.env.get('DEBUG')) {
+			console.log(`Curried function returned ${String(result.value)}`);
+		}
 
-    return result;
-  });
+		return result;
+	});
 }

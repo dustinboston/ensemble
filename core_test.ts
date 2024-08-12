@@ -2,7 +2,6 @@ import {
 	assert,
 	assertEquals,
 	assertInstanceOf,
-	assertNotStrictEquals,
 	assertSpyCall,
 	assertSpyCalls,
 	assertStrictEquals,
@@ -88,7 +87,6 @@ import {
 	MapNode,
 	NilNode,
 	NumberNode,
-	StringNode,
 	SymbolNode,
 	VectorNode,
 } from './types.ts';

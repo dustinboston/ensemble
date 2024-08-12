@@ -501,9 +501,7 @@ export function concat(...args: types.AstNode[]): types.AstNode {
  * @example (vec (1 2 3)) ;=> [1 2 3]
  */
 export function vec(...args: types.AstNode[]): types.AstNode {
-	return args[0] instanceof types.ListNode
-		? new types.VectorNode(args[0].value)
-		: args[0];
+	return args[0] instanceof types.ListNode ? new types.VectorNode(args[0].value) : args[0];
 }
 
 /**

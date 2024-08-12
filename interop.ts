@@ -48,8 +48,6 @@
  */
 import * as types from './types.ts';
 import * as core from './core.ts';
-import * as printer from './printer.ts';
-import * as globals from './globals.ts';
 
 /**
  * Globals (the ones available in Deno)
@@ -257,9 +255,7 @@ export function increment(...args: types.AstNode[]): types.AstNode {
 		types.assertStringNode(args[1]);
 		if (args[1].value !== 'prefix' && args[1].value !== 'postfix') {
 			throw new TypeError(
-				`Invalid affix ${
-					String(args[1].value)
-				}. The affix must be "prefix" or "postfix"`,
+				`Invalid affix ${String(args[1].value)}. The affix must be "prefix" or "postfix"`,
 			);
 		} else {
 			affix = args[1].value;
@@ -322,9 +318,7 @@ export function decrement(...args: types.AstNode[]): types.AstNode {
 		types.assertStringNode(args[1]);
 		if (args[1].value !== 'prefix' && args[1].value !== 'postfix') {
 			throw new TypeError(
-				`Invalid affix ${
-					String(args[1].value)
-				}. The affix must be "prefix" or "postfix"`,
+				`Invalid affix ${String(args[1].value)}. The affix must be "prefix" or "postfix"`,
 			);
 		} else {
 			affix = args[1].value;
@@ -392,9 +386,7 @@ export function instanceOf(...args: types.AstNode[]): types.BooleanNode {
 		args[1] instanceof types.SymbolNode === false
 	) {
 		throw new TypeError(
-			`Instance type must be a string or symbol. Got "${
-				String(args[1].value)
-			}"`,
+			`Instance type must be a string or symbol. Got "${String(args[1].value)}"`,
 		);
 	}
 	types.assertStringNode(args[1]); // instance
@@ -860,7 +852,7 @@ function isConstructible(func: unknown): boolean {
 }
 
 // #region Basic Globals
-const basicGlobals = new Set([
+const _basicGlobals = new Set([
 	'AbortController',
 	'AbortSignal',
 	'AbsoluteOrientationSensor',
@@ -1874,7 +1866,7 @@ const propsToIgnore = [
 ];
 
 // deno-lint-ignore no-explicit-any
-function getProps(object: any): (string | symbol)[] {
+function _getProps(object: any): (string | symbol)[] {
 	let keys: (string | symbol)[] = [];
 
 	if (object === undefined || object === null) {
@@ -1882,9 +1874,7 @@ function getProps(object: any): (string | symbol)[] {
 	}
 
 	while (object !== null && object !== undefined) {
-		let props = (typeof object === 'object')
-			? Reflect.ownKeys(object)
-			: Object.getOwnPropertyNames(object);
+		let props = (typeof object === 'object') ? Reflect.ownKeys(object) : Object.getOwnPropertyNames(object);
 
 		props = props.filter((p) => {
 			if (String(p).startsWith('__')) return false;

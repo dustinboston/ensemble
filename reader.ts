@@ -4,8 +4,7 @@
  */
 import * as types from './types.ts';
 
-export const tokenRegex =
-	/[\s,]*(~@|[[\]{}()'`~^@]|"(?:\\.|[^\\"])*"?|;.*|[^\s[\]{}('"`,;)]*)/g;
+export const tokenRegex = /[\s,]*(~@|[[\]{}()'`~^@]|"(?:\\.|[^\\"])*"?|;.*|[^\s[\]{}('"`,;)]*)/g;
 export const numberRegex = /^-?\d+(\.\d+)?$/;
 export const stringRegex = /"(?:\\.|[^\\"])*"/;
 

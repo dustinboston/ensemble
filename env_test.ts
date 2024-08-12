@@ -1,13 +1,6 @@
 import { assertEquals, assertThrows } from './tests/deps.ts';
 import { Env } from './env.ts';
-import {
-	AstNode,
-	ListNode,
-	NilNode,
-	NumberNode,
-	StringNode,
-	SymbolNode,
-} from './types.ts';
+import { AstNode, ListNode, NilNode, NumberNode, StringNode, SymbolNode } from './types.ts';
 
 Deno.test('new Env(): should create a new environment', () => {
 	const env = new Env();
