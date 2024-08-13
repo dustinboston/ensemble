@@ -637,10 +637,10 @@ export function deref(...args: types.AstNode[]): types.AstNode {
 	const atom = args[0];
 	types.assertAtomNode(atom);
 
-	if (atom.value instanceof types.AstNode === false) {
-		// Best effort - it could still throw an error.
-		return types.toAst(atom.value);
-	}
+	// TODO: Coerce JS values into AstNodes?
+	// if (atom.value instanceof types.AstNode === false) {
+	// 	return types.toAst(atom.value);
+	// }
 
 	return atom.value;
 }
@@ -683,16 +683,18 @@ export function swap(...args: types.AstNode[]): types.AstNode {
 
 	const rest = args.slice(2);
 
-	let value: types.AstNode;
-	if (atom.value instanceof types.AstNode) {
-		value = atom.value;
-	} else {
-		// Best effort - it could still throw an error.
-		value = types.toAst(atom.value);
-	}
+	// TODO: Coerce JS values into AstNodes?
+	// let value: types.AstNode;
+	// if (atom.value instanceof types.AstNode) {
+	// 	value = atom.value;
+	// } else {
+	// 	value = types.toAst(atom.value);
+	// }
+	// atom.value = fn.value(value, ...rest);
+	// return value;
 
-	atom.value = fn.value(value, ...rest);
-	return value;
+	atom.value = fn.value(atom.value, ...rest);
+	return atom.value;
 }
 
 /**

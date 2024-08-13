@@ -61,7 +61,9 @@ export class VectorNode extends AstNode {
  * @param value - The data that this class represents.
  */
 export class AtomNode extends AstNode {
-	constructor(public value: unknown, public metadata: AstNode = new NilNode()) {
+	// Does AtomNode need metadata?
+	// constructor(public value: unknown, public metadata: AstNode = new NilNode()) {
+	constructor(public value: AstNode) {
 		super();
 	}
 }
@@ -586,7 +588,7 @@ export function isSameClass<T, U>(object1: T, object2: U): boolean {
  */
 export function assertEq(a: AstNode, b: AstNode): void {
 	if (!isEqualTo(a, b)) {
-		throw new Error('Values are note equal');
+		throw new Error('Values are not equal');
 	}
 }
 
@@ -1423,9 +1425,10 @@ export function copy(ast: AstNode): AstNode {
  * @example copyAtom(atomNode); // Creates a copy of atomNode
  */
 export function copyAtomNode(a: AtomNode): AtomNode {
-	if (a.value instanceof AstNode === false) {
-		return new AtomNode(structuredClone(a.value));
-	}
+	// TODO: Coerce JS values into AstNodes?
+	// if (a.value instanceof AstNode === false) {
+	// 	return new AtomNode(structuredClone(a.value));
+	// }
 	return new AtomNode(copy(a.value));
 }
 
@@ -1819,129 +1822,223 @@ export function slash(string_: string): string {
 }
 
 /**
- * Translate JavaScript primative values into types.Ast's.
- * @param jsValue - A JavaScript primative to convert into an types.Ast.
+ * Translate JavaScript primative values into Ast's.
+ * @param jsValue - A JavaScript primative to convert into an Ast.
  * @returns The JavaScript primative converted to an Ast or Err.
  * @example toAst('foobar') //=> Str { value: 'foobar' }
  */
-export function toAst(jsValue: unknown): AstNode {
-	if (Deno.env.get('DEBUG')) {
-		console.log(`Converting JavaScript value to AstNode`);
-	}
-
-	if (jsValue instanceof AstNode) {
-		return jsValue;
-	}
-
-	if (typeof jsValue === 'undefined' || jsValue === null) {
-		if (Deno.env.get('DEBUG')) console.log('Found a null or undefined');
-		return new NilNode();
-	}
-
-	if (typeof jsValue === 'number') {
-		if (Deno.env.get('DEBUG')) console.log('Found a number');
-		return new NumberNode(jsValue);
-	}
-
-	if (typeof jsValue === 'string') {
-		if (jsValue.startsWith('"')) {
-			if (Deno.env.get('DEBUG')) console.log('Found a string');
-			return new StringNode(jsValue);
+export function toAst(input: unknown): AstNode {
+	switch (typeof input) {
+		case 'undefined': {
+			return new NilNode();
 		}
 
-		if (jsValue.startsWith(':')) {
-			if (Deno.env.get('DEBUG')) console.log('Found a keyword');
-			return new KeywordNode(jsValue);
+		case 'number': {
+			return new NumberNode(input);
 		}
 
-		if (Deno.env.get('DEBUG')) console.log('Found a symbol');
-		return new SymbolNode(jsValue);
-	}
+		case 'string': {
+			if (input.startsWith('"')) {
+				return new StringNode(input);
+			}
 
-	if (typeof jsValue === 'boolean') {
-		if (Deno.env.get('DEBUG')) console.log('Found a boolean');
-		return new BooleanNode(jsValue);
-	}
+			if (input.startsWith(':')) {
+				return new KeywordNode(input);
+			}
 
-	if (jsValue instanceof Error) {
-		if (Deno.env.get('DEBUG')) console.log('Found an error');
-		return new ErrorNode(new StringNode(jsValue.message));
-	}
-
-	if (Array.isArray(jsValue) || jsValue instanceof Set) {
-		if (Deno.env.get('DEBUG')) console.log('Found an array or set');
-		const vector = new VectorNode([]);
-		for (const element of jsValue) {
-			const ast = toAst(element);
-			vector.value.push(ast);
-		}
-		return vector;
-	}
-
-	if (jsValue instanceof Map) {
-		if (Deno.env.get('DEBUG')) console.log('Found a map');
-		const map = new Map<string, AstNode>();
-		for (const [maybeString, unknownValue] of jsValue.entries()) {
-			const key = String(maybeString);
-			const value = toAst(unknownValue);
-			map.set(key, value);
+			return new SymbolNode(input);
 		}
 
-		return new MapNode(map);
-	}
-
-	if (typeof jsValue === 'function') {
-		if (Deno.env.get('DEBUG')) {
-			console.log(`Found a function, "${jsValue.name}"`);
+		case 'boolean': {
+			return new BooleanNode(input);
 		}
 
-		return new FunctionNode(
-			(...args: AstNode[]): AstNode => {
-				try {
-					console.log('Firing a function!', args);
-					const result = jsValue(...args.map((x) => x.value));
-					console.log('Fired a function', result);
-					// const ast = toAst(result);
-					console.log('Converted function result to Ast', result);
-					return result;
-				} catch (error: unknown) {
-					console.log('Failed a function', error);
-					if (error instanceof Error) {
+		case 'symbol':
+		case 'bigint': {
+			return new StringNode(JSON.stringify(input));
+		}
+
+		case 'function': {
+			return new FunctionNode(
+				(...args: AstNode[]): AstNode => {
+					try {
+						return toAst(input(...args.map((x) => x.value)));
+					} catch (error: unknown) {
+						if (error instanceof Error) {
+							return new ErrorNode(
+								new StringNode(error.message),
+							);
+						}
+
 						return new ErrorNode(
-							new StringNode(error.message),
+							new StringNode(JSON.stringify(error)),
 						);
 					}
-
-					return new ErrorNode(
-						new StringNode(JSON.stringify(error)),
-					);
-				}
-			},
-		);
-	}
-
-	if (typeof jsValue === 'object' && jsValue.constructor === Object) {
-		if (Deno.env.get('DEBUG')) console.log('Found an object');
-		const map = new MapNode(new Map());
-		for (const [key, value] of Object.entries(jsValue)) {
-			const ast = toAst(value);
-			map.value.set(key, ast);
+				},
+			);
 		}
 
-		return map;
-	}
+		case 'object': {
+			if (input instanceof Error) {
+				return new ErrorNode(new StringNode(input.message));
+			}
 
-	// Handle "everything and like such as":
-	// symbol', 'bigint', classes, Date, RegExp, Int8Array, Uint8Array,
-	// Uint8ClampedArray, Int16Array, Uint16Array, Int32Array, Uint32Array,
-	// BigInt64Array, BigUint64Array, Float32Array, Float64Array, WeakMap,
-	// WeakSet, ArrayBuffer, SharedArrayBuffer, DataView, Promise, Intl.Collator,
-	// Intl.Collator, Intl.DateTimeFormat, Intl.DisplayNames, Intl.ListFormat,
-	// Intl.Locale, Intl.NumberFormat, Intl.PluralRules, Intl.RelativeTimeFormat,
-	// Intl.Segmenter, Proxy
-	if (Deno.env.get('DEBUG')) console.log('Found an unhandled type');
-	return new AtomNode(jsValue);
+			if (input === null) {
+				return new NilNode();
+			}
+
+			if (Array.isArray(input)) {
+				const array = input.map((element) => toAst(element));
+				return new ListNode(array);
+			}
+
+			if (input instanceof Map) {
+				const map = new Map<string, AstNode>();
+				for (const [maybeString, unknownValue] of input.entries()) {
+					const key = String(maybeString);
+					const value = toAst(unknownValue);
+					map.set(key, value);
+				}
+
+				return new MapNode(map);
+			}
+
+			const inputObject = input as Record<string, unknown>;
+			const map = new Map<string, AstNode>();
+			for (
+				const [maybeString, unknownValue] of Object.entries(
+					inputObject,
+				)
+			) {
+				const key = String(maybeString);
+				const value = toAst(unknownValue);
+				map.set(key, value);
+			}
+
+			return new MapNode(map);
+		}
+
+		default: {
+			const coercedUnknown = String(input);
+			return new ErrorNode(
+				new StringNode(`uknown type ${coercedUnknown}`),
+			);
+		}
+	}
 }
+
+// TODO: Test, especially function conversion
+// export function toAst(jsValue: unknown): AstNode {
+// 	if (Deno.env.get('DEBUG')) {
+// 		console.log(`Converting JavaScript value to AstNode`);
+// 	}
+
+// 	if (jsValue instanceof AstNode) {
+// 		return jsValue;
+// 	}
+
+// 	if (typeof jsValue === 'undefined' || jsValue === null) {
+// 		if (Deno.env.get('DEBUG')) console.log('Found a null or undefined');
+// 		return new NilNode();
+// 	}
+
+// 	if (typeof jsValue === 'number') {
+// 		if (Deno.env.get('DEBUG')) console.log('Found a number');
+// 		return new NumberNode(jsValue);
+// 	}
+
+// 	if (typeof jsValue === 'string') {
+// 		if (jsValue.startsWith('"')) {
+// 			if (Deno.env.get('DEBUG')) console.log('Found a string');
+// 			return new StringNode(jsValue);
+// 		}
+
+// 		if (jsValue.startsWith(':')) {
+// 			if (Deno.env.get('DEBUG')) console.log('Found a keyword');
+// 			return new KeywordNode(jsValue);
+// 		}
+
+// 		if (Deno.env.get('DEBUG')) console.log('Found a symbol');
+// 		return new SymbolNode(jsValue);
+// 	}
+
+// 	if (typeof jsValue === 'boolean') {
+// 		if (Deno.env.get('DEBUG')) console.log('Found a boolean');
+// 		return new BooleanNode(jsValue);
+// 	}
+
+// 	if (jsValue instanceof Error) {
+// 		if (Deno.env.get('DEBUG')) console.log('Found an error');
+// 		return new ErrorNode(new StringNode(jsValue.message));
+// 	}
+
+// 	if (Array.isArray(jsValue) || jsValue instanceof Set) {
+// 		if (Deno.env.get('DEBUG')) console.log('Found an array or set');
+// 		const vector = new VectorNode([]);
+// 		for (const element of jsValue) {
+// 			const ast = toAst(element);
+// 			vector.value.push(ast);
+// 		}
+// 		return vector;
+// 	}
+
+// 	if (jsValue instanceof Map) {
+// 		if (Deno.env.get('DEBUG')) console.log('Found a map');
+// 		const map = new Map<string, AstNode>();
+// 		for (const [maybeString, unknownValue] of jsValue.entries()) {
+// 			const key = String(maybeString);
+// 			const value = toAst(unknownValue);
+// 			map.set(key, value);
+// 		}
+
+// 		return new MapNode(map);
+// 	}
+
+// 	if (typeof jsValue === 'function') {
+// 		if (Deno.env.get('DEBUG')) {
+// 			console.log(`Found a function, "${jsValue.name}"`);
+// 		}
+
+// 		return new FunctionNode(
+// 			(...args: AstNode[]): AstNode => {
+// 				try {
+// 					console.log('Firing a function!', args);
+// 					const result = jsValue(...args.map((x) => x.value));
+// 					console.log('Fired a function', result);
+// 					// const ast = toAst(result);
+// 					console.log('Converted function result to Ast', result);
+// 					return result;
+// 				} catch (error: unknown) {
+// 					console.log('Failed a function', error);
+// 					if (error instanceof Error) {
+// 						return new ErrorNode(
+// 							new StringNode(error.message),
+// 						);
+// 					}
+
+// 					return new ErrorNode(
+// 						new StringNode(JSON.stringify(error)),
+// 					);
+// 				}
+// 			},
+// 		);
+// 	}
+
+// 	if (typeof jsValue === 'object' && jsValue.constructor === Object) {
+// 		const map = new MapNode(new Map());
+// 		for (const [key, value] of Object.entries(jsValue)) {
+// 			const ast = toAst(value);
+// 			map.value.set(key, ast);
+// 		}
+
+// 		return map;
+// 	}
+
+// 	const coercedUnknown = String(jsValue);
+// 	return new ErrorNode(
+// 		new StringNode(`uknown type ${coercedUnknown}`),
+// 	);
+// }
 
 /**
  * Curries a FunctionNode.

@@ -87,6 +87,7 @@ import {
 	MapNode,
 	NilNode,
 	NumberNode,
+	StringNode,
 	SymbolNode,
 	VectorNode,
 } from './types.ts';

@@ -38,17 +38,20 @@ export function printString(ast: types.AstNode, printReadably = false): string {
 	}
 
 	if (ast instanceof types.AtomNode) {
-		if (ast.value instanceof types.AstNode) {
-			return `(atom ${printString(ast.value)})`;
-		} else {
-			if (ast.value === globalThis) {
-				return '(atom (global))';
-			} else {
-				return `(atom #<object>)`;
-				// const value = types.toAst(ast.value);
-				// return `(atom ${printString(value)})`;
-			}
-		}
+		return `(atom ${printString(ast.value)})`;
+
+		// TODO: Coerce JS values into AstNodes?
+		// if (ast.value instanceof types.AstNode) {
+		// 	return `(atom ${printString(ast.value)})`;
+		// } else {
+		// 	if (ast.value === globalThis) {
+		// 		return '(atom (global))';
+		// 	} else {
+		// 		return `(atom #<object>)`;
+		// 		// const value = types.toAst(ast.value);
+		// 		// return `(atom ${printString(value)})`;
+		// 	}
+		// }
 	}
 
 	if (ast instanceof types.ErrorNode) {

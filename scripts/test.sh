@@ -109,15 +109,15 @@ fi
 
 # Main logic
 if [[ "$run_e2e" -eq 1 ]]; then
-  ./e2e.sh
+  ./scripts/e2e.sh
 fi
 
 if [[ "$run_fun" -eq 1 ]]; then
-  deno test -A --reporter=pretty --parallel ../tests/*_test.ts
+  deno test -A --reporter=pretty --parallel ./tests/*_test.ts
 fi
 
 if [[ "$run_unit" -eq 1 ]]; then
-  deno test -A --reporter=pretty --parallel ../*_test.ts
+  deno test -A --reporter=pretty --parallel ./*_test.ts
 fi
 
 graceful_exit
