@@ -61,8 +61,6 @@ export class VectorNode extends AstNode {
  * @param value - The data that this class represents.
  */
 export class AtomNode extends AstNode {
-	// Does AtomNode need metadata?
-	// constructor(public value: unknown, public metadata: AstNode = new NilNode()) {
 	constructor(public value: AstNode) {
 		super();
 	}
@@ -189,6 +187,17 @@ export class DomNode extends AstNode {
 		public value: Map<string, AstNode> = new Map<string, AstNode>(),
 		public metadata: AstNode = new NilNode(),
 	) {
+		super();
+	}
+}
+
+/**
+ * JsNode class
+ * A data class which represents a part of the AST.
+ * @param value - The data that this class represents.
+ */
+export class JsNode extends AstNode {
+	constructor(public value: unknown) {
 		super();
 	}
 }
