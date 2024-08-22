@@ -9,7 +9,7 @@
 	"tasks": {
 		"generate-coverage": "./scripts/coverage.sh",
 		"generate-docs": "./scripts/docs.sh",
-		"generate-interop": "deno run -A ./scripts/interop.ts > interop/generated.ts",
+		"generate-interop": "deno run -A ./interop/generate.ts",
 		"start-repl": "deno run -A ./ensemble.ts",
 		"serve-coverage": "python -m http.server -d ./coverage",
 		"serve-docs": "python -m http.server -d ./docs",

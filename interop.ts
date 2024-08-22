@@ -1,2142 +1,11867 @@
-/**
- * @file Provides a mechanism for interacting with JavaScript. It currently
- * uses eval, but it would be better to implement the interfaces to functions
- * instead so that we can avoid eval and limit the scope of the function.
- *
- * Provides defintions of language features that are not achievable without
- * extra syntax or functions.
- *
- * **List of language features to implement**
- *
- * @todo ['+=', additionAssignment],
- * @todo ['-=', subtractionAssignment],
- * @todo ['*=', multiplicationAssignment],
- * @todo ['**=', exponentiationAssignment],
- * @todo ['/=', divisionAssignment],
- * @todo ['%=', remainderAssignment],
- * @todo ['&=', bitwiseAndAssignment],
- * @todo ['|=', bitwiseOrAssignment],
- * @todo ['^=', bitwiseXorAssignment],
- * @todo ['<<=', leftShiftAssignment],
- * @todo ['>>=', rightShiftAssignment],
- * @todo ['>>>=', unsignedRightShiftAssignment],
- * @todo ['&&=', logicalAndAssignment],
- * @todo ['||=', logicalOrAssignment],
- * @todo ['??=', nullishCoalesceAssignment],
- * @todo ['-', unaryNegation] (overload the - operator. If only one value it's unary negation)
- * @todo ['+', unaryPlus] (overload the + operator. If only one value it's unary plus)
- * @todo ['...', spread],
- *
- * **Implemented in Core**
- *
- * Possibly merge these.
- *
- * - ['equals', equals],
- * - ['lessThan', lessThan],
- * - ['lessThanOrEqual', lessThanOrEqual],
- * - ['greaterThan', greaterThan],
- * - ['greaterThanOrEqual', greaterThanOrEqual],
- * - ['nullish', nullishCoalesce],
- * - ['+', add],
- * - ['-', subtract],
- * - ['*', multiply],
- * - ['/', divide],
- * - ['<', lessThan],
- * - ['<=', lessThanOrEqual],
- * - ['>', greaterThan],
- * - ['>=', greaterThanOrEqual],
- */
+// This file is generated. Run 'deno task generate-interop' to regenerate it.
 import * as types from './types.ts';
-import * as core from './core.ts';
-
-/**
- * Globals (the ones available in Deno)
- * Go to https://docs.deno.com/api/web/all_symbols and run this snippet in the console.
- *
- * ```javascript
- * globalThis.out = '';
- * document.querySelectorAll(".namespaceItem:has(.text-Variable, .text-Function, .text-Namespace, .text-Class) .namespaceItemContent > a").forEach((el) => globalThis.out += `"${el.innerText}": ${el.innerText},\n`);
- * console.log(globalThis.out);
- * ```
- */
-export const nsInterop = new Map<types.SymbolNode, types.AstNode>();
-const interopFns: Array<[string, types.Closure]> = [
-	['typeOf', typeOf],
-	['instanceOf', instanceOf],
-
-	['===', core.eq],
-	['!==', notEqualTo],
-	['??', nullishCoalesce],
-
-	['**', power],
-	['%', remainder],
-	['>>', rightShift],
-	['<<', leftShift],
-	['>>>', unsignedRightShift],
-	['/&', bitwiseAnd],
-	['/|', bitwiseOr],
-	['/^', bitwiseXor],
-	['/~', bitwiseNot],
-
-	['&&', and],
-	['||', or],
-	['!', not],
-
-	['++', increment],
-	['--', decrement],
-
-	['prop', getIn],
-	['getIn', getIn],
-	['global', getGlobal],
-	//['new', callNew],
-
-	// Possibly the same as cond
-	['switch', switchCase],
-	// ...Object.entries(collectGlobalFunctions()),
-
-	// ...Object.getOwnPropertyNames(globalThis).map((key) => {
-	// 	return [key, (...args: AstNode[]) => globalThis[key]];
-	// });
-];
-
-for (const [sym, fn] of interopFns) {
-	nsInterop.set(new types.SymbolNode(sym), new types.FunctionNode(fn));
-}
-
-// for (const globalKey of globals.basicGlobals.values()) {
-// 	const globalSymbol = new types.SymbolNode(globalKey);
-// 	nsInterop.set(
-// 		globalSymbol,
-// 		new types.FunctionNode(
-// 			(...args: types.AstNode[]) => {
-// 				return getGlobal(...[globalSymbol, ...args]);
-// 			},
-// 		),
-// 		// types.curriedFunction(
-// 		// 	new types.FunctionNode(getGlobal),
-// 		// 	new types.SymbolNode(globalKey),
-// 		// ),
-// 	);
-// }
-
-/**
- * Dangerously evaluates a javascript expression with Function.
- * @param args - The expression to evaluate.
- * @returns Result of the evaluated expression or an Err.
- * @example (js-eval "console.log('give me a donut');")
- */
-export function _jsEval(...args: types.AstNode[]): types.AstNode {
-	types.assertArgumentCount(args.length, 1);
-	types.assertStringNode(args[0]);
-	try {
-		// eslint-disable-next-line no-new-func
-		const result: unknown = new Function(
-			`'use strict'; return (${args[0].value})`,
-		)();
-		return types.toAst(result);
-	} catch (error: unknown) {
-		if (error instanceof Error) {
-			return new types.ErrorNode(new types.StringNode(error.message));
-		}
-
-		return new types.ErrorNode(new types.StringNode(JSON.stringify(error)));
-	}
-}
-
-/**
- * A JavasScript switch statement.
- * @param args [types.Ast,...types.List[], types.List]
- * args[0] - The expression to be matched
- * args[1...n-1] - Case clause matched against the expression (value statement)
- * 	each case clause should have a statement to match and a value to return
- * args[n] - Default clause (statement)
- */
-export function switchCase(...args: types.AstNode[]): types.AstNode {
-	types.assertMinimumArgumentCount(args.length, 2);
-	const [expr, ...clauses] = args;
-
-	const defaultClause = clauses.pop();
-	types.assertDefined(defaultClause);
-	types.assertFunctionNode(defaultClause);
-
-	const length = clauses.length;
-	for (let i = 0; i < length; i++) {
-		const clause = clauses[i];
-		types.assertListNode(clause);
-		types.assertArgumentCount(clause.value.length, 2);
-		types.assertFunctionNode(clause.value[1]);
-
-		const result = types.isEqualTo(expr, clause.value[0]);
-		if (result.value) {
-			return clause.value[1].value();
-		}
-	}
-
-	return defaultClause.value();
-}
-
-/**
- * Tests whether a series of expressions are truthy
- * @param ast the ast to test for truthiness
- * @return types.Bool whether the ast is truthy
- */
-export function and(...args: types.AstNode[]): types.BooleanNode {
-	for (const arg of args) {
-		const isTruthy = types.isAstTruthy(arg);
-		if (!isTruthy) {
-			return new types.BooleanNode(false);
-		}
-	}
-
-	return new types.BooleanNode(true);
-}
-
-/**
- * Tests whether any of a series of expressions are truthy
- * @param ast the ast to test for truthiness
- * @return types.Bool whether the ast is truthy
- */
-export function or(...args: types.AstNode[]): types.BooleanNode {
-	for (const arg of args) {
-		const isTruthy = types.isAstTruthy(arg);
-		if (isTruthy) {
-			return new types.BooleanNode(true);
-		}
-	}
-
-	return new types.BooleanNode(false);
-}
-
-/**
- * `!==` Determine if two nodes are not equal
- * @example (!== (8 2 3) (1 2 3)) ;=> true
- * @param args [types.Ast, types.Ast]
- * @returns types.Bool
- * @see types.types.isEqualTo()
- */
-export function notEqualTo(...args: types.AstNode[]): types.AstNode {
-	types.assertArgumentCount(args.length, 2);
-	const bool = types.isEqualTo(args[0], args[1]);
-	return new types.BooleanNode(!bool.value);
-}
-
-/**
- * `++` Increment a numeric value by one
- *
- * @description
- * Postfix is the default. In this position the counter will be incremented, but
- * the value will remain the same. The affix can be set explicitly by passing
- * "prefix" or "postfix" as the second argument. In the "postfix" position, the
- * returned value will have the counter and the value incremented by one. The
- * result is returned as a vector with the new counter value as the first element,
- * and the value before the increment as the second element.
- *
- * @example Default postfix
- * ```
- * (++ 1) ;=>[2, 1]
- * ```
- *
- * @example Explicit postfix
- * ```
- * (++ 1 "postfix") ;=>[2, 1]
- * ```
- *
- * @example Explicit prefix
- * ```
- * (++ 1 "prefix") ;=>[2, 2]
- * ```
- */
-export function increment(...args: types.AstNode[]): types.AstNode {
-	types.assertVariableArgumentCount(args.length, 1, 2);
-	types.assertNumberNode(args[0]);
-
-	let affix = 'postfix';
-	if (args[1] !== undefined) {
-		types.assertStringNode(args[1]);
-		if (args[1].value !== 'prefix' && args[1].value !== 'postfix') {
-			throw new TypeError(
-				`Invalid affix ${String(args[1].value)}. The affix must be "prefix" or "postfix"`,
-			);
-		} else {
-			affix = args[1].value;
-		}
-	}
-
-	if (affix === 'postfix') {
-		return new types.VectorNode([
-			new types.NumberNode(args[0].value + 1),
-			new types.NumberNode(args[0].value),
-		]);
-	}
-
-	// ++x returns [counter - 1, counter - 1]
-	if (affix === 'prefix') {
-		return new types.VectorNode([
-			new types.NumberNode(args[0].value + 1),
-			new types.NumberNode(args[0].value + 1),
-		]);
-	}
-
-	throw new Error('Unhandled error in decrement');
-}
-
-/**
- * `--` Decrement a numeric value by one
- *
- * @description
- * Postfix is the default. In this position the counter will be decremented, but
- * the value will remain the same. The affix can be set explicitly by passing
- * "prefix" or "postfix" as the second argument. In the "postfix" position, the
- * returned value will have the counter and the value decremented by one. The
- * result is returned as a vector with the new counter value as the first element,
- * and the value before the increment as the second element.
- *
- * @example Default postfix
- * ```
- * (-- 1)
- * ;=>[0, 1]
- * ```
- *
- * @example Explicit postfix
- * ```
- * (-- 1 "postfix")
- * ;=>[0, 1]
- * ```
- *
- * @example Explicit prefix
- * ```
- * (-- 1 "prefix")
- * ;=>[0, 0]
- * ```
- */
-export function decrement(...args: types.AstNode[]): types.AstNode {
-	types.assertVariableArgumentCount(args.length, 1, 2);
-	types.assertNumberNode(args[0]);
-
-	let affix = 'postfix';
-	if (args[1] !== undefined) {
-		types.assertStringNode(args[1]);
-		if (args[1].value !== 'prefix' && args[1].value !== 'postfix') {
-			throw new TypeError(
-				`Invalid affix ${String(args[1].value)}. The affix must be "prefix" or "postfix"`,
-			);
-		} else {
-			affix = args[1].value;
-		}
-	}
-
-	if (affix === 'postfix') {
-		return new types.VectorNode([
-			new types.NumberNode(args[0].value - 1),
-			new types.NumberNode(args[0].value),
-		]);
-	}
-
-	if (affix === 'prefix') {
-		return new types.VectorNode([
-			new types.NumberNode(args[0].value - 1),
-			new types.NumberNode(args[0].value - 1),
-		]);
-	}
-
-	throw new Error('Unhandled error in decrement');
-}
-
-/**
- * Wraps typeof
- * @param object AstNode
- * @param typeString Must be: undefined, object, boolean, number, string, function, symbol, bigint
- * @returns types.BooleanNode
- */
-export function typeOf(...args: types.AstNode[]): types.BooleanNode {
-	types.assertArgumentCount(args.length, 2);
-	types.assertAstNode(args[0]); // object
-	types.assertStringNode(args[1]); // typeString
-
-	const obj = typeof args[0].value;
-	if (
-		obj !== 'bigint' &&
-		obj !== 'boolean' &&
-		obj !== 'function' &&
-		obj !== 'number' &&
-		obj !== 'object' &&
-		obj !== 'string' &&
-		obj !== 'symbol' &&
-		obj !== 'undefined'
-	) {
-		throw new Error(
-			`Invalid type: "${
-				args[1].value
-			}". Type must be one of bigint, boolean, function, number, object, string, symbol, or undefined`,
-		);
-	}
-
-	return new types.BooleanNode(obj === args[1].value);
-}
-
-/**
- * Wraps instanceof
- * @returns types.BooleanNode
- */
-export function instanceOf(...args: types.AstNode[]): types.BooleanNode {
-	types.assertArgumentCount(args.length, 2);
-	types.assertAstNode(args[0]); // object
-	if (
-		args[1] instanceof types.StringNode === false ||
-		args[1] instanceof types.SymbolNode === false
-	) {
-		throw new TypeError(
-			`Instance type must be a string or symbol. Got "${String(args[1].value)}"`,
-		);
-	}
-	types.assertStringNode(args[1]); // instance
-
-	if (typeof args[1].value !== 'string') {
-		throw new TypeError(
-			`Instance type must be a string. Got "${String(args[1].value)}"`,
-		);
-	}
-
-	const a = args[0].value;
-	const b = args[1].value;
-	let instance = undefined;
-
-	if (
-		b === 'AstNode' ||
-		b === 'SymbolNode' ||
-		b === 'ListNode' ||
-		b === 'VectorNode' ||
-		b === 'AtomNode' ||
-		b === 'BooleanNode' ||
-		b === 'MapNode' ||
-		b === 'ErrorNode' ||
-		b === 'KeywordNode' ||
-		b === 'NilNode' ||
-		b === 'NumberNode' ||
-		b === 'StringNode' ||
-		b === 'FunctionNode'
-	) {
-		// deno-lint-ignore no-explicit-any
-		instance = (types as any)[args[1].value];
-	} else if (Object.hasOwn(globalThis, args[1].value)) {
-		// deno-lint-ignore no-explicit-any
-		instance = (globalThis as any)[args[1].value];
-	} else {
-		throw new TypeError(`Unknown instance: "${args[1].value}"`);
-	}
-
-	return new types.BooleanNode(a instanceof instance);
-}
-
-/**
- * Implements the nullish coalesce operator (??)
- * @param a Object to check if a is null or undefined
- * @param b Result if a is null or undefined
- * @returns types.AstNode
- */
-export function nullishCoalesce(
-	a: types.AstNode,
-	b: types.AstNode,
-): types.AstNode {
-	return a.value == null ? b : a;
-}
-
-// MARK: MATH
-
-/**
- * @param base
- * @param exponent
- * @returns types.NumberNode
- * @throws TypeError
- */
-export function power(
-	base: types.AstNode,
-	exponent: types.AstNode,
-): types.NumberNode {
-	if (
-		base instanceof types.NumberNode && exponent instanceof types.NumberNode
-	) {
-		return new types.NumberNode(base.value ** exponent.value);
-	}
-	throw new TypeError('not a number');
-}
-
-/**
- * AKA modulo
- * @param a
- * @param b
- * @returns types.NumberNode
- * @throws TypeError
- */
-export function remainder(
-	a: types.AstNode,
-	b: types.AstNode,
-): types.NumberNode {
-	if (a instanceof types.NumberNode && b instanceof types.NumberNode) {
-		return new types.NumberNode(((a.value % b.value) + b.value) % b.value);
-	}
-	throw new TypeError('not a number');
-}
-
-/**
- * @param a
- * @param b
- * @returns types.NumberNode
- * @throws TypeError
- */
-export function bitwiseAnd(
-	a: types.AstNode,
-	b: types.AstNode,
-): types.NumberNode {
-	if (a instanceof types.NumberNode && b instanceof types.NumberNode) {
-		return new types.NumberNode(a.value & b.value); // eslint-disable-line no-bitwise
-	}
-	throw new TypeError('not a number');
-}
-
-/**
- * @param a
- * @param b
- * @returns types.NumberNode
- * @throws TypeError
- */
-export function bitwiseOr(
-	a: types.AstNode,
-	b: types.AstNode,
-): types.NumberNode {
-	if (a instanceof types.NumberNode && b instanceof types.NumberNode) {
-		return new types.NumberNode(a.value | b.value); // eslint-disable-line no-bitwise
-	}
-	throw new TypeError('not a number');
-}
-
-/**
- * @param a
- * @param b
- * @returns types.NumberNode
- * @throws TypeError
- */
-export function bitwiseXor(
-	a: types.AstNode,
-	b: types.AstNode,
-): types.NumberNode {
-	if (a instanceof types.NumberNode && b instanceof types.NumberNode) {
-		return new types.NumberNode(a.value ^ b.value); // eslint-disable-line no-bitwise
-	}
-	throw new TypeError('not a number');
-}
-
-/**
- * @param a - The number.
- * @returns types.NumberNode The result of the bitwise NOT operation.
- * @throws TypeError If the argument is not a number.
- */
-export function bitwiseNot(a: types.AstNode): types.NumberNode {
-	if (a instanceof types.NumberNode) {
-		return new types.NumberNode(~a.value); // eslint-disable-line no-bitwise
-	}
-	throw new TypeError('not a number');
-}
-
-/**
- * @param a
- * @param b
- * @returns types.NumberNode
- * @throws TypeError
- */
-export function leftShift(
-	a: types.AstNode,
-	b: types.AstNode,
-): types.NumberNode {
-	if (a instanceof types.NumberNode && b instanceof types.NumberNode) {
-		return new types.NumberNode(a.value << b.value); // eslint-disable-line no-bitwise
-	}
-	throw new TypeError('not a number');
-}
-
-/**
- * @param a
- * @param b
- * @returns types.NumberNode
- * @throws TypeError
- */
-export function rightShift(
-	a: types.AstNode,
-	b: types.AstNode,
-): types.NumberNode {
-	if (a instanceof types.NumberNode && b instanceof types.NumberNode) {
-		return new types.NumberNode(a.value >> b.value); // eslint-disable-line no-bitwise
-	}
-	throw new TypeError('not a number');
-}
-
-/**
- * @param a
- * @param b
- * @returns types.NumberNode
- * @throws TypeError
- */
-export function unsignedRightShift(
-	a: types.AstNode,
-	b: types.AstNode,
-): types.NumberNode {
-	if (a instanceof types.NumberNode && b instanceof types.NumberNode) {
-		return new types.NumberNode(a.value >>> b.value); // eslint-disable-line no-bitwise
-	}
-	throw new TypeError('not a number');
-}
-
-/**
- * @param a
- * @returns types.AstNode
- */
-export function not(a: types.AstNode): types.AstNode {
-	return new types.BooleanNode(!a.value);
-}
-
-/**
- * @param args
- * @param args.0 A string containing the name of the global variable to get.
- * @param args.1 An optional vector of keys to get a nested property.
- * @returns An AstNode representing the value of the global variable.
- */
-function getGlobal(...args: types.AstNode[]): types.AstNode {
-	try {
-		types.assertMinimumArgumentCount(args.length, 1);
-		types.assertSymbolNode(args[0]);
-
-		// deno-lint-ignore no-explicit-any
-		const globalObj = (globalThis as any)[args[0].value] as any; // e.g. URL
-
-		// deno-lint-ignore no-explicit-any
-		let instance: any = null;
-
-		if (args[1] && args[1] instanceof types.AtomNode) {
-			// Check for an instance of, e.g. URL, "myURL"
-			if (args[1].value instanceof globalObj) {
-				instance = args[1].value;
-			}
-		}
-
-		const props = instance ? args.slice(2) : args.slice(1);
-
-		if (instance !== null && instance !== undefined) {
-			// deno-lint-ignore no-explicit-any
-			let obj: any = instance;
-			for (const prop of props) {
-				// TODO: needs key types to get the obj
-				// But needs args to pass to new or function call
-				if (
-					typeof prop.value === 'string' ||
-					types.isMapKeyNode(prop.value)
-				) {
-					const key = types.dekey(prop.value);
-					obj = obj[key];
-				}
-			}
-
-			if (isConstructible(obj)) {
-				return new types.AtomNode(
-					new obj(...args.slice(1).map((ast) => ast.value)),
-				);
-			} else if (isFunction(obj)) {
-				return new types.AtomNode(
-					obj(...args.map((ast) => ast.value)),
-				);
-			} else {
-				return new types.AtomNode(obj);
-			}
-		} else {
-			// deno-lint-ignore no-explicit-any
-			let obj: any = globalObj;
-			if (isConstructible(obj)) {
-				return new types.AtomNode(
-					new obj(...args.slice(1).map((ast) => ast.value)),
-				);
-			} else if (isFunction(obj)) {
-				return new types.AtomNode(
-					obj(...args.map((ast) => ast.value)),
-				);
-			} else {
-				for (const prop of props) {
-					if (
-						typeof prop.value === 'string' ||
-						types.isMapKeyNode(prop.value)
-					) {
-						const key = types.dekey(prop.value);
-						obj = obj[key];
-					}
-				}
-
-				return new types.AtomNode(obj);
-			}
-		}
-	} catch (error) {
-		const msg = new types.StringNode(String(error));
-		return new types.ErrorNode(msg);
-	}
-
-	// const globalKey = args[0].value;
-	// if (allGlobals.has(globalKey)) {
-	// 	const path = globalKey.split('.');
-	// 	const value = getJsProperty(globalThis, path);
-	// 	const ast = types.toAst(value);
-	// 	return ast;
-	// }
-	// throw new ReferenceError(
-	// 	`Global value "${globalKey}" is unavailable or undefined.`,
-	// );
-}
-
-function getIn(...args: types.AstNode[]): types.AstNode {
-	types.assertArgumentCount(args.length, 2);
-	types.assertAtomNode(args[0]);
-
-	const obj = args[0].value as unknown;
-	const keys = args.slice(1);
-
-	types.assertSequentialValues<types.KeywordNode>(
-		keys,
-		types.KeywordNode,
-	);
-
-	const result: unknown = getJsProperty(
-		obj,
-		keys.map((kw) => types.dekey(kw.value)),
-	);
-	return types.toAst(result);
-}
-
-// function callNew(...args: types.AstNode[]): types.AstNode {
-// 	if (Deno.env.get('DEBUG')) {
-// 		console.log(
-// 			`Try constructing with args: ${
-// 				printer.printString(new types.VectorNode(args))
-// 			}`,
-// 		);
-// 	}
-
-// 	types.assertMinimumArgumentCount(args.length, 1);
-// 	types.assertFunctionNode(args[0]);
-// 	// types.assertSymbolNode(args[0]);
-
-// 	// deno-lint-ignore ban-types
-// 	const fnWrapper = args[0].value;
-// 	if (Deno.env.get('DEBUG')) {
-// 		console.log(`Wrapper function: ${fnWrapper}`);
-// 	}
-
-// 	const constructorFunc = args[0].value();
-// 	if (Deno.env.get('DEBUG')) {
-// 		console.log(`Constructor function: ${String(constructorFunc)}`);
-// 	}
-
-// 	const constructorArgs = args.slice(1);
-// 	// deno-lint-ignore ban-types
-// 	let cfunc: Function;
-// 	if (typeof constructorFunc === 'function') {
-// 		cfunc = constructorFunc;
-// 	} else if (
-// 		constructorFunc as unknown instanceof types.FunctionNode === true &&
-// 		// deno-lint-ignore no-explicit-any
-// 		typeof (constructorFunc as any).value === 'function'
-// 	) {
-// 		// deno-lint-ignore ban-types
-// 		cfunc = constructorFunc.value as Function;
-// 	} else {
-// 		if (Deno.env.get('DEBUG')) {
-// 			console.log('Value is not a function');
-// 		}
-// 		throw new Error("Constructor function isn't a function");
-// 	}
-
-// 	const canNew = isConstructible(constructorFunc);
-// 	if (canNew) {
-// 		if (Deno.env.get('DEBUG')) console.log('Value is constructible');
-// 		const result = Reflect.construct(cfunc, constructorArgs);
-// 		return types.toAst(result);
-// 	}
-// 	if (Deno.env.get('DEBUG')) console.log('Value is not constructible');
-// 	return new types.NilNode();
-// }
-
-// MARK: HELPER FNS ------------------------------------------------------------
-// TODO: Move to types.ts
-
-// Helper function to determine if a value is an object
-
-function isObject(value: unknown): value is Record<string, unknown> {
-	return typeof value === 'object' && value !== null;
-}
-
-function getJsProperty(
-	searchObject: unknown,
-	keys: string[],
-): unknown {
-	let result: unknown = searchObject;
-
-	for (const key of keys) {
-		if (isObject(result) && key in result) {
-			result = result[key];
-		} else {
-			return null;
-		}
-	}
-
-	return result;
-}
-
-/**
- * Checks if a given function can be used as a constructor.
- *
- * This function determines if the input function can be used with the `new`
- * operator to create an instance. It does this by attempting to use the
- * provided function as the prototype for creating an instance of a benign
- * placeholder class (`NoopClass`). The key point is that this does not
- * actually invoke the constructor of the provided function (`func`).
- *
- * The process involves:
- * 1. Creating an instance of `NoopClass` with `func` set as its prototype.
- * 2. If `func` is a valid constructor, this operation succeeds without
- *    invoking `func`'s constructor logic.
- * 3. If `func` is not a valid constructor, an error is thrown, and `false`
- *    is returned.
- *
- * @example
- * ```typescript
- * console.log(isConstructible(URL)); // true
- * ```
- * @example
- * ```typescript
- * console.log(isConstructible(function() {})); // true
- * ```
- * @example
- * ```typescript
- * console.log(isConstructible(() => {})); // false
- * ```
- * @example
- * ```typescript
- * console.log(isConstructible({})); // false
- * ```
- *
- * @param func - The function to test for constructibility.
- * It should be a function or a constructor.
- *
- * @returns `true` if the function can be used with `new` to create an
- * instance, `false` otherwise.
- */
-function isConstructible(func: unknown): boolean {
-	/**
-	 * A class used as a placeholder for testing if a function is constructible.
-	 * This class does not perform any operations and is used to verify if
-	 * another function can be used with the `new` operator.
-	 */
-	class NoopClass {}
-
-	// Check if the provided input is a function
-	if (typeof func !== 'function') return false;
-
-	// Check if the function has a prototype property
-	if (!func.prototype) return false;
-
-	try {
-		// Attempt to construct an instance of NoopClass using func as the prototype
-		// This does not actually create an instance of func or invoke its constructor logic
-		Reflect.construct(NoopClass, [], func);
-		// If no error is thrown, func is constructible
-		return true;
-	} catch (_err) {
-		// If an error is thrown, func is not constructible
-		return false;
-	}
-}
-
-// #region Basic Globals
-const _basicGlobals = new Set([
-	'AbortController',
-	'AbortSignal',
-	'AbsoluteOrientationSensor',
-	'AbstractRange',
-	'Accelerometer',
-	'addEventListener',
-	'AesCbcParams',
-	'AesCtrParams',
-	'AesGcmParams',
-	'AesKeyGenParams',
-	'alert',
-	'AmbientLightSensor',
-	'AnalyserNode',
-	'ANGLE_instanced_arrays',
-	'Animation',
-	'AnimationEffect',
-	'AnimationEvent',
-	'AnimationPlaybackEvent',
-	'AnimationTimeline',
-	'atob',
-	'Attr',
-	'AudioBuffer',
-	'AudioBufferSourceNode',
-	'AudioContext',
-	'AudioData',
-	'AudioDecoder',
-	'AudioDestinationNode',
-	'AudioEncoder',
-	'AudioListener',
-	'AudioNode',
-	'AudioParam',
-	'AudioParamDescriptor',
-	'AudioParamMap',
-	'AudioProcessingEvent',
-	'AudioScheduledSourceNode',
-	'AudioSinkInfo',
-	'AudioTrack',
-	'AudioTrackList',
-	'AudioWorklet',
-	'AudioWorkletGlobalScope',
-	'AudioWorkletNode',
-	'AudioWorkletProcessor',
-	'AuthenticatorAssertionResponse',
-	'AuthenticatorAttestationResponse',
-	'AuthenticatorResponse',
-	'BarcodeDetector',
-	'BarProp',
-	'BaseAudioContext',
-	'BatteryManager',
-	'BeforeUnloadEvent',
-	'BiquadFilterNode',
-	'Blob',
-	'BlobEvent',
-	'BluetoothUUID',
-	'BroadcastChannel',
-	'btoa',
-	'ByteLengthQueuingStrategy',
-	'Cache',
-	'caches',
-	'CacheStorage',
-	'CanvasCaptureMediaStreamTrack',
-	'CanvasGradient',
-	'CanvasPattern',
-	'CanvasRenderingContext2D',
-	'CaptureController',
-	'CaretPosition',
-	'CDATASection',
-	'ChannelMergerNode',
-	'ChannelSplitterNode',
-	'CharacterData',
-	'clearInterval',
-	'clearTimeout',
-	'Client',
-	'Clients',
-	'Clipboard',
-	'ClipboardEvent',
-	'ClipboardItem',
-	'close',
-	'closed',
-	'CloseEvent',
-	'Comment',
-	'CompositionEvent',
-	'CompressionStream',
-	'confirm',
-	'console',
-	'ConstantSourceNode',
-	'ContentVisibilityAutoStateChangeEvent',
-	'ConvolverNode',
-	'CookieChangeEvent',
-	'CookieStore',
-	'CookieStoreManager',
-	'CountQueuingStrategy',
-	'createImageBitmap',
-	'Credential',
-	'CredentialsContainer.create',
-	'CredentialsContainer.get',
-	'CredentialsContainer',
-	'crypto',
-	'Crypto',
-	'CryptoKey',
-	'CryptoKeyPair',
-	'CSPViolationReportBody',
-	'CSS.highlights_static',
-	'CSS.registerProperty_static',
-	'CSS',
-	'CSSAnimation',
-	'CSSConditionRule',
-	'CSSContainerRule',
-	'CSSCounterStyleRule',
-	'CSSFontFaceRule',
-	'CSSFontFeatureValuesRule',
-	'CSSFontPaletteValuesRule',
-	'CSSGroupingRule',
-	'CSSImageValue',
-	'CSSImportRule',
-	'CSSKeyframeRule',
-	'CSSKeyframesRule',
-	'CSSKeywordValue',
-	'CSSLayerBlockRule',
-	'CSSLayerStatementRule',
-	'CSSMathInvert',
-	'CSSMathMax',
-	'CSSMathMin',
-	'CSSMathNegate',
-	'CSSMathProduct',
-	'CSSMathSum',
-	'CSSMathValue',
-	'CSSMatrixComponent',
-	'CSSMediaRule',
-	'CSSNamespaceRule',
-	'CSSNumericArray',
-	'CSSNumericValue',
-	'CSSPageRule',
-	'CSSPerspective',
-	'CSSPositionValue',
-	'CSSPropertyRule',
-	'CSSRotate',
-	'CSSRule',
-	'CSSRuleList',
-	'CSSScale',
-	'CSSScopeRule',
-	'CSSSkew',
-	'CSSSkewX',
-	'CSSSkewY',
-	'CSSStartingStyleRule',
-	'CSSStyleDeclaration',
-	'CSSStyleRule',
-	'CSSStyleSheet',
-	'CSSStyleValue',
-	'CSSSupportsRule',
-	'CSSTransformComponent',
-	'CSSTransformValue',
-	'CSSTransition',
-	'CSSTranslate',
-	'CSSUnitValue',
-	'CSSUnparsedValue',
-	'CSSVariableReferenceValue',
-	'CustomElementRegistry',
-	'CustomEvent',
-	'CustomStateSet',
-	'DataTransfer',
-	'DataTransferItem',
-	'DataTransferItemList',
-	'DecompressionStream',
-	'DedicatedWorkerGlobalScope',
-	'DelayNode',
-	'DeviceMotionEvent',
-	'DeviceMotionEventAcceleration',
-	'DeviceMotionEventRotationRate',
-	'DeviceOrientationEvent',
-	'dispatchEvent',
-	'Document.createElement',
-	'Document.exitFullscreen',
-	'Document.exitPictureInPicture',
-	'Document.exitPointerLock',
-	'Document.fonts',
-	'Document.fullscreen',
-	'Document.fullscreenElement',
-	'Document.getAnimations',
-	'Document.getSelection',
-	'Document.hasStorageAccess',
-	'Document.hasUnpartitionedCookieAccess',
-	'Document.hidden',
-	'Document.pictureInPictureElement',
-	'Document.pictureInPictureEnabled',
-	'Document.pointerLockElement',
-	'Document.requestStorageAccess',
-	'Document.requestStorageAccessFor',
-	'Document.startViewTransition',
-	'Document.timeline',
-	'Document.visibilityState',
-	'Document',
-	'DocumentFragment',
-	'DocumentTimeline',
-	'DocumentType',
-	'DOMError',
-	'DOMException',
-	'DOMHighResTimeStamp',
-	'DOMImplementation',
-	'DOMMatrix',
-	'DOMMatrixReadOnly',
-	'DOMParser',
-	'DOMPoint',
-	'DOMPointReadOnly',
-	'DOMQuad',
-	'DOMRect',
-	'DOMRectReadOnly',
-	'DOMStringList',
-	'DOMStringMap',
-	'DOMTokenList',
-	'DragEvent',
-	'DynamicsCompressorNode',
-	'EcdhKeyDeriveParams',
-	'EcdsaParams',
-	'EcKeyGenParams',
-	'EcKeyImportParams',
-	'Element.animate',
-	'Element.attachShadow',
-	'Element.getAnimations',
-	'Element.hasPointerCapture',
-	'Element.releasePointerCapture',
-	'Element.requestFullscreen',
-	'Element.requestPointerLock',
-	'Element.setPointerCapture',
-	'Element.shadowRoot',
-	'Element.slot',
-	'Element',
-	'ElementInternals',
-	'EncodedAudioChunk',
-	'EncodedVideoChunk',
-	'ErrorEvent',
-	'Event.composed',
-	'Event.composedPath',
-	'Event',
-	'EventCounts',
-	'EventSource',
-	'EventTarget',
-	'EXT_blend_minmax',
-	'EXT_color_buffer_half_float',
-	'EXT_disjoint_timer_query',
-	'EXT_frag_depth',
-	'EXT_shader_texture_lod',
-	'EXT_sRGB',
-	'EXT_texture_filter_anisotropic',
-	'ExtendableCookieChangeEvent',
-	'ExtendableEvent',
-	'ExtendableMessageEvent',
-	'FederatedCredential',
-	'FederatedCredentialInit',
-	'fetch',
-	'FetchEvent',
-	'File',
-	'FileList',
-	'FileReader',
-	'FileReaderSync',
-	'FileSystem',
-	'FileSystemDirectoryEntry',
-	'FileSystemDirectoryHandle',
-	'FileSystemDirectoryReader',
-	'FileSystemEntry',
-	'FileSystemFileEntry',
-	'FileSystemFileHandle',
-	'FileSystemHandle',
-	'FileSystemSyncAccessHandle',
-	'FileSystemWritableFileStream',
-	'FocusEvent',
-	'FontFace',
-	'FontFaceSet',
-	'FontFaceSetLoadEvent',
-	'FormData',
-	'FormDataEvent',
-	'GainNode',
-	'Gamepad',
-	'GamepadButton',
-	'GamepadEvent',
-	'GamepadHapticActuator',
-	'Geolocation',
-	'GeolocationCoordinates',
-	'GeolocationPosition',
-	'GeolocationPositionError',
-	'GravitySensor',
-	'Gyroscope',
-	'HashChangeEvent',
-	'Headers',
-	'Highlight',
-	'HighlightRegistry',
-	'History',
-	'HkdfParams',
-	'HmacImportParams',
-	'HmacKeyGenParams',
-	'HTMLAllCollection',
-	'HTMLAnchorElement',
-	'HTMLAreaElement',
-	'HTMLAudioElement',
-	'HTMLBaseElement',
-	'HTMLBodyElement',
-	'HTMLBRElement',
-	'HTMLButtonElement.popoverTargetAction',
-	'HTMLButtonElement.popoverTargetElement',
-	'HTMLButtonElement',
-	'HTMLCanvasElement.captureStream',
-	'HTMLCanvasElement',
-	'HTMLCollection',
-	'HTMLDataElement',
-	'HTMLDataListElement',
-	'HTMLDetailsElement',
-	'HTMLDialogElement',
-	'HTMLDivElement',
-	'HTMLDListElement',
-	'HTMLDocument',
-	'HTMLElement.attachInternals',
-	'HTMLElement.hidePopover',
-	'HTMLElement.popover',
-	'HTMLElement.showPopover',
-	'HTMLElement.togglePopover',
-	'HTMLElement',
-	'HTMLEmbedElement',
-	'HTMLFieldSetElement',
-	'HTMLFormControlsCollection',
-	'HTMLFormElement',
-	'HTMLFrameSetElement',
-	'HTMLHeadElement',
-	'HTMLHeadingElement',
-	'HTMLHRElement',
-	'HTMLHtmlElement',
-	'HTMLIFrameElement.allowPaymentRequest',
-	'HTMLIFrameElement',
-	'HTMLImageElement',
-	'HTMLInputElement.popoverTargetAction',
-	'HTMLInputElement.popoverTargetElement',
-	'HTMLInputElement',
-	'HTMLLabelElement',
-	'HTMLLegendElement',
-	'HTMLLIElement',
-	'HTMLLinkElement',
-	'HTMLMapElement',
-	'HTMLMediaElement.captureStream',
-	'HTMLMediaElement.disableRemotePlayback',
-	'HTMLMediaElement.mediaKeys',
-	'HTMLMediaElement.remote',
-	'HTMLMediaElement.setMediaKeys',
-	'HTMLMediaElement',
-	'HTMLMenuElement',
-	'HTMLMetaElement',
-	'HTMLMeterElement',
-	'HTMLModElement',
-	'HTMLObjectElement',
-	'HTMLOListElement',
-	'HTMLOptGroupElement',
-	'HTMLOptionElement',
-	'HTMLOptionsCollection',
-	'HTMLOutputElement',
-	'HTMLParagraphElement',
-	'HTMLPictureElement',
-	'HTMLPreElement',
-	'HTMLProgressElement',
-	'HTMLQuoteElement',
-	'HTMLScriptElement',
-	'HTMLSelectElement',
-	'HTMLSlotElement',
-	'HTMLSourceElement',
-	'HTMLSpanElement',
-	'HTMLStyleElement',
-	'HTMLTableCaptionElement',
-	'HTMLTableCellElement',
-	'HTMLTableColElement',
-	'HTMLTableElement',
-	'HTMLTableRowElement',
-	'HTMLTableSectionElement',
-	'HTMLTemplateElement',
-	'HTMLTextAreaElement',
-	'HTMLTimeElement',
-	'HTMLTitleElement',
-	'HTMLTrackElement',
-	'HTMLUListElement',
-	'HTMLUnknownElement',
-	'HTMLVideoElement.disablePictureInPicture',
-	'HTMLVideoElement.requestPictureInPicture',
-	'HTMLVideoElement',
-	'IDBCursor',
-	'IDBCursorWithValue',
-	'IDBDatabase',
-	'IDBFactory',
-	'IDBIndex',
-	'IDBKeyRange',
-	'IDBObjectStore',
-	'IDBOpenDBRequest',
-	'IDBRequest',
-	'IDBTransaction',
-	'IDBVersionChangeEvent',
-	'IdleDeadline',
-	'IIRFilterNode',
-	'ImageBitmap',
-	'ImageBitmapRenderingContext',
-	'ImageData',
-	'ImageDecoder',
-	'ImageTrack',
-	'ImageTrackList',
-	'InputDeviceInfo',
-	'InputEvent',
-	'InstallEvent',
-	'IntersectionObserver',
-	'IntersectionObserverEntry',
-	'Intl',
-	'KeyboardEvent',
-	'KeyframeEffect',
-	'LargestContentfulPaint',
-	'LayoutShift',
-	'LayoutShiftAttribution',
-	'LinearAccelerationSensor',
-	'localStorage',
-	'location',
-	'Location',
-	'Lock',
-	'LockManager',
-	'Magnetometer',
-	'MathMLElement',
-	'MediaCapabilities',
-	'MediaDeviceInfo',
-	'MediaDevices.getDisplayMedia',
-	'MediaDevices.getUserMedia',
-	'MediaDevices',
-	'MediaElementAudioSourceNode',
-	'MediaEncryptedEvent',
-	'MediaError',
-	'MediaKeyMessageEvent',
-	'MediaKeys',
-	'MediaKeySession',
-	'MediaKeyStatusMap',
-	'MediaKeySystemAccess',
-	'MediaList',
-	'MediaMetadata',
-	'MediaQueryList',
-	'MediaQueryListEvent',
-	'MediaRecorder',
-	'MediaRecorderErrorEvent',
-	'MediaSession',
-	'MediaSource',
-	'MediaSourceHandle',
-	'MediaStream',
-	'MediaStreamAudioDestinationNode',
-	'MediaStreamAudioSourceNode',
-	'MediaStreamTrack',
-	'MediaStreamTrackAudioSourceNode',
-	'MediaStreamTrackEvent',
-	'MediaStreamTrackGenerator',
-	'MediaStreamTrackProcessor',
-	'MediaTrackConstraints.displaySurface',
-	'MediaTrackConstraints.logicalSurface',
-	'MediaTrackConstraints.suppressLocalAudioPlayback',
-	'MediaTrackConstraints',
-	'MediaTrackSettings.cursor',
-	'MediaTrackSettings.displaySurface',
-	'MediaTrackSettings.logicalSurface',
-	'MediaTrackSettings.suppressLocalAudioPlayback',
-	'MediaTrackSettings',
-	'MediaTrackSupportedConstraints.displaySurface',
-	'MediaTrackSupportedConstraints.logicalSurface',
-	'MediaTrackSupportedConstraints.suppressLocalAudioPlayback',
-	'MediaTrackSupportedConstraints',
-	'MerchantValidationEvent',
-	'MessageChannel',
-	'MessageEvent',
-	'MessagePort',
-	'Methods',
-	'MIDIAccess',
-	'MIDIConnectionEvent',
-	'MIDIInput',
-	'MIDIInputMap',
-	'MIDIMessageEvent',
-	'MIDIOutput',
-	'MIDIOutputMap',
-	'MIDIPort',
-	'MouseEvent.movementX',
-	'MouseEvent.movementY',
-	'MouseEvent',
-	'MouseScrollEvent',
-	'MutationEvent',
-	'MutationObserver',
-	'MutationRecord',
-	'NamedNodeMap',
-	'NavigationPreloadManager',
-	'Navigator.canShare',
-	'Navigator.clearAppBadge',
-	'Navigator.clipboard',
-	'Navigator.connection',
-	'Navigator.credentials',
-	'Navigator.deviceMemory',
-	'Navigator.geolocation',
-	'Navigator.getBattery',
-	'Navigator.getGamepads',
-	'Navigator.locks',
-	'Navigator.maxTouchPoints',
-	'Navigator.mediaCapabilities',
-	'Navigator.mediaDevices',
-	'Navigator.mediaSession',
-	'Navigator.permissions',
-	'Navigator.requestMediaKeySystemAccess',
-	'Navigator.requestMIDIAccess',
-	'Navigator.scheduling',
-	'Navigator.sendBeacon',
-	'Navigator.serviceWorker',
-	'Navigator.setAppBadge',
-	'Navigator.share',
-	'Navigator.storage',
-	'Navigator.vibrate',
-	'Navigator.wakeLock',
-	'navigator',
-	'Navigator',
-	'NetworkInformation',
-	'Node.getRootNode',
-	'Node.isConnected',
-	'Node',
-	'NodeIterator',
-	'NodeList',
-	'Notification',
-	'NotificationEvent',
-	'NotRestoredReasonDetails',
-	'NotRestoredReasons',
-	'OES_draw_buffers_indexed',
-	'OES_element_index_uint',
-	'OES_standard_derivatives',
-	'OES_texture_float_linear',
-	'OES_texture_float',
-	'OES_texture_half_float_linear',
-	'OES_texture_half_float',
-	'OES_vertex_array_object',
-	'OfflineAudioCompletionEvent',
-	'OfflineAudioContext',
-	'OffscreenCanvas',
-	'OffscreenCanvasRenderingContext2D',
-	'onbeforeunload',
-	'onerror',
-	'onload',
-	'onunhandledrejection',
-	'OrientationSensor',
-	'OscillatorNode',
-	'OverconstrainedError',
-	'PageRevealEvent',
-	'PageSwapEvent',
-	'PageTransitionEvent',
-	'PaintWorkletGlobalScope',
-	'PannerNode',
-	'PasswordCredential',
-	'PasswordCredentialInit',
-	'Path2D',
-	'PaymentAddress',
-	'PaymentMethodChangeEvent',
-	'PaymentRequest',
-	'PaymentRequestUpdateEvent',
-	'PaymentResponse',
-	'Pbkdf2Params',
-	'performance',
-	'Performance',
-	'PerformanceElementTiming',
-	'PerformanceEntry',
-	'PerformanceEventTiming',
-	'PerformanceLongAnimationFrameTiming',
-	'PerformanceLongTaskTiming',
-	'PerformanceMark',
-	'PerformanceMeasure',
-	'PerformanceNavigation',
-	'PerformanceNavigationTiming',
-	'PerformanceObserver',
-	'PerformanceObserverEntryList',
-	'PerformancePaintTiming',
-	'PerformanceResourceTiming',
-	'PerformanceScriptTiming',
-	'PerformanceServerTiming',
-	'PerformanceTiming',
-	'PeriodicWave',
-	'Permissions',
-	'PermissionStatus',
-	'PictureInPictureEvent',
-	'PictureInPictureWindow',
-	'Plugin',
-	'PluginArray',
-	'PointerEvent',
-	'PopStateEvent',
-	'ProcessingInstruction',
-	'ProgressEvent',
-	'PromiseRejectionEvent',
-	'prompt',
-	'Properties',
-	'PublicKeyCredential',
-	'PublicKeyCredentialCreationOptions',
-	'PushEvent',
-	'PushManager',
-	'PushMessageData',
-	'PushSubscription',
-	'PushSubscriptionOptions',
-	'queueMicrotask',
-	'RadioNodeList',
-	'Range',
-	'ReadableByteStreamController',
-	'ReadableStream',
-	'ReadableStreamBYOBReader',
-	'ReadableStreamBYOBRequest',
-	'ReadableStreamDefaultController',
-	'ReadableStreamDefaultReader',
-	'RelativeOrientationSensor',
-	'RemotePlayback',
-	'removeEventListener',
-	'Report',
-	'ReportBody',
-	'reportError',
-	'ReportingObserver',
-	'Request',
-	'RequestInit',
-	'ResizeObserver',
-	'ResizeObserverEntry',
-	'ResizeObserverSize',
-	'Response.body',
-	'Response',
-	'RsaHashedImportParams',
-	'RsaHashedKeyGenParams',
-	'RsaOaepParams',
-	'RsaPssParams',
-	'RTCAudioSourceStats',
-	'RTCCertificate',
-	'RTCCertificateStats',
-	'RTCCodecStats',
-	'RTCDataChannel',
-	'RTCDataChannelEvent',
-	'RTCDataChannelStats',
-	'RTCDtlsTransport',
-	'RTCDTMFSender',
-	'RTCDTMFToneChangeEvent',
-	'RTCEncodedAudioFrame',
-	'RTCEncodedVideoFrame',
-	'RTCError',
-	'RTCErrorEvent',
-	'RTCIceCandidate',
-	'RTCIceCandidatePair',
-	'RTCIceCandidatePairStats',
-	'RTCIceCandidateStats',
-	'RTCIceParameters',
-	'RTCIceTransport',
-	'RTCInboundRtpStreamStats',
-	'RTCOutboundRtpStreamStats',
-	'RTCPeerConnection',
-	'RTCPeerConnectionIceErrorEvent',
-	'RTCPeerConnectionIceEvent',
-	'RTCPeerConnectionStats',
-	'RTCRemoteOutboundRtpStreamStats',
-	'RTCRtpReceiver.transform',
-	'RTCRtpReceiver',
-	'RTCRtpScriptTransform',
-	'RTCRtpScriptTransformer',
-	'RTCRtpSender.transform',
-	'RTCRtpSender',
-	'RTCRtpStreamStats',
-	'RTCRtpTransceiver',
-	'RTCSctpTransport',
-	'RTCSessionDescription',
-	'RTCStatsReport',
-	'RTCTrackEvent',
-	'RTCTransformEvent',
-	'RTCTransportStats',
-	'RTCVideoSourceStats',
-	'Scheduler',
-	'Scheduling',
-	'Screen.orientation',
-	'Screen',
-	'ScreenOrientation',
-	'ScrollTimeline',
-	'SecurePaymentConfirmationRequest',
-	'SecurityPolicyViolationEvent',
-	'Selection',
-	'self',
-	'Sensor',
-	'SensorErrorEvent',
-	'ServiceWorker',
-	'ServiceWorkerContainer',
-	'ServiceWorkerGlobalScope.cookieStore',
-	'ServiceWorkerGlobalScope',
-	'ServiceWorkerRegistration.cookies',
-	'ServiceWorkerRegistration.getNotifications',
-	'ServiceWorkerRegistration.pushManager',
-	'ServiceWorkerRegistration.showNotification',
-	'ServiceWorkerRegistration.sync',
-	'ServiceWorkerRegistration',
-	'sessionStorage',
-	'setInterval',
-	'setTimeout',
-	'ShadowRoot.pointerLockElement',
-	'ShadowRoot',
-	'SharedWorker',
-	'SharedWorkerGlobalScope',
-	'SourceBuffer',
-	'SourceBufferList',
-	'SpeechGrammar',
-	'SpeechGrammarList',
-	'SpeechRecognition',
-	'SpeechRecognitionAlternative',
-	'SpeechRecognitionErrorEvent',
-	'SpeechRecognitionEvent',
-	'SpeechRecognitionResult',
-	'SpeechRecognitionResultList',
-	'SpeechSynthesis',
-	'SpeechSynthesisErrorEvent',
-	'SpeechSynthesisEvent',
-	'SpeechSynthesisUtterance',
-	'SpeechSynthesisVoice',
-	'StaticRange',
-	'StereoPannerNode',
-	'Storage',
-	'StorageAccessHandle',
-	'StorageEvent',
-	'StorageManager',
-	'structuredClone',
-	'StylePropertyMap',
-	'StylePropertyMapReadOnly',
-	'StyleSheet',
-	'StyleSheetList',
-	'SubmitEvent',
-	'SubtleCrypto',
-	'SVGAElement',
-	'SVGAngle',
-	'SVGAnimateColorElement',
-	'SVGAnimatedAngle',
-	'SVGAnimatedBoolean',
-	'SVGAnimatedEnumeration',
-	'SVGAnimatedInteger',
-	'SVGAnimatedLength',
-	'SVGAnimatedLengthList',
-	'SVGAnimatedNumber',
-	'SVGAnimatedNumberList',
-	'SVGAnimatedPreserveAspectRatio',
-	'SVGAnimatedRect',
-	'SVGAnimatedString',
-	'SVGAnimatedTransformList',
-	'SVGAnimateElement',
-	'SVGAnimateMotionElement',
-	'SVGAnimateTransformElement',
-	'SVGAnimationElement',
-	'SVGCircleElement',
-	'SVGClipPathElement',
-	'SVGComponentTransferFunctionElement',
-	'SVGCursorElement',
-	'SVGDefsElement',
-	'SVGDescElement',
-	'SVGElement',
-	'SVGEllipseElement',
-	'SVGEvent',
-	'SVGFEBlendElement',
-	'SVGFEColorMatrixElement',
-	'SVGFEComponentTransferElement',
-	'SVGFECompositeElement',
-	'SVGFEConvolveMatrixElement',
-	'SVGFEDiffuseLightingElement',
-	'SVGFEDisplacementMapElement',
-	'SVGFEDistantLightElement',
-	'SVGFEDropShadowElement',
-	'SVGFEFloodElement',
-	'SVGFEFuncAElement',
-	'SVGFEFuncBElement',
-	'SVGFEFuncGElement',
-	'SVGFEFuncRElement',
-	'SVGFEGaussianBlurElement',
-	'SVGFEImageElement',
-	'SVGFEMergeElement',
-	'SVGFEMergeNodeElement',
-	'SVGFEMorphologyElement',
-	'SVGFEOffsetElement',
-	'SVGFEPointLightElement',
-	'SVGFESpecularLightingElement',
-	'SVGFESpotLightElement',
-	'SVGFETileElement',
-	'SVGFETurbulenceElement',
-	'SVGFilterElement',
-	'SVGFontElement',
-	'SVGFontFaceElement',
-	'SVGFontFaceFormatElement',
-	'SVGFontFaceNameElement',
-	'SVGFontFaceSrcElement',
-	'SVGFontFaceUriElement',
-	'SVGForeignObjectElement',
-	'SVGGElement',
-	'SVGGeometryElement',
-	'SVGGlyphElement',
-	'SVGGradientElement',
-	'SVGGraphicsElement',
-	'SVGHKernElement',
-	'SVGImageElement',
-	'SVGLength',
-	'SVGLengthList',
-	'SVGLinearGradientElement',
-	'SVGLineElement',
-	'SVGMarkerElement',
-	'SVGMaskElement',
-	'SVGMetadataElement',
-	'SVGMissingGlyphElement',
-	'SVGMPathElement',
-	'SVGNumber',
-	'SVGNumberList',
-	'SVGPathElement',
-	'SVGPatternElement',
-	'SVGPoint',
-	'SVGPointList',
-	'SVGPolygonElement',
-	'SVGPolylineElement',
-	'SVGPreserveAspectRatio',
-	'SVGRadialGradientElement',
-	'SVGRect',
-	'SVGRectElement',
-	'SVGScriptElement',
-	'SVGSetElement',
-	'SVGStopElement',
-	'SVGStringList',
-	'SVGStyleElement',
-	'SVGSVGElement',
-	'SVGSwitchElement',
-	'SVGSymbolElement',
-	'SVGTextContentElement',
-	'SVGTextElement',
-	'SVGTextPathElement',
-	'SVGTextPositioningElement',
-	'SVGTitleElement',
-	'SVGTransform',
-	'SVGTransformList',
-	'SVGTRefElement',
-	'SVGTSpanElement',
-	'SVGUnitTypes',
-	'SVGUseElement',
-	'SVGViewElement',
-	'SVGVKernElement',
-	'SyncEvent',
-	'SyncManager',
-	'TaskAttributionTiming',
-	'TaskController',
-	'TaskPriorityChangeEvent',
-	'TaskSignal',
-	'Text',
-	'TextDecoder',
-	'TextDecoderStream',
-	'TextEncoder',
-	'TextEncoderStream',
-	'TextEvent',
-	'TextMetrics',
-	'TextTrack',
-	'TextTrackCue',
-	'TextTrackCueList',
-	'TextTrackList',
-	'TimeEvent',
-	'TimeRanges',
-	'ToggleEvent',
-	'Touch',
-	'TouchEvent',
-	'TouchList',
-	'TrackEvent',
-	'TransformStream',
-	'TransformStreamDefaultController',
-	'TransitionEvent',
-	'TreeWalker',
-	'TrustedHTML',
-	'TrustedScript',
-	'TrustedScriptURL',
-	'TrustedTypePolicy',
-	'TrustedTypePolicyFactory',
-	'UIEvent',
-	'URL.createObjectURL_static',
-	'URL.revokeObjectURL_static',
-	'URL',
-	'URLPattern',
-	'URLSearchParams',
-	'UserActivation',
-	'ValidityState',
-	'VideoColorSpace',
-	'VideoDecoder',
-	'VideoEncoder',
-	'VideoFrame',
-	'VideoPlaybackQuality',
-	'VideoTrack',
-	'VideoTrackList',
-	'ViewTimeline',
-	'ViewTransition',
-	'VisibilityStateEntry',
-	'VisualViewport',
-	'VTTCue',
-	'VTTRegion',
-	'WakeLock',
-	'WakeLockSentinel',
-	'WaveShaperNode',
-	'WebAssembly.compile',
-	'WebAssembly.CompileError',
-	'WebAssembly.compileStreaming',
-	'WebAssembly.Global',
-	'WebAssembly.Instance',
-	'WebAssembly.instantiate',
-	'WebAssembly.instantiateStreaming',
-	'WebAssembly.LinkError',
-	'WebAssembly.Memory',
-	'WebAssembly.Module',
-	'WebAssembly.RuntimeError',
-	'WebAssembly.Table',
-	'WebAssembly.validate',
-	'WebAssembly',
-	'WEBGL_color_buffer_float',
-	'WEBGL_compressed_texture_etc1',
-	'WEBGL_compressed_texture_pvrtc',
-	'WEBGL_compressed_texture_s3tc_srgb',
-	'WEBGL_compressed_texture_s3tc',
-	'WEBGL_debug_renderer_info',
-	'WEBGL_debug_shaders',
-	'WEBGL_depth_texture',
-	'WEBGL_draw_buffers',
-	'WEBGL_lose_context',
-	'WebGL2RenderingContext',
-	'WebGLActiveInfo',
-	'WebGLBuffer',
-	'WebGLContextEvent',
-	'WebGLFramebuffer',
-	'WebGLObject',
-	'WebGLProgram',
-	'WebGLQuery',
-	'WebGLRenderbuffer',
-	'WebGLRenderingContext',
-	'WebGLSampler',
-	'WebGLShader',
-	'WebGLShaderPrecisionFormat',
-	'WebGLSync',
-	'WebGLTexture',
-	'WebGLTransformFeedback',
-	'WebGLUniformLocation',
-	'WebGLVertexArrayObject',
-	'WebSocket',
-	'WebTransport',
-	'WebTransportBidirectionalStream',
-	'WebTransportDatagramDuplexStream',
-	'WebTransportError',
-	'WebTransportReceiveStream',
-	'WebTransportSendStream',
-	'WheelEvent',
-	'Window.caches',
-	'Window.cancelIdleCallback',
-	'Window.console',
-	'Window.cookieStore',
-	'Window.crypto',
-	'Window.customElements',
-	'Window.fetch',
-	'Window.getSelection',
-	'Window.history',
-	'Window.performance',
-	'Window.requestIdleCallback',
-	'Window.scheduler',
-	'Window.trustedTypes',
-	'Window.visualViewport',
-	'window',
-	'Window',
-	'WindowClient',
-	'Worker',
-	'WorkerGlobalScope.caches',
-	'WorkerGlobalScope.crypto',
-	'WorkerGlobalScope.fetch',
-	'WorkerGlobalScope.fonts',
-	'WorkerGlobalScope.performance',
-	'WorkerGlobalScope.scheduler',
-	'WorkerGlobalScope.trustedTypes',
-	'WorkerGlobalScope',
-	'WorkerLocation',
-	'WorkerNavigator.clearAppBadge',
-	'WorkerNavigator.connection',
-	'WorkerNavigator.deviceMemory',
-	'WorkerNavigator.locks',
-	'WorkerNavigator.mediaCapabilities',
-	'WorkerNavigator.permissions',
-	'WorkerNavigator.serviceWorker',
-	'WorkerNavigator.setAppBadge',
-	'WorkerNavigator.storage',
-	'WorkerNavigator',
-	'Worklet.addModule',
-	'Worklet',
-	'WorkletGlobalScope',
-	'WritableStream',
-	'WritableStreamDefaultController',
-	'WritableStreamDefaultWriter',
-	'XMLDocument',
-	'XMLHttpRequest',
-	'XMLHttpRequestEventTarget',
-	'XMLHttpRequestUpload',
-	'XMLSerializer',
-	'XPathEvaluator',
-	'XPathException',
-	'XPathExpression',
-	'XPathResult',
-	'XRHand',
-	'XRInputSource',
-	'XRInputSourceEvent',
-	'XRInputSourcesChangeEvent',
-	'XRJointPose',
-	'XRJointSpace',
-	'XRPose',
-	'XRReferenceSpace',
-	'XRReferenceSpaceEvent',
-	'XRRigidTransform',
-	'XRSessionEvent',
-	'XRSpace',
-	'XRViewerPose',
-	'XRViewport',
-	'XSLTProcessor',
-]);
-// #endregion
-
-const propsToIgnore = [
-	'arguments',
-	'caller',
-	'prototype',
-	'constructor',
-	'valueOf',
-];
-
-// deno-lint-ignore no-explicit-any
-function _getProps(object: any): (string | symbol)[] {
-	let keys: (string | symbol)[] = [];
-
-	if (object === undefined || object === null) {
-		return [];
-	}
-
-	while (object !== null && object !== undefined) {
-		let props = (typeof object === 'object') ? Reflect.ownKeys(object) : Object.getOwnPropertyNames(object);
-
-		props = props.filter((p) => {
-			if (String(p).startsWith('__')) return false;
-			if (propsToIgnore.includes(String(p))) return false;
-			return true;
-		});
-
-		const symbols = Object.getOwnPropertySymbols(object);
-
-		keys = keys.concat(props, symbols);
-		const proto = object.prototype; // Object.getPrototypeOf(obj);
-		if (proto === null) {
-			break;
-		} else {
-			object = proto;
-		}
-	}
-
-	// Remove duplicates
-	keys = Array.from(new Set(keys));
-	keys = keys.filter((key) => key !== null && key !== undefined);
-	return keys;
-}
-
-// deno-lint-ignore ban-types
-function isFunction(func: unknown): func is Function {
-	return typeof func === 'function';
-}
-
-// function printProps(globals: (string | symbol)[]) {
-// 	const globalProps: string[] = [];
-
-// 	const pushCon = (g: string) => {
-// 		globalProps.push(
-// 			`    ['${g}', (...args) => {\n` +
-// 				`            try {\n` +
-// 				`                return new globalThis.${g}(...args);\n` +
-// 				`            } catch (err) {\n` +
-// 				`                return String(err);\n` +
-// 				`            }\n` +
-// 				`        }\n` +
-// 				`    ]`,
-// 		);
-// 	};
-
-// 	const pushInst = (g: string, key: string) => {
-// 		const isSym = key.startsWith('Symbol');
-// 		const keyName = isSym ? `${g}[${key}]` : `${g}.${key}`;
-// 		const propName = isSym ? key : `"${key}"`;
-// 		globalProps.push(
-// 			`    ['${keyName}', (...args) => {\n` +
-// 				`            try {\n` +
-// 				`                const instance = args[0];\n` +
-// 				`                return instance[${propName}](...args.slice(1));\n` +
-// 				`            } catch (err) {\n` +
-// 				`                return String(err);\n` +
-// 				`            }\n` +
-// 				`        }\n` +
-// 				`    ]
-// 			`,
-// 		);
-// 	};
-
-// 	const pushFun = (g: string, key: string) => {
-// 		const isSym = key && key.startsWith('Symbol') ? true : false;
-// 		const keyName = isSym ? `${g}[${key}]` : `${g}.${key}`;
-// 		const propName = isSym ? `[${key}]` : `.${key}`;
-// 		globalProps.push(
-// 			`    ['${keyName}', (...args) => {\n` +
-// 				`            try {\n` +
-// 				`                return globalThis.${g}${propName}(...args);\n` +
-// 				`            } catch (err) {\n` +
-// 				`                return String(err);\n` +
-// 				`            }\n` +
-// 				`        }\n` +
-// 				`    ]`,
-// 		);
-// 	};
-
-// 	const pushObj = (g: string, key: string) => {
-// 		const isSym = key && key.startsWith('Symbol') ? true : false;
-// 		const keyName = isSym ? `${g}[${key}]` : `${g}.${key}`;
-// 		globalProps.push(
-// 			`    ['${keyName}', () => {\n` +
-// 				`            try {\n` +
-// 				`                return globalThis.${keyName};\n` +
-// 				`            } catch (err) {\n` +
-// 				`                return String(err);\n` +
-// 				`            }\n` +
-// 				`        }\n` +
-// 				`    ]`,
-// 		);
-// 	};
-
-// 	const test = globalThis['CSSTransformValue'];
-
-// 	// deno-lint-ignore no-explicit-any
-// 	const gt = globalThis as any;
-// 	for (const globalKey of globals) {
-// 		if (
-// 			globalThis[globalKey] === undefined ||
-// 			globalThis[globalKey] === null ||
-// 			globalKey === 'globalThis' ||
-// 			globalKey === 'window' ||
-// 			globalKey === 'self'
-// 		) {
-// 			continue;
-// 		}
-
-// 		const isTopCon = isConstructible(globalThis[globalKey]);
-// 		const isTopFun = isFunction(globalThis[globalKey]);
-// 		const isTopObj = !isTopCon && !isTopFun;
-
-// 		if (isTopCon) {
-// 			pushCon(globalKey);
-// 		} else if (isTopFun) {
-// 			pushFun(globalKey);
-// 		} else {
-// 			pushObj(globalKey);
-// 		}
-
-// 		const props = getProps(globalThis[globalKey]);
-// 		for (const prop of props) {
-// 			if (prop === null || prop === undefined) {
-// 				continue;
-// 			}
-
-// 			let keyForOutput = null;
-// 			let type = null;
-// 			if (typeof prop === 'symbol') {
-// 				type = 'symbol';
-// 				let symbol = String(prop);
-// 				if (symbol.startsWith('Symbol(Symbol')) {
-// 					symbol = symbol.slice(7, -1);
-// 				}
-// 				keyForOutput = symbol;
-// 			} else if (typeof prop === 'string') {
-// 				type = 'string';
-// 				keyForOutput = prop;
-// 			} else {
-// 				continue;
-// 			}
-
-// 			const isPropCon = isConstructible(globalThis[globalKey][prop]);
-// 			const isPropFun = isFunction(globalThis[globalKey][prop]);
-// 			const isPropObj = !isPropCon && !isPropFun;
-
-// 			if (isTopCon && (isPropCon || isPropFun)) {
-// 				pushInst(globalKey, keyForOutput);
-// 				continue;
-// 			}
-
-// 			if (isTopFun) {
-// 				pushFun(globalKey, keyForOutput);
-// 				continue;
-// 			}
-
-// 			pushObj(globalKey, keyForOutput);
-// 		}
-// 	}
-
-// 	return `const allGlobals = new Map([\n${globalProps.join(',\n')}\n])`;
-// }
-
-// const printed = printProps(basicGlobals);
-// const preElement = document.getElementById('globals');
-// preElement.innerHTML = printed;
-
-/*
-function toJs(ast, globalKey = '', sp = '  ') {
-	const jsValue = ast?.value ?? ast;
-
-	const type = typeof jsValue;
-	if (type === 'undefined' || jsValue === null) {
-		console.log('toJs found: null');
-		// return null;
-		return sp + 'null';
-	}
-
-	if (type === 'symbol') {
-		console.log('toJs found: symbol');
-		// return jsValue;
-		return `${sp}[${JSON.stringify(jsValue)}]`;
-	}
-
-	if (type === 'number') {
-		console.log('toJs found: number');
-		// return jsValue;
-		return sp + String(jsValue);
-	}
-
-	if (type === 'string') {
-		console.log('toJs found: string');
-		// return jsValue;
-		return sp + `"${jsValue}"`;
-	}
-	if (type === 'boolean') {
-		console.log('toJs found: boolean');
-		// return jsValue;
-		return sp + String(jsValue);
-	}
-	if (jsValue instanceof Error) {
-		console.log('toJs found: error');
-		// return jsValue;
-		return sp + `new Error(${jsValue.message})`;
-	}
-
-	if (Array.isArray(jsValue)) {
-		console.log('toJs found: array');
-		const values = [];
-		for (const element of jsValue) {
-			values.push(toJs(element, globalKey, sp + '\t'));
-		}
-		// return values;
-		return sp + `[\n${values.join(', ')}\n]`;
-		console.log('/end array');
-	}
-
-	if (jsValue instanceof Set) {
-		console.log('toJs found: set');
-		const values = [];
-		for (const element of jsValue) {
-			values.push(toJs(element, globalKey, sp + '\t'));
-		}
-		// return values;
-		return `${sp}[\n${values.join(', ')}\n${sp}]`;
-		console.log('/end set');
-	}
-
-	if (jsValue instanceof Map) {
-		console.log('toJs found: map');
-		const values = [];
-		for (const [key, value] of jsValue.entries()) {
-			const keyString = toJs(key, globalKey, sp + '\t');
-			const astValue = toJs(value, globalKey, sp + '\t');
-			values.push(`${sp}[\n${keyString}, ${astValue}\n${sp}]`);
-		}
-		// return values;
-		return `new Map([\n${values.join(', ')}\n${sp}])`;
-		console.log('/end map');
-	}
-
-	if (type === 'function') {
-		console.log('toJs found: function');
-		// return jsValue;
-		return sp + `(...args) => ${globalKey}(...args)`;
-	}
-
-	if (type === 'object' && jsValue.constructor === Object) {
-		console.log('toJs found: object literal');
-		const values = [];
-		for (const [key, value] of Object.entries(jsValue)) {
-			const keyString = toJs(key, globalKey, sp + '\t');
-			const astValue = toJs(value, globalKey, sp + '\t');
-			// values.push([keyString, astValue]);
-			values.push(`${sp}[\n${values.join(', ')}\n${sp}]`);
-		}
-		console.log('/end object literal');
-		return values;
-	}
-
-	console.log(`toJs found: unhandled object ${JSON.stringify(jsValue)}`);
-	return `${sp}// Unhandled object\n${sp}globalThis.${globalKey}`;
-}
-*/
+const interop = new Map<types.SymbolNode, types.FunctionNode>();
+
+interop.set(
+    new types.SymbolNode('AggregateError'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(AggregateError, undefined, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('AggregateError.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(AggregateError, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('Array'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Array, undefined, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('Array'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Array, undefined, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('Array'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Array, undefined, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('Array.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(Array, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('Array.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(Array, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('Array.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(Array, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('ArrayBuffer.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(ArrayBuffer, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('AsyncDisposableStack.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(AsyncDisposableStack, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('BigInt'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(BigInt, undefined, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('BigInt64Array.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(BigInt64Array, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('BigInt64Array.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(BigInt64Array, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('BigInt64Array.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(BigInt64Array, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('BigUint64Array.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(BigUint64Array, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('BigUint64Array.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(BigUint64Array, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('BigUint64Array.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(BigUint64Array, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('Boolean'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Boolean, undefined, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('Boolean.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(Boolean, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('DataView.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(DataView, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('Date'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Date, undefined, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('Date.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(Date, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('Date.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(Date, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('Date.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(Date, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('DisposableStack.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(DisposableStack, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('Error'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Error, undefined, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('Error.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(Error, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('EvalError'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(EvalError, undefined, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('EvalError.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(EvalError, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('FinalizationRegistry.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(FinalizationRegistry, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('Float32Array.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(Float32Array, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('Float32Array.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(Float32Array, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('Float32Array.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(Float32Array, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('Float64Array.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(Float64Array, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('Float64Array.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(Float64Array, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('Float64Array.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(Float64Array, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('Function'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Function, undefined, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('Function.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(Function, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('Int16Array.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(Int16Array, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('Int16Array.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(Int16Array, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('Int16Array.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(Int16Array, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('Int32Array.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(Int32Array, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('Int32Array.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(Int32Array, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('Int32Array.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(Int32Array, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('Int8Array.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(Int8Array, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('Int8Array.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(Int8Array, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('Int8Array.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(Int8Array, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('Map.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(Map, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('Map.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(Map, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('Number'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Number, undefined, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('Number.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(Number, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('Object'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Object, undefined, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('Object'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Object, undefined, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('Object.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(Object, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('Promise.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(Promise, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('Proxy.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(Proxy, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('RangeError'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(RangeError, undefined, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('RangeError.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(RangeError, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('ReferenceError'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(ReferenceError, undefined, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('ReferenceError.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(ReferenceError, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('RegExp'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(RegExp, undefined, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('RegExp'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(RegExp, undefined, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('RegExp.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(RegExp, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('RegExp.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(RegExp, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('Set.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(Set, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('SharedArrayBuffer.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(SharedArrayBuffer, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('String'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(String, undefined, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('String.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(String, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('SuppressedError'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(SuppressedError, undefined, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('SuppressedError.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(SuppressedError, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('Symbol'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Symbol, undefined, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('SyntaxError'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(SyntaxError, undefined, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('SyntaxError.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(SyntaxError, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('TypeError'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(TypeError, undefined, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('TypeError.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(TypeError, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('URIError'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(URIError, undefined, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('URIError.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(URIError, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('Uint16Array.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(Uint16Array, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('Uint16Array.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(Uint16Array, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('Uint16Array.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(Uint16Array, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('Uint32Array.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(Uint32Array, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('Uint32Array.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(Uint32Array, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('Uint32Array.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(Uint32Array, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('Uint8Array.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(Uint8Array, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('Uint8Array.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(Uint8Array, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('Uint8Array.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(Uint8Array, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('Uint8ClampedArray.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(Uint8ClampedArray, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('Uint8ClampedArray.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(Uint8ClampedArray, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('Uint8ClampedArray.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(Uint8ClampedArray, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('WeakMap.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(WeakMap, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('WeakRef.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(WeakRef, []));
+    }),
+);
+
+interop.set(
+    new types.SymbolNode('WeakSet.new'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Reflect.construct(WeakSet, []));
+    }),
+);
+
+// FunctionDeclaration
+interop.set(
+    new types.SymbolNode('decodeURI'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.StringNode>(args[0], [types.StringNode]);
+        const a0: string = args[0].value;
+        return types.toAst(Reflect.apply(decodeURI, undefined, [a[0]]));
+    }),
+);
+
+// FunctionDeclaration
+interop.set(
+    new types.SymbolNode('decodeURIComponent'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.StringNode>(args[0], [types.StringNode]);
+        const a0: string = args[0].value;
+        return types.toAst(Reflect.apply(decodeURIComponent, undefined, [a[0]]));
+    }),
+);
+
+// FunctionDeclaration
+interop.set(
+    new types.SymbolNode('encodeURI'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.StringNode>(args[0], [types.StringNode]);
+        const a0: string = args[0].value;
+        return types.toAst(Reflect.apply(encodeURI, undefined, [a[0]]));
+    }),
+);
+
+// FunctionDeclaration
+interop.set(
+    new types.SymbolNode('encodeURIComponent'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.StringNode | types.NumberNode | types.BooleanNode>(args[0], [
+            types.StringNode,
+            types.NumberNode,
+            types.BooleanNode,
+        ]);
+        const a0: string | number | boolean = args[0].value;
+        return types.toAst(Reflect.apply(encodeURIComponent, undefined, [a[0]]));
+    }),
+);
+
+// FunctionDeclaration
+interop.set(
+    new types.SymbolNode('escape'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.StringNode>(args[0], [types.StringNode]);
+        const a0: string = args[0].value;
+        return types.toAst(Reflect.apply(escape, undefined, [a[0]]));
+    }),
+);
+
+// FunctionDeclaration
+interop.set(
+    new types.SymbolNode('eval'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.StringNode>(args[0], [types.StringNode]);
+        const a0: string = args[0].value;
+        return types.toAst(Reflect.apply(eval, undefined, [a[0]]));
+    }),
+);
+
+// FunctionDeclaration
+interop.set(
+    new types.SymbolNode('isFinite'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(isFinite, undefined, [a[0]]));
+    }),
+);
+
+// FunctionDeclaration
+interop.set(
+    new types.SymbolNode('isNaN'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(isNaN, undefined, [a[0]]));
+    }),
+);
+
+// FunctionDeclaration
+interop.set(
+    new types.SymbolNode('parseFloat'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.StringNode>(args[0], [types.StringNode]);
+        const a0: string = args[0].value;
+        return types.toAst(Reflect.apply(parseFloat, undefined, [a[0]]));
+    }),
+);
+
+// FunctionDeclaration
+interop.set(
+    new types.SymbolNode('parseInt'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.StringNode>(args[0], [types.StringNode]);
+        const a0: string = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(parseInt, undefined, [a[0], a[1]]));
+    }),
+);
+
+// FunctionDeclaration
+interop.set(
+    new types.SymbolNode('unescape'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.StringNode>(args[0], [types.StringNode]);
+        const a0: string = args[0].value;
+        return types.toAst(Reflect.apply(unescape, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Array.at'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(Array.prototype.at, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Array.concat'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(Array.prototype.concat, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Array.concat'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(Array.prototype.concat, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Array.copyWithin'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.NumberNode>(args[2], [types.NumberNode]);
+        const a2: number = args[2].value;
+        return types.toAst(Reflect.apply(Array.prototype.copyWithin, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Array.entries'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Array.prototype.entries, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Array.every'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Array.prototype.every, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Array.every'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Array.prototype.every, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Array.fill'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: T = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.NumberNode>(args[2], [types.NumberNode]);
+        const a2: number = args[2].value;
+        return types.toAst(Reflect.apply(Array.prototype.fill, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Array.filter'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Array.prototype.filter, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Array.filter'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Array.prototype.filter, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Array.find'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Array.prototype.find, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Array.find'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Array.prototype.find, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Array.findIndex'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Array.prototype.findIndex, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Array.findLast'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Array.prototype.findLast, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Array.findLast'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Array.prototype.findLast, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Array.findLastIndex'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Array.prototype.findLastIndex, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Array.flat'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: A = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: D = args[1].value;
+        return types.toAst(Reflect.apply(Array.prototype.flat, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Array.flatMap'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: This = args[1].value;
+        return types.toAst(Reflect.apply(Array.prototype.flatMap, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Array.forEach'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Array.prototype.forEach, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Array.includes'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: T = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Array.prototype.includes, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Array.indexOf'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: T = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Array.prototype.indexOf, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Array.isArray'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: any = args[0].value;
+        return types.toAst(Reflect.apply(Array.isArray, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Array.join'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.StringNode>(args[0], [types.StringNode]);
+        const a0: string = args[0].value;
+        return types.toAst(Reflect.apply(Array.prototype.join, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Array.keys'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Array.prototype.keys, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Array.lastIndexOf'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: T = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Array.prototype.lastIndexOf, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Array.map'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Array.prototype.map, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Array.pop'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Array.prototype.pop, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Array.push'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(Array.prototype.push, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Array.reduce'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(Array.prototype.reduce, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Array.reduce'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: T = args[1].value;
+        return types.toAst(Reflect.apply(Array.prototype.reduce, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Array.reduce'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: U = args[1].value;
+        return types.toAst(Reflect.apply(Array.prototype.reduce, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Array.reduceRight'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(Array.prototype.reduceRight, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Array.reduceRight'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: T = args[1].value;
+        return types.toAst(Reflect.apply(Array.prototype.reduceRight, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Array.reduceRight'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: U = args[1].value;
+        return types.toAst(Reflect.apply(Array.prototype.reduceRight, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Array.reverse'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Array.prototype.reverse, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Array.shift'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Array.prototype.shift, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Array.slice'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Array.prototype.slice, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Array.some'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Array.prototype.some, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Array.sort'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(Array.prototype.sort, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Array.splice'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Array.prototype.splice, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Array.splice'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.AtomNode>(args[2], [types.AtomNode]);
+        const a2: unknown = args[2].value;
+        return types.toAst(Reflect.apply(Array.prototype.splice, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Array.toLocaleString'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Array.prototype.toLocaleString, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Array.toLocaleString'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.StringNode | types.AtomNode>(args[0], [types.StringNode, types.AtomNode]);
+        const a0: string | unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: unknown = args[1].value;
+        return types.toAst(Reflect.apply(Array.prototype.toLocaleString, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Array.toReversed'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Array.prototype.toReversed, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Array.toSorted'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(Array.prototype.toSorted, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Array.toSpliced'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Array.prototype.toSpliced, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Array.toSpliced'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.AtomNode>(args[2], [types.AtomNode]);
+        const a2: unknown = args[2].value;
+        return types.toAst(Reflect.apply(Array.prototype.toSpliced, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Array.toString'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Array.prototype.toString, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Array.unshift'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(Array.prototype.unshift, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Array.values'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Array.prototype.values, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Array.with'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: T = args[1].value;
+        return types.toAst(Reflect.apply(Array.prototype.with, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('ArrayBuffer.isView'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: any = args[0].value;
+        return types.toAst(Reflect.apply(ArrayBuffer.isView, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('ArrayBuffer.slice'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(ArrayBuffer.prototype.slice, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Array[Symbol.iterator]'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Array.prototype[Symbol.iterator], undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('AsyncDisposableStack.adopt'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: T = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: unknown = args[1].value;
+        return types.toAst(Reflect.apply(AsyncDisposableStack.prototype.adopt, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('AsyncDisposableStack.defer'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(AsyncDisposableStack.prototype.defer, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('AsyncDisposableStack.disposeAsync'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(AsyncDisposableStack.prototype.disposeAsync, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('AsyncDisposableStack.move'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(AsyncDisposableStack.prototype.move, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('AsyncDisposableStack.use'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: T = args[0].value;
+        return types.toAst(Reflect.apply(AsyncDisposableStack.prototype.use, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('AsyncDisposableStack[Symbol.asyncDispose]'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(AsyncDisposableStack.prototype[Symbol.asyncDispose], undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Atomics.add'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.AtomNode>(args[2], [types.AtomNode]);
+        const a2: bigint = args[2].value;
+        return types.toAst(Reflect.apply(Atomics.add, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Atomics.add'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.NumberNode>(args[2], [types.NumberNode]);
+        const a2: number = args[2].value;
+        return types.toAst(Reflect.apply(Atomics.add, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Atomics.and'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.AtomNode>(args[2], [types.AtomNode]);
+        const a2: bigint = args[2].value;
+        return types.toAst(Reflect.apply(Atomics.and, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Atomics.and'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.NumberNode>(args[2], [types.NumberNode]);
+        const a2: number = args[2].value;
+        return types.toAst(Reflect.apply(Atomics.and, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Atomics.compareExchange'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 4, 4);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.AtomNode>(args[2], [types.AtomNode]);
+        const a2: bigint = args[2].value;
+        types.assertIsOneOf<types.AtomNode>(args[3], [types.AtomNode]);
+        const a3: bigint = args[3].value;
+        return types.toAst(Reflect.apply(Atomics.compareExchange, undefined, [a[0], a[1], a[2], a[3]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Atomics.compareExchange'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 4, 4);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.NumberNode>(args[2], [types.NumberNode]);
+        const a2: number = args[2].value;
+        types.assertIsOneOf<types.NumberNode>(args[3], [types.NumberNode]);
+        const a3: number = args[3].value;
+        return types.toAst(Reflect.apply(Atomics.compareExchange, undefined, [a[0], a[1], a[2], a[3]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Atomics.exchange'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.AtomNode>(args[2], [types.AtomNode]);
+        const a2: bigint = args[2].value;
+        return types.toAst(Reflect.apply(Atomics.exchange, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Atomics.exchange'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.NumberNode>(args[2], [types.NumberNode]);
+        const a2: number = args[2].value;
+        return types.toAst(Reflect.apply(Atomics.exchange, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Atomics.isLockFree'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(Atomics.isLockFree, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Atomics.load'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Atomics.load, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Atomics.load'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Atomics.load, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Atomics.notify'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: BigInt64Array = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.NumberNode>(args[2], [types.NumberNode]);
+        const a2: number = args[2].value;
+        return types.toAst(Reflect.apply(Atomics.notify, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Atomics.notify'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: Int32Array = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.NumberNode>(args[2], [types.NumberNode]);
+        const a2: number = args[2].value;
+        return types.toAst(Reflect.apply(Atomics.notify, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Atomics.or'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.AtomNode>(args[2], [types.AtomNode]);
+        const a2: bigint = args[2].value;
+        return types.toAst(Reflect.apply(Atomics.or, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Atomics.or'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.NumberNode>(args[2], [types.NumberNode]);
+        const a2: number = args[2].value;
+        return types.toAst(Reflect.apply(Atomics.or, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Atomics.store'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.AtomNode>(args[2], [types.AtomNode]);
+        const a2: bigint = args[2].value;
+        return types.toAst(Reflect.apply(Atomics.store, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Atomics.store'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.NumberNode>(args[2], [types.NumberNode]);
+        const a2: number = args[2].value;
+        return types.toAst(Reflect.apply(Atomics.store, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Atomics.sub'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.AtomNode>(args[2], [types.AtomNode]);
+        const a2: bigint = args[2].value;
+        return types.toAst(Reflect.apply(Atomics.sub, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Atomics.sub'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.NumberNode>(args[2], [types.NumberNode]);
+        const a2: number = args[2].value;
+        return types.toAst(Reflect.apply(Atomics.sub, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Atomics.wait'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 4, 4);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: BigInt64Array = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.AtomNode>(args[2], [types.AtomNode]);
+        const a2: bigint = args[2].value;
+        types.assertIsOneOf<types.NumberNode>(args[3], [types.NumberNode]);
+        const a3: number = args[3].value;
+        return types.toAst(Reflect.apply(Atomics.wait, undefined, [a[0], a[1], a[2], a[3]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Atomics.wait'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 4, 4);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: Int32Array = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.NumberNode>(args[2], [types.NumberNode]);
+        const a2: number = args[2].value;
+        types.assertIsOneOf<types.NumberNode>(args[3], [types.NumberNode]);
+        const a3: number = args[3].value;
+        return types.toAst(Reflect.apply(Atomics.wait, undefined, [a[0], a[1], a[2], a[3]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Atomics.waitAsync'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 4, 4);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: BigInt64Array = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.AtomNode>(args[2], [types.AtomNode]);
+        const a2: bigint = args[2].value;
+        types.assertIsOneOf<types.NumberNode>(args[3], [types.NumberNode]);
+        const a3: number = args[3].value;
+        return types.toAst(Reflect.apply(Atomics.waitAsync, undefined, [a[0], a[1], a[2], a[3]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Atomics.waitAsync'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 4, 4);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: Int32Array = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.NumberNode>(args[2], [types.NumberNode]);
+        const a2: number = args[2].value;
+        types.assertIsOneOf<types.NumberNode>(args[3], [types.NumberNode]);
+        const a3: number = args[3].value;
+        return types.toAst(Reflect.apply(Atomics.waitAsync, undefined, [a[0], a[1], a[2], a[3]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Atomics.xor'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.AtomNode>(args[2], [types.AtomNode]);
+        const a2: bigint = args[2].value;
+        return types.toAst(Reflect.apply(Atomics.xor, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Atomics.xor'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.NumberNode>(args[2], [types.NumberNode]);
+        const a2: number = args[2].value;
+        return types.toAst(Reflect.apply(Atomics.xor, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigInt.asIntN'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: bigint = args[1].value;
+        return types.toAst(Reflect.apply(BigInt.asIntN, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigInt.asUintN'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: bigint = args[1].value;
+        return types.toAst(Reflect.apply(BigInt.asUintN, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigInt.toLocaleString'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: Intl.LocalesArgument = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: BigIntToLocaleStringOptions = args[1].value;
+        return types.toAst(Reflect.apply(BigInt.prototype.toLocaleString, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigInt.toString'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(BigInt.prototype.toString, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigInt.valueOf'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(BigInt.prototype.valueOf, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigInt64Array.at'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(BigInt64Array.prototype.at, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigInt64Array.copyWithin'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.NumberNode>(args[2], [types.NumberNode]);
+        const a2: number = args[2].value;
+        return types.toAst(Reflect.apply(BigInt64Array.prototype.copyWithin, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigInt64Array.entries'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(BigInt64Array.prototype.entries, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigInt64Array.every'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(BigInt64Array.prototype.every, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigInt64Array.fill'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: bigint = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.NumberNode>(args[2], [types.NumberNode]);
+        const a2: number = args[2].value;
+        return types.toAst(Reflect.apply(BigInt64Array.prototype.fill, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigInt64Array.filter'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(BigInt64Array.prototype.filter, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigInt64Array.find'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(BigInt64Array.prototype.find, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigInt64Array.findIndex'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(BigInt64Array.prototype.findIndex, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigInt64Array.findLast'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(BigInt64Array.prototype.findLast, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigInt64Array.findLast'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(BigInt64Array.prototype.findLast, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigInt64Array.findLastIndex'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(BigInt64Array.prototype.findLastIndex, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigInt64Array.forEach'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(BigInt64Array.prototype.forEach, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigInt64Array.from'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: ArrayLike = args[0].value;
+        return types.toAst(Reflect.apply(BigInt64Array.from, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigInt64Array.from'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: ArrayLike = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: unknown = args[1].value;
+        types.assertIsOneOf<types.AtomNode>(args[2], [types.AtomNode]);
+        const a2: any = args[2].value;
+        return types.toAst(Reflect.apply(BigInt64Array.from, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigInt64Array.includes'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: bigint = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(BigInt64Array.prototype.includes, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigInt64Array.indexOf'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: bigint = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(BigInt64Array.prototype.indexOf, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigInt64Array.join'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.StringNode>(args[0], [types.StringNode]);
+        const a0: string = args[0].value;
+        return types.toAst(Reflect.apply(BigInt64Array.prototype.join, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigInt64Array.keys'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(BigInt64Array.prototype.keys, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigInt64Array.lastIndexOf'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: bigint = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(BigInt64Array.prototype.lastIndexOf, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigInt64Array.map'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(BigInt64Array.prototype.map, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigInt64Array.of'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(BigInt64Array.of, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigInt64Array.reduce'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(BigInt64Array.prototype.reduce, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigInt64Array.reduce'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: U = args[1].value;
+        return types.toAst(Reflect.apply(BigInt64Array.prototype.reduce, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigInt64Array.reduceRight'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(BigInt64Array.prototype.reduceRight, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigInt64Array.reduceRight'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: U = args[1].value;
+        return types.toAst(Reflect.apply(BigInt64Array.prototype.reduceRight, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigInt64Array.reverse'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(BigInt64Array.prototype.reverse, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigInt64Array.set'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: ArrayLike = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(BigInt64Array.prototype.set, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigInt64Array.slice'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(BigInt64Array.prototype.slice, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigInt64Array.some'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(BigInt64Array.prototype.some, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigInt64Array.sort'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(BigInt64Array.prototype.sort, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigInt64Array.subarray'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(BigInt64Array.prototype.subarray, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigInt64Array.toLocaleString'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.StringNode | types.AtomNode>(args[0], [types.StringNode, types.AtomNode]);
+        const a0: string | unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: Intl.NumberFormatOptions = args[1].value;
+        return types.toAst(Reflect.apply(BigInt64Array.prototype.toLocaleString, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigInt64Array.toReversed'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(BigInt64Array.prototype.toReversed, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigInt64Array.toSorted'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(BigInt64Array.prototype.toSorted, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigInt64Array.toString'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(BigInt64Array.prototype.toString, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigInt64Array.valueOf'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(BigInt64Array.prototype.valueOf, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigInt64Array.values'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(BigInt64Array.prototype.values, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigInt64Array.with'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: bigint = args[1].value;
+        return types.toAst(Reflect.apply(BigInt64Array.prototype.with, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigInt64Array[Symbol.iterator]'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(BigInt64Array.prototype[Symbol.iterator], undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigUint64Array.at'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(BigUint64Array.prototype.at, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigUint64Array.copyWithin'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.NumberNode>(args[2], [types.NumberNode]);
+        const a2: number = args[2].value;
+        return types.toAst(Reflect.apply(BigUint64Array.prototype.copyWithin, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigUint64Array.entries'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(BigUint64Array.prototype.entries, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigUint64Array.every'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(BigUint64Array.prototype.every, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigUint64Array.fill'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: bigint = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.NumberNode>(args[2], [types.NumberNode]);
+        const a2: number = args[2].value;
+        return types.toAst(Reflect.apply(BigUint64Array.prototype.fill, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigUint64Array.filter'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(BigUint64Array.prototype.filter, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigUint64Array.find'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(BigUint64Array.prototype.find, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigUint64Array.findIndex'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(BigUint64Array.prototype.findIndex, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigUint64Array.findLast'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(BigUint64Array.prototype.findLast, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigUint64Array.findLast'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(BigUint64Array.prototype.findLast, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigUint64Array.findLastIndex'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(BigUint64Array.prototype.findLastIndex, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigUint64Array.forEach'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(BigUint64Array.prototype.forEach, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigUint64Array.from'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: ArrayLike = args[0].value;
+        return types.toAst(Reflect.apply(BigUint64Array.from, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigUint64Array.from'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: ArrayLike = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: unknown = args[1].value;
+        types.assertIsOneOf<types.AtomNode>(args[2], [types.AtomNode]);
+        const a2: any = args[2].value;
+        return types.toAst(Reflect.apply(BigUint64Array.from, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigUint64Array.includes'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: bigint = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(BigUint64Array.prototype.includes, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigUint64Array.indexOf'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: bigint = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(BigUint64Array.prototype.indexOf, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigUint64Array.join'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.StringNode>(args[0], [types.StringNode]);
+        const a0: string = args[0].value;
+        return types.toAst(Reflect.apply(BigUint64Array.prototype.join, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigUint64Array.keys'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(BigUint64Array.prototype.keys, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigUint64Array.lastIndexOf'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: bigint = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(BigUint64Array.prototype.lastIndexOf, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigUint64Array.map'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(BigUint64Array.prototype.map, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigUint64Array.of'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(BigUint64Array.of, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigUint64Array.reduce'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(BigUint64Array.prototype.reduce, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigUint64Array.reduce'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: U = args[1].value;
+        return types.toAst(Reflect.apply(BigUint64Array.prototype.reduce, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigUint64Array.reduceRight'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(BigUint64Array.prototype.reduceRight, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigUint64Array.reduceRight'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: U = args[1].value;
+        return types.toAst(Reflect.apply(BigUint64Array.prototype.reduceRight, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigUint64Array.reverse'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(BigUint64Array.prototype.reverse, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigUint64Array.set'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: ArrayLike = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(BigUint64Array.prototype.set, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigUint64Array.slice'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(BigUint64Array.prototype.slice, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigUint64Array.some'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(BigUint64Array.prototype.some, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigUint64Array.sort'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(BigUint64Array.prototype.sort, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigUint64Array.subarray'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(BigUint64Array.prototype.subarray, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigUint64Array.toLocaleString'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.StringNode | types.AtomNode>(args[0], [types.StringNode, types.AtomNode]);
+        const a0: string | unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: Intl.NumberFormatOptions = args[1].value;
+        return types.toAst(Reflect.apply(BigUint64Array.prototype.toLocaleString, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigUint64Array.toReversed'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(BigUint64Array.prototype.toReversed, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigUint64Array.toSorted'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(BigUint64Array.prototype.toSorted, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigUint64Array.toString'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(BigUint64Array.prototype.toString, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigUint64Array.valueOf'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(BigUint64Array.prototype.valueOf, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigUint64Array.values'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(BigUint64Array.prototype.values, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigUint64Array.with'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: bigint = args[1].value;
+        return types.toAst(Reflect.apply(BigUint64Array.prototype.with, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('BigUint64Array[Symbol.iterator]'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(BigUint64Array.prototype[Symbol.iterator], undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Boolean.valueOf'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Boolean.prototype.valueOf, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('DataView.getBigInt64'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.BooleanNode>(args[1], [types.BooleanNode]);
+        const a1: boolean = args[1].value;
+        return types.toAst(Reflect.apply(DataView.prototype.getBigInt64, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('DataView.getBigUint64'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.BooleanNode>(args[1], [types.BooleanNode]);
+        const a1: boolean = args[1].value;
+        return types.toAst(Reflect.apply(DataView.prototype.getBigUint64, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('DataView.getFloat32'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.BooleanNode>(args[1], [types.BooleanNode]);
+        const a1: boolean = args[1].value;
+        return types.toAst(Reflect.apply(DataView.prototype.getFloat32, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('DataView.getFloat64'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.BooleanNode>(args[1], [types.BooleanNode]);
+        const a1: boolean = args[1].value;
+        return types.toAst(Reflect.apply(DataView.prototype.getFloat64, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('DataView.getInt16'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.BooleanNode>(args[1], [types.BooleanNode]);
+        const a1: boolean = args[1].value;
+        return types.toAst(Reflect.apply(DataView.prototype.getInt16, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('DataView.getInt32'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.BooleanNode>(args[1], [types.BooleanNode]);
+        const a1: boolean = args[1].value;
+        return types.toAst(Reflect.apply(DataView.prototype.getInt32, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('DataView.getInt8'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(DataView.prototype.getInt8, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('DataView.getUint16'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.BooleanNode>(args[1], [types.BooleanNode]);
+        const a1: boolean = args[1].value;
+        return types.toAst(Reflect.apply(DataView.prototype.getUint16, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('DataView.getUint32'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.BooleanNode>(args[1], [types.BooleanNode]);
+        const a1: boolean = args[1].value;
+        return types.toAst(Reflect.apply(DataView.prototype.getUint32, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('DataView.getUint8'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(DataView.prototype.getUint8, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('DataView.setBigInt64'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: bigint = args[1].value;
+        types.assertIsOneOf<types.BooleanNode>(args[2], [types.BooleanNode]);
+        const a2: boolean = args[2].value;
+        return types.toAst(Reflect.apply(DataView.prototype.setBigInt64, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('DataView.setBigUint64'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: bigint = args[1].value;
+        types.assertIsOneOf<types.BooleanNode>(args[2], [types.BooleanNode]);
+        const a2: boolean = args[2].value;
+        return types.toAst(Reflect.apply(DataView.prototype.setBigUint64, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('DataView.setFloat32'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.BooleanNode>(args[2], [types.BooleanNode]);
+        const a2: boolean = args[2].value;
+        return types.toAst(Reflect.apply(DataView.prototype.setFloat32, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('DataView.setFloat64'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.BooleanNode>(args[2], [types.BooleanNode]);
+        const a2: boolean = args[2].value;
+        return types.toAst(Reflect.apply(DataView.prototype.setFloat64, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('DataView.setInt16'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.BooleanNode>(args[2], [types.BooleanNode]);
+        const a2: boolean = args[2].value;
+        return types.toAst(Reflect.apply(DataView.prototype.setInt16, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('DataView.setInt32'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.BooleanNode>(args[2], [types.BooleanNode]);
+        const a2: boolean = args[2].value;
+        return types.toAst(Reflect.apply(DataView.prototype.setInt32, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('DataView.setInt8'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(DataView.prototype.setInt8, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('DataView.setUint16'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.BooleanNode>(args[2], [types.BooleanNode]);
+        const a2: boolean = args[2].value;
+        return types.toAst(Reflect.apply(DataView.prototype.setUint16, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('DataView.setUint32'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.BooleanNode>(args[2], [types.BooleanNode]);
+        const a2: boolean = args[2].value;
+        return types.toAst(Reflect.apply(DataView.prototype.setUint32, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('DataView.setUint8'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(DataView.prototype.setUint8, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Date.UTC'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 7, 7);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.NumberNode>(args[2], [types.NumberNode]);
+        const a2: number = args[2].value;
+        types.assertIsOneOf<types.NumberNode>(args[3], [types.NumberNode]);
+        const a3: number = args[3].value;
+        types.assertIsOneOf<types.NumberNode>(args[4], [types.NumberNode]);
+        const a4: number = args[4].value;
+        types.assertIsOneOf<types.NumberNode>(args[5], [types.NumberNode]);
+        const a5: number = args[5].value;
+        types.assertIsOneOf<types.NumberNode>(args[6], [types.NumberNode]);
+        const a6: number = args[6].value;
+        return types.toAst(Reflect.apply(Date.UTC, undefined, [a[0], a[1], a[2], a[3], a[4], a[5], a[6]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Date.getDate'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Date.prototype.getDate, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Date.getDay'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Date.prototype.getDay, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Date.getFullYear'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Date.prototype.getFullYear, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Date.getHours'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Date.prototype.getHours, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Date.getMilliseconds'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Date.prototype.getMilliseconds, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Date.getMinutes'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Date.prototype.getMinutes, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Date.getMonth'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Date.prototype.getMonth, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Date.getSeconds'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Date.prototype.getSeconds, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Date.getTime'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Date.prototype.getTime, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Date.getTimezoneOffset'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Date.prototype.getTimezoneOffset, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Date.getUTCDate'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Date.prototype.getUTCDate, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Date.getUTCDay'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Date.prototype.getUTCDay, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Date.getUTCFullYear'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Date.prototype.getUTCFullYear, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Date.getUTCHours'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Date.prototype.getUTCHours, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Date.getUTCMilliseconds'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Date.prototype.getUTCMilliseconds, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Date.getUTCMinutes'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Date.prototype.getUTCMinutes, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Date.getUTCMonth'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Date.prototype.getUTCMonth, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Date.getUTCSeconds'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Date.prototype.getUTCSeconds, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Date.now'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Date.now, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Date.parse'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.StringNode>(args[0], [types.StringNode]);
+        const a0: string = args[0].value;
+        return types.toAst(Reflect.apply(Date.parse, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Date.setDate'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(Date.prototype.setDate, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Date.setFullYear'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.NumberNode>(args[2], [types.NumberNode]);
+        const a2: number = args[2].value;
+        return types.toAst(Reflect.apply(Date.prototype.setFullYear, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Date.setHours'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 4, 4);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.NumberNode>(args[2], [types.NumberNode]);
+        const a2: number = args[2].value;
+        types.assertIsOneOf<types.NumberNode>(args[3], [types.NumberNode]);
+        const a3: number = args[3].value;
+        return types.toAst(Reflect.apply(Date.prototype.setHours, undefined, [a[0], a[1], a[2], a[3]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Date.setMilliseconds'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(Date.prototype.setMilliseconds, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Date.setMinutes'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.NumberNode>(args[2], [types.NumberNode]);
+        const a2: number = args[2].value;
+        return types.toAst(Reflect.apply(Date.prototype.setMinutes, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Date.setMonth'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Date.prototype.setMonth, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Date.setSeconds'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Date.prototype.setSeconds, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Date.setTime'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(Date.prototype.setTime, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Date.setUTCDate'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(Date.prototype.setUTCDate, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Date.setUTCFullYear'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.NumberNode>(args[2], [types.NumberNode]);
+        const a2: number = args[2].value;
+        return types.toAst(Reflect.apply(Date.prototype.setUTCFullYear, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Date.setUTCHours'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 4, 4);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.NumberNode>(args[2], [types.NumberNode]);
+        const a2: number = args[2].value;
+        types.assertIsOneOf<types.NumberNode>(args[3], [types.NumberNode]);
+        const a3: number = args[3].value;
+        return types.toAst(Reflect.apply(Date.prototype.setUTCHours, undefined, [a[0], a[1], a[2], a[3]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Date.setUTCMilliseconds'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(Date.prototype.setUTCMilliseconds, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Date.setUTCMinutes'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.NumberNode>(args[2], [types.NumberNode]);
+        const a2: number = args[2].value;
+        return types.toAst(Reflect.apply(Date.prototype.setUTCMinutes, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Date.setUTCMonth'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Date.prototype.setUTCMonth, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Date.setUTCSeconds'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Date.prototype.setUTCSeconds, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Date.toDateString'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Date.prototype.toDateString, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Date.toISOString'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Date.prototype.toISOString, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Date.toJSON'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: any = args[0].value;
+        return types.toAst(Reflect.apply(Date.prototype.toJSON, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Date.toLocaleDateString'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Date.prototype.toLocaleDateString, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Date.toLocaleDateString'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: Intl.LocalesArgument = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: Intl.DateTimeFormatOptions = args[1].value;
+        return types.toAst(Reflect.apply(Date.prototype.toLocaleDateString, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Date.toLocaleDateString'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.StringNode | types.AtomNode>(args[0], [types.StringNode, types.AtomNode]);
+        const a0: string | unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: Intl.DateTimeFormatOptions = args[1].value;
+        return types.toAst(Reflect.apply(Date.prototype.toLocaleDateString, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Date.toLocaleString'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Date.prototype.toLocaleString, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Date.toLocaleString'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: Intl.LocalesArgument = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: Intl.DateTimeFormatOptions = args[1].value;
+        return types.toAst(Reflect.apply(Date.prototype.toLocaleString, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Date.toLocaleString'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.StringNode | types.AtomNode>(args[0], [types.StringNode, types.AtomNode]);
+        const a0: string | unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: Intl.DateTimeFormatOptions = args[1].value;
+        return types.toAst(Reflect.apply(Date.prototype.toLocaleString, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Date.toLocaleTimeString'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Date.prototype.toLocaleTimeString, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Date.toLocaleTimeString'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: Intl.LocalesArgument = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: Intl.DateTimeFormatOptions = args[1].value;
+        return types.toAst(Reflect.apply(Date.prototype.toLocaleTimeString, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Date.toLocaleTimeString'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.StringNode | types.AtomNode>(args[0], [types.StringNode, types.AtomNode]);
+        const a0: string | unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: Intl.DateTimeFormatOptions = args[1].value;
+        return types.toAst(Reflect.apply(Date.prototype.toLocaleTimeString, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Date.toString'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Date.prototype.toString, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Date.toTimeString'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Date.prototype.toTimeString, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Date.toUTCString'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Date.prototype.toUTCString, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Date.valueOf'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Date.prototype.valueOf, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Date[Symbol.toPrimitive]'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: 'default' = args[0].value;
+        return types.toAst(Reflect.apply(Date.prototype[Symbol.toPrimitive], undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Date[Symbol.toPrimitive]'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: 'number' = args[0].value;
+        return types.toAst(Reflect.apply(Date.prototype[Symbol.toPrimitive], undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Date[Symbol.toPrimitive]'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: 'string' = args[0].value;
+        return types.toAst(Reflect.apply(Date.prototype[Symbol.toPrimitive], undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Date[Symbol.toPrimitive]'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.StringNode>(args[0], [types.StringNode]);
+        const a0: string = args[0].value;
+        return types.toAst(Reflect.apply(Date.prototype[Symbol.toPrimitive], undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('DisposableStack.adopt'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: T = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: unknown = args[1].value;
+        return types.toAst(Reflect.apply(DisposableStack.prototype.adopt, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('DisposableStack.defer'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(DisposableStack.prototype.defer, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('DisposableStack.dispose'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(DisposableStack.prototype.dispose, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('DisposableStack.move'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(DisposableStack.prototype.move, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('DisposableStack.use'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: T = args[0].value;
+        return types.toAst(Reflect.apply(DisposableStack.prototype.use, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('DisposableStack[Symbol.dispose]'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(DisposableStack.prototype[Symbol.dispose], undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('FinalizationRegistry.register'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: WeakKey = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: T = args[1].value;
+        types.assertIsOneOf<types.AtomNode>(args[2], [types.AtomNode]);
+        const a2: WeakKey = args[2].value;
+        return types.toAst(Reflect.apply(FinalizationRegistry.prototype.register, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('FinalizationRegistry.unregister'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: WeakKey = args[0].value;
+        return types.toAst(Reflect.apply(FinalizationRegistry.prototype.unregister, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float32Array.at'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(Float32Array.prototype.at, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float32Array.copyWithin'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.NumberNode>(args[2], [types.NumberNode]);
+        const a2: number = args[2].value;
+        return types.toAst(Reflect.apply(Float32Array.prototype.copyWithin, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float32Array.entries'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Float32Array.prototype.entries, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float32Array.every'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Float32Array.prototype.every, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float32Array.fill'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.NumberNode>(args[2], [types.NumberNode]);
+        const a2: number = args[2].value;
+        return types.toAst(Reflect.apply(Float32Array.prototype.fill, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float32Array.filter'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Float32Array.prototype.filter, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float32Array.find'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Float32Array.prototype.find, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float32Array.findIndex'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Float32Array.prototype.findIndex, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float32Array.findLast'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Float32Array.prototype.findLast, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float32Array.findLast'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Float32Array.prototype.findLast, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float32Array.findLastIndex'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Float32Array.prototype.findLastIndex, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float32Array.forEach'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Float32Array.prototype.forEach, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float32Array.from'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: ArrayLike = args[0].value;
+        return types.toAst(Reflect.apply(Float32Array.from, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float32Array.from'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: ArrayLike = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: unknown = args[1].value;
+        types.assertIsOneOf<types.AtomNode>(args[2], [types.AtomNode]);
+        const a2: any = args[2].value;
+        return types.toAst(Reflect.apply(Float32Array.from, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float32Array.includes'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Float32Array.prototype.includes, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float32Array.indexOf'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Float32Array.prototype.indexOf, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float32Array.join'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.StringNode>(args[0], [types.StringNode]);
+        const a0: string = args[0].value;
+        return types.toAst(Reflect.apply(Float32Array.prototype.join, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float32Array.keys'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Float32Array.prototype.keys, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float32Array.lastIndexOf'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Float32Array.prototype.lastIndexOf, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float32Array.map'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Float32Array.prototype.map, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float32Array.of'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(Float32Array.of, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float32Array.reduce'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(Float32Array.prototype.reduce, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float32Array.reduce'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: U = args[1].value;
+        return types.toAst(Reflect.apply(Float32Array.prototype.reduce, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float32Array.reduce'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Float32Array.prototype.reduce, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float32Array.reduceRight'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(Float32Array.prototype.reduceRight, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float32Array.reduceRight'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: U = args[1].value;
+        return types.toAst(Reflect.apply(Float32Array.prototype.reduceRight, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float32Array.reduceRight'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Float32Array.prototype.reduceRight, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float32Array.reverse'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Float32Array.prototype.reverse, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float32Array.set'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: ArrayLike = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Float32Array.prototype.set, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float32Array.slice'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Float32Array.prototype.slice, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float32Array.some'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Float32Array.prototype.some, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float32Array.sort'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(Float32Array.prototype.sort, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float32Array.subarray'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Float32Array.prototype.subarray, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float32Array.toLocaleString'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Float32Array.prototype.toLocaleString, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float32Array.toLocaleString'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.StringNode | types.AtomNode>(args[0], [types.StringNode, types.AtomNode]);
+        const a0: string | unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: Intl.NumberFormatOptions = args[1].value;
+        return types.toAst(Reflect.apply(Float32Array.prototype.toLocaleString, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float32Array.toReversed'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Float32Array.prototype.toReversed, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float32Array.toSorted'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(Float32Array.prototype.toSorted, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float32Array.toString'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Float32Array.prototype.toString, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float32Array.valueOf'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Float32Array.prototype.valueOf, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float32Array.values'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Float32Array.prototype.values, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float32Array.with'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Float32Array.prototype.with, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float32Array[Symbol.iterator]'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Float32Array.prototype[Symbol.iterator], undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float64Array.at'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(Float64Array.prototype.at, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float64Array.copyWithin'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.NumberNode>(args[2], [types.NumberNode]);
+        const a2: number = args[2].value;
+        return types.toAst(Reflect.apply(Float64Array.prototype.copyWithin, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float64Array.entries'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Float64Array.prototype.entries, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float64Array.every'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Float64Array.prototype.every, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float64Array.fill'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.NumberNode>(args[2], [types.NumberNode]);
+        const a2: number = args[2].value;
+        return types.toAst(Reflect.apply(Float64Array.prototype.fill, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float64Array.filter'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Float64Array.prototype.filter, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float64Array.find'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Float64Array.prototype.find, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float64Array.findIndex'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Float64Array.prototype.findIndex, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float64Array.findLast'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Float64Array.prototype.findLast, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float64Array.findLast'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Float64Array.prototype.findLast, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float64Array.findLastIndex'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Float64Array.prototype.findLastIndex, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float64Array.forEach'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Float64Array.prototype.forEach, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float64Array.from'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: ArrayLike = args[0].value;
+        return types.toAst(Reflect.apply(Float64Array.from, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float64Array.from'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: ArrayLike = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: unknown = args[1].value;
+        types.assertIsOneOf<types.AtomNode>(args[2], [types.AtomNode]);
+        const a2: any = args[2].value;
+        return types.toAst(Reflect.apply(Float64Array.from, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float64Array.includes'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Float64Array.prototype.includes, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float64Array.indexOf'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Float64Array.prototype.indexOf, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float64Array.join'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.StringNode>(args[0], [types.StringNode]);
+        const a0: string = args[0].value;
+        return types.toAst(Reflect.apply(Float64Array.prototype.join, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float64Array.keys'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Float64Array.prototype.keys, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float64Array.lastIndexOf'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Float64Array.prototype.lastIndexOf, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float64Array.map'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Float64Array.prototype.map, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float64Array.of'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(Float64Array.of, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float64Array.reduce'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(Float64Array.prototype.reduce, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float64Array.reduce'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: U = args[1].value;
+        return types.toAst(Reflect.apply(Float64Array.prototype.reduce, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float64Array.reduce'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Float64Array.prototype.reduce, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float64Array.reduceRight'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(Float64Array.prototype.reduceRight, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float64Array.reduceRight'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: U = args[1].value;
+        return types.toAst(Reflect.apply(Float64Array.prototype.reduceRight, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float64Array.reduceRight'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Float64Array.prototype.reduceRight, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float64Array.reverse'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Float64Array.prototype.reverse, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float64Array.set'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: ArrayLike = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Float64Array.prototype.set, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float64Array.slice'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Float64Array.prototype.slice, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float64Array.some'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Float64Array.prototype.some, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float64Array.sort'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(Float64Array.prototype.sort, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float64Array.subarray'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Float64Array.prototype.subarray, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float64Array.toLocaleString'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Float64Array.prototype.toLocaleString, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float64Array.toLocaleString'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.StringNode | types.AtomNode>(args[0], [types.StringNode, types.AtomNode]);
+        const a0: string | unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: Intl.NumberFormatOptions = args[1].value;
+        return types.toAst(Reflect.apply(Float64Array.prototype.toLocaleString, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float64Array.toReversed'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Float64Array.prototype.toReversed, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float64Array.toSorted'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(Float64Array.prototype.toSorted, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float64Array.toString'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Float64Array.prototype.toString, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float64Array.valueOf'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Float64Array.prototype.valueOf, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float64Array.values'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Float64Array.prototype.values, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float64Array.with'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Float64Array.prototype.with, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Float64Array[Symbol.iterator]'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Float64Array.prototype[Symbol.iterator], undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Function.apply'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: Function = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        types.assertIsOneOf<types.AtomNode>(args[2], [types.AtomNode]);
+        const a2: any = args[2].value;
+        return types.toAst(Reflect.apply(Function.prototype.apply, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Function.bind'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: Function = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        types.assertIsOneOf<types.AtomNode>(args[2], [types.AtomNode]);
+        const a2: unknown = args[2].value;
+        return types.toAst(Reflect.apply(Function.prototype.bind, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Function.call'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: Function = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        types.assertIsOneOf<types.AtomNode>(args[2], [types.AtomNode]);
+        const a2: unknown = args[2].value;
+        return types.toAst(Reflect.apply(Function.prototype.call, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Function.toString'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Function.prototype.toString, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Function[Symbol.hasInstance]'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: any = args[0].value;
+        return types.toAst(Reflect.apply(Function.prototype[Symbol.hasInstance], undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int16Array.at'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(Int16Array.prototype.at, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int16Array.copyWithin'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.NumberNode>(args[2], [types.NumberNode]);
+        const a2: number = args[2].value;
+        return types.toAst(Reflect.apply(Int16Array.prototype.copyWithin, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int16Array.entries'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Int16Array.prototype.entries, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int16Array.every'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Int16Array.prototype.every, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int16Array.fill'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.NumberNode>(args[2], [types.NumberNode]);
+        const a2: number = args[2].value;
+        return types.toAst(Reflect.apply(Int16Array.prototype.fill, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int16Array.filter'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Int16Array.prototype.filter, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int16Array.find'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Int16Array.prototype.find, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int16Array.findIndex'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Int16Array.prototype.findIndex, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int16Array.findLast'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Int16Array.prototype.findLast, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int16Array.findLast'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Int16Array.prototype.findLast, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int16Array.findLastIndex'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Int16Array.prototype.findLastIndex, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int16Array.forEach'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Int16Array.prototype.forEach, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int16Array.from'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: ArrayLike = args[0].value;
+        return types.toAst(Reflect.apply(Int16Array.from, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int16Array.from'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: ArrayLike = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: unknown = args[1].value;
+        types.assertIsOneOf<types.AtomNode>(args[2], [types.AtomNode]);
+        const a2: any = args[2].value;
+        return types.toAst(Reflect.apply(Int16Array.from, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int16Array.includes'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Int16Array.prototype.includes, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int16Array.indexOf'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Int16Array.prototype.indexOf, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int16Array.join'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.StringNode>(args[0], [types.StringNode]);
+        const a0: string = args[0].value;
+        return types.toAst(Reflect.apply(Int16Array.prototype.join, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int16Array.keys'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Int16Array.prototype.keys, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int16Array.lastIndexOf'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Int16Array.prototype.lastIndexOf, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int16Array.map'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Int16Array.prototype.map, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int16Array.of'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(Int16Array.of, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int16Array.reduce'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(Int16Array.prototype.reduce, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int16Array.reduce'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: U = args[1].value;
+        return types.toAst(Reflect.apply(Int16Array.prototype.reduce, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int16Array.reduce'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Int16Array.prototype.reduce, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int16Array.reduceRight'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(Int16Array.prototype.reduceRight, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int16Array.reduceRight'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: U = args[1].value;
+        return types.toAst(Reflect.apply(Int16Array.prototype.reduceRight, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int16Array.reduceRight'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Int16Array.prototype.reduceRight, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int16Array.reverse'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Int16Array.prototype.reverse, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int16Array.set'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: ArrayLike = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Int16Array.prototype.set, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int16Array.slice'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Int16Array.prototype.slice, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int16Array.some'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Int16Array.prototype.some, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int16Array.sort'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(Int16Array.prototype.sort, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int16Array.subarray'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Int16Array.prototype.subarray, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int16Array.toLocaleString'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Int16Array.prototype.toLocaleString, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int16Array.toLocaleString'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.StringNode | types.AtomNode>(args[0], [types.StringNode, types.AtomNode]);
+        const a0: string | unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: Intl.NumberFormatOptions = args[1].value;
+        return types.toAst(Reflect.apply(Int16Array.prototype.toLocaleString, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int16Array.toReversed'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Int16Array.prototype.toReversed, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int16Array.toSorted'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(Int16Array.prototype.toSorted, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int16Array.toString'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Int16Array.prototype.toString, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int16Array.valueOf'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Int16Array.prototype.valueOf, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int16Array.values'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Int16Array.prototype.values, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int16Array.with'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Int16Array.prototype.with, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int16Array[Symbol.iterator]'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Int16Array.prototype[Symbol.iterator], undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int32Array.at'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(Int32Array.prototype.at, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int32Array.copyWithin'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.NumberNode>(args[2], [types.NumberNode]);
+        const a2: number = args[2].value;
+        return types.toAst(Reflect.apply(Int32Array.prototype.copyWithin, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int32Array.entries'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Int32Array.prototype.entries, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int32Array.every'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Int32Array.prototype.every, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int32Array.fill'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.NumberNode>(args[2], [types.NumberNode]);
+        const a2: number = args[2].value;
+        return types.toAst(Reflect.apply(Int32Array.prototype.fill, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int32Array.filter'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Int32Array.prototype.filter, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int32Array.find'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Int32Array.prototype.find, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int32Array.findIndex'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Int32Array.prototype.findIndex, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int32Array.findLast'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Int32Array.prototype.findLast, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int32Array.findLast'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Int32Array.prototype.findLast, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int32Array.findLastIndex'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Int32Array.prototype.findLastIndex, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int32Array.forEach'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Int32Array.prototype.forEach, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int32Array.from'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: ArrayLike = args[0].value;
+        return types.toAst(Reflect.apply(Int32Array.from, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int32Array.from'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: ArrayLike = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: unknown = args[1].value;
+        types.assertIsOneOf<types.AtomNode>(args[2], [types.AtomNode]);
+        const a2: any = args[2].value;
+        return types.toAst(Reflect.apply(Int32Array.from, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int32Array.includes'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Int32Array.prototype.includes, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int32Array.indexOf'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Int32Array.prototype.indexOf, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int32Array.join'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.StringNode>(args[0], [types.StringNode]);
+        const a0: string = args[0].value;
+        return types.toAst(Reflect.apply(Int32Array.prototype.join, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int32Array.keys'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Int32Array.prototype.keys, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int32Array.lastIndexOf'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Int32Array.prototype.lastIndexOf, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int32Array.map'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Int32Array.prototype.map, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int32Array.of'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(Int32Array.of, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int32Array.reduce'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(Int32Array.prototype.reduce, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int32Array.reduce'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: U = args[1].value;
+        return types.toAst(Reflect.apply(Int32Array.prototype.reduce, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int32Array.reduce'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Int32Array.prototype.reduce, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int32Array.reduceRight'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(Int32Array.prototype.reduceRight, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int32Array.reduceRight'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: U = args[1].value;
+        return types.toAst(Reflect.apply(Int32Array.prototype.reduceRight, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int32Array.reduceRight'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Int32Array.prototype.reduceRight, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int32Array.reverse'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Int32Array.prototype.reverse, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int32Array.set'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: ArrayLike = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Int32Array.prototype.set, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int32Array.slice'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Int32Array.prototype.slice, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int32Array.some'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Int32Array.prototype.some, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int32Array.sort'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(Int32Array.prototype.sort, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int32Array.subarray'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Int32Array.prototype.subarray, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int32Array.toLocaleString'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Int32Array.prototype.toLocaleString, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int32Array.toLocaleString'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.StringNode | types.AtomNode>(args[0], [types.StringNode, types.AtomNode]);
+        const a0: string | unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: Intl.NumberFormatOptions = args[1].value;
+        return types.toAst(Reflect.apply(Int32Array.prototype.toLocaleString, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int32Array.toReversed'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Int32Array.prototype.toReversed, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int32Array.toSorted'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(Int32Array.prototype.toSorted, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int32Array.toString'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Int32Array.prototype.toString, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int32Array.valueOf'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Int32Array.prototype.valueOf, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int32Array.values'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Int32Array.prototype.values, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int32Array.with'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Int32Array.prototype.with, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int32Array[Symbol.iterator]'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Int32Array.prototype[Symbol.iterator], undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int8Array.at'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(Int8Array.prototype.at, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int8Array.copyWithin'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.NumberNode>(args[2], [types.NumberNode]);
+        const a2: number = args[2].value;
+        return types.toAst(Reflect.apply(Int8Array.prototype.copyWithin, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int8Array.entries'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Int8Array.prototype.entries, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int8Array.every'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Int8Array.prototype.every, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int8Array.fill'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.NumberNode>(args[2], [types.NumberNode]);
+        const a2: number = args[2].value;
+        return types.toAst(Reflect.apply(Int8Array.prototype.fill, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int8Array.filter'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Int8Array.prototype.filter, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int8Array.find'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Int8Array.prototype.find, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int8Array.findIndex'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Int8Array.prototype.findIndex, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int8Array.findLast'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Int8Array.prototype.findLast, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int8Array.findLast'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Int8Array.prototype.findLast, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int8Array.findLastIndex'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Int8Array.prototype.findLastIndex, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int8Array.forEach'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Int8Array.prototype.forEach, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int8Array.from'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: ArrayLike = args[0].value;
+        return types.toAst(Reflect.apply(Int8Array.from, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int8Array.from'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: ArrayLike = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: unknown = args[1].value;
+        types.assertIsOneOf<types.AtomNode>(args[2], [types.AtomNode]);
+        const a2: any = args[2].value;
+        return types.toAst(Reflect.apply(Int8Array.from, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int8Array.includes'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Int8Array.prototype.includes, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int8Array.indexOf'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Int8Array.prototype.indexOf, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int8Array.join'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.StringNode>(args[0], [types.StringNode]);
+        const a0: string = args[0].value;
+        return types.toAst(Reflect.apply(Int8Array.prototype.join, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int8Array.keys'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Int8Array.prototype.keys, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int8Array.lastIndexOf'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Int8Array.prototype.lastIndexOf, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int8Array.map'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Int8Array.prototype.map, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int8Array.of'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(Int8Array.of, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int8Array.reduce'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(Int8Array.prototype.reduce, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int8Array.reduce'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: U = args[1].value;
+        return types.toAst(Reflect.apply(Int8Array.prototype.reduce, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int8Array.reduce'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Int8Array.prototype.reduce, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int8Array.reduceRight'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(Int8Array.prototype.reduceRight, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int8Array.reduceRight'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: U = args[1].value;
+        return types.toAst(Reflect.apply(Int8Array.prototype.reduceRight, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int8Array.reduceRight'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Int8Array.prototype.reduceRight, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int8Array.reverse'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Int8Array.prototype.reverse, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int8Array.set'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: ArrayLike = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Int8Array.prototype.set, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int8Array.slice'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Int8Array.prototype.slice, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int8Array.some'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Int8Array.prototype.some, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int8Array.sort'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(Int8Array.prototype.sort, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int8Array.subarray'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Int8Array.prototype.subarray, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int8Array.toLocaleString'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Int8Array.prototype.toLocaleString, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int8Array.toLocaleString'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.StringNode | types.AtomNode>(args[0], [types.StringNode, types.AtomNode]);
+        const a0: string | unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: Intl.NumberFormatOptions = args[1].value;
+        return types.toAst(Reflect.apply(Int8Array.prototype.toLocaleString, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int8Array.toReversed'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Int8Array.prototype.toReversed, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int8Array.toSorted'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(Int8Array.prototype.toSorted, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int8Array.toString'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Int8Array.prototype.toString, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int8Array.valueOf'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Int8Array.prototype.valueOf, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int8Array.values'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Int8Array.prototype.values, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int8Array.with'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Int8Array.prototype.with, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Int8Array[Symbol.iterator]'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Int8Array.prototype[Symbol.iterator], undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('JSON.parse'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.StringNode>(args[0], [types.StringNode]);
+        const a0: string = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: unknown = args[1].value;
+        return types.toAst(Reflect.apply(JSON.parse, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('JSON.stringify'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: any = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: unknown = args[1].value;
+        types.assertIsOneOf<types.StringNode | types.NumberNode>(args[2], [types.StringNode, types.NumberNode]);
+        const a2: string | number = args[2].value;
+        return types.toAst(Reflect.apply(JSON.stringify, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('JSON.stringify'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: any = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: unknown = args[1].value;
+        types.assertIsOneOf<types.StringNode | types.NumberNode>(args[2], [types.StringNode, types.NumberNode]);
+        const a2: string | number = args[2].value;
+        return types.toAst(Reflect.apply(JSON.stringify, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Map.clear'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Map.prototype.clear, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Map.delete'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: K = args[0].value;
+        return types.toAst(Reflect.apply(Map.prototype.delete, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Map.forEach'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Map.prototype.forEach, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Map.get'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: K = args[0].value;
+        return types.toAst(Reflect.apply(Map.prototype.get, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Map.has'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: K = args[0].value;
+        return types.toAst(Reflect.apply(Map.prototype.has, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Map.set'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: K = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: V = args[1].value;
+        return types.toAst(Reflect.apply(Map.prototype.set, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Math.abs'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(Math.abs, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Math.acos'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(Math.acos, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Math.acosh'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(Math.acosh, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Math.asin'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(Math.asin, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Math.asinh'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(Math.asinh, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Math.atan'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(Math.atan, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Math.atan2'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Math.atan2, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Math.atanh'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(Math.atanh, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Math.cbrt'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(Math.cbrt, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Math.ceil'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(Math.ceil, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Math.clz32'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(Math.clz32, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Math.cos'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(Math.cos, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Math.cosh'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(Math.cosh, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Math.exp'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(Math.exp, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Math.expm1'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(Math.expm1, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Math.floor'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(Math.floor, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Math.fround'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(Math.fround, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Math.hypot'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(Math.hypot, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Math.imul'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Math.imul, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Math.log'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(Math.log, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Math.log10'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(Math.log10, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Math.log1p'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(Math.log1p, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Math.log2'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(Math.log2, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Math.max'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(Math.max, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Math.min'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(Math.min, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Math.pow'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Math.pow, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Math.random'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Math.random, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Math.round'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(Math.round, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Math.sign'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(Math.sign, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Math.sin'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(Math.sin, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Math.sinh'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(Math.sinh, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Math.sqrt'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(Math.sqrt, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Math.tan'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(Math.tan, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Math.tanh'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(Math.tanh, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Math.trunc'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(Math.trunc, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Number.toExponential'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(Number.prototype.toExponential, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Number.toFixed'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(Number.prototype.toFixed, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Number.toLocaleString'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: Intl.LocalesArgument = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: Intl.NumberFormatOptions = args[1].value;
+        return types.toAst(Reflect.apply(Number.prototype.toLocaleString, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Number.toLocaleString'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.StringNode | types.AtomNode>(args[0], [types.StringNode, types.AtomNode]);
+        const a0: string | unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: Intl.NumberFormatOptions = args[1].value;
+        return types.toAst(Reflect.apply(Number.prototype.toLocaleString, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Number.toPrecision'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(Number.prototype.toPrecision, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Number.toString'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(Number.prototype.toString, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Number.valueOf'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Number.prototype.valueOf, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Object.create'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode | types.AtomNode>(args[0], [types.AtomNode, types.AtomNode]);
+        const a0: object | unknown = args[0].value;
+        return types.toAst(Reflect.apply(Object.create, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Object.create'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode | types.AtomNode>(args[0], [types.AtomNode, types.AtomNode]);
+        const a0: object | unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: unknown = args[1].value;
+        return types.toAst(Reflect.apply(Object.create, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Object.defineProperties'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: T = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: unknown = args[1].value;
+        return types.toAst(Reflect.apply(Object.defineProperties, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Object.defineProperty'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: T = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: PropertyKey = args[1].value;
+        types.assertIsOneOf<types.AtomNode>(args[2], [types.AtomNode]);
+        const a2: unknown = args[2].value;
+        return types.toAst(Reflect.apply(Object.defineProperty, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Object.freeze'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: T = args[0].value;
+        return types.toAst(Reflect.apply(Object.freeze, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Object.freeze'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: T = args[0].value;
+        return types.toAst(Reflect.apply(Object.freeze, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Object.freeze'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: T = args[0].value;
+        return types.toAst(Reflect.apply(Object.freeze, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Object.getOwnPropertyDescriptor'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: any = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: PropertyKey = args[1].value;
+        return types.toAst(Reflect.apply(Object.getOwnPropertyDescriptor, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Object.getOwnPropertyNames'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: any = args[0].value;
+        return types.toAst(Reflect.apply(Object.getOwnPropertyNames, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Object.getPrototypeOf'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: any = args[0].value;
+        return types.toAst(Reflect.apply(Object.getPrototypeOf, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Object.hasOwnProperty'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: PropertyKey = args[0].value;
+        return types.toAst(Reflect.apply(Object.prototype.hasOwnProperty, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Object.isExtensible'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: any = args[0].value;
+        return types.toAst(Reflect.apply(Object.isExtensible, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Object.isFrozen'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: any = args[0].value;
+        return types.toAst(Reflect.apply(Object.isFrozen, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Object.isPrototypeOf'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: Object = args[0].value;
+        return types.toAst(Reflect.apply(Object.prototype.isPrototypeOf, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Object.isSealed'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: any = args[0].value;
+        return types.toAst(Reflect.apply(Object.isSealed, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Object.keys'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: object = args[0].value;
+        return types.toAst(Reflect.apply(Object.keys, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Object.preventExtensions'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: T = args[0].value;
+        return types.toAst(Reflect.apply(Object.preventExtensions, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Object.propertyIsEnumerable'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: PropertyKey = args[0].value;
+        return types.toAst(Reflect.apply(Object.prototype.propertyIsEnumerable, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Object.seal'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: T = args[0].value;
+        return types.toAst(Reflect.apply(Object.seal, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Object.toLocaleString'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Object.prototype.toLocaleString, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Object.toString'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Object.prototype.toString, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Object.valueOf'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Object.prototype.valueOf, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Promise.all'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: T = args[0].value;
+        return types.toAst(Reflect.apply(Promise.all, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Promise.finally'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode | types.NilNode>(args[0], [types.AtomNode, types.NilNode]);
+        const a0: unknown | undefined = args[0].value;
+        return types.toAst(Reflect.apply(Promise.prototype.finally, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Promise.race'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: T = args[0].value;
+        return types.toAst(Reflect.apply(Promise.race, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Promise.reject'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: any = args[0].value;
+        return types.toAst(Reflect.apply(Promise.reject, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Promise.resolve'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Promise.resolve, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Promise.resolve'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: T = args[0].value;
+        return types.toAst(Reflect.apply(Promise.resolve, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Promise.resolve'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(Promise.resolve, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Proxy.revocable'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: T = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: ProxyHandler = args[1].value;
+        return types.toAst(Reflect.apply(Proxy.revocable, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Set.add'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: T = args[0].value;
+        return types.toAst(Reflect.apply(Set.prototype.add, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Set.clear'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Set.prototype.clear, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Set.delete'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: T = args[0].value;
+        return types.toAst(Reflect.apply(Set.prototype.delete, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Set.difference'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: ReadonlySetLike = args[0].value;
+        return types.toAst(Reflect.apply(Set.prototype.difference, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Set.forEach'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Set.prototype.forEach, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Set.has'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: T = args[0].value;
+        return types.toAst(Reflect.apply(Set.prototype.has, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Set.intersection'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: ReadonlySetLike = args[0].value;
+        return types.toAst(Reflect.apply(Set.prototype.intersection, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Set.isDisjointFrom'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: ReadonlySetLike = args[0].value;
+        return types.toAst(Reflect.apply(Set.prototype.isDisjointFrom, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Set.isSubsetOf'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: ReadonlySetLike = args[0].value;
+        return types.toAst(Reflect.apply(Set.prototype.isSubsetOf, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Set.isSupersetOf'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: ReadonlySetLike = args[0].value;
+        return types.toAst(Reflect.apply(Set.prototype.isSupersetOf, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Set.symmetricDifference'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: ReadonlySetLike = args[0].value;
+        return types.toAst(Reflect.apply(Set.prototype.symmetricDifference, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Set.union'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: ReadonlySetLike = args[0].value;
+        return types.toAst(Reflect.apply(Set.prototype.union, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('SharedArrayBuffer.slice'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(SharedArrayBuffer.prototype.slice, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.anchor'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.StringNode>(args[0], [types.StringNode]);
+        const a0: string = args[0].value;
+        return types.toAst(Reflect.apply(String.prototype.anchor, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.at'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(String.prototype.at, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.big'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(String.prototype.big, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.blink'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(String.prototype.blink, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.bold'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(String.prototype.bold, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.charAt'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(String.prototype.charAt, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.charCodeAt'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(String.prototype.charCodeAt, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.codePointAt'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(String.prototype.codePointAt, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.concat'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(String.prototype.concat, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.endsWith'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.StringNode>(args[0], [types.StringNode]);
+        const a0: string = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(String.prototype.endsWith, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.fixed'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(String.prototype.fixed, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.fontcolor'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.StringNode>(args[0], [types.StringNode]);
+        const a0: string = args[0].value;
+        return types.toAst(Reflect.apply(String.prototype.fontcolor, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.fontsize'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(String.prototype.fontsize, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.fontsize'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.StringNode>(args[0], [types.StringNode]);
+        const a0: string = args[0].value;
+        return types.toAst(Reflect.apply(String.prototype.fontsize, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.fromCharCode'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(String.fromCharCode, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.includes'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.StringNode>(args[0], [types.StringNode]);
+        const a0: string = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(String.prototype.includes, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.indexOf'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.StringNode>(args[0], [types.StringNode]);
+        const a0: string = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(String.prototype.indexOf, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.isWellFormed'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(String.prototype.isWellFormed, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.italics'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(String.prototype.italics, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.lastIndexOf'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.StringNode>(args[0], [types.StringNode]);
+        const a0: string = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(String.prototype.lastIndexOf, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.link'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.StringNode>(args[0], [types.StringNode]);
+        const a0: string = args[0].value;
+        return types.toAst(Reflect.apply(String.prototype.link, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.localeCompare'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.StringNode>(args[0], [types.StringNode]);
+        const a0: string = args[0].value;
+        return types.toAst(Reflect.apply(String.prototype.localeCompare, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.localeCompare'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.StringNode>(args[0], [types.StringNode]);
+        const a0: string = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: Intl.LocalesArgument = args[1].value;
+        types.assertIsOneOf<types.AtomNode>(args[2], [types.AtomNode]);
+        const a2: Intl.CollatorOptions = args[2].value;
+        return types.toAst(Reflect.apply(String.prototype.localeCompare, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.localeCompare'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.StringNode>(args[0], [types.StringNode]);
+        const a0: string = args[0].value;
+        types.assertIsOneOf<types.StringNode | types.AtomNode>(args[1], [types.StringNode, types.AtomNode]);
+        const a1: string | unknown = args[1].value;
+        types.assertIsOneOf<types.AtomNode>(args[2], [types.AtomNode]);
+        const a2: Intl.CollatorOptions = args[2].value;
+        return types.toAst(Reflect.apply(String.prototype.localeCompare, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.match'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(String.prototype.match, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.match'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.StringNode | types.AtomNode>(args[0], [types.StringNode, types.AtomNode]);
+        const a0: string | unknown = args[0].value;
+        return types.toAst(Reflect.apply(String.prototype.match, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.matchAll'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: RegExp = args[0].value;
+        return types.toAst(Reflect.apply(String.prototype.matchAll, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.normalize'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(String.prototype.normalize, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.normalize'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.StringNode>(args[0], [types.StringNode]);
+        const a0: string = args[0].value;
+        return types.toAst(Reflect.apply(String.prototype.normalize, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.padEnd'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.StringNode>(args[1], [types.StringNode]);
+        const a1: string = args[1].value;
+        return types.toAst(Reflect.apply(String.prototype.padEnd, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.padStart'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.StringNode>(args[1], [types.StringNode]);
+        const a1: string = args[1].value;
+        return types.toAst(Reflect.apply(String.prototype.padStart, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.repeat'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(String.prototype.repeat, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.replace'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: unknown = args[1].value;
+        return types.toAst(Reflect.apply(String.prototype.replace, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.replace'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.StringNode>(args[1], [types.StringNode]);
+        const a1: string = args[1].value;
+        return types.toAst(Reflect.apply(String.prototype.replace, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.replace'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.StringNode | types.AtomNode>(args[0], [types.StringNode, types.AtomNode]);
+        const a0: string | unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: unknown = args[1].value;
+        return types.toAst(Reflect.apply(String.prototype.replace, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.replace'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.StringNode | types.AtomNode>(args[0], [types.StringNode, types.AtomNode]);
+        const a0: string | unknown = args[0].value;
+        types.assertIsOneOf<types.StringNode>(args[1], [types.StringNode]);
+        const a1: string = args[1].value;
+        return types.toAst(Reflect.apply(String.prototype.replace, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.replaceAll'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.StringNode | types.AtomNode>(args[0], [types.StringNode, types.AtomNode]);
+        const a0: string | unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: unknown = args[1].value;
+        return types.toAst(Reflect.apply(String.prototype.replaceAll, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.replaceAll'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.StringNode | types.AtomNode>(args[0], [types.StringNode, types.AtomNode]);
+        const a0: string | unknown = args[0].value;
+        types.assertIsOneOf<types.StringNode>(args[1], [types.StringNode]);
+        const a1: string = args[1].value;
+        return types.toAst(Reflect.apply(String.prototype.replaceAll, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.search'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(String.prototype.search, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.search'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.StringNode | types.AtomNode>(args[0], [types.StringNode, types.AtomNode]);
+        const a0: string | unknown = args[0].value;
+        return types.toAst(Reflect.apply(String.prototype.search, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.slice'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(String.prototype.slice, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.small'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(String.prototype.small, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.split'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(String.prototype.split, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.split'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.StringNode | types.AtomNode>(args[0], [types.StringNode, types.AtomNode]);
+        const a0: string | unknown = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(String.prototype.split, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.startsWith'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.StringNode>(args[0], [types.StringNode]);
+        const a0: string = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(String.prototype.startsWith, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.strike'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(String.prototype.strike, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.sub'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(String.prototype.sub, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.substr'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(String.prototype.substr, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.substring'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(String.prototype.substring, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.sup'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(String.prototype.sup, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.toLocaleLowerCase'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: Intl.LocalesArgument = args[0].value;
+        return types.toAst(Reflect.apply(String.prototype.toLocaleLowerCase, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.toLocaleLowerCase'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.StringNode | types.AtomNode>(args[0], [types.StringNode, types.AtomNode]);
+        const a0: string | unknown = args[0].value;
+        return types.toAst(Reflect.apply(String.prototype.toLocaleLowerCase, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.toLocaleUpperCase'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: Intl.LocalesArgument = args[0].value;
+        return types.toAst(Reflect.apply(String.prototype.toLocaleUpperCase, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.toLocaleUpperCase'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.StringNode | types.AtomNode>(args[0], [types.StringNode, types.AtomNode]);
+        const a0: string | unknown = args[0].value;
+        return types.toAst(Reflect.apply(String.prototype.toLocaleUpperCase, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.toLowerCase'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(String.prototype.toLowerCase, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.toString'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(String.prototype.toString, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.toUpperCase'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(String.prototype.toUpperCase, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.toWellFormed'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(String.prototype.toWellFormed, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.trim'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(String.prototype.trim, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.trimEnd'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(String.prototype.trimEnd, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.trimLeft'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(String.prototype.trimLeft, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.trimRight'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(String.prototype.trimRight, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.trimStart'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(String.prototype.trimStart, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String.valueOf'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(String.prototype.valueOf, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('String[Symbol.iterator]'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(String.prototype[Symbol.iterator], undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Symbol.for'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.StringNode>(args[0], [types.StringNode]);
+        const a0: string = args[0].value;
+        return types.toAst(Reflect.apply(Symbol.for, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Symbol.keyFor'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: symbol = args[0].value;
+        return types.toAst(Reflect.apply(Symbol.keyFor, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Symbol[Symbol.toPrimitive]'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.StringNode>(args[0], [types.StringNode]);
+        const a0: string = args[0].value;
+        return types.toAst(Reflect.apply(Symbol.prototype[Symbol.toPrimitive], undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint16Array.at'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(Uint16Array.prototype.at, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint16Array.copyWithin'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.NumberNode>(args[2], [types.NumberNode]);
+        const a2: number = args[2].value;
+        return types.toAst(Reflect.apply(Uint16Array.prototype.copyWithin, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint16Array.entries'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Uint16Array.prototype.entries, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint16Array.every'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Uint16Array.prototype.every, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint16Array.fill'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.NumberNode>(args[2], [types.NumberNode]);
+        const a2: number = args[2].value;
+        return types.toAst(Reflect.apply(Uint16Array.prototype.fill, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint16Array.filter'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Uint16Array.prototype.filter, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint16Array.find'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Uint16Array.prototype.find, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint16Array.findIndex'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Uint16Array.prototype.findIndex, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint16Array.findLast'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Uint16Array.prototype.findLast, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint16Array.findLast'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Uint16Array.prototype.findLast, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint16Array.findLastIndex'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Uint16Array.prototype.findLastIndex, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint16Array.forEach'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Uint16Array.prototype.forEach, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint16Array.from'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: ArrayLike = args[0].value;
+        return types.toAst(Reflect.apply(Uint16Array.from, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint16Array.from'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: ArrayLike = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: unknown = args[1].value;
+        types.assertIsOneOf<types.AtomNode>(args[2], [types.AtomNode]);
+        const a2: any = args[2].value;
+        return types.toAst(Reflect.apply(Uint16Array.from, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint16Array.includes'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Uint16Array.prototype.includes, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint16Array.indexOf'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Uint16Array.prototype.indexOf, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint16Array.join'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.StringNode>(args[0], [types.StringNode]);
+        const a0: string = args[0].value;
+        return types.toAst(Reflect.apply(Uint16Array.prototype.join, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint16Array.keys'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Uint16Array.prototype.keys, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint16Array.lastIndexOf'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Uint16Array.prototype.lastIndexOf, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint16Array.map'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Uint16Array.prototype.map, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint16Array.of'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(Uint16Array.of, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint16Array.reduce'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(Uint16Array.prototype.reduce, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint16Array.reduce'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: U = args[1].value;
+        return types.toAst(Reflect.apply(Uint16Array.prototype.reduce, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint16Array.reduce'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Uint16Array.prototype.reduce, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint16Array.reduceRight'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(Uint16Array.prototype.reduceRight, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint16Array.reduceRight'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: U = args[1].value;
+        return types.toAst(Reflect.apply(Uint16Array.prototype.reduceRight, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint16Array.reduceRight'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Uint16Array.prototype.reduceRight, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint16Array.reverse'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Uint16Array.prototype.reverse, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint16Array.set'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: ArrayLike = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Uint16Array.prototype.set, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint16Array.slice'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Uint16Array.prototype.slice, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint16Array.some'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Uint16Array.prototype.some, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint16Array.sort'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(Uint16Array.prototype.sort, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint16Array.subarray'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Uint16Array.prototype.subarray, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint16Array.toLocaleString'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Uint16Array.prototype.toLocaleString, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint16Array.toLocaleString'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.StringNode | types.AtomNode>(args[0], [types.StringNode, types.AtomNode]);
+        const a0: string | unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: Intl.NumberFormatOptions = args[1].value;
+        return types.toAst(Reflect.apply(Uint16Array.prototype.toLocaleString, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint16Array.toReversed'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Uint16Array.prototype.toReversed, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint16Array.toSorted'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(Uint16Array.prototype.toSorted, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint16Array.toString'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Uint16Array.prototype.toString, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint16Array.valueOf'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Uint16Array.prototype.valueOf, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint16Array.values'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Uint16Array.prototype.values, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint16Array.with'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Uint16Array.prototype.with, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint16Array[Symbol.iterator]'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Uint16Array.prototype[Symbol.iterator], undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint32Array.at'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(Uint32Array.prototype.at, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint32Array.copyWithin'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.NumberNode>(args[2], [types.NumberNode]);
+        const a2: number = args[2].value;
+        return types.toAst(Reflect.apply(Uint32Array.prototype.copyWithin, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint32Array.entries'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Uint32Array.prototype.entries, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint32Array.every'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Uint32Array.prototype.every, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint32Array.fill'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.NumberNode>(args[2], [types.NumberNode]);
+        const a2: number = args[2].value;
+        return types.toAst(Reflect.apply(Uint32Array.prototype.fill, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint32Array.filter'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Uint32Array.prototype.filter, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint32Array.find'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Uint32Array.prototype.find, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint32Array.findIndex'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Uint32Array.prototype.findIndex, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint32Array.findLast'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Uint32Array.prototype.findLast, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint32Array.findLast'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Uint32Array.prototype.findLast, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint32Array.findLastIndex'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Uint32Array.prototype.findLastIndex, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint32Array.forEach'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Uint32Array.prototype.forEach, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint32Array.from'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: ArrayLike = args[0].value;
+        return types.toAst(Reflect.apply(Uint32Array.from, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint32Array.from'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: ArrayLike = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: unknown = args[1].value;
+        types.assertIsOneOf<types.AtomNode>(args[2], [types.AtomNode]);
+        const a2: any = args[2].value;
+        return types.toAst(Reflect.apply(Uint32Array.from, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint32Array.includes'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Uint32Array.prototype.includes, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint32Array.indexOf'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Uint32Array.prototype.indexOf, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint32Array.join'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.StringNode>(args[0], [types.StringNode]);
+        const a0: string = args[0].value;
+        return types.toAst(Reflect.apply(Uint32Array.prototype.join, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint32Array.keys'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Uint32Array.prototype.keys, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint32Array.lastIndexOf'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Uint32Array.prototype.lastIndexOf, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint32Array.map'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Uint32Array.prototype.map, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint32Array.of'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(Uint32Array.of, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint32Array.reduce'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(Uint32Array.prototype.reduce, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint32Array.reduce'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: U = args[1].value;
+        return types.toAst(Reflect.apply(Uint32Array.prototype.reduce, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint32Array.reduce'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Uint32Array.prototype.reduce, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint32Array.reduceRight'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(Uint32Array.prototype.reduceRight, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint32Array.reduceRight'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: U = args[1].value;
+        return types.toAst(Reflect.apply(Uint32Array.prototype.reduceRight, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint32Array.reduceRight'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Uint32Array.prototype.reduceRight, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint32Array.reverse'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Uint32Array.prototype.reverse, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint32Array.set'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: ArrayLike = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Uint32Array.prototype.set, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint32Array.slice'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Uint32Array.prototype.slice, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint32Array.some'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Uint32Array.prototype.some, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint32Array.sort'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(Uint32Array.prototype.sort, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint32Array.subarray'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Uint32Array.prototype.subarray, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint32Array.toLocaleString'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Uint32Array.prototype.toLocaleString, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint32Array.toLocaleString'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.StringNode | types.AtomNode>(args[0], [types.StringNode, types.AtomNode]);
+        const a0: string | unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: Intl.NumberFormatOptions = args[1].value;
+        return types.toAst(Reflect.apply(Uint32Array.prototype.toLocaleString, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint32Array.toReversed'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Uint32Array.prototype.toReversed, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint32Array.toSorted'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(Uint32Array.prototype.toSorted, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint32Array.toString'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Uint32Array.prototype.toString, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint32Array.valueOf'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Uint32Array.prototype.valueOf, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint32Array.values'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Uint32Array.prototype.values, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint32Array.with'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Uint32Array.prototype.with, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint32Array[Symbol.iterator]'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Uint32Array.prototype[Symbol.iterator], undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8Array.at'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(Uint8Array.prototype.at, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8Array.copyWithin'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.NumberNode>(args[2], [types.NumberNode]);
+        const a2: number = args[2].value;
+        return types.toAst(Reflect.apply(Uint8Array.prototype.copyWithin, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8Array.entries'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Uint8Array.prototype.entries, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8Array.every'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Uint8Array.prototype.every, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8Array.fill'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.NumberNode>(args[2], [types.NumberNode]);
+        const a2: number = args[2].value;
+        return types.toAst(Reflect.apply(Uint8Array.prototype.fill, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8Array.filter'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Uint8Array.prototype.filter, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8Array.find'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Uint8Array.prototype.find, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8Array.findIndex'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Uint8Array.prototype.findIndex, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8Array.findLast'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Uint8Array.prototype.findLast, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8Array.findLast'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Uint8Array.prototype.findLast, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8Array.findLastIndex'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Uint8Array.prototype.findLastIndex, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8Array.forEach'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Uint8Array.prototype.forEach, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8Array.from'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: ArrayLike = args[0].value;
+        return types.toAst(Reflect.apply(Uint8Array.from, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8Array.from'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: ArrayLike = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: unknown = args[1].value;
+        types.assertIsOneOf<types.AtomNode>(args[2], [types.AtomNode]);
+        const a2: any = args[2].value;
+        return types.toAst(Reflect.apply(Uint8Array.from, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8Array.includes'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Uint8Array.prototype.includes, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8Array.indexOf'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Uint8Array.prototype.indexOf, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8Array.join'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.StringNode>(args[0], [types.StringNode]);
+        const a0: string = args[0].value;
+        return types.toAst(Reflect.apply(Uint8Array.prototype.join, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8Array.keys'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Uint8Array.prototype.keys, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8Array.lastIndexOf'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Uint8Array.prototype.lastIndexOf, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8Array.map'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Uint8Array.prototype.map, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8Array.of'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(Uint8Array.of, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8Array.reduce'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(Uint8Array.prototype.reduce, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8Array.reduce'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: U = args[1].value;
+        return types.toAst(Reflect.apply(Uint8Array.prototype.reduce, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8Array.reduce'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Uint8Array.prototype.reduce, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8Array.reduceRight'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(Uint8Array.prototype.reduceRight, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8Array.reduceRight'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: U = args[1].value;
+        return types.toAst(Reflect.apply(Uint8Array.prototype.reduceRight, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8Array.reduceRight'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Uint8Array.prototype.reduceRight, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8Array.reverse'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Uint8Array.prototype.reverse, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8Array.set'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: ArrayLike = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Uint8Array.prototype.set, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8Array.slice'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Uint8Array.prototype.slice, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8Array.some'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Uint8Array.prototype.some, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8Array.sort'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(Uint8Array.prototype.sort, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8Array.subarray'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Uint8Array.prototype.subarray, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8Array.toLocaleString'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Uint8Array.prototype.toLocaleString, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8Array.toLocaleString'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.StringNode | types.AtomNode>(args[0], [types.StringNode, types.AtomNode]);
+        const a0: string | unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: Intl.NumberFormatOptions = args[1].value;
+        return types.toAst(Reflect.apply(Uint8Array.prototype.toLocaleString, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8Array.toReversed'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Uint8Array.prototype.toReversed, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8Array.toSorted'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(Uint8Array.prototype.toSorted, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8Array.toString'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Uint8Array.prototype.toString, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8Array.valueOf'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Uint8Array.prototype.valueOf, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8Array.values'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Uint8Array.prototype.values, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8Array.with'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Uint8Array.prototype.with, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8Array[Symbol.iterator]'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Uint8Array.prototype[Symbol.iterator], undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8ClampedArray.at'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        return types.toAst(Reflect.apply(Uint8ClampedArray.prototype.at, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8ClampedArray.copyWithin'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.NumberNode>(args[2], [types.NumberNode]);
+        const a2: number = args[2].value;
+        return types.toAst(Reflect.apply(Uint8ClampedArray.prototype.copyWithin, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8ClampedArray.entries'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Uint8ClampedArray.prototype.entries, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8ClampedArray.every'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Uint8ClampedArray.prototype.every, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8ClampedArray.fill'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        types.assertIsOneOf<types.NumberNode>(args[2], [types.NumberNode]);
+        const a2: number = args[2].value;
+        return types.toAst(Reflect.apply(Uint8ClampedArray.prototype.fill, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8ClampedArray.filter'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Uint8ClampedArray.prototype.filter, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8ClampedArray.find'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Uint8ClampedArray.prototype.find, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8ClampedArray.findIndex'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Uint8ClampedArray.prototype.findIndex, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8ClampedArray.findLast'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Uint8ClampedArray.prototype.findLast, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8ClampedArray.findLast'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Uint8ClampedArray.prototype.findLast, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8ClampedArray.findLastIndex'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Uint8ClampedArray.prototype.findLastIndex, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8ClampedArray.forEach'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Uint8ClampedArray.prototype.forEach, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8ClampedArray.from'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: ArrayLike = args[0].value;
+        return types.toAst(Reflect.apply(Uint8ClampedArray.from, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8ClampedArray.from'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 3, 3);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: ArrayLike = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: unknown = args[1].value;
+        types.assertIsOneOf<types.AtomNode>(args[2], [types.AtomNode]);
+        const a2: any = args[2].value;
+        return types.toAst(Reflect.apply(Uint8ClampedArray.from, undefined, [a[0], a[1], a[2]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8ClampedArray.includes'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Uint8ClampedArray.prototype.includes, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8ClampedArray.indexOf'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Uint8ClampedArray.prototype.indexOf, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8ClampedArray.join'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.StringNode>(args[0], [types.StringNode]);
+        const a0: string = args[0].value;
+        return types.toAst(Reflect.apply(Uint8ClampedArray.prototype.join, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8ClampedArray.keys'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Uint8ClampedArray.prototype.keys, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8ClampedArray.lastIndexOf'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Uint8ClampedArray.prototype.lastIndexOf, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8ClampedArray.map'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Uint8ClampedArray.prototype.map, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8ClampedArray.of'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(Uint8ClampedArray.of, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8ClampedArray.reduce'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(Uint8ClampedArray.prototype.reduce, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8ClampedArray.reduce'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: U = args[1].value;
+        return types.toAst(Reflect.apply(Uint8ClampedArray.prototype.reduce, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8ClampedArray.reduce'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Uint8ClampedArray.prototype.reduce, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8ClampedArray.reduceRight'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(Uint8ClampedArray.prototype.reduceRight, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8ClampedArray.reduceRight'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: U = args[1].value;
+        return types.toAst(Reflect.apply(Uint8ClampedArray.prototype.reduceRight, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8ClampedArray.reduceRight'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Uint8ClampedArray.prototype.reduceRight, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8ClampedArray.reverse'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Uint8ClampedArray.prototype.reverse, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8ClampedArray.set'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: ArrayLike = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Uint8ClampedArray.prototype.set, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8ClampedArray.slice'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Uint8ClampedArray.prototype.slice, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8ClampedArray.some'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: any = args[1].value;
+        return types.toAst(Reflect.apply(Uint8ClampedArray.prototype.some, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8ClampedArray.sort'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(Uint8ClampedArray.prototype.sort, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8ClampedArray.subarray'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Uint8ClampedArray.prototype.subarray, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8ClampedArray.toLocaleString'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Uint8ClampedArray.prototype.toLocaleString, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8ClampedArray.toLocaleString'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.StringNode | types.AtomNode>(args[0], [types.StringNode, types.AtomNode]);
+        const a0: string | unknown = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: Intl.NumberFormatOptions = args[1].value;
+        return types.toAst(Reflect.apply(Uint8ClampedArray.prototype.toLocaleString, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8ClampedArray.toReversed'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Uint8ClampedArray.prototype.toReversed, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8ClampedArray.toSorted'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: unknown = args[0].value;
+        return types.toAst(Reflect.apply(Uint8ClampedArray.prototype.toSorted, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8ClampedArray.toString'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Uint8ClampedArray.prototype.toString, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8ClampedArray.valueOf'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Uint8ClampedArray.prototype.valueOf, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8ClampedArray.values'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Uint8ClampedArray.prototype.values, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8ClampedArray.with'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.NumberNode>(args[0], [types.NumberNode]);
+        const a0: number = args[0].value;
+        types.assertIsOneOf<types.NumberNode>(args[1], [types.NumberNode]);
+        const a1: number = args[1].value;
+        return types.toAst(Reflect.apply(Uint8ClampedArray.prototype.with, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('Uint8ClampedArray[Symbol.iterator]'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(Uint8ClampedArray.prototype[Symbol.iterator], undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('WeakMap.delete'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: K = args[0].value;
+        return types.toAst(Reflect.apply(WeakMap.prototype.delete, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('WeakMap.get'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: K = args[0].value;
+        return types.toAst(Reflect.apply(WeakMap.prototype.get, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('WeakMap.has'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: K = args[0].value;
+        return types.toAst(Reflect.apply(WeakMap.prototype.has, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('WeakMap.set'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 2, 2);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: K = args[0].value;
+        types.assertIsOneOf<types.AtomNode>(args[1], [types.AtomNode]);
+        const a1: V = args[1].value;
+        return types.toAst(Reflect.apply(WeakMap.prototype.set, undefined, [a[0], a[1]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('WeakRef.deref'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 0, 0);
+        return types.toAst(Reflect.apply(WeakRef.prototype.deref, undefined, []));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('WeakSet.add'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: T = args[0].value;
+        return types.toAst(Reflect.apply(WeakSet.prototype.add, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('WeakSet.delete'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: T = args[0].value;
+        return types.toAst(Reflect.apply(WeakSet.prototype.delete, undefined, [a[0]]));
+    }),
+);
+
+// MethodSignature
+interop.set(
+    new types.SymbolNode('WeakSet.has'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        types.assertVariableArgumentCount(args.length, 1, 1);
+        types.assertIsOneOf<types.AtomNode>(args[0], [types.AtomNode]);
+        const a0: T = args[0].value;
+        return types.toAst(Reflect.apply(WeakSet.prototype.has, undefined, [a[0]]));
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('AggregateError'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(AggregateError);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('AggregateError'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(AggregateError);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('AggregateError'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(AggregateError);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('AggregateError.errors'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(AggregateError.prototype.errors);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('AggregateError.prototype'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(AggregateError.prototype);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Array.length'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Array.prototype.length);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Array.prototype'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Array.prototype);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('ArrayBuffer.byteLength'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(ArrayBuffer.prototype.byteLength);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('ArrayBuffer.prototype'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(ArrayBuffer.prototype);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('AsyncDisposableStack.disposed'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(AsyncDisposableStack.prototype.disposed);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('AsyncDisposableStack.prototype'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(AsyncDisposableStack.prototype);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('BigInt.prototype'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(BigInt.prototype);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('BigInt64Array.buffer'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(BigInt64Array.prototype.buffer);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('BigInt64Array.byteLength'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(BigInt64Array.prototype.byteLength);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('BigInt64Array.byteOffset'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(BigInt64Array.prototype.byteOffset);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('BigInt64Array.length'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(BigInt64Array.prototype.length);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('BigInt64Array.prototype'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(BigInt64Array.prototype);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('BigUint64Array.buffer'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(BigUint64Array.prototype.buffer);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('BigUint64Array.byteLength'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(BigUint64Array.prototype.byteLength);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('BigUint64Array.byteOffset'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(BigUint64Array.prototype.byteOffset);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('BigUint64Array.length'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(BigUint64Array.prototype.length);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('BigUint64Array.prototype'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(BigUint64Array.prototype);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Boolean.prototype'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Boolean.prototype);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('DataView.buffer'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(DataView.prototype.buffer);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('DataView.byteLength'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(DataView.prototype.byteLength);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('DataView.byteOffset'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(DataView.prototype.byteOffset);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('DataView.prototype'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(DataView.prototype);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Date.prototype'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Date.prototype);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('DisposableStack.disposed'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(DisposableStack.prototype.disposed);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('DisposableStack.prototype'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(DisposableStack.prototype);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Error.cause'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Error.prototype.cause);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Error.message'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Error.prototype.message);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Error.name'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Error.prototype.name);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Error.prototype'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Error.prototype);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Error.stack'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Error.prototype.stack);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('EvalError.message'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(EvalError.prototype.message);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('EvalError.name'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(EvalError.prototype.name);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('EvalError.prototype'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(EvalError.prototype);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('EvalError.stack'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(EvalError.prototype.stack);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('FinalizationRegistry.prototype'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(FinalizationRegistry.prototype);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Float32Array.buffer'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Float32Array.prototype.buffer);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Float32Array.byteLength'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Float32Array.prototype.byteLength);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Float32Array.byteOffset'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Float32Array.prototype.byteOffset);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Float32Array.length'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Float32Array.prototype.length);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Float32Array.prototype'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Float32Array.prototype);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Float64Array.buffer'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Float64Array.prototype.buffer);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Float64Array.byteLength'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Float64Array.prototype.byteLength);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Float64Array.byteOffset'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Float64Array.prototype.byteOffset);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Float64Array.length'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Float64Array.prototype.length);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Float64Array.prototype'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Float64Array.prototype);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Function.arguments'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Function.prototype.arguments);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Function.caller'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Function.prototype.caller);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Function.length'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Function.prototype.length);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Function.name'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Function.prototype.name);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Function.prototype'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Function.prototype);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Function.prototype'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Function.prototype.prototype);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Int16Array.buffer'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Int16Array.prototype.buffer);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Int16Array.byteLength'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Int16Array.prototype.byteLength);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Int16Array.byteOffset'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Int16Array.prototype.byteOffset);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Int16Array.length'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Int16Array.prototype.length);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Int16Array.prototype'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Int16Array.prototype);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Int32Array.buffer'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Int32Array.prototype.buffer);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Int32Array.byteLength'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Int32Array.prototype.byteLength);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Int32Array.byteOffset'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Int32Array.prototype.byteOffset);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Int32Array.length'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Int32Array.prototype.length);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Int32Array.prototype'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Int32Array.prototype);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Int8Array.buffer'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Int8Array.prototype.buffer);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Int8Array.byteLength'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Int8Array.prototype.byteLength);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Int8Array.byteOffset'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Int8Array.prototype.byteOffset);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Int8Array.length'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Int8Array.prototype.length);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Int8Array.prototype'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Int8Array.prototype);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Map.prototype'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Map.prototype);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Map.size'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Map.prototype.size);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Math.E'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Math.E);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Math.LN10'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Math.LN10);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Math.LN2'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Math.LN2);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Math.LOG10E'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Math.LOG10E);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Math.LOG2E'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Math.LOG2E);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Math.PI'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Math.PI);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Math.SQRT2'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Math.SQRT2);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Number.MIN_VALUE'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Number.MIN_VALUE);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Number.NaN'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Number.NaN);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Number.POSITIVE_INFINITY'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Number.POSITIVE_INFINITY);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Number.prototype'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Number.prototype);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Object.constructor'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Object.prototype.constructor);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Object.prototype'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Object.prototype);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Promise.prototype'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Promise.prototype);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('RangeError.message'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(RangeError.prototype.message);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('RangeError.name'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(RangeError.prototype.name);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('RangeError.prototype'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(RangeError.prototype);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('RangeError.stack'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(RangeError.prototype.stack);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('ReferenceError.message'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(ReferenceError.prototype.message);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('ReferenceError.name'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(ReferenceError.prototype.name);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('ReferenceError.prototype'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(ReferenceError.prototype);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('ReferenceError.stack'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(ReferenceError.prototype.stack);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Set.prototype'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Set.prototype);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Set.size'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Set.prototype.size);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('SharedArrayBuffer.byteLength'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(SharedArrayBuffer.prototype.byteLength);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('SharedArrayBuffer.prototype'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(SharedArrayBuffer.prototype);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('SharedArrayBuffer[Symbol.toStringTag]'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(SharedArrayBuffer.prototype[Symbol.toStringTag]);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('String.length'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(String.prototype.length);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('String.prototype'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(String.prototype);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('SuppressedError'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(SuppressedError);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('SuppressedError'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(SuppressedError);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('SuppressedError'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(SuppressedError);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('SuppressedError.error'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(SuppressedError.prototype.error);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('SuppressedError.prototype'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(SuppressedError.prototype);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('SuppressedError.suppressed'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(SuppressedError.prototype.suppressed);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Symbol.description'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Symbol.prototype.description);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Symbol.prototype'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Symbol.prototype);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('SyntaxError.message'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(SyntaxError.prototype.message);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('SyntaxError.name'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(SyntaxError.prototype.name);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('SyntaxError.prototype'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(SyntaxError.prototype);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('SyntaxError.stack'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(SyntaxError.prototype.stack);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('TypeError.message'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(TypeError.prototype.message);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('TypeError.name'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(TypeError.prototype.name);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('TypeError.prototype'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(TypeError.prototype);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('TypeError.stack'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(TypeError.prototype.stack);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('URIError.message'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(URIError.prototype.message);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('URIError.name'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(URIError.prototype.name);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('URIError.prototype'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(URIError.prototype);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('URIError.stack'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(URIError.prototype.stack);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Uint16Array.buffer'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Uint16Array.prototype.buffer);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Uint16Array.byteLength'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Uint16Array.prototype.byteLength);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Uint16Array.byteOffset'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Uint16Array.prototype.byteOffset);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Uint16Array.length'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Uint16Array.prototype.length);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Uint16Array.prototype'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Uint16Array.prototype);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Uint32Array.buffer'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Uint32Array.prototype.buffer);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Uint32Array.byteLength'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Uint32Array.prototype.byteLength);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Uint32Array.byteOffset'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Uint32Array.prototype.byteOffset);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Uint32Array.length'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Uint32Array.prototype.length);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Uint32Array.prototype'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Uint32Array.prototype);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Uint8Array.buffer'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Uint8Array.prototype.buffer);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Uint8Array.byteLength'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Uint8Array.prototype.byteLength);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Uint8Array.byteOffset'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Uint8Array.prototype.byteOffset);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Uint8Array.length'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Uint8Array.prototype.length);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Uint8Array.prototype'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Uint8Array.prototype);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Uint8ClampedArray.buffer'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Uint8ClampedArray.prototype.buffer);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Uint8ClampedArray.byteLength'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Uint8ClampedArray.prototype.byteLength);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Uint8ClampedArray.byteOffset'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Uint8ClampedArray.prototype.byteOffset);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Uint8ClampedArray.length'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Uint8ClampedArray.prototype.length);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('Uint8ClampedArray.prototype'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Uint8ClampedArray.prototype);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('WeakMap.prototype'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(WeakMap.prototype);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('WeakRef.prototype'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(WeakRef.prototype);
+    }),
+);
+
+// PropertySignature
+interop.set(
+    new types.SymbolNode('WeakSet.prototype'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(WeakSet.prototype);
+    }),
+);
+
+// VariableDeclaration
+interop.set(
+    new types.SymbolNode('AggregateError'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(AggregateError);
+    }),
+);
+
+// VariableDeclaration
+interop.set(
+    new types.SymbolNode('Array'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Array);
+    }),
+);
+
+// VariableDeclaration
+interop.set(
+    new types.SymbolNode('ArrayBuffer'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(ArrayBuffer);
+    }),
+);
+
+// VariableDeclaration
+interop.set(
+    new types.SymbolNode('AsyncDisposableStack'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(AsyncDisposableStack);
+    }),
+);
+
+// VariableDeclaration
+interop.set(
+    new types.SymbolNode('Atomics'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Atomics);
+    }),
+);
+
+// VariableDeclaration
+interop.set(
+    new types.SymbolNode('BigInt'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(BigInt);
+    }),
+);
+
+// VariableDeclaration
+interop.set(
+    new types.SymbolNode('BigInt64Array'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(BigInt64Array);
+    }),
+);
+
+// VariableDeclaration
+interop.set(
+    new types.SymbolNode('BigUint64Array'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(BigUint64Array);
+    }),
+);
+
+// VariableDeclaration
+interop.set(
+    new types.SymbolNode('Boolean'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Boolean);
+    }),
+);
+
+// VariableDeclaration
+interop.set(
+    new types.SymbolNode('DataView'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(DataView);
+    }),
+);
+
+// VariableDeclaration
+interop.set(
+    new types.SymbolNode('Date'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Date);
+    }),
+);
+
+// VariableDeclaration
+interop.set(
+    new types.SymbolNode('DisposableStack'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(DisposableStack);
+    }),
+);
+
+// VariableDeclaration
+interop.set(
+    new types.SymbolNode('Error'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Error);
+    }),
+);
+
+// VariableDeclaration
+interop.set(
+    new types.SymbolNode('EvalError'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(EvalError);
+    }),
+);
+
+// VariableDeclaration
+interop.set(
+    new types.SymbolNode('FinalizationRegistry'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(FinalizationRegistry);
+    }),
+);
+
+// VariableDeclaration
+interop.set(
+    new types.SymbolNode('Float32Array'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Float32Array);
+    }),
+);
+
+// VariableDeclaration
+interop.set(
+    new types.SymbolNode('Float64Array'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Float64Array);
+    }),
+);
+
+// VariableDeclaration
+interop.set(
+    new types.SymbolNode('Function'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Function);
+    }),
+);
+
+// VariableDeclaration
+interop.set(
+    new types.SymbolNode('Infinity'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Infinity);
+    }),
+);
+
+// VariableDeclaration
+interop.set(
+    new types.SymbolNode('Int16Array'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Int16Array);
+    }),
+);
+
+// VariableDeclaration
+interop.set(
+    new types.SymbolNode('Int32Array'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Int32Array);
+    }),
+);
+
+// VariableDeclaration
+interop.set(
+    new types.SymbolNode('Int8Array'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Int8Array);
+    }),
+);
+
+// VariableDeclaration
+interop.set(
+    new types.SymbolNode('JSON'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(JSON);
+    }),
+);
+
+// VariableDeclaration
+interop.set(
+    new types.SymbolNode('Map'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Map);
+    }),
+);
+
+// VariableDeclaration
+interop.set(
+    new types.SymbolNode('Math'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Math);
+    }),
+);
+
+// VariableDeclaration
+interop.set(
+    new types.SymbolNode('NaN'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(NaN);
+    }),
+);
+
+// VariableDeclaration
+interop.set(
+    new types.SymbolNode('Number'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Number);
+    }),
+);
+
+// VariableDeclaration
+interop.set(
+    new types.SymbolNode('Object'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Object);
+    }),
+);
+
+// VariableDeclaration
+interop.set(
+    new types.SymbolNode('Promise'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Promise);
+    }),
+);
+
+// VariableDeclaration
+interop.set(
+    new types.SymbolNode('Proxy'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Proxy);
+    }),
+);
+
+// VariableDeclaration
+interop.set(
+    new types.SymbolNode('RangeError'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(RangeError);
+    }),
+);
+
+// VariableDeclaration
+interop.set(
+    new types.SymbolNode('ReferenceError'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(ReferenceError);
+    }),
+);
+
+// VariableDeclaration
+interop.set(
+    new types.SymbolNode('RegExp'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(RegExp);
+    }),
+);
+
+// VariableDeclaration
+interop.set(
+    new types.SymbolNode('Set'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Set);
+    }),
+);
+
+// VariableDeclaration
+interop.set(
+    new types.SymbolNode('SharedArrayBuffer'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(SharedArrayBuffer);
+    }),
+);
+
+// VariableDeclaration
+interop.set(
+    new types.SymbolNode('String'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(String);
+    }),
+);
+
+// VariableDeclaration
+interop.set(
+    new types.SymbolNode('SuppressedError'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(SuppressedError);
+    }),
+);
+
+// VariableDeclaration
+interop.set(
+    new types.SymbolNode('Symbol'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Symbol);
+    }),
+);
+
+// VariableDeclaration
+interop.set(
+    new types.SymbolNode('SyntaxError'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(SyntaxError);
+    }),
+);
+
+// VariableDeclaration
+interop.set(
+    new types.SymbolNode('TypeError'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(TypeError);
+    }),
+);
+
+// VariableDeclaration
+interop.set(
+    new types.SymbolNode('URIError'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(URIError);
+    }),
+);
+
+// VariableDeclaration
+interop.set(
+    new types.SymbolNode('Uint16Array'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Uint16Array);
+    }),
+);
+
+// VariableDeclaration
+interop.set(
+    new types.SymbolNode('Uint32Array'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Uint32Array);
+    }),
+);
+
+// VariableDeclaration
+interop.set(
+    new types.SymbolNode('Uint8Array'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Uint8Array);
+    }),
+);
+
+// VariableDeclaration
+interop.set(
+    new types.SymbolNode('Uint8ClampedArray'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(Uint8ClampedArray);
+    }),
+);
+
+// VariableDeclaration
+interop.set(
+    new types.SymbolNode('WeakMap'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(WeakMap);
+    }),
+);
+
+// VariableDeclaration
+interop.set(
+    new types.SymbolNode('WeakRef'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(WeakRef);
+    }),
+);
+
+// VariableDeclaration
+interop.set(
+    new types.SymbolNode('WeakSet'),
+    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+        return types.toAst(WeakSet);
+    }),
+);

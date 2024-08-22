@@ -614,6 +614,30 @@ export function assertDefined<T>(object: unknown): asserts object is T {
 }
 
 /**
+ * Asserts that a value is defined (not undefined).
+ * @param object - The value to check.
+ * @throws If the value is undefined.
+ * @example assertDefined(undefined) // throws error
+ */
+export function assertUndefined<T>(object: unknown): asserts object is undefined {
+	if (object !== undefined) {
+		throw new Error('Value is not undefined');
+	}
+}
+
+/**
+ * Asserts that a value is null or undefined.
+ * @param object - The value to check.
+ * @throws If the value is not null or undefined.
+ * @example assertNullOrUndefined(42) // throws error
+ */
+export function assertNullOrUndefined<T>(object: unknown): asserts object is undefined {
+	if (object !== undefined && object !== null) {
+		throw new Error('Value is not null or undefined');
+	}
+}
+
+/**
  * Checks if a value is defined (not undefined).
  * @param object - The value to check.
  * @returns Whether the value is defined.
