@@ -4,7 +4,7 @@
  * @file
  */
 
-import { assertEquals, assertThrows } from './tests/deps.ts';
+import { assertEquals, assertThrows } from '@std/assert';
 import { printString } from './printer.ts';
 import {
 	AstNode,

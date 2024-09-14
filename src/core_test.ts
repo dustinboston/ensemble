@@ -1,15 +1,5 @@
-import {
-	assert,
-	assertEquals,
-	assertInstanceOf,
-	assertSpyCall,
-	assertSpyCalls,
-	assertStrictEquals,
-	assertThrows,
-	returnsNext,
-	spy,
-	stub,
-} from './tests/deps.ts';
+import { assert, assertEquals, assertInstanceOf, assertStrictEquals, assertThrows } from '@std/assert';
+import { assertSpyCall, assertSpyCalls, returnsNext, spy, stub } from '@std/testing/mock';
 import {
 	add,
 	apply,
@@ -76,7 +66,7 @@ import {
 	vec,
 	vector,
 	withMeta,
-} from './core.ts';
+} from '../src/core.ts';
 import {
 	AstNode,
 	AtomNode,
@@ -90,7 +80,7 @@ import {
 	StringNode,
 	SymbolNode,
 	VectorNode,
-} from './types.ts';
+} from '../src/types.ts';
 
 Deno.test('eq(): returns true for equal nodes', () => {
 	assertEquals(

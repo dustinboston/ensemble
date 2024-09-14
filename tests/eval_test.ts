@@ -3,8 +3,8 @@
  * Imported from `step2_eval.mal` tests.
  * @file
  */
-import { assertEquals, assertThrows } from './deps.ts';
-import { initEnv, rep } from '../ensemble.ts';
+import { assertEquals, assertThrows } from '@std/assert';
+import { initEnv, rep } from '@/ensemble.ts';
 
 Deno.test('EVAL: Should add', () => {
 	const env = initEnv();

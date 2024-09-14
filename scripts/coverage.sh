@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Collect coverage data
-deno test -A --coverage=tmp --clean ./**/*_test.ts
+deno test -A --coverage=tmp --clean ./src/*_test.ts
 
 # Generate HTML report
 rm -rf coverage 

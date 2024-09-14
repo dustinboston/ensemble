@@ -401,8 +401,7 @@ declare namespace Deno {
 	 * @category FFI
 	 * @experimental
 	 */
-	export type StaticForeignSymbol<T extends ForeignFunction | ForeignStatic> = T extends ForeignFunction
-		? FromForeignFunction<T>
+	export type StaticForeignSymbol<T extends ForeignFunction | ForeignStatic> = T extends ForeignFunction ? FromForeignFunction<T>
 		: T extends ForeignStatic ? FromNativeType<T['type']>
 		: never;
 
@@ -411,8 +410,7 @@ declare namespace Deno {
 	 *  @category FFI
 	 *  @experimental
 	 */
-	export type FromForeignFunction<T extends ForeignFunction> = T['parameters'] extends readonly []
-		? () => StaticForeignSymbolReturnType<T>
+	export type FromForeignFunction<T extends ForeignFunction> = T['parameters'] extends readonly [] ? () => StaticForeignSymbolReturnType<T>
 		: (
 			...args: ToNativeParameterTypes<T['parameters']>
 		) => StaticForeignSymbolReturnType<T>;

@@ -5,10 +5,10 @@
  */
 import * as core from './core.ts';
 import * as env from './env.ts';
-import * as interop from './interop.ts';
 import * as printer from './printer.ts';
 import * as reader from './reader.ts';
 import * as types from './types.ts';
+import * as interop from './interop.ts';
 
 /**
  * The READ step of the READ-EVAL-PRINT-LOOP.
@@ -328,6 +328,7 @@ export function evaluate(node: types.AstNode, appEnv: env.Env): types.AstNode {
 				break;
 			}
 
+			case 'function':
 			case 'fn*': {
 				// Return
 				result = evaluateFn(node, appEnv);
@@ -719,11 +720,6 @@ export function initEnv(): env.Env {
 		replEnv.set(coreSymbol, coreFunc);
 	}
 
-	// JavaScript interop functions
-	for (const [interopSym, interopFunc] of interop.nsInterop.entries()) {
-		replEnv.set(interopSym, interopFunc);
-	}
-
 	// Eval treats mal-data as a mal program
 	replEnv.set(
 		new types.SymbolNode('eval'),
@@ -734,22 +730,13 @@ export function initEnv(): env.Env {
 	);
 
 	rep('(def! not (fn* (a) (if a false true)))', replEnv);
+	rep(`(def! load-file (fn* (f) (eval (read-string (str "(do " (slurp f) "\nnil)")))))`, replEnv);
 	rep(
-		`(def! load-file
-		(fn* (f)
-			(eval (read-string (str "(do " (slurp f) "\nnil)")))))`,
+		`(defmacro! cond (fn* (& xs) (if (> (count xs) 0) (list 'if (first xs) (if (> (count xs) 1) (nth xs 1) (throw "odd number of forms to cond")) (cons 'cond (rest (rest xs)))))))`,
 		replEnv,
 	);
-	rep(
-		`(defmacro! cond (fn* (& xs)
-		(if (> (count xs) 0)
-			(list 'if (first xs)
-				(if (> (count xs) 1)
-					(nth xs 1)
-					(throw "odd number of forms to cond"))
-				(cons 'cond (rest (rest xs)))))))`,
-		replEnv,
-	);
+
+	interop.loadInterop(rep, replEnv);
 
 	return replEnv;
 }
@@ -777,7 +764,7 @@ export function main(...args: string[]) {
 	);
 	replEnv.set(
 		new types.SymbolNode('*host-language*'),
-		new types.StringNode('lil'),
+		new types.StringNode('ENSEMBLE'),
 	);
 
 	// Run a user program and exit

@@ -4981,22 +4981,14 @@ declare namespace ts {
 		readonly modifiers?: NodeArray<Modifier>;
 		readonly name: PropertyName;
 	}
-	interface MethodDeclaration
-		extends
-			FunctionLikeDeclarationBase,
-			ClassElement,
-			ObjectLiteralElement,
-			JSDocContainer,
-			LocalsContainer,
-			FlowContainer {
+	interface MethodDeclaration extends FunctionLikeDeclarationBase, ClassElement, ObjectLiteralElement, JSDocContainer, LocalsContainer, FlowContainer {
 		readonly kind: SyntaxKind.MethodDeclaration;
 		readonly parent: ClassLikeDeclaration | ObjectLiteralExpression;
 		readonly modifiers?: NodeArray<ModifierLike> | undefined;
 		readonly name: PropertyName;
 		readonly body?: FunctionBody | undefined;
 	}
-	interface ConstructorDeclaration
-		extends FunctionLikeDeclarationBase, ClassElement, JSDocContainer, LocalsContainer {
+	interface ConstructorDeclaration extends FunctionLikeDeclarationBase, ClassElement, JSDocContainer, LocalsContainer {
 		readonly kind: SyntaxKind.Constructor;
 		readonly parent: ClassLikeDeclaration;
 		readonly modifiers?: NodeArray<ModifierLike> | undefined;
@@ -5008,14 +5000,7 @@ declare namespace ts {
 		readonly parent: ClassLikeDeclaration;
 	}
 	interface GetAccessorDeclaration
-		extends
-			FunctionLikeDeclarationBase,
-			ClassElement,
-			TypeElement,
-			ObjectLiteralElement,
-			JSDocContainer,
-			LocalsContainer,
-			FlowContainer {
+		extends FunctionLikeDeclarationBase, ClassElement, TypeElement, ObjectLiteralElement, JSDocContainer, LocalsContainer, FlowContainer {
 		readonly kind: SyntaxKind.GetAccessor;
 		readonly parent: ClassLikeDeclaration | ObjectLiteralExpression | TypeLiteralNode | InterfaceDeclaration;
 		readonly modifiers?: NodeArray<ModifierLike>;
@@ -5023,14 +5008,7 @@ declare namespace ts {
 		readonly body?: FunctionBody;
 	}
 	interface SetAccessorDeclaration
-		extends
-			FunctionLikeDeclarationBase,
-			ClassElement,
-			TypeElement,
-			ObjectLiteralElement,
-			JSDocContainer,
-			LocalsContainer,
-			FlowContainer {
+		extends FunctionLikeDeclarationBase, ClassElement, TypeElement, ObjectLiteralElement, JSDocContainer, LocalsContainer, FlowContainer {
 		readonly kind: SyntaxKind.SetAccessor;
 		readonly parent: ClassLikeDeclaration | ObjectLiteralExpression | TypeLiteralNode | InterfaceDeclaration;
 		readonly modifiers?: NodeArray<ModifierLike>;
@@ -5052,8 +5030,7 @@ declare namespace ts {
 	interface TypeNode extends Node {
 		_typeNodeBrand: any;
 	}
-	interface KeywordTypeNode<TKind extends KeywordTypeSyntaxKind = KeywordTypeSyntaxKind>
-		extends KeywordToken<TKind>, TypeNode {
+	interface KeywordTypeNode<TKind extends KeywordTypeSyntaxKind = KeywordTypeSyntaxKind> extends KeywordToken<TKind>, TypeNode {
 		readonly kind: TKind;
 	}
 	/** @deprecated */
@@ -5398,15 +5375,13 @@ declare namespace ts {
 	}
 	type FunctionBody = Block;
 	type ConciseBody = FunctionBody | Expression;
-	interface FunctionExpression
-		extends PrimaryExpression, FunctionLikeDeclarationBase, JSDocContainer, LocalsContainer, FlowContainer {
+	interface FunctionExpression extends PrimaryExpression, FunctionLikeDeclarationBase, JSDocContainer, LocalsContainer, FlowContainer {
 		readonly kind: SyntaxKind.FunctionExpression;
 		readonly modifiers?: NodeArray<Modifier>;
 		readonly name?: Identifier;
 		readonly body: FunctionBody;
 	}
-	interface ArrowFunction
-		extends Expression, FunctionLikeDeclarationBase, JSDocContainer, LocalsContainer, FlowContainer {
+	interface ArrowFunction extends Expression, FunctionLikeDeclarationBase, JSDocContainer, LocalsContainer, FlowContainer {
 		readonly kind: SyntaxKind.ArrowFunction;
 		readonly modifiers?: NodeArray<Modifier>;
 		readonly equalsGreaterThanToken: EqualsGreaterThanToken;
@@ -11102,18 +11077,14 @@ declare namespace ts {
 		set(directory: string, result: T): void;
 	}
 	interface ModuleResolutionCache
-		extends
-			PerDirectoryResolutionCache<ResolvedModuleWithFailedLookupLocations>,
-			NonRelativeModuleNameResolutionCache,
-			PackageJsonInfoCache {
+		extends PerDirectoryResolutionCache<ResolvedModuleWithFailedLookupLocations>, NonRelativeModuleNameResolutionCache, PackageJsonInfoCache {
 		getPackageJsonInfoCache(): PackageJsonInfoCache;
 	}
 	/**
 	 * Stored map from non-relative module name to a table: directory -> result of module lookup in this directory
 	 * We support only non-relative module names because resolution of relative module names is usually more deterministic and thus less expensive.
 	 */
-	interface NonRelativeModuleNameResolutionCache
-		extends NonRelativeNameResolutionCache<ResolvedModuleWithFailedLookupLocations>, PackageJsonInfoCache {
+	interface NonRelativeModuleNameResolutionCache extends NonRelativeNameResolutionCache<ResolvedModuleWithFailedLookupLocations>, PackageJsonInfoCache {
 		/** @deprecated Use getOrCreateCacheForNonRelativeName */
 		getOrCreateCacheForModuleName(
 			nonRelativeModuleName: string,
@@ -11628,8 +11599,7 @@ declare namespace ts {
 	): EmitAndSemanticDiagnosticsBuilderProgram | undefined;
 	function createIncrementalCompilerHost(options: CompilerOptions, system?: System): CompilerHost;
 	function createIncrementalProgram<T extends BuilderProgram = EmitAndSemanticDiagnosticsBuilderProgram>(
-		{ rootNames, options, configFileParsingDiagnostics, projectReferences, host, createProgram }:
-			IncrementalProgramOptions<T>,
+		{ rootNames, options, configFileParsingDiagnostics, projectReferences, host, createProgram }: IncrementalProgramOptions<T>,
 	): T;
 	/**
 	 * Create the watch compiler host for either configFile or fileNames and its options
@@ -11831,8 +11801,7 @@ declare namespace ts {
 	/**
 	 * Host to create watch with config file
 	 */
-	interface WatchCompilerHostOfConfigFile<T extends BuilderProgram>
-		extends WatchCompilerHost<T>, ConfigFileDiagnosticsReporter {
+	interface WatchCompilerHostOfConfigFile<T extends BuilderProgram> extends WatchCompilerHost<T>, ConfigFileDiagnosticsReporter {
 		/** Name of the config file to compile */
 		configFileName: string;
 		/** Options to extend */

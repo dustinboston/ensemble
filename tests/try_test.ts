@@ -10,10 +10,12 @@
  * @file
  */
 
-import { initEnv, rep } from '../ensemble.ts';
-import { ErrorNode, MapNode, NilNode, NumberNode, StringNode } from '../types.ts';
-import { assertEquals, assertSpyCalls, assertThrows, spy } from './deps.ts';
-import { printString } from '../printer.ts';
+import { assertEquals, assertThrows } from '@std/assert';
+import { assertSpyCalls, spy } from '@std/testing/mock';
+
+import { initEnv, rep } from '@/ensemble.ts';
+import { ErrorNode, MapNode, NilNode, NumberNode, StringNode } from '@/types.ts';
+import { printString } from '@/printer.ts';
 
 Deno.test(`TRY: Testing throw`, async (t) => {
 	const sharedEnv = initEnv();

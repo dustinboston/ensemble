@@ -8,10 +8,10 @@
  *
  * @file
  */
-import { initEnv, rep } from '../ensemble.ts';
-import { AtomNode, BooleanNode, ListNode, MapNode, NilNode, NumberNode, StringNode, SymbolNode } from '../types.ts';
-import { assertEquals } from './deps.ts';
-import { printString } from '../printer.ts';
+import { assertEquals } from '@std/assert';
+import { initEnv, rep } from '@/ensemble.ts';
+import { AtomNode, BooleanNode, ListNode, MapNode, NilNode, NumberNode, StringNode, SymbolNode } from '@/types.ts';
+import { printString } from '@/printer.ts';
 
 Deno.test('FILE: Execute the program in a sub process', () => {
 	assertEquals(

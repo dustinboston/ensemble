@@ -117,7 +117,7 @@ if [[ "$run_fun" -eq 1 ]]; then
 fi
 
 if [[ "$run_unit" -eq 1 ]]; then
-  deno test -A --reporter=pretty --parallel ./*_test.ts
+  deno test -A --reporter=pretty --parallel ./src/*_test.ts
 fi
 
 graceful_exit

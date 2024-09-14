@@ -5,6 +5,7 @@
       "jsr:@std/cli": "jsr:@std/cli@1.0.1",
       "npm:@types/node": "npm:@types/node@18.16.19",
       "npm:typescript@5.5.3": "npm:typescript@5.5.3",
+      "npm:typescript@^5.5.3": "npm:typescript@5.5.3",
       "npm:xo": "npm:xo@0.56.0_@typescript-eslint+parser@6.4.1__eslint@8.48.0__typescript@5.2.2_eslint@8.48.0_@typescript-eslint+eslint-plugin@6.4.1__@typescript-eslint+parser@6.4.1___eslint@8.48.0___typescript@5.2.2__eslint@8.48.0__typescript@5.2.2_typescript@5.2.2_eslint-plugin-import@2.27.5__eslint@8.48.0_prettier@3.0.2"
     },
     "jsr": {
@@ -2968,5 +2969,12 @@
     "https://deno.land/x/tty@0.1.4/tty_sync.ts": "ad5d986dbd561e5768c49bf48a54580521bdfe95aa41869e8c84d99dbae0ff08",
     "https://deno.land/x/tty@0.1.4/util.ts": "fd50eb009b46f01461f3d38decaf4366c4970bbd818edc39b58a574efe67dbb7",
     "https://deno.land/x/tty@0.1.4/wcwidth.ts": "ab712adbbe4a07c27cc0ab89b99c3a77d28fe911c0fd1c8cebd867efc1fb4416"
+  },
+  "workspace": {
+    "dependencies": [
+      "jsr:@std/assert@^1.0.4",
+      "jsr:@std/testing@^1.0.2",
+      "npm:typescript@^5.5.3"
+    ]
   }
 }

@@ -1,0 +1,176 @@
+{
+	"type": "array",
+	"$schema": "http://json-schema.org/draft-04/schema#",
+	"description": "",
+	"minItems": 1,
+	"uniqueItems": true,
+	"items": {
+		"type": "object",
+		"required": [
+			"kind",
+			"id",
+			"name",
+			"type",
+			"params",
+			"typeParams"
+		],
+		"properties": {
+			"kind": {
+				"type": "string",
+				"minLength": 1
+			},
+			"id": {
+				"type": "string",
+				"minLength": 1
+			},
+			"name": {
+				"type": "string",
+				"minLength": 1
+			},
+			"type": {
+				"type": "object",
+				"properties": {
+					"kind": {
+						"type": "string",
+						"minLength": 1
+					},
+					"id": {
+						"type": "string",
+						"minLength": 1
+					},
+					"name": {
+						"type": "string",
+						"minLength": 1
+					},
+					"type": {
+						"type": "object",
+						"properties": {
+							"kind": {
+								"type": "string",
+								"minLength": 1
+							},
+							"id": {
+								"type": "string",
+								"minLength": 1
+							},
+							"name": {
+								"type": "string",
+								"minLength": 1
+							},
+							"type": {
+								"type": "object",
+								"properties": {
+									"kind": {
+										"type": "string",
+										"minLength": 1
+									},
+									"id": {
+										"type": "string",
+										"minLength": 1
+									},
+									"name": {
+										"type": "string",
+										"minLength": 1
+									}
+								},
+								"required": [
+									"kind",
+									"id",
+									"name"
+								]
+							}
+						},
+						"required": [
+							"kind",
+							"id",
+							"name",
+							"type"
+						]
+					}
+				},
+				"required": [
+					"kind",
+					"id",
+					"name",
+					"type"
+				]
+			},
+			"params": {
+				"type": "array",
+				"uniqueItems": true,
+				"minItems": 1,
+				"items": {
+					"required": [
+						"kind",
+						"id",
+						"name",
+						"text"
+					],
+					"properties": {
+						"kind": {
+							"type": "string",
+							"minLength": 1
+						},
+						"id": {
+							"type": "string",
+							"minLength": 1
+						},
+						"name": {
+							"type": "string",
+							"minLength": 1
+						},
+						"text": {
+							"type": "string",
+							"minLength": 1
+						}
+					}
+				}
+			},
+			"typeParams": {
+				"type": "object",
+				"properties": {
+					"kind": {
+						"type": "string",
+						"minLength": 1
+					},
+					"id": {
+						"type": "string",
+						"minLength": 1
+					},
+					"name": {
+						"type": "string",
+						"minLength": 1
+					},
+					"type": {
+						"type": "object",
+						"properties": {
+							"kind": {
+								"type": "string",
+								"minLength": 1
+							},
+							"id": {
+								"type": "string",
+								"minLength": 1
+							},
+							"name": {
+								"type": "string",
+								"minLength": 1
+							}
+						},
+						"required": [
+							"kind",
+							"id",
+							"name"
+						]
+					}
+				},
+				"required": [
+					"kind",
+					"id",
+					"name",
+					"type"
+				]
+			}
+		}
+	}
+}

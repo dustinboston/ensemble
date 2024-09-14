@@ -40,6 +40,10 @@ Run a single test suite:
 - [The power of 10: rules for developing safety-critical code][Holzman]
 - [JPL Institutional Coding Standard for the C Programming Language][JPL]
 
+## JSON Schema
+
+https://www.jsongenerator.io/schema
+
 ## Credits
 
 - This project is based on [Make-a-Lisp (MAL)][Martin]

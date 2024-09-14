@@ -1,4 +1,4 @@
-import { assertEquals, assertExists, assertInstanceOf, assertThrows } from './tests/deps.ts';
+import { assertEquals, assertExists, assertInstanceOf, assertThrows } from '@std/assert';
 import { add } from './core.ts';
 import { Env } from './env.ts';
 import {

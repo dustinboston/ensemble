@@ -3,8 +3,8 @@
  * Imported from `step3_env.mal` tests.
  * @file
  */
-import { assertEquals, assertThrows } from './deps.ts';
-import { initEnv, rep } from '../ensemble.ts';
+import { assertEquals, assertThrows } from '@std/assert';
+import { initEnv, rep } from '@/ensemble.ts';
 
 // Share the same environment for all tests.
 const testEnv = initEnv();

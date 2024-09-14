@@ -9,10 +9,10 @@
  * @file
  */
 
-import { initEnv, rep } from '../ensemble.ts';
-import { BooleanNode, ListNode, MapNode, NilNode, NumberNode, StringNode, SymbolNode, VectorNode } from '../types.ts';
-import { assertEquals } from './deps.ts';
-import { printString } from '../printer.ts';
+import { assertEquals } from '@std/assert';
+import { initEnv, rep } from '@/ensemble.ts';
+import { BooleanNode, ListNode, MapNode, NilNode, NumberNode, StringNode, SymbolNode, VectorNode } from '@/types.ts';
+import { printString } from '@/printer.ts';
 
 Deno.test(`QUOTE: Testing regular quote`, async (t) => {
 	const sharedEnv = initEnv();

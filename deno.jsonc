@@ -7,16 +7,17 @@
 	},
 	"nodeModulesDir": false,
 	"tasks": {
+		"fmt": "deno fmt",
 		"generate-coverage": "./scripts/coverage.sh",
 		"generate-docs": "./scripts/docs.sh",
-		"generate-interop": "deno run -A ./interop/generate.ts",
-		"start-repl": "deno run -A ./ensemble.ts",
+		"generate-interop": "deno run -A ./scripts/interop.ts > interop_generated.ts",
 		"serve-coverage": "python -m http.server -d ./coverage",
 		"serve-docs": "python -m http.server -d ./docs",
+		"start-repl": "deno run -A ./src/ensemble.ts",
+		"test": "./scripts/test.sh",
 		"test-e2e": "./scripts/test.sh --e2e",
 		"test-fun": "./scripts/test.sh --fun",
-		"test-unit": "./scripts/test.sh --unit",
-		"test": "./scripts/test.sh"
+		"test-unit": "./scripts/test.sh --unit"
 	},
 	"lint": {
 		"exclude": [
@@ -34,7 +35,7 @@
 	},
 	"fmt": {
 		"useTabs": true,
-		"lineWidth": 120,
+		"lineWidth": 160,
 		"indentWidth": 4,
 		"semiColons": true,
 		"singleQuote": true,
@@ -46,5 +47,11 @@
 			"examples",
 			"old"
 		]
+	},
+	"imports": {
+		"@/": "./src/",
+		"@std/assert": "jsr:@std/assert@^1.0.4",
+		"@std/testing": "jsr:@std/testing@^1.0.2",
+		"typescript": "npm:typescript@^5.5.3"
 	}
 }

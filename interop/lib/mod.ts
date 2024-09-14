@@ -1,4 +1,4 @@
-export const esnextFiles = [
+export const libs = [
 	'lib.es5.d.ts',
 	'lib.es6.d.ts',
 	'lib.es2015.core.d.ts',

@@ -8,10 +8,10 @@
  * @file
  */
 
-import { initEnv, rep } from '../ensemble.ts';
-import { BooleanNode, KeywordNode, ListNode, MapNode, NilNode, NumberNode, StringNode } from '../types.ts';
-import { assertEquals } from './deps.ts';
-import { printString } from '../printer.ts';
+import { assertEquals } from '@std/assert';
+import { initEnv, rep } from '@/ensemble.ts';
+import { BooleanNode, KeywordNode, ListNode, MapNode, NilNode, NumberNode, StringNode } from '@/types.ts';
+import { printString } from '@/printer.ts';
 
 Deno.test(`MAP: Testing MapNode`, async (t) => {
 	await t.step(

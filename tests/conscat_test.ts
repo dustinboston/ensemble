@@ -10,10 +10,11 @@
  * @file
  */
 
-import { initEnv, rep } from '../ensemble.ts';
-import { BooleanNode, ListNode, NumberNode, VectorNode } from '../types.ts';
-import { assertEquals } from './deps.ts';
-import { printString } from '../printer.ts';
+import { assertEquals } from '@std/assert';
+
+import { initEnv, rep } from '@/ensemble.ts';
+import { BooleanNode, ListNode, NumberNode, VectorNode } from '@/types.ts';
+import { printString } from '@/printer.ts';
 
 Deno.test(`CONSCAT: Testing cons function`, async (t) => {
 	const sharedEnv = initEnv();

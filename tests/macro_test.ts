@@ -8,10 +8,10 @@
  * @file
  */
 
-import { initEnv, rep } from '../ensemble.ts';
-import { BooleanNode, ListNode, NilNode, NumberNode, StringNode, SymbolNode, VectorNode } from '../types.ts';
-import { assertEquals } from './deps.ts';
-import { printString } from '../printer.ts';
+import { assertEquals } from '@std/assert';
+import { initEnv, rep } from '@/ensemble.ts';
+import { BooleanNode, ListNode, NilNode, NumberNode, StringNode, SymbolNode, VectorNode } from '@/types.ts';
+import { printString } from '@/printer.ts';
 
 Deno.test(`MACRO: Testing ' (quote) reader macro`, async (t) => {
 	const sharedEnv = initEnv();

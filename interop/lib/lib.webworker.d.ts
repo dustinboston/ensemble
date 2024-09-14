@@ -6681,8 +6681,7 @@ interface WEBGL_multi_draw {
 }
 
 /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/WebGL2RenderingContext) */
-interface WebGL2RenderingContext
-	extends WebGL2RenderingContextBase, WebGL2RenderingContextOverloads, WebGLRenderingContextBase {
+interface WebGL2RenderingContext extends WebGL2RenderingContextBase, WebGL2RenderingContextOverloads, WebGLRenderingContextBase {
 }
 
 declare var WebGL2RenderingContext: {
@@ -9820,14 +9819,7 @@ declare var WorkerLocation: {
  * [MDN Reference](https://developer.mozilla.org/docs/Web/API/WorkerNavigator)
  */
 interface WorkerNavigator
-	extends
-		NavigatorBadge,
-		NavigatorConcurrentHardware,
-		NavigatorID,
-		NavigatorLanguage,
-		NavigatorLocks,
-		NavigatorOnLine,
-		NavigatorStorage {
+	extends NavigatorBadge, NavigatorConcurrentHardware, NavigatorID, NavigatorLanguage, NavigatorLocks, NavigatorOnLine, NavigatorStorage {
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/WorkerNavigator/mediaCapabilities) */
 	readonly mediaCapabilities: MediaCapabilities;
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/WorkerNavigator/permissions) */

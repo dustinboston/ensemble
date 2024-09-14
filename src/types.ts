@@ -12,8 +12,59 @@ import { type Env } from './env.ts';
  * @see https://craftinginterpreters.com/representing-code.html
  */
 
-export abstract class AstNode {
-	abstract value: unknown;
+export class AstNode {
+	// deno-lint-ignore no-explicit-any
+	constructor(public value: any) {}
+
+	public toJs<T>(): T {
+		return this.astToJs(this) as T;
+	}
+
+	private astToJs(ast: unknown): unknown {
+		if (
+			ast instanceof StringNode ||
+			ast instanceof KeywordNode ||
+			ast instanceof SymbolNode ||
+			ast instanceof BooleanNode ||
+			ast instanceof NumberNode
+		) {
+			return ast.value;
+		}
+
+		if (ast instanceof AtomNode) {
+			return this.astToJs(ast.value);
+		}
+
+		if (ast instanceof ErrorNode) {
+			const message = this.astToJs(ast.value);
+			return new Error(String(message));
+		}
+
+		if (ast instanceof FunctionNode) {
+			return ast.value;
+		}
+
+		if (ast instanceof ListNode || ast instanceof VectorNode) {
+			return ast.value.map((value) => this.astToJs(value));
+		}
+
+		// Convert to a POJO because there aren't any JS APIs that take a Map as an argument.
+		if (ast instanceof MapNode) {
+			// deno-lint-ignore no-explicit-any
+			const obj: Record<string, any> = {};
+			for (const [key, valueAstNode] of ast.value.entries()) {
+				const value = this.astToJs(valueAstNode);
+				obj[key] = value;
+			}
+			return obj;
+		}
+
+		if (ast instanceof NilNode) {
+			return null;
+		}
+
+		throw new TypeError(`unmatched object ${JSON.stringify(ast)}`);
+	}
 }
 
 /**
@@ -23,7 +74,7 @@ export abstract class AstNode {
  */
 export class SymbolNode extends AstNode {
 	constructor(public value: string) {
-		super();
+		super(value);
 	}
 }
 
@@ -37,7 +88,7 @@ export class ListNode extends AstNode {
 		public value: AstNode[],
 		public metadata: AstNode = new NilNode(),
 	) {
-		super();
+		super(value);
 	}
 }
 
@@ -51,7 +102,7 @@ export class VectorNode extends AstNode {
 		public value: AstNode[],
 		public metadata: AstNode = new NilNode(),
 	) {
-		super();
+		super(value);
 	}
 }
 
@@ -62,7 +113,7 @@ export class VectorNode extends AstNode {
  */
 export class AtomNode extends AstNode {
 	constructor(public value: AstNode) {
-		super();
+		super(value);
 	}
 }
 
@@ -73,7 +124,7 @@ export class AtomNode extends AstNode {
  */
 export class BooleanNode extends AstNode {
 	constructor(public value: boolean) {
-		super();
+		super(value);
 	}
 }
 
@@ -91,7 +142,7 @@ export class MapNode extends AstNode {
 		public value: Map<string, AstNode> = new Map<string, AstNode>(),
 		public metadata: AstNode = new NilNode(),
 	) {
-		super();
+		super(value);
 	}
 }
 
@@ -102,7 +153,7 @@ export class MapNode extends AstNode {
  */
 export class ErrorNode extends AstNode {
 	constructor(public value: AstNode) {
-		super();
+		super(value);
 	}
 }
 
@@ -129,7 +180,7 @@ export class FunctionNode extends AstNode {
 		public isMacro = false,
 		public metadata: AstNode = new NilNode(),
 	) {
-		super();
+		super(value);
 	}
 }
 
@@ -140,7 +191,7 @@ export class FunctionNode extends AstNode {
  */
 export class KeywordNode extends AstNode {
 	constructor(public value: string) {
-		super();
+		super(value);
 	}
 }
 
@@ -151,7 +202,7 @@ export class KeywordNode extends AstNode {
  */
 export class NilNode extends AstNode {
 	constructor(public value: unknown = null) {
-		super();
+		super(value);
 	}
 }
 
@@ -162,7 +213,7 @@ export class NilNode extends AstNode {
  */
 export class NumberNode extends AstNode {
 	constructor(public value: number) {
-		super();
+		super(value);
 	}
 }
 
@@ -173,7 +224,7 @@ export class NumberNode extends AstNode {
  */
 export class StringNode extends AstNode {
 	constructor(public value: string) {
-		super();
+		super(value);
 	}
 }
 
@@ -187,7 +238,7 @@ export class DomNode extends AstNode {
 		public value: Map<string, AstNode> = new Map<string, AstNode>(),
 		public metadata: AstNode = new NilNode(),
 	) {
-		super();
+		super(value);
 	}
 }
 
@@ -196,9 +247,9 @@ export class DomNode extends AstNode {
  * A data class which represents a part of the AST.
  * @param value - The data that this class represents.
  */
-export class JsNode extends AstNode {
-	constructor(public value: unknown) {
-		super();
+export class JsNode<T = unknown> extends AstNode {
+	constructor(public value: T) {
+		super(value);
 	}
 }
 
@@ -1958,145 +2009,4 @@ export function toAst(input: unknown): AstNode {
 			);
 		}
 	}
-}
-
-// TODO: Test, especially function conversion
-// export function toAst(jsValue: unknown): AstNode {
-// 	if (Deno.env.get('DEBUG')) {
-// 		console.log(`Converting JavaScript value to AstNode`);
-// 	}
-
-// 	if (jsValue instanceof AstNode) {
-// 		return jsValue;
-// 	}
-
-// 	if (typeof jsValue === 'undefined' || jsValue === null) {
-// 		if (Deno.env.get('DEBUG')) console.log('Found a null or undefined');
-// 		return new NilNode();
-// 	}
-
-// 	if (typeof jsValue === 'number') {
-// 		if (Deno.env.get('DEBUG')) console.log('Found a number');
-// 		return new NumberNode(jsValue);
-// 	}
-
-// 	if (typeof jsValue === 'string') {
-// 		if (jsValue.startsWith('"')) {
-// 			if (Deno.env.get('DEBUG')) console.log('Found a string');
-// 			return new StringNode(jsValue);
-// 		}
-
-// 		if (jsValue.startsWith(':')) {
-// 			if (Deno.env.get('DEBUG')) console.log('Found a keyword');
-// 			return new KeywordNode(jsValue);
-// 		}
-
-// 		if (Deno.env.get('DEBUG')) console.log('Found a symbol');
-// 		return new SymbolNode(jsValue);
-// 	}
-
-// 	if (typeof jsValue === 'boolean') {
-// 		if (Deno.env.get('DEBUG')) console.log('Found a boolean');
-// 		return new BooleanNode(jsValue);
-// 	}
-
-// 	if (jsValue instanceof Error) {
-// 		if (Deno.env.get('DEBUG')) console.log('Found an error');
-// 		return new ErrorNode(new StringNode(jsValue.message));
-// 	}
-
-// 	if (Array.isArray(jsValue) || jsValue instanceof Set) {
-// 		if (Deno.env.get('DEBUG')) console.log('Found an array or set');
-// 		const vector = new VectorNode([]);
-// 		for (const element of jsValue) {
-// 			const ast = toAst(element);
-// 			vector.value.push(ast);
-// 		}
-// 		return vector;
-// 	}
-
-// 	if (jsValue instanceof Map) {
-// 		if (Deno.env.get('DEBUG')) console.log('Found a map');
-// 		const map = new Map<string, AstNode>();
-// 		for (const [maybeString, unknownValue] of jsValue.entries()) {
-// 			const key = String(maybeString);
-// 			const value = toAst(unknownValue);
-// 			map.set(key, value);
-// 		}
-
-// 		return new MapNode(map);
-// 	}
-
-// 	if (typeof jsValue === 'function') {
-// 		if (Deno.env.get('DEBUG')) {
-// 			console.log(`Found a function, "${jsValue.name}"`);
-// 		}
-
-// 		return new FunctionNode(
-// 			(...args: AstNode[]): AstNode => {
-// 				try {
-// 					console.log('Firing a function!', args);
-// 					const result = jsValue(...args.map((x) => x.value));
-// 					console.log('Fired a function', result);
-// 					// const ast = toAst(result);
-// 					console.log('Converted function result to Ast', result);
-// 					return result;
-// 				} catch (error: unknown) {
-// 					console.log('Failed a function', error);
-// 					if (error instanceof Error) {
-// 						return new ErrorNode(
-// 							new StringNode(error.message),
-// 						);
-// 					}
-
-// 					return new ErrorNode(
-// 						new StringNode(JSON.stringify(error)),
-// 					);
-// 				}
-// 			},
-// 		);
-// 	}
-
-// 	if (typeof jsValue === 'object' && jsValue.constructor === Object) {
-// 		const map = new MapNode(new Map());
-// 		for (const [key, value] of Object.entries(jsValue)) {
-// 			const ast = toAst(value);
-// 			map.value.set(key, ast);
-// 		}
-
-// 		return map;
-// 	}
-
-// 	const coercedUnknown = String(jsValue);
-// 	return new ErrorNode(
-// 		new StringNode(`uknown type ${coercedUnknown}`),
-// 	);
-// }
-
-/**
- * Curries a FunctionNode.
- * @param args - A function and rest args to curry.
- * @param args.0 - The function to curry.
- * @param args.1 - Pass as many arguments as are needed and they will be handled
- * @returns A new FunctionNode with the curried function.
- */
-export function curriedFunction(...args: AstNode[]): AstNode {
-	if (Deno.env.get('DEBUG')) {
-		console.log(`Currying a function with args ${JSON.stringify(args)}`);
-	}
-	assertMinimumArgumentCount(args.length, 1);
-	assertFunctionNode(args[0]);
-
-	const [fn, ...rest] = args;
-	return new FunctionNode(() => {
-		if (Deno.env.get('DEBUG')) {
-			console.log(`Calling curried function with args ${JSON.stringify(rest)}`);
-		}
-		const result = fn.value.call(null, ...rest);
-		if (Deno.env.get('DEBUG')) {
-			console.log(`Curried function returned ${String(result.value)}`);
-		}
-
-		return result;
-	});
 }

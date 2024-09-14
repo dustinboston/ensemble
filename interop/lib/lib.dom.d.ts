@@ -7168,15 +7168,7 @@ interface DocumentEventMap extends GlobalEventHandlersEventMap {
  *
  * [MDN Reference](https://developer.mozilla.org/docs/Web/API/Document)
  */
-interface Document
-	extends
-		Node,
-		DocumentOrShadowRoot,
-		FontFaceSource,
-		GlobalEventHandlers,
-		NonElementParentNode,
-		ParentNode,
-		XPathEvaluatorBase {
+interface Document extends Node, DocumentOrShadowRoot, FontFaceSource, GlobalEventHandlers, NonElementParentNode, ParentNode, XPathEvaluatorBase {
 	/**
 	 * Sets or gets the URL for the current document.
 	 *
@@ -8091,8 +8083,7 @@ interface ElementEventMap {
  *
  * [MDN Reference](https://developer.mozilla.org/docs/Web/API/Element)
  */
-interface Element
-	extends Node, ARIAMixin, Animatable, ChildNode, InnerHTML, NonDocumentTypeChildNode, ParentNode, Slottable {
+interface Element extends Node, ARIAMixin, Animatable, ChildNode, InnerHTML, NonDocumentTypeChildNode, ParentNode, Slottable {
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/Element/attributes) */
 	readonly attributes: NamedNodeMap;
 	/**
@@ -10935,8 +10926,7 @@ interface HTMLElementEventMap extends ElementEventMap, GlobalEventHandlersEventM
  *
  * [MDN Reference](https://developer.mozilla.org/docs/Web/API/HTMLElement)
  */
-interface HTMLElement
-	extends Element, ElementCSSInlineStyle, ElementContentEditable, GlobalEventHandlers, HTMLOrSVGElement {
+interface HTMLElement extends Element, ElementCSSInlineStyle, ElementContentEditable, GlobalEventHandlers, HTMLOrSVGElement {
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/HTMLElement/accessKey) */
 	accessKey: string;
 	/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/HTMLElement/accessKeyLabel) */
@@ -27441,8 +27431,7 @@ declare var WaveShaperNode: {
 };
 
 /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/WebGL2RenderingContext) */
-interface WebGL2RenderingContext
-	extends WebGL2RenderingContextBase, WebGL2RenderingContextOverloads, WebGLRenderingContextBase {
+interface WebGL2RenderingContext extends WebGL2RenderingContextBase, WebGL2RenderingContextOverloads, WebGLRenderingContextBase {
 }
 
 declare var WebGL2RenderingContext: {
@@ -30384,14 +30373,7 @@ interface WindowEventMap extends GlobalEventHandlersEventMap, WindowEventHandler
  * [MDN Reference](https://developer.mozilla.org/docs/Web/API/Window)
  */
 interface Window
-	extends
-		EventTarget,
-		AnimationFrameProvider,
-		GlobalEventHandlers,
-		WindowEventHandlers,
-		WindowLocalStorage,
-		WindowOrWorkerGlobalScope,
-		WindowSessionStorage {
+	extends EventTarget, AnimationFrameProvider, GlobalEventHandlers, WindowEventHandlers, WindowLocalStorage, WindowOrWorkerGlobalScope, WindowSessionStorage {
 	/**
 	 * @deprecated This is a legacy alias of `navigator`.
 	 *

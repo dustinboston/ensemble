@@ -1,4 +1,4 @@
-import { assertEquals, assertThrows } from './tests/deps.ts';
+import { assertEquals, assertThrows } from '@std/assert';
 import { Env } from './env.ts';
 import { AstNode, ListNode, NilNode, NumberNode, StringNode, SymbolNode } from './types.ts';
 

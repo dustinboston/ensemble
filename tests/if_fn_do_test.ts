@@ -3,8 +3,8 @@
  * Imported from `step4_if_fn_do.mal` tests.
  * @file
  */
-import { assertEquals } from './deps.ts';
-import { initEnv, rep } from '../ensemble.ts';
+import { assertEquals } from '@std/assert';
+import { initEnv, rep } from '@/ensemble.ts';
 
 // -----------------------------------------------------
 
