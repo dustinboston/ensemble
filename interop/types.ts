@@ -1,6 +1,8 @@
 import ts from 'npm:typescript@5.5.3';
 
 export const metaValues = [
+	ts.SyntaxKind.DotDotDotToken,
+	ts.SyntaxKind.QuestionToken,
 	ts.SyntaxKind.AbstractKeyword,
 	ts.SyntaxKind.AccessorKeyword,
 	ts.SyntaxKind.AssertsKeyword,
@@ -8,7 +10,6 @@ export const metaValues = [
 	ts.SyntaxKind.ConstKeyword,
 	ts.SyntaxKind.DeclareKeyword,
 	ts.SyntaxKind.DefaultKeyword,
-	ts.SyntaxKind.DotDotDotToken,
 	ts.SyntaxKind.ExportKeyword,
 	ts.SyntaxKind.ExtendsKeyword,
 	ts.SyntaxKind.InKeyword,
@@ -17,7 +18,6 @@ export const metaValues = [
 	ts.SyntaxKind.PrivateKeyword,
 	ts.SyntaxKind.ProtectedKeyword,
 	ts.SyntaxKind.PublicKeyword,
-	ts.SyntaxKind.QuestionToken,
 	ts.SyntaxKind.ReadonlyKeyword,
 	ts.SyntaxKind.StaticKeyword,
 ] as const;

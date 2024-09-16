@@ -1,5 +1,6 @@
 import ts from 'npm:typescript@5.5.3';
 import { formatName, getDeclarationName, hasConstructSignature, isContainerDeclaration, isDeclarationWithName } from './utils.ts';
+import { Ast } from './ast.ts';
 
 /**
  * Find and store declarations, constructors, and heritage to make parsing more efficient
@@ -31,7 +32,7 @@ export class AppCache {
 	 * named statementsCache in generator
 	 * @todo rename "containers"
 	 */
-	public statementsCache = new Map<string, [ts.SourceFile['fileName'], ts.Node][]>();
+	public statementsCache = new Map<string, [ts.SourceFile, ts.Node][]>();
 
 	/**
 	 * Global declarations: VariableDeclaration, FunctionDeclaration, ModuleDeclaration (namespace)
@@ -41,7 +42,8 @@ export class AppCache {
 	/**
 	 * Cache type alias declarations so that they can be be expanded into their primitive forms as needed.
 	 */
-	public typeAliasDeclarations = new Map<string, [ts.SourceFile['fileName'], ts.TypeAliasDeclaration]>();
+	// public typeAliasDeclarations = new Map<string, [ts.SourceFile, ts.TypeAliasDeclaration]>();
+	public typeAliasDeclarations = new Map<string, Ast[]>();
 
 	/**
 	 * The TypeScript program that this cache is associated with.
@@ -118,7 +120,7 @@ export class AppCache {
 	 * @param containerName - The name of the container to retrieve.
 	 * @returns An array of tuples, where the first element is the file path and the second element is the container declaration node.
 	 */
-	public getContainer(containerName: string): [string, ts.Node][] {
+	public getContainer(containerName: string): [ts.SourceFile, ts.Node][] {
 		return this.statementsCache.get(containerName) ?? [];
 	}
 
@@ -173,7 +175,7 @@ export class AppCache {
 			this.cacheContainer(node, sourceFile, globalPrefix);
 			if (ts.isModuleBlock(node.body)) this.visitChildren(node, sourceFile, name);
 		} else if (ts.isTypeAliasDeclaration(node)) {
-			this.typeAliasDeclarations.set(name, [sourceFile.fileName, node]);
+			// this.typeAliasDeclarations.set(name, [sourceFile, node]);
 		}
 	}
 
@@ -190,7 +192,7 @@ export class AppCache {
 		if (!isDeclarationWithName(node) || !isContainerDeclaration(node)) return;
 		const name = formatName(node.name.getText(sourceFile), globalPrefix);
 		const declarations = this.statementsCache.get(name) ?? [];
-		declarations.push([sourceFile.fileName, node]);
+		declarations.push([sourceFile, node]);
 		this.statementsCache.set(name, declarations);
 	}
 

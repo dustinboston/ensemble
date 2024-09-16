@@ -10,6 +10,7 @@ export type SerializedAst = {
 	params?: SerializedAst | SerializedAst[];
 	typeParams?: SerializedAst | SerializedAst[];
 	text?: string;
+	meta?: string;
 };
 
 /**
@@ -60,16 +61,6 @@ export class Ast {
 	 */
 	private typeParameters: Ast[] = [];
 
-	/**
-	 * Code representing the Ast.
-	 */
-	private code?: string;
-
-	/**
-	 * A place to store debugging information
-	 */
-	private debug?: any;
-
 	constructor(id: string, name: string, kind: number) {
 		if (!id) throw new TypeError('Ast requires an id');
 		if (!name) throw new TypeError('Ast requires a name');
@@ -105,9 +96,16 @@ export class Ast {
 			obj.typeParams = (typeParams.length === 1) ? typeParams[0] : typeParams;
 		}
 
-		// if (this.meta.size) {
-		// 	obj.meta = Array.from(this.meta, (kind) => ts.SyntaxKind[kind]);
-		// }
+		if (this.meta.size) {
+			const restArgs = this.meta.has(ts.SyntaxKind.DotDotDotToken);
+			const optional = this.meta.has(ts.SyntaxKind.QuestionToken);
+			if (restArgs || optional) {
+				const meta = [];
+				if (restArgs) meta.push('rest');
+				if (optional) meta.push('optional');
+				obj.meta = meta.join(' ');
+			}
+		}
 
 		if (this.text) obj.text = this.text;
 		return obj;
@@ -247,7 +245,7 @@ export class Ast {
 	 * @param metaType - The meta type to add to the ast.
 	 * @returns A reference to this ast instance for method chaining.
 	 */
-	public addMeta(metaKind: Meta) {
+	public addMeta(metaKind: Meta | number) {
 		if (isValidMeta(metaKind)) {
 			this.meta.add(metaKind);
 		}
@@ -259,7 +257,7 @@ export class Ast {
 	 * @param metaType - The meta type to check for.
 	 * @returns `true` if the ast has the specified meta type, `false` otherwise.
 	 */
-	public hasMeta(metaKind: Meta) {
+	public hasMeta(metaKind: Meta | number) {
 		return this.meta.has(metaKind);
 	}
 
@@ -373,33 +371,5 @@ export class Ast {
 			this.text = text;
 		}
 		return this;
-	}
-
-	/**
-	 * Sets the "code" value of the Ast which is the JavaScript code that represents the Ast.
-	 * @param code A JavaScript string
-	 */
-	public setCode(code: string) {
-		if (code) {
-			this.code = code;
-		}
-	}
-
-	/**
-	 * Gets the code value of the Ast which is the JavaScript code that represents the Ast.
-	 * @returns The code value of the Ast.
-	 */
-	public getCode() {
-		return this.code;
-	}
-
-	public setDebug(debug: any) {
-		if (debug) {
-			this.debug = debug;
-		}
-	}
-
-	public getDebug() {
-		return this.debug;
 	}
 }

@@ -10,7 +10,7 @@
 		"fmt": "deno fmt",
 		"generate-coverage": "./scripts/coverage.sh",
 		"generate-docs": "./scripts/docs.sh",
-		"generate-interop": "deno run -A ./scripts/interop.ts > interop_generated.ts",
+		"generate-interop": "deno run -A ./scripts/interop.ts > ./generated/interop.json",
 		"serve-coverage": "python -m http.server -d ./coverage",
 		"serve-docs": "python -m http.server -d ./docs",
 		"start-repl": "deno run -A ./src/ensemble.ts",

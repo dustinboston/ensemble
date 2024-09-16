@@ -28,9 +28,10 @@ export class Generator {
 	 */
 	public cache: AppCache;
 
+	/**
+	 * Regular expression to ensure that variables don't have invalid characters.
+	 */
 	public validVariableRegEx = new RegExp(/^[a-zA-Z_$][a-zA-Z0-9_$]*$/);
-
-	public idCount = 999;
 
 	/**
 	 * Initializes the generator with the provided file paths. Only the entry point files are necessary as the Typescript
@@ -53,6 +54,7 @@ export class Generator {
 	 */
 	public generate() {
 		this.cache.initialize();
+		this.preCacheTypeAliasesAndInterfaces();
 
 		// Then process the program, resolving declarations along the way.
 		this.program.getSourceFiles().forEach((sourceFile) => {
@@ -61,8 +63,6 @@ export class Generator {
 			});
 		});
 
-		// console.log('// Found %s globals', Object.values(this.globals).length);
-		// console.log('// Found %s declarations', this.cache.declarations.size);
 		const statements = Object.values(this.globals).reduce<SerializedAst[]>((acc, asts) => {
 			asts.forEach((ast) => {
 				const globalName = ast.getId().split('.')[0];
@@ -71,16 +71,30 @@ export class Generator {
 				}
 			});
 			return acc;
-		}, []).sort((a, b) => (a.id ?? 'z').localeCompare(b.id ?? 'z'));
-		// console.log(`// Generated ${statements.length} statements`);
+		}, []);
 
-		console.log(JSON.stringify(statements, null, 2));
+		return statements;
+	}
 
-		// 	import * as types from './src/types.ts';
-		// 	export const ns = new Map<types.MapKeyNode, types.FunctionNode>();
-		// `);
+	/**
+	 * Searches for type aliases and caches them
+	 */
+	private preCacheTypeAliasesAndInterfaces(): void {
+		const visit = (node: ts.Node, sourceFile: ts.SourceFile) => {
+			if (ts.isTypeAliasDeclaration(node)) {
+				this.readTypeAliasDeclaration(node, sourceFile);
+			} else if (ts.isInterfaceDeclaration(node)) {
+				this.readInterfaceDeclaration(node, sourceFile);
+			}
+			node.forEachChild((child) => visit(child, sourceFile));
+		};
 
-		// return this.globals;
+		// Run the pre-cache visitor before everything else so that the type aliases are pre-cached.
+		this.program.getSourceFiles().forEach((sourceFile) => {
+			sourceFile.forEachChild((node) => {
+				visit(node, sourceFile);
+			});
+		});
 	}
 
 	/**
@@ -101,27 +115,10 @@ export class Generator {
 		// 	return;
 		// }
 
-		// if (this.cache.declarations.has(id)) {
 		if (!Object.hasOwn(this.globals, id)) {
 			this.globals[id] = [ast];
 			return;
 		}
-		// }
-
-		// // Check if this ast is already part of the global
-		// const newText = JSON.stringify(ast.serialize());
-		// let hasMatch = false;
-		// for (const obj of this.globals[id]) {
-		// 	const oldText = JSON.stringify(obj.serialize());
-		// 	if (newText === oldText) {
-		// 		hasMatch = true;
-		// 		break;
-		// 	}
-		// }
-
-		// if (!hasMatch) {
-		// 	this.globals[id].push(ast);
-		// }
 	}
 
 	// MARK: VISIT STMTS
@@ -142,13 +139,11 @@ export class Generator {
 				break;
 			}
 
-			// Can be ignored because type aliases will be omitted from final output
 			case ts.SyntaxKind.TypeAliasDeclaration: {
+				if (ts.isTypeAliasDeclaration(node)) {
+					this.readTypeAliasDeclaration(node, sourceFile);
+				}
 				return;
-				// if (ts.isTypeAliasDeclaration(node)) {
-				// 	return this.readTypeAliasDeclaration(node, sourceFile, globalPrefix);
-				// }
-				// break;
 			}
 
 			// Variable declarations are only used for reference, handled in visitDeclarations
@@ -248,7 +243,6 @@ export class Generator {
 		switch (typeNode.kind) {
 			case ts.SyntaxKind.UnionType: {
 				if (!ts.isUnionTypeNode(typeNode)) break;
-				parameter.setKind(typeNode.kind);
 				for (const childType of typeNode.types) {
 					const childParameter = this.visitType(childType, sourceFile);
 					parameter.addType(childParameter);
@@ -258,8 +252,6 @@ export class Generator {
 
 			case ts.SyntaxKind.ArrayType: {
 				if (!ts.isArrayTypeNode(typeNode)) break;
-
-				parameter.setKind(typeNode.kind);
 				const childParameter = this.visitType(typeNode.elementType, sourceFile);
 				parameter.addType(childParameter);
 				break;
@@ -267,18 +259,13 @@ export class Generator {
 
 			case ts.SyntaxKind.TypeReference: {
 				if (!ts.isTypeReferenceNode(typeNode)) break;
-				// typeName can be either Identifier or QualifiedName. getText is correct for both. So skip the is* check.
 				const referenceName = typeNode.typeName.getText(sourceFile);
-				parameter.setKind(typeNode.kind).setName(referenceName);
+				parameter.setName(referenceName);
 
 				// Get the primitive types from the type alias declaration
 				if (this.cache.typeAliasDeclarations.has(referenceName)) {
-					const [typeAliasFileName, typeAliasNode] = this.cache.typeAliasDeclarations.get(referenceName)!;
-					const typeAliasSourceFile = this.program.getSourceFile(typeAliasFileName);
-					if (typeAliasSourceFile) {
-						const typeAliasAst = this.readTypeAliasDeclaration(typeAliasNode, typeAliasSourceFile);
-						if (typeAliasAst) typeAliasAst.forEach((t) => parameter.addType(t));
-					}
+					const typeAliasTypes = this.cache.typeAliasDeclarations.get(referenceName)!;
+					typeAliasTypes.forEach((t) => parameter.addType(t));
 				}
 
 				if (typeNode.typeArguments) {
@@ -293,19 +280,24 @@ export class Generator {
 
 			case ts.SyntaxKind.Identifier: {
 				if (!ts.isIdentifier(typeNode)) break;
-				parameter.setKind(typeNode.kind).setText(typeNode.getText(sourceFile));
+				parameter.setText(typeNode.getText(sourceFile));
 				break;
 			}
 
 			case ts.SyntaxKind.LiteralType: {
 				if (!ts.isLiteralTypeNode(typeNode)) break;
-				parameter.setKind(typeNode.kind).setText(typeNode.getText(sourceFile));
+				parameter.addType(this.visitType(typeNode.literal, sourceFile));
+				break;
+			}
+
+			case ts.SyntaxKind.StringLiteral: {
+				if (!ts.isStringLiteral) break;
+				parameter.setText(typeNode.getText(sourceFile));
 				break;
 			}
 
 			case ts.SyntaxKind.FunctionType: {
 				if (!ts.isFunctionTypeNode(typeNode)) break;
-				parameter.setKind(typeNode.kind);
 				if (typeNode.parameters) {
 					for (const childType of typeNode.parameters) {
 						const childParameter = this.getParameter(childType, sourceFile);
@@ -321,7 +313,6 @@ export class Generator {
 
 			case ts.SyntaxKind.TypeLiteral: {
 				if (!ts.isTypeLiteralNode(typeNode)) break;
-				parameter.setKind(typeNode.kind);
 				if (typeNode.members) {
 					for (const childType of typeNode.members) {
 						const childParameter = this.visitType(childType, sourceFile);
@@ -333,7 +324,6 @@ export class Generator {
 
 			case ts.SyntaxKind.IntersectionType: {
 				if (!ts.isIntersectionTypeNode(typeNode)) break;
-				parameter.setKind(typeNode.kind);
 				for (const childType of typeNode.types) {
 					const childParameter = this.visitType(childType, sourceFile);
 					parameter.addType(childParameter);
@@ -343,14 +333,24 @@ export class Generator {
 
 			case ts.SyntaxKind.TypeOperator: {
 				if (!ts.isTypeOperatorNode(typeNode)) break;
-				parameter.setKind(typeNode.kind).setText(ts.tokenToString(typeNode.operator)).addType(this.visitType(typeNode.type, sourceFile));
+				const type = this.visitType(typeNode.type, sourceFile);
+
+				// Meta can be KeyOf, ReadOnly, or Unique
+				parameter.addMeta(typeNode.operator);
+
+				// If Meta is KeyOf, get the keys from the type
+				if (parameter.hasMeta(ts.SyntaxKind.KeyOfKeyword)) {
+					// TODO: get keys from type
+				} else {
+					parameter.addType(type);
+				}
+
 				break;
 			}
 
 			case ts.SyntaxKind.TupleType: {
 				if (!ts.isTupleTypeNode(typeNode)) break;
 
-				parameter.setKind(typeNode.kind);
 				for (const childType of typeNode.elements) {
 					parameter.addType(this.visitType(childType, sourceFile));
 				}
@@ -359,7 +359,6 @@ export class Generator {
 
 			case ts.SyntaxKind.RestType: {
 				if (!ts.isRestTypeNode(typeNode)) break;
-				// Skip adding a RestType Ast and return the type directly
 				const restType = this.visitType(typeNode.type, sourceFile);
 				restType.addMeta(ts.SyntaxKind.DotDotDotToken);
 				return restType;
@@ -367,14 +366,12 @@ export class Generator {
 
 			case ts.SyntaxKind.ParenthesizedType: {
 				if (!ts.isParenthesizedTypeNode(typeNode)) break;
-				parameter.setKind(typeNode.kind).addType(this.visitType(typeNode.type, sourceFile));
+				parameter.addType(this.visitType(typeNode.type, sourceFile));
 				break;
 			}
 
 			case ts.SyntaxKind.IndexSignature: {
 				if (!ts.isIndexSignatureDeclaration(typeNode)) break;
-
-				parameter.setKind(typeNode.kind);
 				for (const childType of typeNode.parameters) {
 					parameter.addParameter(this.visitType(childType, sourceFile));
 				}
@@ -384,7 +381,7 @@ export class Generator {
 
 			case ts.SyntaxKind.PropertySignature: {
 				if (!ts.isPropertySignature(typeNode)) break;
-				parameter.setKind(typeNode.kind).setName(typeNode.name.getText(sourceFile));
+				parameter.setName(typeNode.name.getText(sourceFile));
 
 				if (typeNode.questionToken !== undefined) {
 					parameter.addMeta(ts.SyntaxKind.QuestionToken);
@@ -398,7 +395,7 @@ export class Generator {
 
 			case ts.SyntaxKind.MappedType: {
 				if (!ts.isMappedTypeNode(typeNode)) break;
-				parameter.setKind(typeNode.kind).addParameter(this.visitType(typeNode.typeParameter, sourceFile));
+				parameter.addParameter(this.visitType(typeNode.typeParameter, sourceFile));
 				if (typeNode.questionToken !== undefined) parameter.addMeta(ts.SyntaxKind.QuestionToken);
 				if (typeNode.readonlyToken !== undefined) parameter.addMeta(ts.SyntaxKind.ReadonlyKeyword);
 				if (typeNode.type) parameter.addType(this.visitType(typeNode.type, sourceFile));
@@ -407,7 +404,7 @@ export class Generator {
 
 			case ts.SyntaxKind.IndexedAccessType: {
 				if (!ts.isIndexedAccessTypeNode(typeNode)) break;
-				parameter.setKind(typeNode.kind).addType(this.visitType(typeNode.objectType, sourceFile)).addParameter(
+				parameter.addType(this.visitType(typeNode.objectType, sourceFile)).addParameter(
 					this.visitType(typeNode.indexType, sourceFile),
 				);
 				break;
@@ -415,7 +412,7 @@ export class Generator {
 
 			case ts.SyntaxKind.MethodSignature: {
 				if (!ts.isMethodSignature(typeNode)) break;
-				parameter.setKind(typeNode.kind).setName(typeNode.name.getText(sourceFile));
+				parameter.setName(typeNode.name.getText(sourceFile));
 				if (typeNode.questionToken !== undefined) parameter.addMeta(ts.SyntaxKind.QuestionToken);
 				if (typeNode.type) parameter.addType(this.visitType(typeNode.type, sourceFile));
 				if (typeNode.parameters) {
@@ -435,31 +432,24 @@ export class Generator {
 			}
 
 			case ts.SyntaxKind.ExpressionWithTypeArguments: {
-				if (!ts.isExpressionWithTypeArguments(typeNode)) {
-					break;
-				}
-				parameter.addType(this.visitType(typeNode.expression, sourceFile)).setKind(typeNode.kind);
+				if (!ts.isExpressionWithTypeArguments(typeNode)) break;
+				parameter.addType(this.visitType(typeNode.expression, sourceFile));
 				break;
 			}
 
 			case ts.SyntaxKind.Parameter: {
 				if (!ts.isParameter(typeNode)) break;
-
 				return this.getParameter(typeNode, sourceFile);
 			}
 
 			case ts.SyntaxKind.TypeParameter: {
 				if (!ts.isTypeParameterDeclaration(typeNode)) break;
-
 				return this.getTypeParameter(typeNode, sourceFile);
 			}
 
 			case ts.SyntaxKind.ThisType: {
 				if (!ts.isThisTypeNode(typeNode)) break;
-
-				parameter
-					.setKind(typeNode.kind)
-					.setText(typeNode.getText(sourceFile));
+				parameter.setText(typeNode.getText(sourceFile));
 				break;
 			}
 			case ts.SyntaxKind.ConstructorType: {
@@ -467,27 +457,16 @@ export class Generator {
 				if (!ts.isConstructorTypeNode(typeNode)) break;
 				const meta = this.getMetaFromModifiers(typeNode.modifiers);
 				const parameters = this.getParameters(typeNode.parameters, sourceFile);
-				const typeParameters = this.getTypeParameters(
-					typeNode.typeParameters ?? ts.factory.createNodeArray<ts.TypeParameterDeclaration>(),
-					sourceFile,
-				);
+				const typeParameters = this.getTypeParameters(typeNode.typeParameters ?? ts.factory.createNodeArray<ts.TypeParameterDeclaration>(), sourceFile);
 
-				parameter.setKind(typeNode.kind)
-					.setMeta(meta)
-					.setTypeParameters(typeParameters)
-					.setParameters(parameters)
-					.addType(this.getType(typeNode.type, sourceFile));
-
-				if (typeNode.name) {
-					parameter.setName(typeNode.name.getText(sourceFile));
-				}
-
+				parameter.setMeta(meta).setTypeParameters(typeParameters).setParameters(parameters).addType(this.getType(typeNode.type, sourceFile));
+				if (typeNode.name) parameter.setName(typeNode.name.getText(sourceFile));
 				break;
 			}
 
+			// TODO?
 			case ts.SyntaxKind.ConstructSignature: {
 				// Example: `new (...astArgs: string[]): Function;`
-				parameter.setKind(typeNode.kind);
 				break;
 			}
 
@@ -495,62 +474,323 @@ export class Generator {
 			case ts.SyntaxKind.TypePredicate: {
 				if (!ts.isTypePredicateNode(typeNode)) break;
 				// Example: `value is S`
-				parameter.setKind(typeNode.kind)
-					.setName(typeNode.parameterName.getText(sourceFile));
-
-				if (typeNode.type) {
-					parameter.addType(this.getType(typeNode.type, sourceFile));
-				}
-
-				if (typeNode.assertsModifier !== undefined) {
-					parameter.addMeta(ts.SyntaxKind.AssertsKeyword);
-				}
-
+				parameter.setName(typeNode.parameterName.getText(sourceFile));
+				if (typeNode.type) parameter.addType(this.getType(typeNode.type, sourceFile));
+				if (typeNode.assertsModifier !== undefined) parameter.addMeta(ts.SyntaxKind.AssertsKeyword);
 				break;
 			}
 			case ts.SyntaxKind.TypeQuery: {
-				if (!ts.isTypeQueryNode(typeNode)) break;
 				// Example: `typeof globalThis`
-				parameter.setKind(typeNode.kind)
-					.setName(typeNode.exprName.getText(sourceFile));
+				if (!ts.isTypeQueryNode(typeNode)) break;
+				parameter.setName(typeNode.exprName.getText(sourceFile));
 				break;
 			}
 
 			case ts.SyntaxKind.TemplateLiteralType: {
-				if (!ts.isTemplateLiteralTypeNode(typeNode)) break;
 				// Example: `${number}`
-				parameter.setKind(typeNode.kind)
-					.setText(typeNode.getText(sourceFile));
-
+				if (!ts.isTemplateLiteralTypeNode(typeNode)) break;
+				parameter.setText(typeNode.getText(sourceFile));
 				break;
 			}
 
 			case ts.SyntaxKind.ConditionalType: {
 				// Example: `T extends (this: infer U, ...astArgs: never) => any ? U : unknown;`
-				parameter.setKind(typeNode.kind)
-					.setText(typeNode.getText(sourceFile));
-
+				parameter.setText(typeNode.getText(sourceFile));
+				// TODO: This will cause an infinite loop with the TypeReference case
+				if (ts.isConditionalTypeNode(typeNode)) {
+					parameter
+						.setText(typeNode.getText(sourceFile))
+						.addType(this.visitType(typeNode.checkType, sourceFile))
+						.addType(this.visitType(typeNode.extendsType, sourceFile))
+						.addType(this.visitType(typeNode.trueType, sourceFile))
+						.addType(this.visitType(typeNode.falseType, sourceFile));
+				}
 				break;
 			}
 
 			default: {
 				if (ts.isToken(typeNode)) {
 					const token = ts.tokenToString(typeNode.kind);
-					parameter.setKind(typeNode.kind).setText(token);
-					// // Keyword
-					// if (typeNode.kind >= 83 && typeNode.kind <= 165) {
-					// 	parameter.setKind(typeNode.kind).setText(typeNode.getText(sourceFile));
-					// 	break;
-					// }
-
-					// // Token
-					// if (typeNode.kind >= 18 && typeNode.kind <= 79) {
-					// 	parameter.setKind(typeNode.kind).setText(typeNode.getText(sourceFile));
-					// 	break;
-					// }
+					parameter.setText(token);
 				}
 
 				break;
+			}
+		}
+
+		if (parameter.getKind() === undefined) {
+			console.error(`visitType: Unhandled kind '${ts.SyntaxKind[typeNode.kind]}'`);
+		}
+
+		return parameter;
+	}
+
+	/**
+	 * Iteratively resolves the type of a TypeScript type node.
+	 *
+	 * @param typeNode - The TypeScript type node to resolve.
+	 * @param parameter - The `ParameterBuilder` object to update with the resolved type information.
+	 */
+	public iterVisitType(typeNode: ts.Node, sourceFile: ts.SourceFile): Ast {
+		const stack: Array<{ iterTypeNode: ts.Node; iterSourceFile: ts.SourceFile; iterParameter: Ast }> = [];
+
+		const id = this.getNextId();
+		const parameter = new Ast(id, id, typeNode.kind);
+
+		stack.push({ iterTypeNode: typeNode, iterSourceFile: sourceFile, iterParameter: parameter });
+
+		const stackPush = (childType: ts.Node, iterSourceFile: ts.SourceFile, iterParameter: Ast, addX: 'type' | 'parameter' | 'typeParameter' = 'type') => {
+			const newId = this.getNextId();
+			const childParameter = new Ast(newId, newId, childType.kind);
+			if (addX === 'type') iterParameter.addType(childParameter);
+			if (addX === 'parameter') iterParameter.addParameter(childParameter);
+			if (addX === 'typeParameter') iterParameter.addTypeParameter(childParameter);
+			stack.push({ iterTypeNode: childType, iterSourceFile, iterParameter: childParameter });
+		};
+
+		while (stack.length > 0) {
+			const { iterTypeNode, iterSourceFile, iterParameter } = stack.pop()!; // Pop from stack
+
+			switch (iterTypeNode.kind) {
+				case ts.SyntaxKind.UnionType: {
+					if (!ts.isUnionTypeNode(iterTypeNode)) break;
+					iterTypeNode.types.forEach((t) => stackPush(t, iterSourceFile, iterParameter));
+					break;
+				}
+
+				case ts.SyntaxKind.ArrayType: {
+					if (!ts.isArrayTypeNode(iterTypeNode)) break;
+					stackPush(iterTypeNode.elementType, iterSourceFile, iterParameter);
+					break;
+				}
+
+				case ts.SyntaxKind.TypeReference: {
+					if (!ts.isTypeReferenceNode(iterTypeNode)) break;
+					const referenceName = iterTypeNode.typeName.getText(iterSourceFile);
+					iterParameter.setName(referenceName);
+
+					// Get the primitive types from the type alias declaration
+					if (this.cache.typeAliasDeclarations.has(referenceName)) {
+						const typeAliasTypes = this.cache.typeAliasDeclarations.get(referenceName)!;
+						typeAliasTypes.forEach((t) => iterParameter.addType(t));
+					}
+
+					if (iterTypeNode.typeArguments) {
+						iterTypeNode.typeArguments.toReversed().forEach((t) => stackPush(t, iterSourceFile, iterParameter));
+					}
+
+					break;
+				}
+
+				case ts.SyntaxKind.Identifier: {
+					if (!ts.isIdentifier(iterTypeNode)) break;
+					iterParameter.setText(iterTypeNode.getText(iterSourceFile));
+					break;
+				}
+
+				case ts.SyntaxKind.LiteralType: {
+					if (!ts.isLiteralTypeNode(iterTypeNode)) break;
+					iterParameter.setText(iterTypeNode.getText(iterSourceFile));
+					break;
+				}
+
+				case ts.SyntaxKind.FunctionType: {
+					if (!ts.isFunctionTypeNode(iterTypeNode)) break;
+
+					if (iterTypeNode.parameters) {
+						for (const childType of iterTypeNode.parameters) {
+							const childParameter = this.getParameter(childType, iterSourceFile);
+							iterParameter.addParameter(childParameter);
+						}
+					}
+					if (iterTypeNode.type) {
+						stackPush(iterTypeNode.type, iterSourceFile, iterParameter);
+					}
+					break;
+				}
+
+				case ts.SyntaxKind.TypeLiteral: {
+					if (!ts.isTypeLiteralNode(iterTypeNode)) break;
+					if (iterTypeNode.members) {
+						iterTypeNode.members.toReversed().forEach((t) => stackPush(t, iterSourceFile, iterParameter));
+					}
+
+					break;
+				}
+
+				case ts.SyntaxKind.IntersectionType: {
+					if (!ts.isIntersectionTypeNode(iterTypeNode)) break;
+					iterTypeNode.types.toReversed().forEach((t) => stackPush(t, iterSourceFile, iterParameter));
+					break;
+				}
+
+				case ts.SyntaxKind.TypeOperator: {
+					if (!ts.isTypeOperatorNode(iterTypeNode)) break;
+					iterParameter.setText(ts.tokenToString(iterTypeNode.operator));
+					stackPush(iterTypeNode.type, iterSourceFile, iterParameter);
+					break;
+				}
+
+				case ts.SyntaxKind.TupleType: {
+					if (!ts.isTupleTypeNode(iterTypeNode)) break;
+					iterTypeNode.elements.toReversed().forEach((t) => stackPush(t, iterSourceFile, iterParameter));
+					break;
+				}
+
+				case ts.SyntaxKind.RestType: {
+					if (!ts.isRestTypeNode(iterTypeNode)) break;
+					stackPush(iterTypeNode.type, iterSourceFile, iterParameter);
+					break; // TODO? return restType
+				}
+
+				case ts.SyntaxKind.ParenthesizedType: {
+					if (!ts.isParenthesizedTypeNode(iterTypeNode)) break;
+					stackPush(iterTypeNode.type, iterSourceFile, iterParameter);
+					break;
+				}
+
+				case ts.SyntaxKind.IndexSignature: {
+					if (!ts.isIndexSignatureDeclaration(iterTypeNode)) break;
+					stackPush(iterTypeNode.type, iterSourceFile, iterParameter);
+					iterTypeNode.parameters.toReversed().forEach((t) => stackPush(t, iterSourceFile, iterParameter));
+					break;
+				}
+
+				case ts.SyntaxKind.PropertySignature: {
+					if (!ts.isPropertySignature(iterTypeNode)) break;
+					iterParameter.setName(iterTypeNode.name.getText(iterSourceFile));
+					if (iterTypeNode.questionToken !== undefined) iterParameter.addMeta(ts.SyntaxKind.QuestionToken);
+					if (iterTypeNode.type) stackPush(iterTypeNode.type, iterSourceFile, iterParameter);
+					break;
+				}
+
+				case ts.SyntaxKind.MappedType: {
+					if (!ts.isMappedTypeNode(iterTypeNode)) break;
+					stackPush(iterTypeNode.typeParameter, iterSourceFile, iterParameter);
+					if (iterTypeNode.questionToken !== undefined) iterParameter.addMeta(ts.SyntaxKind.QuestionToken);
+					if (iterTypeNode.readonlyToken !== undefined) iterParameter.addMeta(ts.SyntaxKind.ReadonlyKeyword);
+					if (iterTypeNode.type) stackPush(iterTypeNode.type, iterSourceFile, iterParameter);
+					break;
+				}
+
+				case ts.SyntaxKind.IndexedAccessType: {
+					if (!ts.isIndexedAccessTypeNode(iterTypeNode)) break;
+					stackPush(iterTypeNode.objectType, iterSourceFile, iterParameter);
+					stackPush(iterTypeNode.indexType, iterSourceFile, iterParameter, 'parameter');
+					break;
+				}
+
+				case ts.SyntaxKind.MethodSignature: {
+					if (!ts.isMethodSignature(iterTypeNode)) break;
+					iterParameter.setName(iterTypeNode.name.getText(iterSourceFile));
+					if (iterTypeNode.questionToken !== undefined) iterParameter.addMeta(ts.SyntaxKind.QuestionToken);
+					if (iterTypeNode.type) stackPush(iterTypeNode.type, iterSourceFile, iterParameter);
+
+					if (iterTypeNode.parameters) {
+						for (const childType of iterTypeNode.parameters) {
+							const childParameter = this.getParameter(childType, iterSourceFile);
+							iterParameter.addParameter(childParameter);
+						}
+					}
+
+					if (iterTypeNode.typeParameters) {
+						iterTypeNode.typeParameters.toReversed().forEach((t) => stackPush(t, iterSourceFile, iterParameter, 'typeParameter'));
+					}
+					break;
+				}
+
+				case ts.SyntaxKind.ExpressionWithTypeArguments: {
+					if (!ts.isExpressionWithTypeArguments(iterTypeNode)) break;
+					stackPush(iterTypeNode.expression, iterSourceFile, iterParameter);
+					break;
+				}
+
+				case ts.SyntaxKind.Parameter: {
+					if (!ts.isParameter(iterTypeNode)) break;
+					return this.getParameter(iterTypeNode, iterSourceFile);
+				}
+
+				case ts.SyntaxKind.TypeParameter: {
+					if (!ts.isTypeParameterDeclaration(iterTypeNode)) break;
+					return this.getTypeParameter(iterTypeNode, iterSourceFile);
+				}
+
+				case ts.SyntaxKind.ThisType: {
+					if (!ts.isThisTypeNode(iterTypeNode)) break;
+					iterParameter.setText(iterTypeNode.getText(iterSourceFile));
+					break;
+				}
+				case ts.SyntaxKind.ConstructorType: {
+					// Example: new () => T
+					if (!ts.isConstructorTypeNode(iterTypeNode)) break;
+					const meta = this.getMetaFromModifiers(iterTypeNode.modifiers);
+					const parameters = this.getParameters(iterTypeNode.parameters, iterSourceFile);
+					const typeParameters = this.getTypeParameters(
+						iterTypeNode.typeParameters ?? ts.factory.createNodeArray<ts.TypeParameterDeclaration>(),
+						iterSourceFile,
+					);
+
+					iterParameter.setKind(iterTypeNode.kind)
+						.setMeta(meta)
+						.setTypeParameters(typeParameters)
+						.setParameters(parameters)
+						.addType(this.getType(iterTypeNode.type, iterSourceFile));
+
+					if (iterTypeNode.name) iterParameter.setName(iterTypeNode.name.getText(iterSourceFile));
+
+					break;
+				}
+
+				case ts.SyntaxKind.ConstructSignature: {
+					// Example: `new (...astArgs: string[]): Function;`
+					iterParameter.setKind(iterTypeNode.kind);
+					break;
+				}
+
+				case ts.SyntaxKind.FirstTypeNode: // Same as TypePredicate
+				case ts.SyntaxKind.TypePredicate: {
+					// Example: `value is S`
+					if (!ts.isTypePredicateNode(iterTypeNode)) break;
+					iterParameter.setName(iterTypeNode.parameterName.getText(iterSourceFile));
+					if (iterTypeNode.type) iterParameter.addType(this.getType(iterTypeNode.type, iterSourceFile));
+					if (iterTypeNode.assertsModifier !== undefined) iterParameter.addMeta(ts.SyntaxKind.AssertsKeyword);
+					break;
+				}
+
+				case ts.SyntaxKind.TypeQuery: {
+					// Example: `typeof globalThis`
+					if (!ts.isTypeQueryNode(iterTypeNode)) break;
+					iterParameter.setName(iterTypeNode.exprName.getText(iterSourceFile));
+					break;
+				}
+
+				case ts.SyntaxKind.TemplateLiteralType: {
+					// Example: `${number}`
+					if (!ts.isTemplateLiteralTypeNode(iterTypeNode)) break;
+					iterParameter.setText(iterTypeNode.getText(iterSourceFile));
+
+					break;
+				}
+
+				case ts.SyntaxKind.ConditionalType: {
+					// Example: `T extends (this: infer U, ...astArgs: never) => any ? U : unknown;`
+					if (!ts.isConditionalTypeNode(iterTypeNode)) break;
+					iterParameter.setText(iterTypeNode.getText(iterSourceFile));
+					// TODO: This will cause an infinite loop with the TypeReference case
+					stackPush(iterTypeNode.falseType, iterSourceFile, iterParameter);
+					stackPush(iterTypeNode.trueType, iterSourceFile, iterParameter);
+					stackPush(iterTypeNode.extendsType, iterSourceFile, iterParameter);
+					stackPush(iterTypeNode.checkType, iterSourceFile, iterParameter);
+					break;
+				}
+
+				default: {
+					if (ts.isToken(iterTypeNode)) {
+						const token = ts.tokenToString(iterTypeNode.kind);
+						iterParameter.setKind(iterTypeNode.kind).setText(token);
+					}
+					break;
+				}
 			}
 		}
 
@@ -641,6 +881,13 @@ export class Generator {
 		const interfaceName = node.name.getText(sourceFile);
 		const meta = this.getMetaFromModifiers(node.modifiers);
 		const ast = new Ast(formatId(interfaceName, ''), formatName(interfaceName, ''), node.kind).setMeta(meta);
+
+		if (this.cache.typeAliasDeclarations.has(ast.getId())) {
+			const types = this.cache.typeAliasDeclarations.get(formatId(interfaceName, '')) ?? [];
+			types.forEach((t) => ast.addType(t));
+			return ast;
+		}
+
 		const memberPrefix = this.getPrefixForInterfaceMembers(node, sourceFile, '') ?? '';
 
 		for (const member of [...node.members]) {
@@ -650,7 +897,11 @@ export class Generator {
 					if (globalPrefix) memberAst.changePrefix(interfaceName, globalPrefix);
 					this.saveGlobal(memberAst);
 				}
-				ast.addParameter(memberAst);
+
+				// TODO: Verify
+				if (this.cache.declarations.has(ast.getId())) {
+					ast.addParameter(memberAst);
+				}
 			}
 		}
 
@@ -669,8 +920,7 @@ export class Generator {
 		if (hasObjectHeritage === false) {
 			const cachedObject = this.cache.statementsCache.get('Object');
 			if (cachedObject) {
-				for (const [fileName, statementNode] of cachedObject) {
-					const statementSourceFile = this.program.getSourceFile(fileName);
+				for (const [statementSourceFile, statementNode] of cachedObject) {
 					if (statementSourceFile) {
 						const statement = this.visitStatements(statementNode, statementSourceFile, ast.getName());
 						if (statement) {
@@ -708,22 +958,12 @@ export class Generator {
 			const extendsName = extendsType.expression.getText(sourceFile);
 			const extendedNodes = this.cache.statementsCache.get(extendsName) ?? [];
 
-			for (const [fileName, extendedNode] of extendedNodes) {
-				const statementSourceFile = this.program.getSourceFile(fileName);
+			for (const [statementSourceFile, extendedNode] of extendedNodes) {
 				if (statementSourceFile) {
 					const statement = this.visitStatements(extendedNode, statementSourceFile, globalPrefix);
 					if (statement?.getParameters()) {
 						for (const parameter of statement.getParameters()) {
 							parameter.changePrefix(extendsName, globalPrefix);
-							parameter.setDebug(
-								`/* TODO: Fix double def, kind: "${ast.getKindName()}", memberKind: "${parameter.getKindName()}", fn: "readHeritage", id: "${parameter.getId()}", name: "${parameter.getName()}" */`,
-							);
-							// parameter.setCode(`(def ${parameter.getId()} ${parameter.getCode()})`);
-							parameter.setCode(`
-	ns.set(new types.SymbolNode('${parameter.getId()}'), new types.FunctionNode((...astArgs: types.AstNode[]) => {
-		${parameter.getCode()}
-	}));
-`);
 							this.saveGlobal(parameter);
 						}
 					}
@@ -850,11 +1090,7 @@ export class Generator {
 	 * @param globalPrefix - The name of a global object that this function belongs to (which makes this a global)
 	 * @returns An Ast object representing the generated function, or undefined if the function name is not valid.
 	 */
-	public readFunctionDeclaration(
-		node: ts.FunctionDeclaration,
-		sourceFile: ts.SourceFile,
-		globalPrefix = '',
-	): Ast | undefined {
+	public readFunctionDeclaration(node: ts.FunctionDeclaration, sourceFile: ts.SourceFile, globalPrefix = ''): Ast | undefined {
 		if (!node.name) return;
 
 		const functionName = node.name.getText(sourceFile);
@@ -931,9 +1167,10 @@ export class Generator {
 	 * @param node - The TypeScript AST node representing the type alias declaration.
 	 * @returns An Ast object representing the generated type alias.
 	 */
-	public readTypeAliasDeclaration(node: ts.TypeAliasDeclaration, sourceFile: ts.SourceFile): Ast[] | undefined {
+	public readTypeAliasDeclaration(node: ts.TypeAliasDeclaration, sourceFile: ts.SourceFile): void {
 		const type = this.getType(node.type, sourceFile);
-		return type?.getType();
+		const asts = (type === undefined) ? [] : type.getType();
+		this.cache.typeAliasDeclarations.set(node.name.getText(sourceFile), asts);
 	}
 
 	/**
@@ -1014,10 +1251,7 @@ export class Generator {
 	 * @param syntaxKind - The name of the calling function (if any).
 	 * @returns An array of `ParameterBuilder` objects representing the resolved type parameters.
 	 */
-	public getTypeParameters(
-		typeParameters: ts.NodeArray<ts.TypeParameterDeclaration>,
-		sourceFile: ts.SourceFile,
-	): Ast[] {
+	public getTypeParameters(typeParameters: ts.NodeArray<ts.TypeParameterDeclaration>, sourceFile: ts.SourceFile): Ast[] {
 		const parameters: Ast[] = [];
 		if (!typeParameters) return parameters;
 
@@ -1035,11 +1269,7 @@ export class Generator {
 	 * @param sourceFile - The source file containing the type parameter declaration.
 	 * @returns A `ParameterBuilder` object representing the resolved type parameter.
 	 */
-	public getTypeParameter(
-		typeParameter: ts.TypeParameterDeclaration,
-		sourceFile: ts.SourceFile,
-		globalPrefix = '',
-	): Ast {
+	public getTypeParameter(typeParameter: ts.TypeParameterDeclaration, sourceFile: ts.SourceFile, globalPrefix = ''): Ast {
 		const name = typeParameter.name.getText(sourceFile);
 		const ast = new Ast(formatId(name, globalPrefix), formatName(name, globalPrefix), typeParameter.kind);
 
@@ -1098,6 +1328,8 @@ export class Generator {
 		if (nodeParameter.dotDotDotToken !== undefined) {
 			parameter.addMeta(ts.SyntaxKind.DotDotDotToken);
 		}
+
+		// TODO: Set initializer
 
 		if (nodeParameter.type) {
 			const childParameter = this.visitType(nodeParameter.type, sourceFile);
@@ -1160,7 +1392,6 @@ export class Generator {
 	}
 
 	private getNextId() {
-		this.idCount++;
-		return this.idCount.toString();
+		return `~${crypto.randomUUID()}`;
 	}
 }
