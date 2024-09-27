@@ -1190,14 +1190,11 @@ export function from(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   const ast = args[0];
 
-  if (types.isMapNode(ast) && ast.value.size > 0) {
-    const entries = Array.from<[string, types.AstNode]>(args[0].value.entries()).map(([k, v]) => types.createVectorNode([types.createStringNode(k), v]));
-    return types.createVectorNode(entries);
-  }
-
   // Return the same value for ListNode, but in a VectorNode format
-  if (isListNode(ast) && ast.value.length > 0) {
-    return types.createVectorNode([...ast.value]);
+  if (types.isListNode(ast)) {
+    if (ast.value.length > 0) {
+      return types.createVectorNode([...ast.value]);
+    }
   }
 
   // Convert VectorNode to a createVectorNode (like Array.from)
@@ -1210,6 +1207,11 @@ export function from(...args: types.AstNode[]): types.AstNode {
     return types.createVectorNode(
       ast.value.split('').map((char) => types.createStringNode(char)),
     );
+  }
+
+  if (types.isMapNode(ast) && ast.value.size > 0) {
+    const entries = Array.from<[string, types.AstNode]>(ast.value.entries()).map(([k, v]) => types.createVectorNode([types.createStringNode(k), v]));
+    return types.createVectorNode(entries);
   }
 
   // Return NilNode if input is empty or doesn't match other types
@@ -1594,9 +1596,12 @@ export function join(...args: types.AstNode[]): types.AstNode {
 export function includes(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 2);
   types.assertAstNode(args[1]);
+  types.assertAstNode(args[2]);
 
   if (types.isStringNode(args[0])) {
     types.assertStringNode(args[0]);
+    types.assertStringNode(args[1]);
+
     const str = args[0].value;
     const substring = args[1].value;
     const result = str.includes(substring);
