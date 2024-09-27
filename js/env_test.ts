@@ -1,6 +1,6 @@
 import { assertEquals, assertThrows } from '@std/assert';
 import { Env } from './env.ts';
-import { AstNode, ListNode, NilNode, NumberNode, StringNode, SymbolNode } from './types.ts';
+import { AstNode, createListNode, createNilNode, createNumberNode, createStringNode, createSymbolNode } from './types.ts';
 
 Deno.test('new Env(): should create a new environment', () => {
   const env = new Env();
@@ -11,10 +11,10 @@ Deno.test('new Env(): should create a new environment', () => {
 
 Deno.test('new Env(): should create a new environment with bindings and expressions', () => {
   const bindings = [
-    new SymbolNode('a'),
-    new SymbolNode('b'),
+    createSymbolNode('a'),
+    createSymbolNode('b'),
   ];
-  const expressions = [new ListNode([]), new NilNode()];
+  const expressions = [createListNode([]), createNilNode()];
   const env = new Env(undefined, bindings, expressions);
 
   assertEquals(env instanceof Env, true);
@@ -26,14 +26,14 @@ Deno.test("new Env(): should bind remaining expressions after '&'", () => {
   const env = new Env(
     undefined,
     [
-      new SymbolNode('a'),
-      new SymbolNode('&'),
-      new SymbolNode('b'),
+      createSymbolNode('a'),
+      createSymbolNode('&'),
+      createSymbolNode('b'),
     ],
     [
-      new StringNode('1'),
-      new StringNode('2'),
-      new StringNode('3'),
+      createStringNode('1'),
+      createStringNode('2'),
+      createStringNode('3'),
     ],
   );
 
@@ -41,12 +41,12 @@ Deno.test("new Env(): should bind remaining expressions after '&'", () => {
   assertEquals(
     env.value,
     new Map<string, AstNode>([
-      ['a', new StringNode('1')],
+      ['a', createStringNode('1')],
       [
         'b',
-        new ListNode([
-          new StringNode('2'),
-          new StringNode('3'),
+        createListNode([
+          createStringNode('2'),
+          createStringNode('3'),
         ]),
       ],
     ]),
@@ -57,49 +57,49 @@ Deno.test("new Env(): should correctly handle ending '&' with no remaining exprs
   const env = new Env(
     undefined,
     [
-      new SymbolNode('a'),
-      new SymbolNode('&'),
+      createSymbolNode('a'),
+      createSymbolNode('&'),
     ],
-    [new StringNode('1')],
+    [createStringNode('1')],
   );
-  assertEquals(env.value.get('a'), new StringNode('1'));
+  assertEquals(env.value.get('a'), createStringNode('1'));
 });
 
 Deno.test("new Env(): should bind to an empty list if there are no exprs after '&'", () => {
   const env = new Env(
     undefined,
     [
-      new SymbolNode('a'),
-      new SymbolNode('&'),
-      new SymbolNode('b'),
+      createSymbolNode('a'),
+      createSymbolNode('&'),
+      createSymbolNode('b'),
     ],
-    [new StringNode('1')],
+    [createStringNode('1')],
   );
 
   assertEquals(env.value.size, 2);
   assertEquals(
     env.value,
     new Map<string, AstNode>([
-      ['a', new StringNode('1')],
-      ['b', new ListNode([])],
+      ['a', createStringNode('1')],
+      ['b', createListNode([])],
     ]),
   );
 
   assertEquals(
-    env.get(new SymbolNode('a')),
-    new StringNode('1'),
+    env.get(createSymbolNode('a')),
+    createStringNode('1'),
   );
   assertEquals(
-    env.get(new SymbolNode('b')),
-    new ListNode([]),
+    env.get(createSymbolNode('b')),
+    createListNode([]),
   );
 });
 
 Deno.test('new Env(): should set outer environment', () => {
   const outer = new Env(
     undefined,
-    [new SymbolNode('x')],
-    [new NumberNode(1)],
+    [createSymbolNode('x')],
+    [createNumberNode(1)],
   );
   const inner = new Env(outer);
 
@@ -108,27 +108,27 @@ Deno.test('new Env(): should set outer environment', () => {
 
 Deno.test('set(): should set a new key-value pair', () => {
   const env = new Env(undefined);
-  env.set(new SymbolNode('x'), new ListNode([]));
+  env.set(createSymbolNode('x'), createListNode([]));
   assertEquals(
-    env.get(new SymbolNode('x')),
-    new ListNode([]),
+    env.get(createSymbolNode('x')),
+    createListNode([]),
   );
 });
 
 Deno.test('get(): should get a value from the environment', () => {
   const env = new Env(
     undefined,
-    [new SymbolNode('a')],
-    [new ListNode([])],
+    [createSymbolNode('a')],
+    [createListNode([])],
   );
-  const value = env.get(new SymbolNode('a'));
-  assertEquals(value, new ListNode([]));
+  const value = env.get(createSymbolNode('a'));
+  assertEquals(value, createListNode([]));
 });
 
 Deno.test('get(): should throw error when getting non-existent key', () => {
   const env = new Env(undefined);
   assertThrows(
-    () => env.get(new SymbolNode('z')),
+    () => env.get(createSymbolNode('z')),
     Error,
     "'z' not found",
   );
@@ -137,27 +137,27 @@ Deno.test('get(): should throw error when getting non-existent key', () => {
 Deno.test('get(): should find a value in the outer environment', () => {
   const outer = new Env(
     undefined,
-    [new SymbolNode('x')],
-    [new NumberNode(1)],
+    [createSymbolNode('x')],
+    [createNumberNode(1)],
   );
   const inner = new Env(outer);
   assertEquals(
-    inner.get(new SymbolNode('x')),
-    new NumberNode(1),
+    inner.get(createSymbolNode('x')),
+    createNumberNode(1),
   );
 });
 
 Deno.test('get(): should shadow value in inner environment', () => {
   const outerEnv = new Env(
     undefined,
-    [new SymbolNode('a')],
-    [new NilNode()],
+    [createSymbolNode('a')],
+    [createNilNode()],
   );
   const innerEnv = new Env(
     outerEnv,
-    [new SymbolNode('a')],
-    [new ListNode([])],
+    [createSymbolNode('a')],
+    [createListNode([])],
   );
-  const value = innerEnv.get(new SymbolNode('a'));
-  assertEquals(value, new ListNode([]));
+  const value = innerEnv.get(createSymbolNode('a'));
+  assertEquals(value, createListNode([]));
 });

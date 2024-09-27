@@ -24,24 +24,24 @@ import * as types from './types.ts';
  * ```
  */
 export function printString(ast: types.AstNode, printReadably = false): string {
-  if (ast instanceof types.StringNode) {
+  if (types.isStringNode(ast)) {
     return printReadably ? `"${types.slash(ast.value)}"` : ast.value;
   }
 
   if (
-    ast instanceof types.KeywordNode ||
-    ast instanceof types.BooleanNode ||
-    ast instanceof types.NumberNode ||
-    ast instanceof types.SymbolNode
+    types.isKeywordNode(ast) ||
+    types.isBooleanNode(ast) ||
+    types.isNumberNode(ast) ||
+    types.isSymbolNode(ast)
   ) {
     return String(ast.value);
   }
 
-  if (ast instanceof types.AtomNode) {
+  if (types.isAtomNode(ast)) {
     return `(atom ${printString(ast.value)})`;
 
     // TODO: Coerce JS values into AstNodes?
-    // if (ast.value instanceof types.AstNode) {
+    // if (ast.types.isAstNode(value)) {
     // 	return `(atom ${printString(ast.value)})`;
     // } else {
     // 	if (ast.value === globalThis) {
@@ -54,39 +54,27 @@ export function printString(ast: types.AstNode, printReadably = false): string {
     // }
   }
 
-  if (ast instanceof types.ErrorNode) {
+  if (types.isErrorNode(ast)) {
     return printString(ast.value, printReadably);
   }
 
-  if (ast instanceof types.FunctionNode) {
+  if (types.isFunctionNode(ast)) {
     return '#<fn>';
   }
 
   if (types.isSequentialNode(ast)) {
-    const isList = ast instanceof types.ListNode;
+    const isList = types.isListNode(ast);
     const serialized = ast.value
       .map((value) => printString(value, printReadably))
       .join(' ');
     return isList ? `(${serialized})` : `[${serialized}]`;
   }
 
-  if (ast instanceof types.DomNode) {
-    const body: string[] = [ast.value];
-
-    if (ast.attributes.size > 0) {
-      const values = types.mapFlat(ast.attributes).map((value) => printString(value, printReadably)).join(' ');
-      body.push(`{${values}}`);
-    }
-
-    if (ast.children.length > 0) {
-      const children: string[] = ast.children.map((child) => printString(child, printReadably));
-      body.push(children.join(' '));
-    }
-
-    return `<${body.join(' ')}>`;
+  if (types.isDomNode(ast)) {
+    return printHtml(ast, printReadably);
   }
 
-  if (ast instanceof types.MapNode) {
+  if (types.isMapNode(ast)) {
     const serialized = types
       .mapFlat(ast.value)
       .map((value) => printString(value, printReadably))
@@ -94,7 +82,7 @@ export function printString(ast: types.AstNode, printReadably = false): string {
     return `{${serialized}}`;
   }
 
-  if (ast instanceof types.NilNode) {
+  if (types.isNilNode(ast)) {
     return 'nil';
   }
 
@@ -126,7 +114,7 @@ const selfClosingTags: Set<string> = new Set([
  * @throws If it encounters an unmatched or unrecognized AST node type.
  */
 export function printHtml(ast: types.AstNode, printReadably = false): string {
-  if (ast instanceof types.DomNode) {
+  if (types.isDomNode(ast)) {
     const tagName = ast.value;
     const isSelfClosing = selfClosingTags.has(tagName);
 
@@ -160,40 +148,40 @@ export function printHtml(ast: types.AstNode, printReadably = false): string {
     return `<${tagName}${attributes}>${body.join(' ')}</${tagName}>`;
   }
 
-  if (ast instanceof types.StringNode) {
+  if (types.isStringNode(ast)) {
     return printReadably ? `"${types.slash(ast.value)}"` : ast.value;
   }
 
   if (
-    ast instanceof types.KeywordNode ||
-    ast instanceof types.BooleanNode ||
-    ast instanceof types.NumberNode ||
-    ast instanceof types.SymbolNode
+    types.isKeywordNode(ast) ||
+    types.isBooleanNode(ast) ||
+    types.isNumberNode(ast) ||
+    types.isSymbolNode(ast)
   ) {
     return String(ast.value);
   }
 
-  if (ast instanceof types.AtomNode) {
+  if (types.isAtomNode(ast)) {
     return `(atom ${printHtml(ast.value)})`;
   }
 
-  if (ast instanceof types.ErrorNode) {
+  if (types.isErrorNode(ast)) {
     return printHtml(ast.value, printReadably);
   }
 
-  if (ast instanceof types.FunctionNode) {
+  if (types.isFunctionNode(ast)) {
     return '#<fn>';
   }
 
   if (types.isSequentialNode(ast)) {
-    const isList = ast instanceof types.ListNode;
+    const isList = types.isListNode(ast);
     const serialized = ast.value
       .map((value) => printHtml(value, printReadably))
       .join(' ');
     return isList ? `(${serialized})` : `[${serialized}]`;
   }
 
-  if (ast instanceof types.MapNode) {
+  if (types.isMapNode(ast)) {
     const serialized = types
       .mapFlat(ast.value)
       .map((value) => printHtml(value, printReadably))
@@ -201,7 +189,7 @@ export function printHtml(ast: types.AstNode, printReadably = false): string {
     return `{${serialized}}`;
   }
 
-  if (ast instanceof types.NilNode) {
+  if (types.isNilNode(ast)) {
     return 'nil';
   }
 
@@ -216,41 +204,41 @@ export function printHtml(ast: types.AstNode, printReadably = false): string {
  * @throws If it encounters an unmatched or unrecognized AST node type.
  */
 export function printJavaScript(ast: types.AstNode, printReadably = false): string {
-  if (ast instanceof types.DomNode) {
+  if (types.isDomNode(ast)) {
     return '/* element */';
   }
 
-  if (ast instanceof types.StringNode || ast instanceof types.KeywordNode || ast instanceof types.SymbolNode) {
+  if (types.isStringNode(ast) || types.isKeywordNode(ast) || types.isSymbolNode(ast)) {
     return `"${ast.value}"`;
   }
 
-  if (ast instanceof types.BooleanNode || ast instanceof types.NumberNode) {
+  if (types.isBooleanNode(ast) || types.isNumberNode(ast)) {
     return String(ast.value);
   }
 
-  if (ast instanceof types.AtomNode) {
+  if (types.isAtomNode(ast)) {
     // return `(atom ${printJavaScript(ast.value)})`;
     return `/* atom */`;
   }
 
-  if (ast instanceof types.ErrorNode) {
+  if (types.isErrorNode(ast)) {
     // return printJavaScript(ast.value, printReadably);
     return '/* error */';
   }
 
-  if (ast instanceof types.FunctionNode) {
+  if (types.isFunctionNode(ast)) {
     return '#<fn>';
   }
 
   if (types.isSequentialNode(ast)) {
-    const isList = ast instanceof types.ListNode;
+    const isList = types.isListNode(ast);
     const serialized = ast.value
       .map((value) => printJavaScript(value, printReadably))
       .join(' ');
     return isList ? `(${serialized})` : `[${serialized}]`;
   }
 
-  if (ast instanceof types.MapNode) {
+  if (types.isMapNode(ast)) {
     const serialized = types
       .mapFlat(ast.value)
       .map((value) => printJavaScript(value, printReadably))
@@ -258,7 +246,7 @@ export function printJavaScript(ast: types.AstNode, printReadably = false): stri
     return `{${serialized}}`;
   }
 
-  if (ast instanceof types.NilNode) {
+  if (types.isNilNode(ast)) {
     return 'nil';
   }
 
@@ -274,7 +262,7 @@ export function printJavaScript(ast: types.AstNode, printReadably = false): stri
  * @throws Will throw an error if the AST node type is not matched.
  */
 export function printCss(ast: types.AstNode, printReadably = false): string {
-  if (ast instanceof types.StringNode) {
+  if (types.isStringNode(ast)) {
     if (printReadably) {
       return types.slash(ast.value);
     }
@@ -282,43 +270,43 @@ export function printCss(ast: types.AstNode, printReadably = false): string {
     return ast.value;
   }
 
-  if (ast instanceof types.KeywordNode) {
+  if (types.isKeywordNode(ast)) {
     return ast.value.slice(1);
   }
 
-  if (ast instanceof types.NumberNode) {
+  if (types.isNumberNode(ast)) {
     return String(ast.value);
   }
 
-  if (ast instanceof types.SymbolNode) {
+  if (types.isSymbolNode(ast)) {
     return ast.value;
   }
 
-  if (ast instanceof types.ErrorNode) {
+  if (types.isErrorNode(ast)) {
     return printCss(ast.value, printReadably);
   }
 
-  if (ast instanceof types.ListNode || ast instanceof types.VectorNode) {
+  if (types.isListNode(ast) || types.isVectorNode(ast)) {
     return ast.value
       .map((value) => printCss(value, printReadably))
       .join(' ');
   }
 
-  if (ast instanceof types.MapNode) {
+  if (types.isMapNode(ast)) {
     return [...ast.value]
       .map(([key, valueAst]) => {
         const selector = types.dekey(key);
         // Use nil for things like {"@import './norm.css'" nil} - When nil is detected the value will be ignored
-        if (valueAst instanceof types.NilNode) return selector;
-        if (valueAst instanceof types.MapNode) return `${selector} {${printCss(valueAst, printReadably)}}`;
+        if (types.isNilNode(valueAst)) return selector;
+        if (types.isMapNode(valueAst)) return `${selector} {${printCss(valueAst, printReadably)}}`;
         return `${types.dekey(key)}: ${printCss(valueAst, printReadably)};`;
       }).join(' ');
   }
 
   // These types don't have a printable equivalent (yet)
   if (
-    ast instanceof types.BooleanNode || ast instanceof types.AtomNode || ast instanceof types.FunctionNode || ast instanceof types.DomNode ||
-    ast instanceof types.NilNode
+    types.isBooleanNode(ast) || types.isAtomNode(ast) || types.isFunctionNode(ast) || types.isDomNode(ast) ||
+    types.isNilNode(ast)
   ) {
     return '';
   }

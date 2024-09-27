@@ -22,7 +22,7 @@ import * as types from './types.ts';
  */
 export function read(malCode: string): types.AstNode {
   const ast = reader.readString(malCode);
-  console.log('ast:', ast);
+  // console.log('ast:', ast);
   return ast;
 }
 
@@ -45,11 +45,11 @@ export function read(malCode: string): types.AstNode {
  * `(~@a b)  =>  (concat a b)
  */
 export function quasiquote(node: types.AstNode): types.AstNode {
-  const isQuotableNode = node instanceof types.MapNode ||
-    node instanceof types.SymbolNode;
+  const isQuotableNode = types.isMapNode(node) ||
+    types.isSymbolNode(node);
 
   if (isQuotableNode) {
-    return new types.ListNode([new types.SymbolNode('quote'), node]);
+    return types.createListNode([types.createSymbolNode('quote'), node]);
   }
 
   if (!types.isSequentialNode(node)) {
@@ -62,24 +62,24 @@ export function quasiquote(node: types.AstNode): types.AstNode {
     return node.value[1];
   }
 
-  let result = new types.ListNode([]);
+  let result = types.createListNode([]);
   for (let i = node.value.length - 1; i >= 0; i--) {
     const element = node.value[i];
     result = types.listStartsWithSymbol(element, 'splice-unquote')
-      ? new types.ListNode([
-        new types.SymbolNode('concat'),
+      ? types.createListNode([
+        types.createSymbolNode('concat'),
         element.value[1],
         result,
       ])
-      : new types.ListNode([
-        new types.SymbolNode('cons'),
+      : types.createListNode([
+        types.createSymbolNode('cons'),
         quasiquote(element),
         result,
       ]);
   }
 
-  if (node instanceof types.VectorNode) {
-    result = new types.ListNode([new types.SymbolNode('vec'), result]);
+  if (types.isVectorNode(node)) {
+    result = types.createListNode([types.createSymbolNode('vec'), result]);
   }
 
   return result;
@@ -107,7 +107,7 @@ export function isMacroCall(
   appEnv: env.Env,
 ): ast is types.ListNode & { value: [types.SymbolNode] } {
   if (
-    !(ast instanceof types.ListNode) ||
+    !(types.isListNode(ast)) ||
     !(ast.value[0] instanceof types.SymbolNode)
   ) {
     return false;
@@ -120,7 +120,7 @@ export function isMacroCall(
   }
 
   const fn = foundEnv.get(symbol);
-  if (!(fn instanceof types.FunctionNode)) {
+  if (!(types.isFunctionNode(fn))) {
     return false;
   }
 
@@ -180,35 +180,35 @@ export function evaluateAst(
   node: types.AstNode,
   appEnv: env.Env,
 ): types.AstNode {
-  if (node instanceof types.SymbolNode) {
+  if (types.isSymbolNode(node)) {
     return appEnv.get(node);
   }
 
-  if (node instanceof types.VectorNode) {
+  if (types.isVectorNode(node)) {
     const evaluated = node.value.map((v) => evaluate(v, appEnv));
-    return new types.VectorNode(evaluated);
+    return types.createVectorNode(evaluated);
   }
 
-  if (node instanceof types.ListNode) {
+  if (types.isListNode(node)) {
     const evaluated = node.value.map((v) => evaluate(v, appEnv));
-    return new types.ListNode(evaluated);
+    return types.createListNode(evaluated);
   }
 
-  if (node instanceof types.MapNode) {
+  if (types.isMapNode(node)) {
     const evaluated = new Map<string, types.AstNode>();
     for (const [key, value] of node.value.entries()) {
       evaluated.set(key, evaluate(value, appEnv));
     }
 
-    return new types.MapNode(evaluated);
+    return types.createMapNode(evaluated);
   }
 
-  if (node instanceof types.DomNode) {
+  if (types.isDomNode(node)) {
     const tagName = node.value;
     const attributes = Array.from(node.attributes).reduce((map, [key, value]) => map.set(key, evaluate(value, appEnv)), new Map<string, types.AstNode>());
     const children = node.children.map((child) => evaluate(child, appEnv));
 
-    return new types.DomNode(tagName, attributes, children);
+    return types.createDomNode(tagName, attributes, children);
   }
 
   return node;
@@ -235,7 +235,7 @@ export function evaluate(node: types.AstNode, appEnv: env.Env): types.AstNode {
   for (;;) {
     // Trace: console.log(`eval: ${print(ast)}`);
 
-    if (node instanceof types.ListNode === false) {
+    if (types.isListNode(node) === false) {
       return evaluateAst(node, appEnv);
     }
 
@@ -245,7 +245,7 @@ export function evaluate(node: types.AstNode, appEnv: env.Env): types.AstNode {
 
     node = macroExpand(node, appEnv);
 
-    if (node instanceof types.ListNode === false) {
+    if (types.isListNode(node) === false) {
       return evaluateAst(node, appEnv);
     }
 
@@ -253,7 +253,7 @@ export function evaluate(node: types.AstNode, appEnv: env.Env): types.AstNode {
       return node;
     }
 
-    const symbolValue = node.value[0] instanceof types.SymbolNode ? node.value[0].value : 'goto_default_clause';
+    const symbolValue = types.isSymbolNode(node.value[0]) ? node.value[0].value : 'goto_default_clause';
     let result: types.ContinueReturn;
 
     switch (symbolValue) {
@@ -476,7 +476,7 @@ export function evaluateDefMacro(
   const variableValue = node.value[2];
   const evaluatedValue = evaluate(variableValue, appEnv);
   const copiedValue = types.copy(evaluatedValue);
-  if (copiedValue instanceof types.FunctionNode) {
+  if (types.isFunctionNode(copiedValue)) {
     copiedValue.isMacro = true;
   }
 
@@ -500,7 +500,7 @@ export function evaluateDo(
 ): types.ContinueReturn {
   types.assertDo(node);
   // Process all arguments sequentially and keep the last one
-  let lastResult: types.AstNode = new types.NilNode();
+  let lastResult: types.AstNode = types.createNilNode();
   for (let i = 1; i < node.value.length; i++) {
     lastResult = evaluate(node.value[i], appEnv);
   }
@@ -544,15 +544,15 @@ export function evaluateTry(
     const list = node.value[2].value[2] as types.ListNode;
 
     let message: types.AstNode;
-    if (error instanceof types.ErrorNode) {
+    if (types.isErrorNode(error)) {
       message = error;
     } else if (error instanceof Error) {
-      message = new types.StringNode(error.message);
+      message = types.createStringNode(error.message);
     } else {
-      message = new types.StringNode(JSON.stringify(error));
+      message = types.createStringNode(JSON.stringify(error));
     }
 
-    const caught = new types.ErrorNode(message);
+    const caught = types.createErrorNode(message);
     const errorEnv = new env.Env(appEnv, [sym], [caught]);
     return { return: evaluate(list, errorEnv), continue: undefined };
   }
@@ -596,7 +596,7 @@ export function evaluateIf(
     return types.continueResult(elseExpr, appEnv);
   }
 
-  return types.returnResult(new types.NilNode());
+  return types.returnResult(types.createNilNode());
 }
 
 /**
@@ -630,7 +630,7 @@ export function evaluateFn(
     env: outerEnv,
     parameters,
   };
-  const fn = new types.FunctionNode(
+  const fn = types.createFunctionNode(
     (...args: types.AstNode[]): types.AstNode => {
       const fnEnv = new env.Env(outerEnv, parameters, args);
       // TODO: Check if this should be types.returnResult(evaluate(...))
@@ -660,7 +660,7 @@ export function evaluateApply(
   types.assertListNode(evaluatedList);
 
   const fn = evaluatedList.value[0];
-  if (fn instanceof types.FunctionNode) {
+  if (types.isFunctionNode(fn)) {
     const args = evaluatedList.value.slice(1);
     if (fn.closureMeta) {
       const ast = fn.closureMeta.ast;
@@ -723,8 +723,8 @@ export function initEnv(): env.Env {
 
   // Eval treats mal-data as a mal program
   replEnv.set(
-    new types.SymbolNode('eval'),
-    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+    types.createSymbolNode('eval'),
+    types.createFunctionNode((...args: types.AstNode[]): types.AstNode => {
       types.assertArgumentCount(args.length, 1);
       return evaluate(args[0], replEnv);
     }),
@@ -755,15 +755,15 @@ export function main(...args: string[]) {
   const userScriptPath: string | undefined = args[0];
   const hostEnvArgs: types.StringNode[] = args
     .slice(1)
-    .map((arg) => new types.StringNode(arg));
+    .map((arg) => types.createStringNode(arg));
 
   replEnv.set(
-    new types.SymbolNode('*ARGV*'),
-    new types.ListNode(hostEnvArgs),
+    types.createSymbolNode('*ARGV*'),
+    types.createListNode(hostEnvArgs),
   );
   replEnv.set(
-    new types.SymbolNode('*host-language*'),
-    new types.StringNode('ENSEMBLE'),
+    types.createSymbolNode('*host-language*'),
+    types.createStringNode('ENSEMBLE'),
   );
 
   // Run a user program and exit
@@ -789,7 +789,7 @@ export function main(...args: string[]) {
       const result = rep(input, replEnv);
       console.log(result);
     } catch (error: unknown) {
-      if (error instanceof types.ErrorNode) {
+      if (types.isErrorNode(error)) {
         console.error(`error: ${printer.printString(error, false)}`);
       } else if (error instanceof Error) {
         console.error(error);

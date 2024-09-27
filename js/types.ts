@@ -10,63 +10,9 @@ import { type Env } from './env.ts';
 // Classes
 // ============================================================================
 
-/**
- * @see https://craftinginterpreters.com/representing-code.html
- */
-
-export class AstNode {
+export abstract class AstNode {
   // deno-lint-ignore no-explicit-any
   constructor(public value: any) {}
-
-  public toJs<T>(): T {
-    return this.astToJs(this) as T;
-  }
-
-  private astToJs(ast: unknown): unknown {
-    if (
-      ast instanceof StringNode ||
-      ast instanceof KeywordNode ||
-      ast instanceof SymbolNode ||
-      ast instanceof BooleanNode ||
-      ast instanceof NumberNode
-    ) {
-      return ast.value;
-    }
-
-    if (ast instanceof AtomNode) {
-      return this.astToJs(ast.value);
-    }
-
-    if (ast instanceof ErrorNode) {
-      const message = this.astToJs(ast.value);
-      return new Error(String(message));
-    }
-
-    if (ast instanceof FunctionNode) {
-      return ast.value;
-    }
-
-    if (ast instanceof ListNode || ast instanceof VectorNode) {
-      return ast.value.map((value) => this.astToJs(value));
-    }
-
-    // Convert to a POJO because there aren't any JS APIs that take a Map as an argument.
-    if (ast instanceof MapNode) {
-      // deno-lint-ignore no-explicit-any
-      const obj: Record<string, any> = {};
-      for (const [key, valueAstNode] of ast.value.entries()) {
-        const value = this.astToJs(valueAstNode);
-        obj[key] = value;
-      }
-      return obj;
-    }
-
-    if (ast instanceof NilNode) {
-      return null;
-    }
-
-    throw new TypeError(`unmatched object ${JSON.stringify(ast)}`);
-  }
 }
 
 /**
@@ -88,7 +34,7 @@ export class SymbolNode extends AstNode {
 export class ListNode extends AstNode {
   constructor(
     public value: AstNode[],
-    public metadata: AstNode = new NilNode(),
+    public metadata: AstNode = createNilNode(),
   ) {
     super(value);
   }
@@ -102,7 +48,7 @@ export class ListNode extends AstNode {
 export class VectorNode extends AstNode {
   constructor(
     public value: AstNode[],
-    public metadata: AstNode = new NilNode(),
+    public metadata: AstNode = createNilNode(),
   ) {
     super(value);
   }
@@ -142,7 +88,7 @@ export class BooleanNode extends AstNode {
 export class MapNode extends AstNode {
   constructor(
     public value: Map<string, AstNode> = new Map<string, AstNode>(),
-    public metadata: AstNode = new NilNode(),
+    public metadata: AstNode = createNilNode(),
   ) {
     super(value);
   }
@@ -180,7 +126,7 @@ export class FunctionNode extends AstNode {
     public value: Closure,
     public closureMeta?: ClosureMetadata,
     public isMacro = false,
-    public metadata: AstNode = new NilNode(),
+    public metadata: AstNode = createNilNode(),
   ) {
     super(value);
   }
@@ -240,7 +186,7 @@ export class DomNode extends AstNode {
     public value: string, // The tag name
     public attributes: Map<string, AstNode> = new Map<string, AstNode>(),
     public children: AstNode[] = [],
-    public metadata: AstNode = new NilNode(),
+    public metadata: AstNode = createNilNode(),
   ) {
     super(value);
   }
@@ -268,7 +214,7 @@ export class JsNode<T = unknown> extends AstNode {
  * @example assertDomNode(myNode);
  */
 export function assertDomNode(node: unknown): asserts node is DomNode {
-  if (!(node instanceof DomNode)) {
+  if (!(isDomNode(node))) {
     throw new TypeError('Invalid DomNode');
   }
 }
@@ -281,7 +227,7 @@ export function assertDomNode(node: unknown): asserts node is DomNode {
  * @example assertAstNode(myNode);
  */
 export function assertAstNode(node: unknown): asserts node is AstNode {
-  if (!(node instanceof AstNode)) {
+  if (!(isAstNode(node))) {
     throw new TypeError('Invalid AstNode');
   }
 }
@@ -294,7 +240,7 @@ export function assertAstNode(node: unknown): asserts node is AstNode {
  * @example assertAtomNode(myNode);
  */
 export function assertAtomNode(node: unknown): asserts node is AtomNode {
-  if (!(node instanceof AtomNode)) {
+  if (!(isAtomNode(node))) {
     throw new TypeError('Invalid AtomNode');
   }
 }
@@ -307,7 +253,7 @@ export function assertAtomNode(node: unknown): asserts node is AtomNode {
  * @example assertBooleanNode(myNode);
  */
 export function assertBooleanNode(node: unknown): asserts node is BooleanNode {
-  if (!(node instanceof BooleanNode)) {
+  if (!(isBooleanNode(node))) {
     throw new TypeError('Invalid BooleanNode');
   }
 }
@@ -320,7 +266,7 @@ export function assertBooleanNode(node: unknown): asserts node is BooleanNode {
  * @example assertMapNode(myNode);
  */
 export function assertMapNode(node: unknown): asserts node is MapNode {
-  if (!(node instanceof MapNode)) {
+  if (!(isMapNode(node))) {
     throw new TypeError('Invalid MapNode');
   }
 }
@@ -333,7 +279,7 @@ export function assertMapNode(node: unknown): asserts node is MapNode {
  * @example assertErrorNode(myNode);
  */
 export function assertErrorNode(node: unknown): asserts node is ErrorNode {
-  if (!(node instanceof ErrorNode)) {
+  if (!(isErrorNode(node))) {
     throw new TypeError('Invalid ErrorNode');
   }
 }
@@ -348,7 +294,7 @@ export function assertErrorNode(node: unknown): asserts node is ErrorNode {
 export function assertFunctionNode(
   node: unknown,
 ): asserts node is FunctionNode {
-  if (!(node instanceof FunctionNode)) {
+  if (!(isFunctionNode(node))) {
     throw new TypeError('Invalid FunctionNode');
   }
 }
@@ -361,7 +307,7 @@ export function assertFunctionNode(
  * @example assertKeywordNode(myNode);
  */
 export function assertKeywordNode(node: unknown): asserts node is KeywordNode {
-  if (!(node instanceof KeywordNode)) {
+  if (!(isKeywordNode(node))) {
     throw new TypeError('Invalid KeywordNode');
   }
 }
@@ -374,7 +320,7 @@ export function assertKeywordNode(node: unknown): asserts node is KeywordNode {
  * @example assertListNode(myNode);
  */
 export function assertListNode(node: unknown): asserts node is ListNode {
-  if (!(node instanceof ListNode)) {
+  if (!(isListNode(node))) {
     throw new TypeError('Invalid ListNode');
   }
 }
@@ -387,7 +333,7 @@ export function assertListNode(node: unknown): asserts node is ListNode {
  * @example assertNilNode(myNode);
  */
 export function assertNilNode(node: unknown): asserts node is NilNode {
-  if (!(node instanceof NilNode)) {
+  if (!(isNilNode(node))) {
     throw new TypeError('Invalid NilNode');
   }
 }
@@ -400,7 +346,7 @@ export function assertNilNode(node: unknown): asserts node is NilNode {
  * @example assertNumberNode(myNode);
  */
 export function assertNumberNode(node: unknown): asserts node is NumberNode {
-  if (!(node instanceof NumberNode)) {
+  if (!(isNumberNode(node))) {
     throw new TypeError('Invalid NumberNode');
   }
 }
@@ -413,7 +359,7 @@ export function assertNumberNode(node: unknown): asserts node is NumberNode {
  * @example assertStringNode(myNode);
  */
 export function assertStringNode(node: unknown): asserts node is StringNode {
-  if (!(node instanceof StringNode)) {
+  if (!(isStringNode(node))) {
     throw new TypeError('Invalid StringNode');
   }
 }
@@ -426,7 +372,7 @@ export function assertStringNode(node: unknown): asserts node is StringNode {
  * @example assertSymbolNode(myNode);
  */
 export function assertSymbolNode(node: unknown): asserts node is SymbolNode {
-  if (!(node instanceof SymbolNode)) {
+  if (!(isSymbolNode(node))) {
     throw new TypeError('Invalid SymbolNode');
   }
 }
@@ -439,9 +385,103 @@ export function assertSymbolNode(node: unknown): asserts node is SymbolNode {
  * @example assertVectorNode(myNode);
  */
 export function assertVectorNode(node: unknown): asserts node is VectorNode {
-  if (!(node instanceof VectorNode)) {
+  if (!(isVectorNode(node))) {
     throw new TypeError('Invalid VectorNode');
   }
+}
+
+// FACTORY FUNCTIONS
+// =============================================================================
+
+/**
+ * Factory function to create a DomNode.
+ */
+export function createDomNode(value: string, attributes?: Map<string, AstNode>, children?: AstNode[], metadata?: AstNode): DomNode {
+  return new DomNode(value, attributes, children, metadata);
+}
+
+/**
+ * Factory function to create an AtomNode.
+ */
+export function createAtomNode(value: AstNode): AtomNode {
+  return new AtomNode(value);
+}
+
+/**
+ * Factory function to create a BooleanNode.
+ */
+export function createBooleanNode(value: boolean): BooleanNode {
+  return new BooleanNode(value);
+}
+
+/**
+ * Factory function to create a MapNode.
+ */
+export function createMapNode(value?: Map<string, AstNode>, metadata?: AstNode): MapNode {
+  return new MapNode(value, metadata);
+}
+
+/**
+ * Factory function to create a ErrorNode.
+ */
+export function createErrorNode(value: AstNode): ErrorNode {
+  return new ErrorNode(value);
+}
+
+/**
+ * Factory function to create a FunctionNode.
+ */
+export function createFunctionNode(value: Closure, closureMeta?: ClosureMetadata | undefined, isMacro?: boolean, metadata?: AstNode): FunctionNode {
+  return new FunctionNode(value, closureMeta, isMacro, metadata);
+}
+
+/**
+ * Factory function to create a KeywordNode.
+ */
+export function createKeywordNode(value: string): KeywordNode {
+  return new KeywordNode(value);
+}
+
+/**
+ * Factory function to create a LcreatetNode.
+ */
+export function createListNode(value: AstNode[], metadata?: AstNode): ListNode {
+  return new ListNode(value, metadata);
+}
+
+/**
+ * Factory function to create a NilNode.
+ */
+export function createNilNode(value?: unknown): NilNode {
+  return new NilNode(value);
+}
+
+/**
+ * Factory function to create a NumberNode.
+ */
+export function createNumberNode(value: number): NumberNode {
+  return new NumberNode(value);
+}
+
+/**
+ * Factory function to create a StringNode.
+ */
+export function createStringNode(value: string): StringNode {
+  return new StringNode(value);
+}
+
+/**
+ * Factory function to create a SymbolNode.
+ */
+export function createSymbolNode(value: string): SymbolNode {
+  return new SymbolNode(value);
+}
+
+/**
+ * Factory function to create a VectorNode.
+ */
+export function createVectorNode(value: AstNode[], metadata?: AstNode): VectorNode {
+  return new VectorNode(value, metadata);
 }
 
 // TYPE GUARDS
@@ -454,7 +494,7 @@ export function assertVectorNode(node: unknown): asserts node is VectorNode {
  * @example isDomNode(myNode);
  */
 export function isDomNode(node: unknown): node is DomNode {
-  return (node instanceof DomNode) ? true : false;
+  return node instanceof DomNode;
 }
 
 /**
@@ -464,7 +504,7 @@ export function isDomNode(node: unknown): node is DomNode {
  * @example isAstNode(myNode);
  */
 export function isAstNode(node: unknown): node is AstNode {
-  return (node instanceof AstNode) ? true : false;
+  return node instanceof AstNode;
 }
 
 /**
@@ -474,7 +514,7 @@ export function isAstNode(node: unknown): node is AstNode {
  * @example isAtomNode(myNode);
  */
 export function isAtomNode(node: unknown): node is AtomNode {
-  return (node instanceof AtomNode) ? true : false;
+  return node instanceof AtomNode;
 }
 
 /**
@@ -484,7 +524,7 @@ export function isAtomNode(node: unknown): node is AtomNode {
  * @example isBooleanNode(myNode);
  */
 export function isBooleanNode(node: unknown): node is BooleanNode {
-  return (node instanceof BooleanNode) ? true : false;
+  return node instanceof BooleanNode;
 }
 
 /**
@@ -494,7 +534,7 @@ export function isBooleanNode(node: unknown): node is BooleanNode {
  * @example isMapNode(myNode);
  */
 export function isMapNode(node: unknown): node is MapNode {
-  return (node instanceof MapNode) ? true : false;
+  return node instanceof MapNode;
 }
 
 /**
@@ -504,7 +544,7 @@ export function isMapNode(node: unknown): node is MapNode {
  * @example isErrorNode(myNode);
  */
 export function isErrorNode(node: unknown): node is ErrorNode {
-  return (node instanceof ErrorNode) ? true : false;
+  return node instanceof ErrorNode;
 }
 
 /**
@@ -514,7 +554,7 @@ export function isErrorNode(node: unknown): node is ErrorNode {
  * @example isFunctionNode(myNode);
  */
 export function isFunctionNode(node: unknown): node is FunctionNode {
-  return (node instanceof FunctionNode) ? true : false;
+  return node instanceof FunctionNode;
 }
 
 /**
@@ -524,7 +564,7 @@ export function isFunctionNode(node: unknown): node is FunctionNode {
  * @example isKeywordNode(myNode);
  */
 export function isKeywordNode(node: unknown): node is KeywordNode {
-  return (node instanceof KeywordNode) ? true : false;
+  return node instanceof KeywordNode;
 }
 
 /**
@@ -534,7 +574,7 @@ export function isKeywordNode(node: unknown): node is KeywordNode {
  * @example isListNode(myNode);
  */
 export function isListNode(node: unknown): node is ListNode {
-  return (node instanceof ListNode) ? true : false;
+  return node instanceof ListNode;
 }
 
 /**
@@ -544,7 +584,7 @@ export function isListNode(node: unknown): node is ListNode {
  * @example isNilNode(myNode);
  */
 export function isNilNode(node: unknown): node is NilNode {
-  return (node instanceof NilNode) ? true : false;
+  return node instanceof NilNode;
 }
 
 /**
@@ -554,7 +594,7 @@ export function isNilNode(node: unknown): node is NilNode {
  * @example isNumberNode(myNode);
  */
 export function isNumberNode(node: unknown): node is NumberNode {
-  return (node instanceof NumberNode) ? true : false;
+  return node instanceof NumberNode;
 }
 
 /**
@@ -564,7 +604,7 @@ export function isNumberNode(node: unknown): node is NumberNode {
  * @example isStringNode(myNode);
  */
 export function isStringNode(node: unknown): node is StringNode {
-  return (node instanceof StringNode) ? true : false;
+  return node instanceof StringNode;
 }
 
 /**
@@ -574,7 +614,7 @@ export function isStringNode(node: unknown): node is StringNode {
  * @example isSymbolNode(myNode);
  */
 export function isSymbolNode(node: unknown): node is SymbolNode {
-  return (node instanceof SymbolNode) ? true : false;
+  return node instanceof SymbolNode;
 }
 
 /**
@@ -584,7 +624,7 @@ export function isSymbolNode(node: unknown): node is SymbolNode {
  * @example isVectorNode(myNode);
  */
 export function isVectorNode(node: unknown): node is VectorNode {
-  return (node instanceof VectorNode) ? true : false;
+  return node instanceof VectorNode;
 }
 
 // TYPES
@@ -723,23 +763,23 @@ export function assertTrue(object: unknown): asserts object is true {
  * @example isAstTruthy(astNode) // returns true if the Ast node is "truthy"
  */
 export function isAstTruthy(a: AstNode): boolean {
-  if (a instanceof AtomNode) {
-    if (a.value instanceof AstNode !== true) {
+  if (isAtomNode(a)) {
+    if (isAstNode(a.value) !== true) {
       return Boolean(a.value);
     }
     return isAstTruthy(a.value);
   }
 
-  if (a instanceof BooleanNode) {
+  if (isBooleanNode(a)) {
     return a.value;
   }
 
   const nilAst = a;
-  if (nilAst instanceof NilNode) {
+  if (isNilNode(nilAst)) {
     return false;
   }
 
-  if (a instanceof NumberNode) {
+  if (isNumberNode(a)) {
     return true;
   }
 
@@ -756,7 +796,7 @@ export function isAstTruthy(a: AstNode): boolean {
 export function isSequentialNode(
   value: unknown,
 ): value is ListNode | VectorNode {
-  return value instanceof ListNode || value instanceof VectorNode;
+  return isListNode(value) || isVectorNode(value);
 }
 
 /**
@@ -768,7 +808,7 @@ export function isSequentialNode(
 export function assertSequential<T extends ListNode | VectorNode>(
   value: unknown,
 ): asserts value is T {
-  if (!(value instanceof ListNode) && !(value instanceof VectorNode)) {
+  if (!(isListNode(value)) && !(isVectorNode(value))) {
     throw new TypeError('Invalid sequential type');
   }
 }
@@ -783,9 +823,9 @@ export function assertMapKeyNode<T extends MapKeyNode>(
   value: unknown,
 ): asserts value is T {
   if (
-    !(value instanceof StringNode) &&
-    !(value instanceof SymbolNode) &&
-    !(value instanceof KeywordNode)
+    !(isStringNode(value)) &&
+    !(isSymbolNode(value)) &&
+    !(isKeywordNode(value))
   ) {
     throw new TypeError('Invalid dictionary key');
   }
@@ -800,9 +840,9 @@ export function assertMapKeyNode<T extends MapKeyNode>(
  */
 export function isMapKeyNode(value: unknown): value is MapKeyNode {
   return (
-    value instanceof StringNode ||
-    value instanceof SymbolNode ||
-    value instanceof KeywordNode
+    isStringNode(value) ||
+    isSymbolNode(value) ||
+    isKeywordNode(value)
   );
 }
 
@@ -817,11 +857,11 @@ export function assertMetadataType(
   value: unknown,
 ): asserts value is MetadataTypes {
   if (
-    !(value instanceof FunctionNode) &&
-    !(value instanceof ListNode) &&
-    !(value instanceof VectorNode) &&
-    !(value instanceof MapNode) &&
-    !(value instanceof DomNode)
+    !(isFunctionNode(value)) &&
+    !(isListNode(value)) &&
+    !(isVectorNode(value)) &&
+    !(isMapNode(value)) &&
+    !(isDomNode(value))
   ) {
     throw new TypeError('Invalid metadata type');
   }
@@ -953,44 +993,44 @@ export function assertIsOneOf<R extends AstNode>(
 export function isEqualTo(a: AstNode, b: AstNode): BooleanNode {
   if (isSequentialNode(a) && isSequentialNode(b)) {
     if (a.value.length !== b.value.length) {
-      return new BooleanNode(false);
+      return createBooleanNode(false);
     }
 
     for (let i = 0; i < a.value.length; i++) {
       if (!isEqualTo(a.value[i], b.value[i]).value) {
-        return new BooleanNode(false);
+        return createBooleanNode(false);
       }
     }
 
-    return new BooleanNode(true);
+    return createBooleanNode(true);
   }
 
-  if (a instanceof MapNode && b instanceof MapNode) {
+  if (isMapNode(a) && isMapNode(b)) {
     if (a.value.size !== b.value.size) {
-      return new BooleanNode(false);
+      return createBooleanNode(false);
     }
 
     for (const [aKeyString, aValue] of a.value) {
       const bValue = b.value.get(aKeyString);
       if (bValue === undefined) {
-        return new BooleanNode(false);
+        return createBooleanNode(false);
       }
 
       const recurResult = isEqualTo(aValue, bValue);
       if (!recurResult.value) {
-        return new BooleanNode(false);
+        return createBooleanNode(false);
       }
     }
 
-    return new BooleanNode(true);
+    return createBooleanNode(true);
   }
 
   if (!isSameClass(a, b)) {
-    return new BooleanNode(false);
+    return createBooleanNode(false);
   }
 
   const result = a.value === b.value;
-  return new BooleanNode(result);
+  return createBooleanNode(result);
 }
 
 /**
@@ -1005,8 +1045,8 @@ export function listStartsWithSymbol(
   listNode: AstNode,
   symbolValue?: string,
 ): listNode is ListNode & { value: [SymbolNode] } {
-  const isListWithSymbol = listNode instanceof ListNode &&
-    listNode.value[0] instanceof SymbolNode;
+  const isListWithSymbol = isListNode(listNode) &&
+    isSymbolNode(listNode.value[0]);
 
   if (isListWithSymbol && symbolValue !== undefined) {
     return listNode.value[0].value === symbolValue;
@@ -1449,55 +1489,55 @@ export const append = (acc: AstNode[], curr: AstNode): AstNode[] => [
  * @example copy(astNode); // Creates a deep copy of astNode
  */
 export function copy(ast: AstNode): AstNode {
-  if (ast instanceof AtomNode) {
+  if (isAtomNode(ast)) {
     return copyAtomNode(ast);
   }
 
-  if (ast instanceof BooleanNode) {
+  if (isBooleanNode(ast)) {
     return copyBooleanNode(ast);
   }
 
-  if (ast instanceof MapNode) {
+  if (isMapNode(ast)) {
     return copyMapNode(ast);
   }
 
-  if (ast instanceof ErrorNode) {
+  if (isErrorNode(ast)) {
     return copyErrorNode(ast);
   }
 
-  if (ast instanceof FunctionNode) {
+  if (isFunctionNode(ast)) {
     return copyFunctionNode(ast);
   }
 
-  if (ast instanceof KeywordNode) {
+  if (isKeywordNode(ast)) {
     return copyKeywordNode(ast);
   }
 
-  if (ast instanceof ListNode) {
+  if (isListNode(ast)) {
     return copyListNode(ast);
   }
 
-  if (ast instanceof NilNode) {
+  if (isNilNode(ast)) {
     return copyNilNode(ast);
   }
 
-  if (ast instanceof NumberNode) {
+  if (isNumberNode(ast)) {
     return copyNumberNode(ast);
   }
 
-  if (ast instanceof StringNode) {
+  if (isStringNode(ast)) {
     return copyStringNode(ast);
   }
 
-  if (ast instanceof SymbolNode) {
+  if (isSymbolNode(ast)) {
     return copySymbolNode(ast);
   }
 
-  if (ast instanceof VectorNode) {
+  if (isVectorNode(ast)) {
     return copyVectorNode(ast);
   }
 
-  if (ast instanceof DomNode) {
+  if (isDomNode(ast)) {
     return copyDomNode(ast);
   }
 
@@ -1514,10 +1554,10 @@ export function copy(ast: AstNode): AstNode {
  */
 export function copyAtomNode(a: AtomNode): AtomNode {
   // TODO: Coerce JS values into AstNodes?
-  // if (a.value instanceof AstNode === false) {
-  // 	return new AtomNode(structuredClone(a.value));
+  // if (a.isAstNode(value) === false) {
+  // 	return createAtomNode(structuredClone(a.value));
   // }
-  return new AtomNode(copy(a.value));
+  return createAtomNode(copy(a.value));
 }
 
 /**
@@ -1529,7 +1569,7 @@ export function copyAtomNode(a: AtomNode): AtomNode {
  * @example copyBool(boolNode); // Creates a copy of boolNode
  */
 export function copyBooleanNode(a: BooleanNode): BooleanNode {
-  return new BooleanNode(a.value);
+  return createBooleanNode(a.value);
 }
 
 /**
@@ -1541,17 +1581,17 @@ export function copyBooleanNode(a: BooleanNode): BooleanNode {
  * @example copyDict(dictNode); // Creates a copy of dictNode
  */
 export function copyMapNode(a: MapNode): MapNode {
-  const dict = new MapNode(new Map(a.value));
+  const dict = createMapNode(new Map(a.value));
   dict.metadata = copy(a.metadata);
   return dict;
 }
 
 /**
  * Creates a copy of a DomNode.
- * @description Creates a new DomNode instance with a deep copy of the value
+ * @description Creates a createDomNode instance with a deep copy of the value
  * and metadata from the given DomNode instance.
  * @param a - The DomNode to copy.
- * @returns Dict - A new DomNode instance with copied values and metadata.
+ * @returns Dict - A createDomNode instance with copied values and metadata.
  * @example copyDomNode(domNodeInstance); // Creates a copy of domNodeInstance
  */
 export function copyDomNode(a: DomNode): DomNode {
@@ -1559,7 +1599,7 @@ export function copyDomNode(a: DomNode): DomNode {
   const attributes = a.attributes;
   const children = a.children;
 
-  const domNode = new DomNode(tagName, new Map(attributes), children.map(copy));
+  const domNode = createDomNode(tagName, new Map(attributes), children.map(copy));
   domNode.metadata = copy(a.metadata);
   return domNode;
 }
@@ -1573,7 +1613,7 @@ export function copyDomNode(a: DomNode): DomNode {
  * @example copyErr(errNode); // Creates a copy of errNode
  */
 export function copyErrorNode(a: ErrorNode): ErrorNode {
-  return new ErrorNode(copy(a.value));
+  return createErrorNode(copy(a.value));
 }
 
 /**
@@ -1586,7 +1626,7 @@ export function copyErrorNode(a: ErrorNode): ErrorNode {
  * @example copyFunc(funcNode); // Creates a copy of funcNode
  */
 export function copyFunctionNode(a: FunctionNode): FunctionNode {
-  const func = new FunctionNode(a.value);
+  const func = createFunctionNode(a.value);
   func.isMacro = a.isMacro;
   func.metadata = copy(a.metadata);
   if (a.closureMeta) {
@@ -1594,7 +1634,7 @@ export function copyFunctionNode(a: FunctionNode): FunctionNode {
     func.closureMeta = {
       ast: copy(cl.ast),
       env: cl.env, // Copy env?
-      parameters: cl.parameters.map((sym) => new SymbolNode(sym.value)),
+      parameters: cl.parameters.map((sym) => createSymbolNode(sym.value)),
     };
   }
 
@@ -1610,7 +1650,7 @@ export function copyFunctionNode(a: FunctionNode): FunctionNode {
  * @example copyKey(keyNode); // Creates a copy of keyNode
  */
 export function copyKeywordNode(a: KeywordNode): KeywordNode {
-  return new KeywordNode(a.value);
+  return createKeywordNode(a.value);
 }
 
 /**
@@ -1622,7 +1662,7 @@ export function copyKeywordNode(a: KeywordNode): KeywordNode {
  * @example copyList(listNode); // Creates a copy of listNode
  */
 export function copyListNode(a: ListNode): ListNode {
-  const list = new ListNode(a.value.map((value) => copy(value)));
+  const list = createListNode(a.value.map((value) => copy(value)));
   list.metadata = copy(a.metadata);
   return list;
 }
@@ -1636,7 +1676,7 @@ export function copyListNode(a: ListNode): ListNode {
  * @example copyNil(nilNode); // Creates a new Nil node
  */
 export function copyNilNode(_ast: NilNode): NilNode {
-  return new NilNode();
+  return createNilNode();
 }
 
 /**
@@ -1647,7 +1687,7 @@ export function copyNilNode(_ast: NilNode): NilNode {
  * @example copyNum(numNode); // Creates a copy of numNode
  */
 export function copyNumberNode(a: NumberNode): NumberNode {
-  return new NumberNode(a.value);
+  return createNumberNode(a.value);
 }
 
 /**
@@ -1658,7 +1698,7 @@ export function copyNumberNode(a: NumberNode): NumberNode {
  * @example copyStr(strNode); // Creates a copy of strNode
  */
 export function copyStringNode(a: StringNode): StringNode {
-  return new StringNode(a.value);
+  return createStringNode(a.value);
 }
 
 /**
@@ -1669,7 +1709,7 @@ export function copyStringNode(a: StringNode): StringNode {
  * @example copySym(symNode); // Creates a copy of symNode
  */
 export function copySymbolNode(a: SymbolNode): SymbolNode {
-  return new SymbolNode(a.value);
+  return createSymbolNode(a.value);
 }
 
 /**
@@ -1681,7 +1721,7 @@ export function copySymbolNode(a: SymbolNode): SymbolNode {
  * @example copyVec(vecNode); // Creates a copy of vecNode
  */
 export function copyVectorNode(a: VectorNode): VectorNode {
-  const vec = new VectorNode(a.value.map((value) => copy(value)));
+  const vec = createVectorNode(a.value.map((value) => copy(value)));
   vec.metadata = copy(a.metadata);
   return vec;
 }
@@ -1761,7 +1801,7 @@ export function getMapElement(
  */
 export function getMapKeys(map: Map<string, AstNode>): ListNode {
   const keys = [...map.keys()];
-  return new ListNode(keys.map((key) => convertStringToMapKey(key)));
+  return createListNode(keys.map((key) => convertStringToMapKey(key)));
 }
 
 /**
@@ -1777,12 +1817,12 @@ export function getMapKeys(map: Map<string, AstNode>): ListNode {
  */
 export function convertMapKeyToString(ast: MapKeyNode): string {
   const key = ast; // Key has : at the beginning
-  if (key instanceof KeywordNode) {
+  if (isKeywordNode(key)) {
     return key.value;
   }
 
   const string_ = ast; // Str must be re-quoted
-  if (string_ instanceof StringNode) {
+  if (isStringNode(string_)) {
     return `"${string_.value}"`;
   }
 
@@ -1797,14 +1837,14 @@ export function convertMapKeyToString(ast: MapKeyNode): string {
  */
 export function convertStringToMapKey(key: string): MapKeyNode {
   if (key.startsWith(':')) {
-    return new KeywordNode(key);
+    return createKeywordNode(key);
   }
 
   if (key.startsWith('"')) {
-    return new StringNode(key.slice(1, -1));
+    return createStringNode(key.slice(1, -1));
   }
 
-  return new SymbolNode(key);
+  return createSymbolNode(key);
 }
 
 /**
@@ -1835,7 +1875,7 @@ export function dekey(key: string | MapKeyNode): string {
  */
 export function getMapValues(map: Map<string, AstNode>): ListNode {
   const values = [...map.values()];
-  return new ListNode(values);
+  return createListNode(values);
 }
 
 /**
@@ -1922,48 +1962,48 @@ export function slash(string_: string): string {
 export function toAst(input: unknown): AstNode {
   switch (typeof input) {
     case 'undefined': {
-      return new NilNode();
+      return createNilNode();
     }
 
     case 'number': {
-      return new NumberNode(input);
+      return createNumberNode(input);
     }
 
     case 'string': {
       if (input.startsWith('"')) {
-        return new StringNode(input);
+        return createStringNode(input);
       }
 
       if (input.startsWith(':')) {
-        return new KeywordNode(input);
+        return createKeywordNode(input);
       }
 
-      return new SymbolNode(input);
+      return createSymbolNode(input);
     }
 
     case 'boolean': {
-      return new BooleanNode(input);
+      return createBooleanNode(input);
     }
 
     case 'symbol':
     case 'bigint': {
-      return new StringNode(JSON.stringify(input));
+      return createStringNode(JSON.stringify(input));
     }
 
     case 'function': {
-      return new FunctionNode(
+      return createFunctionNode(
         (...args: AstNode[]): AstNode => {
           try {
             return toAst(input(...args.map((x) => x.value)));
           } catch (error: unknown) {
             if (error instanceof Error) {
-              return new ErrorNode(
-                new StringNode(error.message),
+              return createErrorNode(
+                createStringNode(error.message),
               );
             }
 
-            return new ErrorNode(
-              new StringNode(JSON.stringify(error)),
+            return createErrorNode(
+              createStringNode(JSON.stringify(error)),
             );
           }
         },
@@ -1972,16 +2012,16 @@ export function toAst(input: unknown): AstNode {
 
     case 'object': {
       if (input instanceof Error) {
-        return new ErrorNode(new StringNode(input.message));
+        return createErrorNode(createStringNode(input.message));
       }
 
       if (input === null) {
-        return new NilNode();
+        return createNilNode();
       }
 
       if (Array.isArray(input)) {
         const array = input.map((element) => toAst(element));
-        return new ListNode(array);
+        return createListNode(array);
       }
 
       if (input instanceof Map) {
@@ -1992,7 +2032,7 @@ export function toAst(input: unknown): AstNode {
           map.set(key, value);
         }
 
-        return new MapNode(map);
+        return createMapNode(map);
       }
 
       const inputObject = input as Record<string, unknown>;
@@ -2007,13 +2047,13 @@ export function toAst(input: unknown): AstNode {
         map.set(key, value);
       }
 
-      return new MapNode(map);
+      return createMapNode(map);
     }
 
     default: {
       const coercedUnknown = String(input);
-      return new ErrorNode(
-        new StringNode(`uknown type ${coercedUnknown}`),
+      return createErrorNode(
+        createStringNode(`uknown type ${coercedUnknown}`),
       );
     }
   }

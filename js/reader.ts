@@ -80,10 +80,9 @@ export function tokenize(code: string): string[] {
  */
 export function readString(code: string): types.AstNode {
   const tokens = tokenize(code);
-  if (tokens.length === 0) {
-    return new types.NilNode();
-  }
-  return readForm(new Reader(tokens));
+  if (tokens.length === 0) return types.createNilNode();
+  const result = readForm(new Reader(tokens));
+  return result;
 }
 
 /**
@@ -130,8 +129,8 @@ export function readForm(rdr: Reader): types.AstNode {
    * @example makeForm('`')
    */
   function makeForm(symbol: string, meta?: types.AstNode): types.ListNode {
-    return new types.ListNode([
-      new types.SymbolNode(symbol),
+    return types.createListNode([
+      types.createSymbolNode(symbol),
       readForm(rdr),
       ...(meta ? [meta] : []),
     ]);
@@ -223,36 +222,36 @@ export function readAtom(rdr: Reader): types.AstNode {
   }
 
   if (token === 'nil') {
-    return new types.NilNode();
+    return types.createNilNode();
   }
 
   if (token === 'false') {
-    return new types.BooleanNode(false);
+    return types.createBooleanNode(false);
   }
 
   if (token === 'true') {
-    return new types.BooleanNode(true);
+    return types.createBooleanNode(true);
   }
 
   if (numberRegex.test(token)) {
-    return new types.NumberNode(Number.parseFloat(token));
+    return types.createNumberNode(Number.parseFloat(token));
   }
 
   if (stringRegex.test(token)) {
-    const unescaped = new types.StringNode(unescapeString(token));
+    const unescaped = types.createStringNode(unescapeString(token));
     return unescaped;
   }
 
   // TODO: Add support for trailing colons.
   if (token.startsWith(':') || token.endsWith(':')) {
-    return new types.KeywordNode(token);
+    return types.createKeywordNode(token);
   }
 
   if (token.startsWith('"')) {
     throw new Error("expected '\"', got EOF");
   }
 
-  return new types.SymbolNode(token);
+  return types.createSymbolNode(token);
 }
 
 /**
@@ -319,19 +318,19 @@ export function readSequence(
       const attributes = types.isMapNode(astNodes[1]) ? astNodes[1].value : undefined;
       const children = types.isMapNode(astNodes[1]) ? astNodes.slice(2) : astNodes.slice(1);
 
-      return new types.DomNode(tagName.value, attributes, children);
+      return types.createDomNode(tagName.value, attributes, children);
     }
 
     case ')': {
-      return new types.ListNode(astNodes);
+      return types.createListNode(astNodes);
     }
 
     case ']': {
-      return new types.VectorNode(astNodes);
+      return types.createVectorNode(astNodes);
     }
 
     case '}': {
-      const dict = new types.MapNode();
+      const dict = types.createMapNode();
       for (let i = 0; i < astNodes.length; i += 2) {
         const key = astNodes[i];
         types.assertMapKeyNode(key);

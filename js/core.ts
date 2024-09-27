@@ -331,7 +331,7 @@ const nsValues: Array<[string, types.Closure]> = [
 ];
 
 for (const [sym, fn] of nsValues) {
-  ns.set(new types.SymbolNode(sym), new types.FunctionNode(fn));
+  ns.set(types.createSymbolNode(sym), types.createFunctionNode(fn));
 }
 
 /**
@@ -351,10 +351,10 @@ export function jsEval(...args: types.AstNode[]): types.AstNode {
     return types.toAst(result);
   } catch (error: unknown) {
     if (error instanceof Error) {
-      return new types.ErrorNode(new types.StringNode(error.message));
+      return types.createErrorNode(types.createStringNode(error.message));
     }
 
-    return new types.ErrorNode(new types.StringNode(JSON.stringify(error)));
+    return types.createErrorNode(types.createStringNode(JSON.stringify(error)));
   }
 }
 
@@ -395,7 +395,7 @@ export function eq(...args: types.AstNode[]): types.AstNode {
  */
 export function printEscapedString(...args: types.AstNode[]): types.AstNode {
   const result = args.map((arg) => printer.printString(arg, true)).join(' ');
-  return new types.StringNode(result);
+  return types.createStringNode(result);
 }
 
 /**
@@ -408,7 +408,7 @@ export function printEscapedString(...args: types.AstNode[]): types.AstNode {
  */
 export function printUnescapedString(...args: types.AstNode[]): types.AstNode {
   const result = args.map((arg) => printer.printString(arg, false)).join('');
-  return new types.StringNode(result);
+  return types.createStringNode(result);
 }
 
 /**
@@ -430,7 +430,7 @@ export function printEscapedStringToScreen(
 ): types.AstNode {
   const result = args.map((arg) => printer.printString(arg, true)).join(' ');
   console.log(result);
-  return new types.NilNode();
+  return types.createNilNode();
 }
 
 /**
@@ -455,7 +455,7 @@ export function printUnescapedStringToScreen(
 ): types.AstNode {
   const result = args.map((arg) => printer.printString(arg, false)).join(' ');
   console.log(result);
-  return new types.NilNode();
+  return types.createNilNode();
 }
 
 /**
@@ -486,10 +486,10 @@ export function readln(...args: types.AstNode[]): types.AstNode {
 
   const input = prompt(cmdPrompt.value);
   if (input === null || input === undefined) {
-    return new types.NilNode();
+    return types.createNilNode();
   }
 
-  return new types.StringNode(input);
+  return types.createStringNode(input);
 }
 
 /**
@@ -505,21 +505,21 @@ export function readir(...args: types.AstNode[]): types.AstNode {
   const files: types.MapNode[] = [];
   for (const entry of readDirSync(args[0].value)) {
     const map = new Map<string, types.AstNode>();
-    map.set(':file', new types.BooleanNode(entry.isFile));
-    map.set(':directory', new types.BooleanNode(entry.isDirectory));
-    map.set(':symlink', new types.BooleanNode(entry.isSymlink));
-    map.set(':name', new types.StringNode(entry.name));
+    map.set(':file', types.createBooleanNode(entry.isFile));
+    map.set(':directory', types.createBooleanNode(entry.isDirectory));
+    map.set(':symlink', types.createBooleanNode(entry.isSymlink));
+    map.set(':name', types.createStringNode(entry.name));
 
     const firstDotIndex = entry.name.indexOf('.');
     const slug = entry.name.slice(0, firstDotIndex);
     const ext = entry.name.slice(firstDotIndex + 1);
 
-    map.set(':slug', new types.StringNode(slug));
-    map.set(':ext', new types.StringNode(ext));
-    files.push(new types.MapNode(map));
+    map.set(':slug', types.createStringNode(slug));
+    map.set(':ext', types.createStringNode(ext));
+    files.push(types.createMapNode(map));
   }
 
-  return new types.VectorNode(files);
+  return types.createVectorNode(files);
 }
 
 /**
@@ -535,7 +535,7 @@ export function slurp(...args: types.AstNode[]): types.AstNode {
   types.assertStringNode(filePath);
 
   const content = readTextFileSync(filePath.value);
-  return new types.StringNode(content);
+  return types.createStringNode(content);
 }
 
 /**
@@ -557,7 +557,7 @@ export function spit(...args: types.AstNode[]): types.AstNode {
   const encoder = new TextEncoder();
   const data = encoder.encode(content.value);
   writeFileSync(filePath.value, data);
-  return new types.NilNode();
+  return types.createNilNode();
 }
 
 export function serve(...args: types.AstNode[]): types.AstNode {
@@ -569,7 +569,7 @@ export function serve(...args: types.AstNode[]): types.AstNode {
       headers: { 'Content-Type': 'text/html' },
     })
   );
-  return new types.NilNode();
+  return types.createNilNode();
 }
 
 /**
@@ -582,7 +582,7 @@ export function trim(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   const string_ = args[0];
   types.assertStringNode(string_);
-  return new types.StringNode(string_.value.trim());
+  return types.createStringNode(string_.value.trim());
 }
 
 /**
@@ -597,7 +597,7 @@ export function lt(...args: types.AstNode[]): types.AstNode {
   types.assertNumberNode(a);
   const b = args[1];
   types.assertNumberNode(b);
-  return new types.BooleanNode(a.value < b.value);
+  return types.createBooleanNode(a.value < b.value);
 }
 
 /**
@@ -612,7 +612,7 @@ export function lte(...args: types.AstNode[]): types.AstNode {
   types.assertNumberNode(a);
   const b = args[1];
   types.assertNumberNode(b);
-  return new types.BooleanNode(a.value <= b.value);
+  return types.createBooleanNode(a.value <= b.value);
 }
 
 /**
@@ -627,7 +627,7 @@ export function gt(...args: types.AstNode[]): types.AstNode {
   types.assertNumberNode(a);
   const b = args[1];
   types.assertNumberNode(b);
-  return new types.BooleanNode(a.value > b.value);
+  return types.createBooleanNode(a.value > b.value);
 }
 
 /**
@@ -642,7 +642,7 @@ export function gte(...args: types.AstNode[]): types.AstNode {
   types.assertNumberNode(a);
   const b = args[1];
   types.assertNumberNode(b);
-  return new types.BooleanNode(a.value >= b.value);
+  return types.createBooleanNode(a.value >= b.value);
 }
 
 /**
@@ -657,7 +657,7 @@ export function add(...args: types.AstNode[]): types.AstNode {
   types.assertNumberNode(a);
   const b = args[1];
   types.assertNumberNode(b);
-  return new types.NumberNode(a.value + b.value);
+  return types.createNumberNode(a.value + b.value);
 }
 
 /**
@@ -672,7 +672,7 @@ export function subtract(...args: types.AstNode[]): types.AstNode {
   types.assertNumberNode(a);
   const b = args[1];
   types.assertNumberNode(b);
-  return new types.NumberNode(a.value - b.value);
+  return types.createNumberNode(a.value - b.value);
 }
 
 /**
@@ -687,7 +687,7 @@ export function multiply(...args: types.AstNode[]): types.AstNode {
   types.assertNumberNode(a);
   const b = args[1];
   types.assertNumberNode(b);
-  return new types.NumberNode(a.value * b.value);
+  return types.createNumberNode(a.value * b.value);
 }
 
 /**
@@ -702,7 +702,7 @@ export function divide(...args: types.AstNode[]): types.AstNode {
   types.assertNumberNode(a);
   const b = args[1];
   types.assertNumberNode(b);
-  return new types.NumberNode(a.value / b.value);
+  return types.createNumberNode(a.value / b.value);
 }
 
 /**
@@ -713,7 +713,7 @@ export function divide(...args: types.AstNode[]): types.AstNode {
  */
 export function timeMs(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 0);
-  return new types.NumberNode(performance.timeOrigin + performance.now());
+  return types.createNumberNode(performance.timeOrigin + performance.now());
 }
 
 /**
@@ -727,7 +727,7 @@ export function list(...args: types.AstNode[]): types.AstNode {
     types.assertAstNode(arg);
   }
 
-  return new types.ListNode(args);
+  return types.createListNode(args);
 }
 
 /**
@@ -738,7 +738,7 @@ export function list(...args: types.AstNode[]): types.AstNode {
  */
 export function isListNode(...args: types.AstNode[]): types.BooleanNode {
   types.assertArgumentCount(args.length, 1);
-  return new types.BooleanNode(args[0] instanceof types.ListNode);
+  return types.createBooleanNode(types.isListNode(args[0]));
 }
 
 /**
@@ -750,7 +750,7 @@ export function isListNode(...args: types.AstNode[]): types.BooleanNode {
 export function cons(...args: types.AstNode[]): types.ListNode {
   types.assertArgumentCount(args.length, 2);
   types.assertSequential(args[1]);
-  return new types.ListNode([args[0], ...args[1].value]);
+  return types.createListNode([args[0], ...args[1].value]);
 }
 
 /**
@@ -771,7 +771,7 @@ export function concat(...args: types.AstNode[]): types.AstNode {
     resultList.push(...arg.value);
   }
 
-  return new types.ListNode(resultList);
+  return types.createListNode(resultList);
 }
 
 /**
@@ -782,7 +782,7 @@ export function concat(...args: types.AstNode[]): types.AstNode {
  * @example (vec (1 2 3)) ;=> [1 2 3]
  */
 export function vec(...args: types.AstNode[]): types.AstNode {
-  return args[0] instanceof types.ListNode ? new types.VectorNode(args[0].value) : args[0];
+  return types.isListNode(args[0]) ? types.createVectorNode(args[0].value) : args[0];
 }
 
 /**
@@ -796,7 +796,7 @@ export function nth(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 2);
   if (
     types.isSequentialNode(args[0]) &&
-    args[1] instanceof types.NumberNode
+    types.isNumberNode(args[1])
   ) {
     const index = args[1].value;
     const list = args[0];
@@ -823,7 +823,7 @@ export function firstNodeInList(...args: types.AstNode[]): types.AstNode {
     return args[0].value[0];
   }
 
-  return new types.NilNode();
+  return types.createNilNode();
 }
 
 /**
@@ -843,10 +843,10 @@ export function firstNodeInList(...args: types.AstNode[]): types.AstNode {
 export function rest(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   if (types.isSequentialNode(args[0])) {
-    return new types.ListNode(args[0].value.slice(1));
+    return types.createListNode(args[0].value.slice(1));
   }
 
-  return new types.ListNode([]);
+  return types.createListNode([]);
 }
 
 /**
@@ -881,7 +881,7 @@ export function slice(...args: types.AstNode[]): types.AstNode {
     end = args[2].value;
   }
 
-  return new types.VectorNode(args[0].value.slice(start, end));
+  return types.createVectorNode(args[0].value.slice(start, end));
 }
 
 /**
@@ -896,7 +896,7 @@ export function empty(...args: types.AstNode[]): types.AstNode {
   const list = args[0];
   types.assertSequential(list);
 
-  return new types.BooleanNode(list.value.length === 0);
+  return types.createBooleanNode(list.value.length === 0);
 }
 
 /**
@@ -909,14 +909,14 @@ export function length(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
 
   const value = args[0];
-  if (value instanceof types.NilNode) {
-    return new types.NumberNode(0);
+  if (types.isNilNode(value)) {
+    return types.createNumberNode(0);
   }
 
   if (types.isMapNode(args[0])) {
-    return new types.NumberNode(args[0].value.size);
+    return types.createNumberNode(args[0].value.size);
   } else if (types.isSequentialNode(args[0])) {
-    return new types.NumberNode(args[0].value.length);
+    return types.createNumberNode(args[0].value.length);
   } else {
     throw new TypeError('Invalid argument type');
   }
@@ -931,7 +931,7 @@ export function length(...args: types.AstNode[]): types.AstNode {
 export function atom(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   const value = args[0];
-  return new types.AtomNode(value);
+  return types.createAtomNode(value);
 }
 
 /**
@@ -943,7 +943,7 @@ export function atom(...args: types.AstNode[]): types.AstNode {
 export function isAtom(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   const node = args[0];
-  return new types.BooleanNode(node instanceof types.AtomNode);
+  return types.createBooleanNode(types.isAtomNode(node));
 }
 
 /**
@@ -1027,7 +1027,7 @@ export function throwError(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertAstNode(args[0]);
   // eslint-disable-next-line @typescript-eslint/no-throw-literal
-  throw new types.ErrorNode(args[0]);
+  throw types.createErrorNode(args[0]);
 }
 
 /**
@@ -1063,7 +1063,7 @@ export function applyToSequence(...args: types.AstNode[]): types.AstNode {
   const fn = args[0];
   const list = args[1];
   const result = list.value.map((item) => fn.value(item));
-  return new types.ListNode(result);
+  return types.createListNode(result);
 }
 
 /**
@@ -1083,7 +1083,7 @@ export function every(...args: types.AstNode[]): types.AstNode {
   const fn = args[0];
   const vec = args[1];
   const result = vec.value.every((item) => fn.value(item));
-  return new types.BooleanNode(result);
+  return types.createBooleanNode(result);
 }
 
 /**
@@ -1103,7 +1103,7 @@ export function some(...args: types.AstNode[]): types.AstNode {
   const fn = args[0];
   const vec = args[1];
   const result = vec.value.some((item) => fn.value(item));
-  return new types.BooleanNode(result);
+  return types.createBooleanNode(result);
 }
 
 /**
@@ -1133,13 +1133,12 @@ export function conj(...args: types.AstNode[]): types.AstNode {
   types.assertSequential(args[0]);
   const [seq, ...rest] = args;
 
-  if (seq instanceof types.ListNode) {
-    return new types.ListNode([...rest.reverse(), ...seq.value]);
+  if (types.isListNode(seq)) {
+    return types.createListNode([...rest.reverse(), ...seq.value]);
   }
 
   // Explicitly state that seq is a Vec here, to preserve type information
-  const vecSeq = seq;
-  return new types.VectorNode([...vecSeq.value, ...rest]);
+  return types.createVectorNode([...args[0].value, ...rest]);
 }
 
 /**
@@ -1157,21 +1156,21 @@ export function conj(...args: types.AstNode[]): types.AstNode {
 export function seq(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   const ast = args[0];
-  if (ast instanceof types.ListNode && ast.value.length > 0) {
+  if (types.isListNode(ast) && ast.value.length > 0) {
     return ast;
   }
 
-  if (ast instanceof types.VectorNode && ast.value.length > 0) {
-    return new types.ListNode([...ast.value]);
+  if (types.isVectorNode(ast) && ast.value.length > 0) {
+    return types.createListNode([...ast.value]);
   }
 
-  if (ast instanceof types.StringNode && ast.value.length > 0) {
-    return new types.ListNode(
-      ast.value.split('').map((char) => new types.StringNode(char)),
+  if (types.isStringNode(ast) && ast.value.length > 0) {
+    return types.createListNode(
+      ast.value.split('').map((char) => types.createStringNode(char)),
     );
   }
 
-  return new types.NilNode();
+  return types.createNilNode();
 }
 
 /**
@@ -1191,30 +1190,30 @@ export function from(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   const ast = args[0];
 
-  if (ast instanceof types.MapNode && ast.value.size > 0) {
-    const entries = Array.from<[string, types.AstNode]>(args[0].value.entries()).map(([k, v]) => new types.VectorNode([new types.StringNode(k), v]));
-    return new types.VectorNode(entries);
+  if (types.isMapNode(ast) && ast.value.size > 0) {
+    const entries = Array.from<[string, types.AstNode]>(args[0].value.entries()).map(([k, v]) => types.createVectorNode([types.createStringNode(k), v]));
+    return types.createVectorNode(entries);
   }
 
   // Return the same value for ListNode, but in a VectorNode format
-  if (ast instanceof types.ListNode && ast.value.length > 0) {
-    return new types.VectorNode([...ast.value]);
+  if (isListNode(ast) && ast.value.length > 0) {
+    return types.createVectorNode([...ast.value]);
   }
 
-  // Convert VectorNode to a new VectorNode (like Array.from)
-  if (ast instanceof types.VectorNode && ast.value.length > 0) {
-    return new types.VectorNode([...ast.value]);
+  // Convert VectorNode to a createVectorNode (like Array.from)
+  if (types.isVectorNode(ast) && ast.value.length > 0) {
+    return types.createVectorNode([...ast.value]);
   }
 
   // Convert StringNode to a vector of characters (Array.from behavior)
-  if (ast instanceof types.StringNode && ast.value.length > 0) {
-    return new types.VectorNode(
-      ast.value.split('').map((char) => new types.StringNode(char)),
+  if (types.isStringNode(ast) && ast.value.length > 0) {
+    return types.createVectorNode(
+      ast.value.split('').map((char) => types.createStringNode(char)),
     );
   }
 
   // Return NilNode if input is empty or doesn't match other types
-  return new types.NilNode();
+  return types.createNilNode();
 }
 
 /**
@@ -1255,7 +1254,7 @@ export function withMeta(...args: types.AstNode[]): types.AstNode {
  */
 export function isNil(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
-  return new types.BooleanNode(args[0] instanceof types.NilNode);
+  return types.createBooleanNode(types.isNilNode(args[0]));
 }
 
 /**
@@ -1266,8 +1265,8 @@ export function isNil(...args: types.AstNode[]): types.AstNode {
  */
 export function isTrue(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
-  return new types.BooleanNode(
-    args[0] instanceof types.BooleanNode && args[0].value,
+  return types.createBooleanNode(
+    types.isBooleanNode(args[0]) && args[0].value,
   );
 }
 
@@ -1279,8 +1278,8 @@ export function isTrue(...args: types.AstNode[]): types.AstNode {
  */
 export function isFalse(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
-  return new types.BooleanNode(
-    args[0] instanceof types.BooleanNode && !args[0].value,
+  return types.createBooleanNode(
+    types.isBooleanNode(args[0]) && !args[0].value,
   );
 }
 
@@ -1292,7 +1291,7 @@ export function isFalse(...args: types.AstNode[]): types.AstNode {
  */
 export function isString(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
-  return new types.BooleanNode(args[0] instanceof types.StringNode);
+  return types.createBooleanNode(types.isStringNode(args[0]));
 }
 
 /**
@@ -1304,7 +1303,7 @@ export function isString(...args: types.AstNode[]): types.AstNode {
 export function symbol(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertStringNode(args[0]);
-  return new types.SymbolNode(args[0].value);
+  return types.createSymbolNode(args[0].value);
 }
 
 /**
@@ -1318,7 +1317,7 @@ export function symbol(...args: types.AstNode[]): types.AstNode {
  */
 export function isSymbolNode(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
-  return new types.BooleanNode(args[0] instanceof types.SymbolNode);
+  return types.createBooleanNode(types.isSymbolNode(args[0]));
 }
 
 /**
@@ -1332,12 +1331,12 @@ export function keyword(...args: types.AstNode[]): types.AstNode {
   types.assertMapKeyNode(args[0]);
 
   const key = args[0];
-  if (key instanceof types.KeywordNode) {
+  if (types.isKeywordNode(key)) {
     return key;
   }
 
   const string_ = args[0];
-  return new types.KeywordNode(`:${string_.value}`);
+  return types.createKeywordNode(`:${string_.value}`);
 }
 
 /**
@@ -1351,7 +1350,7 @@ export function keyword(...args: types.AstNode[]): types.AstNode {
  */
 export function isKeyword(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
-  return new types.BooleanNode(args[0] instanceof types.KeywordNode);
+  return types.createBooleanNode(types.isKeywordNode(args[0]));
 }
 
 /**
@@ -1362,7 +1361,7 @@ export function isKeyword(...args: types.AstNode[]): types.AstNode {
  */
 export function isNumber(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
-  return new types.BooleanNode(args[0] instanceof types.NumberNode);
+  return types.createBooleanNode(types.isNumberNode(args[0]));
 }
 
 /**
@@ -1373,8 +1372,8 @@ export function isNumber(...args: types.AstNode[]): types.AstNode {
  */
 export function isFn(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
-  return new types.BooleanNode(
-    args[0] instanceof types.FunctionNode && !args[0].isMacro,
+  return types.createBooleanNode(
+    types.isFunctionNode(args[0]) && !args[0].isMacro,
   );
 }
 
@@ -1386,8 +1385,8 @@ export function isFn(...args: types.AstNode[]): types.AstNode {
  */
 export function isMacro(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
-  return new types.BooleanNode(
-    args[0] instanceof types.FunctionNode ? args[0].isMacro : false,
+  return types.createBooleanNode(
+    types.isFunctionNode(args[0]) ? args[0].isMacro : false,
   );
 }
 
@@ -1398,7 +1397,7 @@ export function isMacro(...args: types.AstNode[]): types.AstNode {
  * @example (vector 1 2 3 4) ;=> [1 2 3 4]
  */
 export function vector(...args: types.AstNode[]): types.AstNode {
-  return new types.VectorNode(args);
+  return types.createVectorNode(args);
 }
 
 /**
@@ -1409,7 +1408,7 @@ export function vector(...args: types.AstNode[]): types.AstNode {
  */
 export function isVector(...args: types.AstNode[]): types.BooleanNode {
   types.assertArgumentCount(args.length, 1);
-  return new types.BooleanNode(args[0] instanceof types.VectorNode);
+  return types.createBooleanNode(types.isVectorNode(args[0]));
 }
 
 /**
@@ -1420,12 +1419,12 @@ export function isVector(...args: types.AstNode[]): types.BooleanNode {
  */
 export function hashMap(...args: types.AstNode[]): types.MapNode {
   if (args.length === 0) {
-    return new types.MapNode();
+    return types.createMapNode();
   }
 
   types.assertEvenArgumentCount(args.length);
 
-  const dict = new types.MapNode();
+  const dict = types.createMapNode();
   for (let i = 0; i < args.length; i += 2) {
     const key = args[i];
     types.assertMapKeyNode(key);
@@ -1443,7 +1442,7 @@ export function hashMap(...args: types.AstNode[]): types.MapNode {
  */
 export function isMap(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
-  return new types.BooleanNode(args[0] instanceof types.MapNode);
+  return types.createBooleanNode(types.isMapNode(args[0]));
 }
 
 /**
@@ -1458,7 +1457,7 @@ export function assoc(...args: types.AstNode[]): types.AstNode {
   const rest = args.slice(1);
 
   // Clone the map from the incoming types.Dict
-  const dict = new types.MapNode(
+  const dict = types.createMapNode(
     new Map<string, types.AstNode>(args[0].value),
   );
   const pairs = hashMap(...rest);
@@ -1479,7 +1478,7 @@ export function dissoc(...args: types.AstNode[]): types.AstNode {
   types.assertMinimumArgumentCount(args.length, 1);
   types.assertMapNode(args[0]);
 
-  const dict = new types.MapNode(
+  const dict = types.createMapNode(
     new Map<string, types.AstNode>(args[0].value),
   );
   for (const dictKey of args.splice(1)) {
@@ -1500,8 +1499,8 @@ export function get(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 2);
 
   const mapNode = args[0];
-  if (!(mapNode instanceof types.MapNode)) {
-    return new types.NilNode();
+  if (!(types.isMapNode(mapNode))) {
+    return types.createNilNode();
   }
 
   const key = args[1];
@@ -1512,7 +1511,7 @@ export function get(...args: types.AstNode[]): types.AstNode {
     return value;
   }
 
-  return new types.NilNode();
+  return types.createNilNode();
 }
 
 /**
@@ -1528,7 +1527,7 @@ export function contains(...args: types.AstNode[]): types.AstNode {
   types.assertMapNode(dict);
   types.assertMapKeyNode(key);
 
-  return new types.BooleanNode(types.hasMapElement(dict.value, key));
+  return types.createBooleanNode(types.hasMapElement(dict.value, key));
 }
 
 /**
@@ -1552,7 +1551,7 @@ export function keys(...args: types.AstNode[]): types.AstNode {
 export function vals(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertMapNode(args[0]);
-  return new types.ListNode([...args[0].value.values()]);
+  return types.createListNode([...args[0].value.values()]);
 }
 
 /**
@@ -1563,7 +1562,7 @@ export function vals(...args: types.AstNode[]): types.AstNode {
  * @example (sequential? [1 2 3])
  */
 export function isSequentialNode(...args: types.AstNode[]): types.AstNode {
-  return new types.BooleanNode(types.isSequentialNode(args[0]));
+  return types.createBooleanNode(types.isSequentialNode(args[0]));
 }
 
 /**
@@ -1577,11 +1576,11 @@ export function isSequentialNode(...args: types.AstNode[]): types.AstNode {
 export function join(...args: types.AstNode[]): types.AstNode {
   types.assertVariableArgumentCount(args.length, 1, 2);
   types.assertSequential(args[0]);
-  const delim = args[1] instanceof types.StringNode ? args[1].value : ' ';
+  const delim = types.isStringNode(args[1]) ? args[1].value : ' ';
   const joined = args[0].value
     .map((ast) => printer.printString(ast, false))
     .join(delim);
-  return new types.StringNode(joined);
+  return types.createStringNode(joined);
 }
 
 /**
@@ -1601,7 +1600,7 @@ export function includes(...args: types.AstNode[]): types.AstNode {
     const str = args[0].value;
     const substring = args[1].value;
     const result = str.includes(substring);
-    return new types.BooleanNode(result);
+    return types.createBooleanNode(result);
   }
 
   if (types.isVectorNode(args[0])) {
@@ -1611,7 +1610,7 @@ export function includes(...args: types.AstNode[]): types.AstNode {
     const element = args[1];
 
     const result = vec.value.some((item) => types.isEqualTo(item, element).value);
-    return new types.BooleanNode(result);
+    return types.createBooleanNode(result);
   }
 
   throw new TypeError('Invalid argument type');
@@ -1633,7 +1632,7 @@ export function filter(...args: types.AstNode[]): types.AstNode {
   const vec = args[1];
 
   const filtered = vec.value.filter((item) => Boolean(fn.value(item).value));
-  return new types.VectorNode(filtered);
+  return types.createVectorNode(filtered);
 }
 
 /**
@@ -1700,11 +1699,11 @@ export function and(...args: types.AstNode[]): types.BooleanNode {
   for (const arg of args) {
     const isTruthy = types.isAstTruthy(arg);
     if (!isTruthy) {
-      return new types.BooleanNode(false);
+      return types.createBooleanNode(false);
     }
   }
 
-  return new types.BooleanNode(true);
+  return types.createBooleanNode(true);
 }
 
 /**
@@ -1716,11 +1715,11 @@ export function or(...args: types.AstNode[]): types.BooleanNode {
   for (const arg of args) {
     const isTruthy = types.isAstTruthy(arg);
     if (isTruthy) {
-      return new types.BooleanNode(true);
+      return types.createBooleanNode(true);
     }
   }
 
-  return new types.BooleanNode(false);
+  return types.createBooleanNode(false);
 }
 
 /**
@@ -1728,12 +1727,12 @@ export function or(...args: types.AstNode[]): types.BooleanNode {
  * @example (!== (8 2 3) (1 2 3)) ;=> true
  * @param args [types.Ast, types.Ast]
  * @returns types.Bool
- * @see types.types.isEqualTo()
+ * @see types.isEqualTo()
  */
 export function notEqualTo(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 2);
   const bool = types.isEqualTo(args[0], args[1]);
-  return new types.BooleanNode(!bool.value);
+  return types.createBooleanNode(!bool.value);
 }
 
 /**
@@ -1779,17 +1778,17 @@ export function increment(...args: types.AstNode[]): types.AstNode {
   }
 
   if (affix === 'postfix') {
-    return new types.VectorNode([
-      new types.NumberNode(args[0].value + 1),
-      new types.NumberNode(args[0].value),
+    return types.createVectorNode([
+      types.createNumberNode(args[0].value + 1),
+      types.createNumberNode(args[0].value),
     ]);
   }
 
   // ++x returns [counter - 1, counter - 1]
   if (affix === 'prefix') {
-    return new types.VectorNode([
-      new types.NumberNode(args[0].value + 1),
-      new types.NumberNode(args[0].value + 1),
+    return types.createVectorNode([
+      types.createNumberNode(args[0].value + 1),
+      types.createNumberNode(args[0].value + 1),
     ]);
   }
 
@@ -1842,16 +1841,16 @@ export function decrement(...args: types.AstNode[]): types.AstNode {
   }
 
   if (affix === 'postfix') {
-    return new types.VectorNode([
-      new types.NumberNode(args[0].value - 1),
-      new types.NumberNode(args[0].value),
+    return types.createVectorNode([
+      types.createNumberNode(args[0].value - 1),
+      types.createNumberNode(args[0].value),
     ]);
   }
 
   if (affix === 'prefix') {
-    return new types.VectorNode([
-      new types.NumberNode(args[0].value - 1),
-      new types.NumberNode(args[0].value - 1),
+    return types.createVectorNode([
+      types.createNumberNode(args[0].value - 1),
+      types.createNumberNode(args[0].value - 1),
     ]);
   }
 
@@ -1885,7 +1884,7 @@ export function typeOf(...args: types.AstNode[]): types.BooleanNode {
     );
   }
 
-  return new types.BooleanNode(obj === args[1].value);
+  return types.createBooleanNode(obj === args[1].value);
 }
 
 /**
@@ -1896,8 +1895,8 @@ export function instanceOf(...args: types.AstNode[]): types.BooleanNode {
   types.assertArgumentCount(args.length, 2);
   types.assertAstNode(args[0]); // object
   if (
-    args[1] instanceof types.StringNode === false ||
-    args[1] instanceof types.SymbolNode === false
+    types.isStringNode(args[1]) === false ||
+    types.isSymbolNode(args[1]) === false
   ) {
     throw new TypeError(
       `Instance type must be a string or symbol. Got "${String(args[1].value)}"`,
@@ -1939,7 +1938,7 @@ export function instanceOf(...args: types.AstNode[]): types.BooleanNode {
     throw new TypeError(`Unknown instance: "${args[1].value}"`);
   }
 
-  return new types.BooleanNode(a instanceof instance);
+  return types.createBooleanNode(a instanceof instance);
 }
 
 /**
@@ -1968,9 +1967,9 @@ export function power(
   exponent: types.AstNode,
 ): types.NumberNode {
   if (
-    base instanceof types.NumberNode && exponent instanceof types.NumberNode
+    types.isNumberNode(base) && types.isNumberNode(exponent)
   ) {
-    return new types.NumberNode(base.value ** exponent.value);
+    return types.createNumberNode(base.value ** exponent.value);
   }
   throw new TypeError('not a number');
 }
@@ -1986,8 +1985,8 @@ export function remainder(
   a: types.AstNode,
   b: types.AstNode,
 ): types.NumberNode {
-  if (a instanceof types.NumberNode && b instanceof types.NumberNode) {
-    return new types.NumberNode(((a.value % b.value) + b.value) % b.value);
+  if (types.isNumberNode(a) && types.isNumberNode(b)) {
+    return types.createNumberNode(((a.value % b.value) + b.value) % b.value);
   }
   throw new TypeError('not a number');
 }
@@ -2002,8 +2001,8 @@ export function bitwiseAnd(
   a: types.AstNode,
   b: types.AstNode,
 ): types.NumberNode {
-  if (a instanceof types.NumberNode && b instanceof types.NumberNode) {
-    return new types.NumberNode(a.value & b.value); // eslint-disable-line no-bitwise
+  if (types.isNumberNode(a) && types.isNumberNode(b)) {
+    return types.createNumberNode(a.value & b.value); // eslint-disable-line no-bitwise
   }
   throw new TypeError('not a number');
 }
@@ -2018,8 +2017,8 @@ export function bitwiseOr(
   a: types.AstNode,
   b: types.AstNode,
 ): types.NumberNode {
-  if (a instanceof types.NumberNode && b instanceof types.NumberNode) {
-    return new types.NumberNode(a.value | b.value); // eslint-disable-line no-bitwise
+  if (types.isNumberNode(a) && types.isNumberNode(b)) {
+    return types.createNumberNode(a.value | b.value); // eslint-disable-line no-bitwise
   }
   throw new TypeError('not a number');
 }
@@ -2034,8 +2033,8 @@ export function bitwiseXor(
   a: types.AstNode,
   b: types.AstNode,
 ): types.NumberNode {
-  if (a instanceof types.NumberNode && b instanceof types.NumberNode) {
-    return new types.NumberNode(a.value ^ b.value); // eslint-disable-line no-bitwise
+  if (types.isNumberNode(a) && types.isNumberNode(b)) {
+    return types.createNumberNode(a.value ^ b.value); // eslint-disable-line no-bitwise
   }
   throw new TypeError('not a number');
 }
@@ -2046,8 +2045,8 @@ export function bitwiseXor(
  * @throws TypeError If the argument is not a number.
  */
 export function bitwiseNot(a: types.AstNode): types.NumberNode {
-  if (a instanceof types.NumberNode) {
-    return new types.NumberNode(~a.value); // eslint-disable-line no-bitwise
+  if (types.isNumberNode(a)) {
+    return types.createNumberNode(~a.value); // eslint-disable-line no-bitwise
   }
   throw new TypeError('not a number');
 }
@@ -2062,8 +2061,8 @@ export function leftShift(
   a: types.AstNode,
   b: types.AstNode,
 ): types.NumberNode {
-  if (a instanceof types.NumberNode && b instanceof types.NumberNode) {
-    return new types.NumberNode(a.value << b.value); // eslint-disable-line no-bitwise
+  if (types.isNumberNode(a) && types.isNumberNode(b)) {
+    return types.createNumberNode(a.value << b.value); // eslint-disable-line no-bitwise
   }
   throw new TypeError('not a number');
 }
@@ -2078,8 +2077,8 @@ export function rightShift(
   a: types.AstNode,
   b: types.AstNode,
 ): types.NumberNode {
-  if (a instanceof types.NumberNode && b instanceof types.NumberNode) {
-    return new types.NumberNode(a.value >> b.value); // eslint-disable-line no-bitwise
+  if (types.isNumberNode(a) && types.isNumberNode(b)) {
+    return types.createNumberNode(a.value >> b.value); // eslint-disable-line no-bitwise
   }
   throw new TypeError('not a number');
 }
@@ -2094,8 +2093,8 @@ export function unsignedRightShift(
   a: types.AstNode,
   b: types.AstNode,
 ): types.NumberNode {
-  if (a instanceof types.NumberNode && b instanceof types.NumberNode) {
-    return new types.NumberNode(a.value >>> b.value); // eslint-disable-line no-bitwise
+  if (types.isNumberNode(a) && types.isNumberNode(b)) {
+    return types.createNumberNode(a.value >>> b.value); // eslint-disable-line no-bitwise
   }
   throw new TypeError('not a number');
 }
@@ -2105,249 +2104,249 @@ export function unsignedRightShift(
  * @returns types.AstNode
  */
 export function not(a: types.AstNode): types.AstNode {
-  return new types.BooleanNode(!a.value);
+  return types.createBooleanNode(!a.value);
 }
 
 export function abs(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertNumberNode(args[0]);
-  return new types.NumberNode(Math.abs(args[0].value));
+  return types.createNumberNode(Math.abs(args[0].value));
 }
 
 export function acos(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertNumberNode(args[0]);
-  return new types.NumberNode(Math.acos(args[0].value));
+  return types.createNumberNode(Math.acos(args[0].value));
 }
 
 export function acosh(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertNumberNode(args[0]);
-  return new types.NumberNode(Math.acosh(args[0].value));
+  return types.createNumberNode(Math.acosh(args[0].value));
 }
 
 export function asin(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertNumberNode(args[0]);
-  return new types.NumberNode(Math.asin(args[0].value));
+  return types.createNumberNode(Math.asin(args[0].value));
 }
 
 export function asinh(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertNumberNode(args[0]);
-  return new types.NumberNode(Math.asinh(args[0].value));
+  return types.createNumberNode(Math.asinh(args[0].value));
 }
 
 export function atan(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertNumberNode(args[0]);
-  return new types.NumberNode(Math.atan(args[0].value));
+  return types.createNumberNode(Math.atan(args[0].value));
 }
 
 export function atan2(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 2);
   types.assertNumberNode(args[0]);
   types.assertNumberNode(args[1]);
-  return new types.NumberNode(Math.atan2(args[0].value, args[0].value));
+  return types.createNumberNode(Math.atan2(args[0].value, args[0].value));
 }
 
 export function atanh(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertNumberNode(args[0]);
-  return new types.NumberNode(Math.atanh(args[0].value));
+  return types.createNumberNode(Math.atanh(args[0].value));
 }
 
 export function cbrt(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertNumberNode(args[0]);
-  return new types.NumberNode(Math.cbrt(args[0].value));
+  return types.createNumberNode(Math.cbrt(args[0].value));
 }
 
 export function ceil(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertNumberNode(args[0]);
-  return new types.NumberNode(Math.ceil(args[0].value));
+  return types.createNumberNode(Math.ceil(args[0].value));
 }
 
 export function clz32(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertNumberNode(args[0]);
-  return new types.NumberNode(Math.clz32(args[0].value));
+  return types.createNumberNode(Math.clz32(args[0].value));
 }
 
 export function cos(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertNumberNode(args[0]);
-  return new types.NumberNode(Math.cos(args[0].value));
+  return types.createNumberNode(Math.cos(args[0].value));
 }
 
 export function cosh(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertNumberNode(args[0]);
-  return new types.NumberNode(Math.cosh(args[0].value));
+  return types.createNumberNode(Math.cosh(args[0].value));
 }
 
 export function exp(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertNumberNode(args[0]);
-  return new types.NumberNode(Math.exp(args[0].value));
+  return types.createNumberNode(Math.exp(args[0].value));
 }
 export function expm1(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertNumberNode(args[0]);
-  return new types.NumberNode(Math.expm1(args[0].value));
+  return types.createNumberNode(Math.expm1(args[0].value));
 }
 
 export function floor(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertNumberNode(args[0]);
-  return new types.NumberNode(Math.floor(args[0].value));
+  return types.createNumberNode(Math.floor(args[0].value));
 }
 
 export function fround(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertNumberNode(args[0]);
-  return new types.NumberNode(Math.fround(args[0].value));
+  return types.createNumberNode(Math.fround(args[0].value));
 }
 
 export function hypot(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertNumberNode(args[0]);
-  return new types.NumberNode(Math.hypot(args[0].value));
+  return types.createNumberNode(Math.hypot(args[0].value));
 }
 
 export function imul(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 2);
   types.assertNumberNode(args[0]);
   types.assertNumberNode(args[1]);
-  return new types.NumberNode(Math.imul(args[0].value, args[1].value));
+  return types.createNumberNode(Math.imul(args[0].value, args[1].value));
 }
 
 export function log(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertNumberNode(args[0]);
-  return new types.NumberNode(Math.log(args[0].value));
+  return types.createNumberNode(Math.log(args[0].value));
 }
 
 export function log10(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertNumberNode(args[0]);
-  return new types.NumberNode(Math.log10(args[0].value));
+  return types.createNumberNode(Math.log10(args[0].value));
 }
 
 export function log1p(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertNumberNode(args[0]);
-  return new types.NumberNode(Math.log1p(args[0].value));
+  return types.createNumberNode(Math.log1p(args[0].value));
 }
 
 export function log2(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertNumberNode(args[0]);
-  return new types.NumberNode(Math.log2(args[0].value));
+  return types.createNumberNode(Math.log2(args[0].value));
 }
 
 export function max(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertNumberNode(args[0]);
-  return new types.NumberNode(Math.max(args[0].value));
+  return types.createNumberNode(Math.max(args[0].value));
 }
 
 export function min(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertNumberNode(args[0]);
-  return new types.NumberNode(Math.min(args[0].value));
+  return types.createNumberNode(Math.min(args[0].value));
 }
 
 export function pow(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 2);
   types.assertNumberNode(args[0]);
   types.assertNumberNode(args[1]);
-  return new types.NumberNode(Math.pow(args[0].value, args[1].value));
+  return types.createNumberNode(Math.pow(args[0].value, args[1].value));
 }
 
 export function random(..._args: types.AstNode[]): types.AstNode {
-  return new types.NumberNode(Math.random());
+  return types.createNumberNode(Math.random());
 }
 
 export function round(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertNumberNode(args[0]);
-  return new types.NumberNode(Math.round(args[0].value));
+  return types.createNumberNode(Math.round(args[0].value));
 }
 
 export function sign(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertNumberNode(args[0]);
-  return new types.NumberNode(Math.sign(args[0].value));
+  return types.createNumberNode(Math.sign(args[0].value));
 }
 
 export function sin(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertNumberNode(args[0]);
-  return new types.NumberNode(Math.sin(args[0].value));
+  return types.createNumberNode(Math.sin(args[0].value));
 }
 
 export function sinh(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertNumberNode(args[0]);
-  return new types.NumberNode(Math.sinh(args[0].value));
+  return types.createNumberNode(Math.sinh(args[0].value));
 }
 
 export function sqrt(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertNumberNode(args[0]);
-  return new types.NumberNode(Math.sqrt(args[0].value));
+  return types.createNumberNode(Math.sqrt(args[0].value));
 }
 
 export function tan(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertNumberNode(args[0]);
-  return new types.NumberNode(Math.tan(args[0].value));
+  return types.createNumberNode(Math.tan(args[0].value));
 }
 
 export function tanh(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertNumberNode(args[0]);
-  return new types.NumberNode(Math.tanh(args[0].value));
+  return types.createNumberNode(Math.tanh(args[0].value));
 }
 
 export function trunc(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertNumberNode(args[0]);
-  return new types.NumberNode(Math.trunc(args[0].value));
+  return types.createNumberNode(Math.trunc(args[0].value));
 }
 
 export function getMathE(..._args: types.AstNode[]): types.AstNode {
-  return new types.NumberNode(Math.E);
+  return types.createNumberNode(Math.E);
 }
 
 export function getMathLn10(..._args: types.AstNode[]): types.AstNode {
-  return new types.NumberNode(Math.LN10);
+  return types.createNumberNode(Math.LN10);
 }
 
 export function getMathLn2(..._args: types.AstNode[]): types.AstNode {
-  return new types.NumberNode(Math.LN2);
+  return types.createNumberNode(Math.LN2);
 }
 
 export function getMathLog10e(..._args: types.AstNode[]): types.AstNode {
-  return new types.NumberNode(Math.LOG10E);
+  return types.createNumberNode(Math.LOG10E);
 }
 
 export function getMathLog2e(..._args: types.AstNode[]): types.AstNode {
-  return new types.NumberNode(Math.LOG2E);
+  return types.createNumberNode(Math.LOG2E);
 }
 
 export function getMathPi(..._args: types.AstNode[]): types.AstNode {
-  return new types.NumberNode(Math.PI);
+  return types.createNumberNode(Math.PI);
 }
 
 export function getMathSqrt12(..._args: types.AstNode[]): types.AstNode {
-  return new types.NumberNode(Math.SQRT1_2);
+  return types.createNumberNode(Math.SQRT1_2);
 }
 
 export function getMathSqrt2(..._args: types.AstNode[]): types.AstNode {
-  return new types.NumberNode(Math.SQRT2);
+  return types.createNumberNode(Math.SQRT2);
 }
 
 /**
@@ -2356,7 +2355,7 @@ export function getMathSqrt2(..._args: types.AstNode[]): types.AstNode {
  * @returns anonymous function
  */
 export function tag(tag: string) {
-  return (...args: types.AstNode[]): types.AstNode => node(new types.SymbolNode(tag), ...args);
+  return (...args: types.AstNode[]): types.AstNode => node(types.createSymbolNode(tag), ...args);
 }
 
 /**
@@ -2378,14 +2377,14 @@ export function node(...args: types.AstNode[]): types.AstNode {
   const attributes = new Map<string, types.AstNode>();
   const children: types.AstNode[] = [];
 
-  if (args[1] instanceof types.MapNode) {
+  if (types.isMapNode(args[1])) {
     args[1].value.forEach((value, key) => attributes.set(key, value));
     args.slice(2).forEach((child) => children.push(child));
   } else {
     args.slice(1).forEach((child) => children.push(child)); // No attributes
   }
 
-  return new types.DomNode(tagName.value, attributes, children);
+  return types.createDomNode(tagName.value, attributes, children);
 }
 
 export function querySelector(...args: types.AstNode[]): types.AstNode {
@@ -2395,13 +2394,13 @@ export function querySelector(...args: types.AstNode[]): types.AstNode {
   const selector = args[0].value;
   const element = document.querySelector(selector);
   if (element === null) {
-    return new types.NilNode();
+    return types.createNilNode();
   }
 
   const nodeMap = Array.from(element.attributes);
   const attributes: Map<string, types.AstNode> = nodeMap.reduce((map, attr) => {
-    return map.set(attr.name, new types.StringNode(attr.value));
+    return map.set(attr.name, types.createStringNode(attr.value));
   }, new Map<string, types.AstNode>());
 
-  return new types.DomNode(element.tagName, attributes, []);
+  return types.createDomNode(element.tagName, attributes, []);
 }

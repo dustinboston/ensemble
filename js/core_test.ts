@@ -66,47 +66,34 @@ import {
   vec,
   vector,
   withMeta,
-} from '../src/core.ts';
-import {
-  AstNode,
-  AtomNode,
-  BooleanNode,
-  FunctionNode,
-  KeywordNode,
-  ListNode,
-  MapNode,
-  NilNode,
-  NumberNode,
-  StringNode,
-  SymbolNode,
-  VectorNode,
-} from '../src/types.ts';
+} from './core.ts';
+import * as types from './types.ts';
 
 Deno.test('eq(): returns true for equal nodes', () => {
   assertEquals(
-    eq(new NumberNode(1), new NumberNode(1)),
-    new BooleanNode(true),
+    eq(types.createNumberNode(1), types.createNumberNode(1)),
+    types.createBooleanNode(true),
   );
 });
 
 Deno.test('eq(): returns false for unequal nodes', () => {
   assertEquals(
-    eq(new NumberNode(1), new NumberNode(2)),
-    new BooleanNode(false),
+    eq(types.createNumberNode(1), types.createNumberNode(2)),
+    types.createBooleanNode(false),
   );
 });
 
 Deno.test('printEscapedString(): returns escaped string', () => {
   assertEquals(
-    printEscapedString(new StringNode('abc\ndef\nghi')),
-    new StringNode('"abc\\ndef\\nghi"'),
+    printEscapedString(types.createStringNode('abc\ndef\nghi')),
+    types.createStringNode('"abc\\ndef\\nghi"'),
   );
 });
 
 Deno.test('printUnescapedString(): returns unescaped string', () => {
   assertEquals(
-    printUnescapedString(new StringNode('abc\ndef\nghi')),
-    new StringNode('abc\ndef\nghi'),
+    printUnescapedString(types.createStringNode('abc\ndef\nghi')),
+    types.createStringNode('abc\ndef\nghi'),
   );
 });
 
@@ -115,8 +102,8 @@ Deno.test('printEscapedStringToScreen(): logs the escaped string', () => {
 
   try {
     assertEquals(
-      printEscapedStringToScreen(new StringNode('abc\ndef\nghi')),
-      new NilNode(),
+      printEscapedStringToScreen(types.createStringNode('abc\ndef\nghi')),
+      types.createNilNode(),
     );
   } finally {
     logSpy.restore();
@@ -131,8 +118,8 @@ Deno.test('printEscapedStringToScreen(): logs the unescaped string', () => {
 
   try {
     assertEquals(
-      printUnescapedStringToScreen(new StringNode('abc\ndef\nghi')),
-      new NilNode(),
+      printUnescapedStringToScreen(types.createStringNode('abc\ndef\nghi')),
+      types.createNilNode(),
     );
   } finally {
     logSpy.restore();
@@ -143,11 +130,11 @@ Deno.test('printEscapedStringToScreen(): logs the unescaped string', () => {
 });
 
 Deno.test('readString(): should read string and return AST', () => {
-  const input = new StringNode('(+ 2 3)');
-  const expected = new ListNode([
-    new SymbolNode('+'),
-    new NumberNode(2),
-    new NumberNode(3),
+  const input = types.createStringNode('(+ 2 3)');
+  const expected = types.createListNode([
+    types.createSymbolNode('+'),
+    types.createNumberNode(2),
+    types.createNumberNode(3),
   ]);
   assertEquals(readString(input), expected);
 });
@@ -159,19 +146,19 @@ Deno.test('readString(): throws when there are zero arguments', () => {
 Deno.test('readString(): throws when there is more than one argument', () => {
   assertThrows(() =>
     readString(
-      new StringNode('foo'),
-      new StringNode('bar'),
+      types.createStringNode('foo'),
+      types.createStringNode('bar'),
     )
   );
 });
 
 Deno.test('readString(): should throw when argument is not a string', () => {
-  assertThrows(() => readString(new NumberNode(42)));
+  assertThrows(() => readString(types.createNumberNode(42)));
 });
 
 Deno.test('readln(): should read line and return string', () => {
-  const input = new StringNode('%');
-  const expected = new StringNode('"foobar"');
+  const input = types.createStringNode('%');
+  const expected = types.createStringNode('"foobar"');
   const promptStub = stub(globalThis, 'prompt', returnsNext(['"foobar"']));
 
   try {
@@ -189,8 +176,8 @@ Deno.test('readln(): should read line and return string', () => {
 });
 
 Deno.test('readln(): should return nil/undef when readline returns null', () => {
-  const input = new StringNode('%');
-  const expected = new NilNode();
+  const input = types.createStringNode('%');
+  const expected = types.createNilNode();
   const promptStub = stub(globalThis, 'prompt', returnsNext([null]));
 
   try {
@@ -214,14 +201,14 @@ Deno.test('readln(): should throw when argument count is less than one', () => {
 Deno.test('readln(): should throw when argument count is more than one', () => {
   assertThrows(() =>
     readln(
-      new StringNode('foo'),
-      new StringNode('bar'),
+      types.createStringNode('foo'),
+      types.createStringNode('bar'),
     )
   );
 });
 
 Deno.test('readln(): should throw when argument is not a string', () => {
-  assertThrows(() => readln(new NumberNode(42)));
+  assertThrows(() => readln(types.createNumberNode(42)));
 });
 
 Deno.test('readir(): should list directory contents', () => {
@@ -229,28 +216,28 @@ Deno.test('readir(): should list directory contents', () => {
   Deno.mkdirSync(`${temporaryDir}/subdir`);
   Deno.writeTextFileSync(`${temporaryDir}/file.txt`, 'hello');
 
-  const input = new StringNode(temporaryDir);
-  const expected = new VectorNode([
-    new MapNode(
+  const input = types.createStringNode(temporaryDir);
+  const expected = types.createVectorNode([
+    types.createMapNode(
       // Make slug and ext null or empty for dirs
-      new Map<string, AstNode>([
-        [':directory', new BooleanNode(false)],
-        [':ext', new StringNode('txt')],
-        [':file', new BooleanNode(true)],
-        [':name', new StringNode('file.txt')],
-        [':slug', new StringNode('file')],
-        [':symlink', new BooleanNode(false)],
+      new Map<string, types.AstNode>([
+        [':directory', types.createBooleanNode(false)],
+        [':ext', types.createStringNode('txt')],
+        [':file', types.createBooleanNode(true)],
+        [':name', types.createStringNode('file.txt')],
+        [':slug', types.createStringNode('file')],
+        [':symlink', types.createBooleanNode(false)],
       ]),
     ),
-    new MapNode(
+    types.createMapNode(
       // Make slug and ext null or empty for dirs
-      new Map<string, AstNode>([
-        [':directory', new BooleanNode(true)],
-        [':ext', new StringNode('subdir')],
-        [':file', new BooleanNode(false)],
-        [':name', new StringNode('subdir')],
-        [':slug', new StringNode('subdi')],
-        [':symlink', new BooleanNode(false)],
+      new Map<string, types.AstNode>([
+        [':directory', types.createBooleanNode(true)],
+        [':ext', types.createStringNode('subdir')],
+        [':file', types.createBooleanNode(false)],
+        [':name', types.createStringNode('subdir')],
+        [':slug', types.createStringNode('subdi')],
+        [':symlink', types.createBooleanNode(false)],
       ]),
     ),
   ]);
@@ -261,7 +248,7 @@ Deno.test('readir(): should list directory contents', () => {
 
 Deno.test('readir(): should throw error if argument is not a string', () => {
   assertThrows(
-    () => readir(new NumberNode(123)),
+    () => readir(types.createNumberNode(123)),
     Error,
     'Invalid',
   );
@@ -272,13 +259,13 @@ Deno.test('slurp(): should read a file', () => {
   const filePath = `${temporaryDir}/file.txt`;
   Deno.writeTextFileSync(filePath, 'content');
 
-  const result = slurp(new StringNode(filePath));
-  assertEquals(result, new StringNode('content'));
+  const result = slurp(types.createStringNode(filePath));
+  assertEquals(result, types.createStringNode('content'));
 });
 
 Deno.test('slurp(): should throw error if file does not exist', () => {
   assertThrows(
-    () => slurp(new StringNode('mocks/nonexistent')),
+    () => slurp(types.createStringNode('mocks/nonexistent')),
     Error,
     'No such file or directory',
   );
@@ -290,8 +277,8 @@ Deno.test('spit(): should write to a file', () => {
   const content = 'newContent';
 
   spit(
-    new StringNode(filePath),
-    new StringNode(content),
+    types.createStringNode(filePath),
+    types.createStringNode(content),
   );
 
   const result = Deno.readTextFileSync(filePath);
@@ -302,8 +289,8 @@ Deno.test('spit(): should throw error if path is not a string', () => {
   assertThrows(
     () =>
       spit(
-        new NumberNode(123),
-        new StringNode('content'),
+        types.createNumberNode(123),
+        types.createStringNode('content'),
       ),
     Error,
     'Invalid',
@@ -312,8 +299,8 @@ Deno.test('spit(): should throw error if path is not a string', () => {
 
 Deno.test('trim(): should trim whitespace from the start and end of a string', () => {
   assertEquals(
-    trim(new StringNode('  hello  ')),
-    new StringNode('hello'),
+    trim(types.createStringNode('  hello  ')),
+    types.createStringNode('hello'),
   );
 });
 
@@ -326,125 +313,125 @@ Deno.test('trim(): should throw an error when no arguments are provided', () => 
 Deno.test('trim(): should throw an error when more than one argument is provided', () => {
   assertThrows(() => {
     trim(
-      new StringNode('hello'),
-      new StringNode('world'),
+      types.createStringNode('hello'),
+      types.createStringNode('world'),
     );
   });
 });
 
 Deno.test('trim(): should throw an error when the argument is not a string', () => {
   assertThrows(() => {
-    trim(new NumberNode(123));
+    trim(types.createNumberNode(123));
   });
 });
 
 // Test for '<'
 Deno.test("lt(): should return false if 'a' is greater than 'b'", () => {
   const result1 = lt(
-    new NumberNode(2),
-    new NumberNode(1),
+    types.createNumberNode(2),
+    types.createNumberNode(1),
   );
-  assertEquals(result1, new BooleanNode(false));
+  assertEquals(result1, types.createBooleanNode(false));
 });
 
 Deno.test("lt(): should return false if 'a' is equal to 'b'", () => {
   const result1 = lt(
-    new NumberNode(1),
-    new NumberNode(1),
+    types.createNumberNode(1),
+    types.createNumberNode(1),
   );
-  assertEquals(result1, new BooleanNode(false));
+  assertEquals(result1, types.createBooleanNode(false));
 });
 
 Deno.test("lt(): should return true if 'a' is less than 'b'", () => {
   const result2 = lt(
-    new NumberNode(1),
-    new NumberNode(2),
+    types.createNumberNode(1),
+    types.createNumberNode(2),
   );
-  assertEquals(result2, new BooleanNode(true));
+  assertEquals(result2, types.createBooleanNode(true));
 });
 
 // Test for '<='
 Deno.test("lte(): should return false if 'a' is greater than 'b'", () => {
   const result1 = lte(
-    new NumberNode(2),
-    new NumberNode(1),
+    types.createNumberNode(2),
+    types.createNumberNode(1),
   );
-  assertEquals(result1, new BooleanNode(false));
+  assertEquals(result1, types.createBooleanNode(false));
 });
 
 Deno.test("lte(): should return true if 'a' is equal to 'b'", () => {
   const result2 = lte(
-    new NumberNode(1),
-    new NumberNode(1),
+    types.createNumberNode(1),
+    types.createNumberNode(1),
   );
-  assertEquals(result2, new BooleanNode(true));
+  assertEquals(result2, types.createBooleanNode(true));
 });
 
 Deno.test("lte(): should return true if 'a' is less than 'b'", () => {
   const result2 = lte(
-    new NumberNode(1),
-    new NumberNode(2),
+    types.createNumberNode(1),
+    types.createNumberNode(2),
   );
-  assertEquals(result2, new BooleanNode(true));
+  assertEquals(result2, types.createBooleanNode(true));
 });
 
 // Test for '>'
 Deno.test("gt(): should return true if 'a' is greater than 'b'", () => {
   const result1 = gt(
-    new NumberNode(2),
-    new NumberNode(1),
+    types.createNumberNode(2),
+    types.createNumberNode(1),
   );
-  assertEquals(result1, new BooleanNode(true));
+  assertEquals(result1, types.createBooleanNode(true));
 });
 
 Deno.test("gt(): should return false if 'a' is less than 'b'", () => {
   const result2 = gt(
-    new NumberNode(1),
-    new NumberNode(2),
+    types.createNumberNode(1),
+    types.createNumberNode(2),
   );
-  assertEquals(result2, new BooleanNode(false));
+  assertEquals(result2, types.createBooleanNode(false));
 });
 
 Deno.test("gt(): should return false if 'a' is equal to 'b'", () => {
   const result2 = gt(
-    new NumberNode(1),
-    new NumberNode(1),
+    types.createNumberNode(1),
+    types.createNumberNode(1),
   );
-  assertEquals(result2, new BooleanNode(false));
+  assertEquals(result2, types.createBooleanNode(false));
 });
 
 // Test for '>='
 Deno.test("gte(): should return true if 'a' is greater than 'b'", () => {
   const result1 = gte(
-    new NumberNode(2),
-    new NumberNode(1),
+    types.createNumberNode(2),
+    types.createNumberNode(1),
   );
-  assertEquals(result1, new BooleanNode(true));
+  assertEquals(result1, types.createBooleanNode(true));
 });
 
 Deno.test("gte(): should return true if 'a' is equal to 'b'", () => {
   const result2 = gte(
-    new NumberNode(1),
-    new NumberNode(1),
+    types.createNumberNode(1),
+    types.createNumberNode(1),
   );
-  assertEquals(result2, new BooleanNode(true));
+  assertEquals(result2, types.createBooleanNode(true));
 });
 
 // Test for '+'
 Deno.test('add(): should sum two numbers', () => {
   const result = add(
-    new NumberNode(2),
-    new NumberNode(1),
+    types.createNumberNode(2),
+    types.createNumberNode(1),
   );
-  assertEquals(result, new NumberNode(3));
+  assertEquals(result, types.createNumberNode(3));
 });
 
 // Test for '+' error case
 Deno.test('add(): should throw an error if an argument is not a number', () => {
   assertThrows(() => {
     add(
-      new StringNode('not a num'),
-      new NumberNode(1),
+      types.createStringNode('not a num'),
+      types.createNumberNode(1),
     );
   });
 });
@@ -452,18 +439,18 @@ Deno.test('add(): should throw an error if an argument is not a number', () => {
 // Test for '-'
 Deno.test('subtract(): should find the difference between two numbers', () => {
   const result = subtract(
-    new NumberNode(2),
-    new NumberNode(1),
+    types.createNumberNode(2),
+    types.createNumberNode(1),
   );
-  assertEquals(result, new NumberNode(1));
+  assertEquals(result, types.createNumberNode(1));
 });
 
 // Test for '-' error case
 Deno.test('subtract(): should throw an error if an argument is not a number', () => {
   assertThrows(() => {
     subtract(
-      new StringNode('not a num'),
-      new NumberNode(1),
+      types.createStringNode('not a num'),
+      types.createNumberNode(1),
     );
   });
 });
@@ -471,18 +458,18 @@ Deno.test('subtract(): should throw an error if an argument is not a number', ()
 // Test for '*'
 Deno.test('multiply(): should find the product of two numbers', () => {
   const result = multiply(
-    new NumberNode(2),
-    new NumberNode(3),
+    types.createNumberNode(2),
+    types.createNumberNode(3),
   );
-  assertEquals(result, new NumberNode(6));
+  assertEquals(result, types.createNumberNode(6));
 });
 
 // Test for '*' error case
 Deno.test('multiply(): should throw an error if an argument is not a number', () => {
   assertThrows(() => {
     multiply(
-      new StringNode('not a num'),
-      new NumberNode(1),
+      types.createStringNode('not a num'),
+      types.createNumberNode(1),
     );
   });
 });
@@ -490,24 +477,24 @@ Deno.test('multiply(): should throw an error if an argument is not a number', ()
 // Test for '/'
 Deno.test('divide(): should find the quotient of two numbers', () => {
   const result = divide(
-    new NumberNode(4),
-    new NumberNode(2),
+    types.createNumberNode(4),
+    types.createNumberNode(2),
   );
-  assertEquals(result, new NumberNode(2));
+  assertEquals(result, types.createNumberNode(2));
 });
 
 // Test for '/' error case
 Deno.test('divide(): should throw an error if an argument is not a number', () => {
   assertThrows(() => {
     divide(
-      new StringNode('not a num'),
-      new NumberNode(1),
+      types.createStringNode('not a num'),
+      types.createNumberNode(1),
     );
   });
 });
 
 Deno.test('timeMs(): should return a unix timestamp', () => {
-  const result = timeMs() as NumberNode;
+  const result = timeMs() as types.NumberNode;
   const currentTime = Date.now();
 
   // Ensure it's a number
@@ -518,32 +505,32 @@ Deno.test('timeMs(): should return a unix timestamp', () => {
 });
 
 Deno.test('list(): should return a list containing the given args', () => {
-  const a = new NumberNode(1);
-  const b = new NumberNode(2);
+  const a = types.createNumberNode(1);
+  const b = types.createNumberNode(2);
   const result = list(a, b);
-  assertEquals(result instanceof ListNode, true);
+  assertEquals(types.isListNode(result), true);
   assertEquals(result.value, [a, b]);
 });
 
 // Test for 'isList'
 Deno.test('isListNode(): should return true if the argument is a list', () => {
-  const aList = new ListNode([new NumberNode(1)]);
+  const aList = types.createListNode([types.createNumberNode(1)]);
   assertEquals(isListNode(aList).value, true);
 });
 
 Deno.test('isListNode(): should return false if the argument is not a list', () => {
-  const notList = new NumberNode(1);
+  const notList = types.createNumberNode(1);
   assertEquals(isListNode(notList).value, false);
 });
 
 // Test for 'isList' failure due to incorrect argument count
 Deno.test('isListNode(): should throw if given more than one argument', () => {
-  assertThrows(() => isListNode(new NumberNode(1), new NumberNode(2)));
+  assertThrows(() => isListNode(types.createNumberNode(1), types.createNumberNode(2)));
 });
 
 Deno.test('conj(): should throw with with less than 2 arguments', () => {
   assertThrows(
-    () => conj(new ListNode([new NumberNode(1)])),
+    () => conj(types.createListNode([types.createNumberNode(1)])),
     Error,
     'Unexpected minimum number of arguments',
   );
@@ -552,20 +539,20 @@ Deno.test('conj(): should throw with with less than 2 arguments', () => {
 Deno.test('conj(): should conjoin values in a list', () => {
   assertEquals(
     conj(
-      new ListNode([
-        new NumberNode(1),
-        new NumberNode(2),
-        new NumberNode(3),
+      types.createListNode([
+        types.createNumberNode(1),
+        types.createNumberNode(2),
+        types.createNumberNode(3),
       ]),
-      new NumberNode(4),
-      new NumberNode(5),
+      types.createNumberNode(4),
+      types.createNumberNode(5),
     ),
-    new ListNode([
-      new NumberNode(5),
-      new NumberNode(4),
-      new NumberNode(1),
-      new NumberNode(2),
-      new NumberNode(3),
+    types.createListNode([
+      types.createNumberNode(5),
+      types.createNumberNode(4),
+      types.createNumberNode(1),
+      types.createNumberNode(2),
+      types.createNumberNode(3),
     ]),
   );
 });
@@ -573,47 +560,47 @@ Deno.test('conj(): should conjoin values in a list', () => {
 Deno.test('conj(): should conjoin values in a vector', () => {
   assertEquals(
     conj(
-      new VectorNode([
-        new NumberNode(1),
-        new NumberNode(2),
-        new NumberNode(3),
+      types.createVectorNode([
+        types.createNumberNode(1),
+        types.createNumberNode(2),
+        types.createNumberNode(3),
       ]),
-      new NumberNode(4),
-      new NumberNode(5),
+      types.createNumberNode(4),
+      types.createNumberNode(5),
     ),
-    new VectorNode([
-      new NumberNode(1),
-      new NumberNode(2),
-      new NumberNode(3),
-      new NumberNode(4),
-      new NumberNode(5),
+    types.createVectorNode([
+      types.createNumberNode(1),
+      types.createNumberNode(2),
+      types.createNumberNode(3),
+      types.createNumberNode(4),
+      types.createNumberNode(5),
     ]),
   );
 });
 
 Deno.test('conj(): should throw without a List or Vector', () => {
   assertThrows(
-    () => conj(new NumberNode(42), new NumberNode(1)),
+    () => conj(types.createNumberNode(42), types.createNumberNode(1)),
     Error,
     'Invalid sequential type',
   );
 });
 
 Deno.test('concat(): with no arguments', () => {
-  assertEquals(concat(), new ListNode([]));
+  assertEquals(concat(), types.createListNode([]));
 });
 
 Deno.test('concat(): with one list', () => {
   assertEquals(
     concat(
-      new ListNode([
-        new NumberNode(1),
-        new NumberNode(2),
+      types.createListNode([
+        types.createNumberNode(1),
+        types.createNumberNode(2),
       ]),
     ),
-    new ListNode([
-      new NumberNode(1),
-      new NumberNode(2),
+    types.createListNode([
+      types.createNumberNode(1),
+      types.createNumberNode(2),
     ]),
   );
 });
@@ -621,20 +608,20 @@ Deno.test('concat(): with one list', () => {
 Deno.test('concat(): with two lists', () => {
   assertEquals(
     concat(
-      new ListNode([
-        new NumberNode(1),
-        new NumberNode(2),
+      types.createListNode([
+        types.createNumberNode(1),
+        types.createNumberNode(2),
       ]),
-      new ListNode([
-        new NumberNode(3),
-        new NumberNode(4),
+      types.createListNode([
+        types.createNumberNode(3),
+        types.createNumberNode(4),
       ]),
     ),
-    new ListNode([
-      new NumberNode(1),
-      new NumberNode(2),
-      new NumberNode(3),
-      new NumberNode(4),
+    types.createListNode([
+      types.createNumberNode(1),
+      types.createNumberNode(2),
+      types.createNumberNode(3),
+      types.createNumberNode(4),
     ]),
   );
 });
@@ -642,37 +629,37 @@ Deno.test('concat(): with two lists', () => {
 Deno.test('concat(): with three lists', () => {
   assertEquals(
     concat(
-      new ListNode([
-        new NumberNode(1),
-        new NumberNode(2),
+      types.createListNode([
+        types.createNumberNode(1),
+        types.createNumberNode(2),
       ]),
-      new ListNode([
-        new NumberNode(3),
-        new NumberNode(4),
+      types.createListNode([
+        types.createNumberNode(3),
+        types.createNumberNode(4),
       ]),
-      new ListNode([
-        new NumberNode(5),
-        new NumberNode(6),
+      types.createListNode([
+        types.createNumberNode(5),
+        types.createNumberNode(6),
       ]),
     ),
-    new ListNode([
-      new NumberNode(1),
-      new NumberNode(2),
-      new NumberNode(3),
-      new NumberNode(4),
-      new NumberNode(5),
-      new NumberNode(6),
+    types.createListNode([
+      types.createNumberNode(1),
+      types.createNumberNode(2),
+      types.createNumberNode(3),
+      types.createNumberNode(4),
+      types.createNumberNode(5),
+      types.createNumberNode(6),
     ]),
   );
 });
 
 Deno.test('concat(): with empty lists', () => {
-  assertEquals(concat(new ListNode([]), new ListNode([])), new ListNode([]));
+  assertEquals(concat(types.createListNode([]), types.createListNode([])), types.createListNode([]));
 });
 
 Deno.test('concat(): with non-Seq type should throw', () => {
   assertThrows(
-    () => concat(new NumberNode(1)),
+    () => concat(types.createNumberNode(1)),
     Error,
     'Invalid sequential type',
   );
@@ -681,25 +668,25 @@ Deno.test('concat(): with non-Seq type should throw', () => {
 Deno.test('cons(): should construct a list by prepending the given value', () => {
   assertEquals(
     cons(
-      new NumberNode(0),
-      new ListNode([
-        new NumberNode(1),
-        new NumberNode(2),
-        new NumberNode(3),
+      types.createNumberNode(0),
+      types.createListNode([
+        types.createNumberNode(1),
+        types.createNumberNode(2),
+        types.createNumberNode(3),
       ]),
     ),
-    new ListNode([
-      new NumberNode(0),
-      new NumberNode(1),
-      new NumberNode(2),
-      new NumberNode(3),
+    types.createListNode([
+      types.createNumberNode(0),
+      types.createNumberNode(1),
+      types.createNumberNode(2),
+      types.createNumberNode(3),
     ]),
   );
 });
 
 Deno.test('cons(): should throw error with less than 2 arguments', () => {
   assertThrows(
-    () => cons(new NumberNode(0)),
+    () => cons(types.createNumberNode(0)),
     Error,
     'Wanted 2 arguments but got 1',
   );
@@ -707,15 +694,15 @@ Deno.test('cons(): should throw error with less than 2 arguments', () => {
 
 Deno.test('cons(): should throw error with more than 2 arguments', () => {
   assertThrows(
-    () => cons(new NumberNode(0), new NumberNode(0), new NumberNode(0)),
+    () => cons(types.createNumberNode(0), types.createNumberNode(0), types.createNumberNode(0)),
     Error,
     'Wanted 2 arguments but got 3',
   );
 });
 
 Deno.test('cons(): should throw error if second argument is not a List', () => {
-  const value = new NumberNode(0);
-  const notList = new NumberNode(42);
+  const value = types.createNumberNode(0);
+  const notList = types.createNumberNode(42);
   assertThrows(
     () => cons(value, notList),
     Error,
@@ -727,31 +714,31 @@ Deno.test('cons(): should throw error if second argument is not a List', () => {
 Deno.test('vec(): should convert a list into a vector', () => {
   assertEquals(
     vec(
-      new ListNode([
-        new NumberNode(1),
-        new NumberNode(2),
-        new NumberNode(3),
+      types.createListNode([
+        types.createNumberNode(1),
+        types.createNumberNode(2),
+        types.createNumberNode(3),
       ]),
     ),
-    new VectorNode([
-      new NumberNode(1),
-      new NumberNode(2),
-      new NumberNode(3),
+    types.createVectorNode([
+      types.createNumberNode(1),
+      types.createNumberNode(2),
+      types.createNumberNode(3),
     ]),
   );
 });
 
 // Test for 'vec' when input is not a list
 Deno.test('vec(): should return the original node if the argument is not a List', () => {
-  const notList = new NumberNode(1);
+  const notList = types.createNumberNode(1);
   assertEquals(vec(notList), notList);
 });
 
 // Test for 'vec' when there are multiple arguments
 Deno.test('vec(): should ignore additional arguments', () => {
   assertEquals(
-    vec(new ListNode([new NumberNode(1)]), new NumberNode(2)),
-    new VectorNode([new NumberNode(1)]),
+    vec(types.createListNode([types.createNumberNode(1)]), types.createNumberNode(2)),
+    types.createVectorNode([types.createNumberNode(1)]),
   );
 });
 
@@ -763,20 +750,20 @@ Deno.test('vec(): should return undefined if no arguments are provided', () => {
 Deno.test('nth(): should return the nth element of a list', () => {
   assertEquals(
     nth(
-      new ListNode([
-        new SymbolNode('a'),
-        new SymbolNode('b'),
-        new SymbolNode('c'),
+      types.createListNode([
+        types.createSymbolNode('a'),
+        types.createSymbolNode('b'),
+        types.createSymbolNode('c'),
       ]),
-      new NumberNode(1),
+      types.createNumberNode(1),
     ),
-    new SymbolNode('b'),
+    types.createSymbolNode('b'),
   );
 });
 
 Deno.test('nth(): should throw error when index is out of range', () => {
   assertThrows(
-    () => nth(new ListNode([new SymbolNode('a')]), new NumberNode(1)),
+    () => nth(types.createListNode([types.createSymbolNode('a')]), types.createNumberNode(1)),
     Error,
     'out of range',
   );
@@ -785,80 +772,80 @@ Deno.test('nth(): should throw error when index is out of range', () => {
 Deno.test('firstNodeInList(): should return the first element of a list', () => {
   assertEquals(
     firstNodeInList(
-      new ListNode([
-        new SymbolNode('a'),
-        new SymbolNode('b'),
+      types.createListNode([
+        types.createSymbolNode('a'),
+        types.createSymbolNode('b'),
       ]),
     ),
-    new SymbolNode('a'),
+    types.createSymbolNode('a'),
   );
 });
 
 Deno.test('firstNodeInList(): should return nil for empty list', () => {
   assertEquals(
-    firstNodeInList(new ListNode([])),
-    new NilNode(),
+    firstNodeInList(types.createListNode([])),
+    types.createNilNode(),
   );
 });
 
 Deno.test('rest(): should return a list without the first element', () => {
   assertEquals(
     rest(
-      new ListNode([
-        new NumberNode(1),
-        new NumberNode(2),
-        new NumberNode(3),
+      types.createListNode([
+        types.createNumberNode(1),
+        types.createNumberNode(2),
+        types.createNumberNode(3),
       ]),
     ),
-    new ListNode([
-      new NumberNode(2),
-      new NumberNode(3),
+    types.createListNode([
+      types.createNumberNode(2),
+      types.createNumberNode(3),
     ]),
   );
 });
 
 Deno.test('rest(): should return empty list for single-element list', () => {
   assertEquals(
-    rest(new ListNode([new NumberNode(1)])),
-    new ListNode([]),
+    rest(types.createListNode([types.createNumberNode(1)])),
+    types.createListNode([]),
   );
 });
 
 Deno.test('empty(): should return true for an empty list', () => {
-  assertEquals(empty(new ListNode([])), new BooleanNode(true));
+  assertEquals(empty(types.createListNode([])), types.createBooleanNode(true));
 });
 
 Deno.test('empty(): should return false for a non-empty list', () => {
   assertEquals(
-    empty(new ListNode([new NumberNode(2)])),
-    new BooleanNode(false),
+    empty(types.createListNode([types.createNumberNode(2)])),
+    types.createBooleanNode(false),
   );
 });
 
 Deno.test('count(): should return the length of a list', () => {
   assertEquals(
     length(
-      new ListNode([
-        new NumberNode(1),
-        new NumberNode(2),
+      types.createListNode([
+        types.createNumberNode(1),
+        types.createNumberNode(2),
       ]),
     ),
-    new NumberNode(2),
+    types.createNumberNode(2),
   );
 });
 
 Deno.test('count(): should return 0 for an empty list', () => {
-  assertEquals(length(new ListNode([])), new NumberNode(0));
+  assertEquals(length(types.createListNode([])), types.createNumberNode(0));
 });
 
 Deno.test('should return 0 for a Nil value', () => {
-  assertEquals(length(new NilNode()), new NumberNode(0));
+  assertEquals(length(types.createNilNode()), types.createNumberNode(0));
 });
 
 Deno.test('atom(): should create an Atom from a given node', () => {
   assertEquals(
-    atom(new NumberNode(42)),
-    new AtomNode(new NumberNode(42)),
+    atom(types.createNumberNode(42)),
+    types.createAtomNode(types.createNumberNode(42)),
   );
 });
 
@@ -872,33 +859,33 @@ Deno.test('atom(): should throw error when no arguments are provided', () => {
 
 Deno.test('isAtom(): should return true if the node is an Atom', () => {
   assertEquals(
-    isAtom(new AtomNode(new NumberNode(42))),
-    new BooleanNode(true),
+    isAtom(types.createAtomNode(types.createNumberNode(42))),
+    types.createBooleanNode(true),
   );
 });
 
 Deno.test('isAtom(): should return false if the node is not an Atom', () => {
-  assertEquals(isAtom(new NumberNode(42)), new BooleanNode(false));
+  assertEquals(isAtom(types.createNumberNode(42)), types.createBooleanNode(false));
 });
 
 Deno.test('deref(): should return the node contained in the Atom', () => {
-  assertEquals(deref(new AtomNode(new NumberNode(42))), new NumberNode(42));
+  assertEquals(deref(types.createAtomNode(types.createNumberNode(42))), types.createNumberNode(42));
 });
 
 Deno.test('deref(): should throw error for non-Atom nodes', () => {
-  assertThrows(() => deref(new NumberNode(42)), Error, 'Invalid');
+  assertThrows(() => deref(types.createNumberNode(42)), Error, 'Invalid');
 });
 
 Deno.test("reset(): should update the Atom's value and return the node", () => {
-  const atom = new AtomNode(new NumberNode(42));
-  assertEquals(atom.value, new NumberNode(42));
-  assertEquals(reset(atom, new NumberNode(43)), new NumberNode(43));
-  assertEquals(atom.value, new NumberNode(43));
+  const atom = types.createAtomNode(types.createNumberNode(42));
+  assertEquals(atom.value, types.createNumberNode(42));
+  assertEquals(reset(atom, types.createNumberNode(43)), types.createNumberNode(43));
+  assertEquals(atom.value, types.createNumberNode(43));
 });
 
 Deno.test('reset(): should throw error for non-Atom first argument', () => {
   assertThrows(
-    () => reset(new NumberNode(42), new NumberNode(43)),
+    () => reset(types.createNumberNode(42), types.createNumberNode(43)),
     Error,
     'Invalid',
   );
@@ -906,15 +893,15 @@ Deno.test('reset(): should throw error for non-Atom first argument', () => {
 
 Deno.test('should throw an error for insufficient arguments', () => {
   assertThrows(() => {
-    swap(new AtomNode(new StringNode('a')));
+    swap(types.createAtomNode(types.createStringNode('a')));
   });
 });
 
 Deno.test('swap(): should throw an error if the first argument is not an Atom', () => {
   assertThrows(() => {
     swap(
-      new StringNode('not an atom'),
-      new FunctionNode((a) => a),
+      types.createStringNode('not an atom'),
+      types.createFunctionNode((a) => a),
     );
   });
 });
@@ -922,8 +909,8 @@ Deno.test('swap(): should throw an error if the first argument is not an Atom', 
 Deno.test('swap(): should throw an error if the second argument is not a Func', () => {
   assertThrows(() => {
     swap(
-      new AtomNode(new StringNode('a')),
-      new StringNode('not a function'),
+      types.createAtomNode(types.createStringNode('a')),
+      types.createStringNode('not a function'),
     );
   });
 });
@@ -931,34 +918,34 @@ Deno.test('swap(): should throw an error if the second argument is not a Func', 
 Deno.test("swap(): should swap the Atoms' value with the result of the function", () => {
   assertEquals(
     swap(
-      new AtomNode(new NumberNode(6)),
-      new FunctionNode(
-        (a) => new NumberNode((a as NumberNode).value * 2),
+      types.createAtomNode(types.createNumberNode(6)),
+      types.createFunctionNode(
+        (a) => types.createNumberNode((a as types.NumberNode).value * 2),
       ),
     ),
-    new NumberNode(12),
+    types.createNumberNode(12),
   );
 });
 
 Deno.test('swap(): should handle additional parameters correctly', () => {
   assertEquals(
     swap(
-      new AtomNode(new NumberNode(5)),
-      new FunctionNode(
+      types.createAtomNode(types.createNumberNode(5)),
+      types.createFunctionNode(
         (a, b) =>
-          new NumberNode(
-            (a as NumberNode).value +
-              (b as NumberNode).value,
+          types.createNumberNode(
+            (a as types.NumberNode).value +
+              (b as types.NumberNode).value,
           ),
       ),
-      new NumberNode(7),
+      types.createNumberNode(7),
     ),
-    new NumberNode(12),
+    types.createNumberNode(12),
   );
 });
 
 Deno.test('throwError(): should throw the value of an ast node', () => {
-  assertThrows(() => throwError(new StringNode('foo')), 'foo');
+  assertThrows(() => throwError(types.createStringNode('foo')), 'foo');
 });
 
 Deno.test('throwError(): should throw an error when no arguments are provided', () => {
@@ -970,7 +957,7 @@ Deno.test('throwError(): should throw an error when no arguments are provided', 
 
 Deno.test('throwError(): should throw an error when given an invalid argument type', () => {
   assertThrows(
-    () => throwError(new BooleanNode(false)),
+    () => throwError(types.createBooleanNode(false)),
     'invalid argument',
   );
 });
@@ -978,40 +965,40 @@ Deno.test('throwError(): should throw an error when given an invalid argument ty
 Deno.test('apply(): should call a function with list arguments', () => {
   assertEquals(
     apply(
-      new FunctionNode(
+      types.createFunctionNode(
         (a, b) =>
-          new NumberNode(
-            (a as NumberNode).value +
-              (b as NumberNode).value,
+          types.createNumberNode(
+            (a as types.NumberNode).value +
+              (b as types.NumberNode).value,
           ),
       ),
-      new ListNode([
-        new NumberNode(2),
-        new NumberNode(3),
+      types.createListNode([
+        types.createNumberNode(2),
+        types.createNumberNode(3),
       ]),
     ),
-    new NumberNode(5),
+    types.createNumberNode(5),
   );
 });
 
 Deno.test('apply(): should concatenate other arguments with list', () => {
   assertEquals(
     apply(
-      new FunctionNode(
+      types.createFunctionNode(
         (a, b, c) =>
-          new NumberNode(
-            (a as NumberNode).value +
-              (b as NumberNode).value +
-              (c as NumberNode).value,
+          types.createNumberNode(
+            (a as types.NumberNode).value +
+              (b as types.NumberNode).value +
+              (c as types.NumberNode).value,
           ),
       ),
-      new NumberNode(3),
-      new ListNode([
-        new NumberNode(2),
-        new NumberNode(1),
+      types.createNumberNode(3),
+      types.createListNode([
+        types.createNumberNode(2),
+        types.createNumberNode(1),
       ]),
     ),
-    new NumberNode(6),
+    types.createNumberNode(6),
   );
 });
 
@@ -1019,14 +1006,14 @@ Deno.test('apply(): should throw error for non-Seq last argument', () => {
   assertThrows(
     () =>
       apply(
-        new FunctionNode(
+        types.createFunctionNode(
           (a, b) =>
-            new NumberNode(
-              (a as NumberNode).value +
-                (b as NumberNode).value,
+            types.createNumberNode(
+              (a as types.NumberNode).value +
+                (b as types.NumberNode).value,
             ),
         ),
-        new NumberNode(3),
+        types.createNumberNode(3),
       ),
     Error,
     'Invalid sequential type',
@@ -1037,10 +1024,10 @@ Deno.test('apply(): should throw error for non-Func first argument', () => {
   assertThrows(
     () =>
       apply(
-        new NumberNode(42),
-        new ListNode([
-          new NumberNode(2),
-          new NumberNode(3),
+        types.createNumberNode(42),
+        types.createListNode([
+          types.createNumberNode(2),
+          types.createNumberNode(3),
         ]),
       ),
     Error,
@@ -1051,21 +1038,21 @@ Deno.test('apply(): should throw error for non-Func first argument', () => {
 Deno.test('applyToSequence(): should call function against each item in a list', () => {
   assertEquals(
     applyToSequence(
-      new FunctionNode(
+      types.createFunctionNode(
         function double(x) {
-          return new NumberNode((x as NumberNode).value * 2);
+          return types.createNumberNode((x as types.NumberNode).value * 2);
         },
       ),
-      new ListNode([
-        new NumberNode(1),
-        new NumberNode(2),
-        new NumberNode(3),
+      types.createListNode([
+        types.createNumberNode(1),
+        types.createNumberNode(2),
+        types.createNumberNode(3),
       ]),
     ),
-    new ListNode([
-      new NumberNode(2),
-      new NumberNode(4),
-      new NumberNode(6),
+    types.createListNode([
+      types.createNumberNode(2),
+      types.createNumberNode(4),
+      types.createNumberNode(6),
     ]),
   );
 });
@@ -1074,9 +1061,9 @@ Deno.test('applyToSequence(): should throw error if not given exactly 2 argument
   assertThrows(
     () =>
       applyToSequence(
-        new FunctionNode(
+        types.createFunctionNode(
           function double(x) {
-            return new NumberNode((x as NumberNode).value * 2);
+            return types.createNumberNode((x as types.NumberNode).value * 2);
           },
         ),
       ),
@@ -1089,12 +1076,12 @@ Deno.test('applyToSequence(): should throw error if second argument is not a Lis
   assertThrows(
     () =>
       applyToSequence(
-        new FunctionNode(
+        types.createFunctionNode(
           function double(x) {
-            return new NumberNode((x as NumberNode).value * 2);
+            return types.createNumberNode((x as types.NumberNode).value * 2);
           },
         ),
-        new NumberNode(42),
+        types.createNumberNode(42),
       ),
     Error,
     'Invalid sequential type',
@@ -1102,15 +1089,15 @@ Deno.test('applyToSequence(): should throw error if second argument is not a Lis
 });
 
 Deno.test('seq should return same list if given a list', () => {
-  const list = new ListNode([
-    new NumberNode(1),
-    new NumberNode(2),
-    new NumberNode(3),
+  const list = types.createListNode([
+    types.createNumberNode(1),
+    types.createNumberNode(2),
+    types.createNumberNode(3),
   ]);
   const result = seq(list);
   assertEquals(
     isListNode(result),
-    new BooleanNode(true),
+    types.createBooleanNode(true),
   );
   assertEquals(result.value, list.value);
 });
@@ -1118,63 +1105,63 @@ Deno.test('seq should return same list if given a list', () => {
 Deno.test('seq(): should return a list if given a vec', () => {
   assertEquals(
     seq(
-      new VectorNode([
-        new NumberNode(1),
-        new NumberNode(2),
-        new NumberNode(3),
+      types.createVectorNode([
+        types.createNumberNode(1),
+        types.createNumberNode(2),
+        types.createNumberNode(3),
       ]),
     ),
-    new ListNode([
-      new NumberNode(1),
-      new NumberNode(2),
-      new NumberNode(3),
+    types.createListNode([
+      types.createNumberNode(1),
+      types.createNumberNode(2),
+      types.createNumberNode(3),
     ]),
   );
 });
 
 Deno.test('seq(): should return a list of chars if given a string', () => {
   assertEquals(
-    seq(new StringNode('foo')),
-    new ListNode([
-      new StringNode('f'),
-      new StringNode('o'),
-      new StringNode('o'),
+    seq(types.createStringNode('foo')),
+    types.createListNode([
+      types.createStringNode('f'),
+      types.createStringNode('o'),
+      types.createStringNode('o'),
     ]),
   );
 });
 
 Deno.test('seq(): should return nil if given nil', () => {
   assertEquals(
-    seq(new NilNode()),
-    new NilNode(),
+    seq(types.createNilNode()),
+    types.createNilNode(),
   );
 });
 
 Deno.test('seq(): should return nil if given an empty list', () => {
   assertEquals(
-    seq(new ListNode([])),
-    new NilNode(),
+    seq(types.createListNode([])),
+    types.createNilNode(),
   );
 });
 
 Deno.test('seq(): should return nil if given an empty vector', () => {
   assertEquals(
-    seq(new VectorNode([])),
-    new NilNode(),
+    seq(types.createVectorNode([])),
+    types.createNilNode(),
   );
 });
 
 Deno.test('meta(): should return metadata of an element', () => {
   assertEquals(
     meta(
-      new FunctionNode(
+      types.createFunctionNode(
         (x) => x, // Function
         undefined, // closureMeta
         false, // isMacro
-        new MapNode(new Map([['b', new NumberNode(1)]])),
+        types.createMapNode(new Map([['b', types.createNumberNode(1)]])),
       ),
     ),
-    new MapNode(new Map([['b', new NumberNode(1)]])),
+    types.createMapNode(new Map([['b', types.createNumberNode(1)]])),
   );
 });
 
@@ -1187,7 +1174,7 @@ Deno.test('meta(): should throw error if not given exactly 1 argument', () => {
 });
 
 Deno.test("meta(): should throw error if argument isn't a MetadataType", () => {
-  const notMetadataType = new NumberNode(42);
+  const notMetadataType = types.createNumberNode(42);
   assertThrows(
     () => meta(notMetadataType),
     Error,
@@ -1196,13 +1183,13 @@ Deno.test("meta(): should throw error if argument isn't a MetadataType", () => {
 });
 
 Deno.test('withMeta(): should set metadata', () => {
-  const func = new FunctionNode((x) => x);
-  const meta = new MapNode(new Map([['b', new NumberNode(1)]]));
+  const func = types.createFunctionNode((x) => x);
+  const meta = types.createMapNode(new Map([['b', types.createNumberNode(1)]]));
 
-  assertEquals(func.metadata, new NilNode());
-  const updated = withMeta(func, meta) as FunctionNode;
+  assertEquals(func.metadata, types.createNilNode());
+  const updated = withMeta(func, meta) as types.FunctionNode;
   assertEquals(updated.metadata, meta);
-  assertEquals(func.metadata, new NilNode());
+  assertEquals(func.metadata, types.createNilNode());
 });
 
 Deno.test('withMeta(): should throw error if not given exactly 2 arguments', () => {
@@ -1217,9 +1204,9 @@ Deno.test("withMeta(): should throw if first argument isn't MetadataType", () =>
   assertThrows(
     () =>
       withMeta(
-        new NumberNode(42),
-        new MapNode(
-          new Map([['b', new NumberNode(1)]]),
+        types.createNumberNode(42),
+        types.createMapNode(
+          new Map([['b', types.createNumberNode(1)]]),
         ),
       ),
     Error,
@@ -1229,162 +1216,162 @@ Deno.test("withMeta(): should throw if first argument isn't MetadataType", () =>
 
 Deno.test('isNil(): should return true if argument is a NilNode', () => {
   assertEquals(
-    isNil(new NilNode()),
-    new BooleanNode(true),
+    isNil(types.createNilNode()),
+    types.createBooleanNode(true),
   );
 });
 
 Deno.test('isNil(): should return false if argument is not a NilNode', () => {
   assertEquals(
-    isNil(new BooleanNode(true)),
-    new BooleanNode(false),
+    isNil(types.createBooleanNode(true)),
+    types.createBooleanNode(false),
   );
 });
 
 Deno.test('isTrue(): should return true for a true value', () => {
   assertEquals(
-    isTrue(new BooleanNode(true)),
-    new BooleanNode(true),
+    isTrue(types.createBooleanNode(true)),
+    types.createBooleanNode(true),
   );
 });
 
 Deno.test('isTrue(): should return false for a false value', () => {
   assertEquals(
-    isTrue(new BooleanNode(false)),
-    new BooleanNode(false),
+    isTrue(types.createBooleanNode(false)),
+    types.createBooleanNode(false),
   );
 });
 
 Deno.test('isFalse(): should return true for a false value', () => {
   assertEquals(
-    isFalse(new BooleanNode(false)),
-    new BooleanNode(true),
+    isFalse(types.createBooleanNode(false)),
+    types.createBooleanNode(true),
   );
 });
 
 Deno.test('isFalse(): should return false for a true value', () => {
   assertEquals(
-    isFalse(new BooleanNode(true)),
-    new BooleanNode(false),
+    isFalse(types.createBooleanNode(true)),
+    types.createBooleanNode(false),
   );
 });
 
 Deno.test('isString(): should return true if argument is a StringNode', () => {
   assertEquals(
-    isString(new StringNode('foobar')),
-    new BooleanNode(true),
+    isString(types.createStringNode('foobar')),
+    types.createBooleanNode(true),
   );
 });
 
 Deno.test('isString(): should return false if argument is not a StringNode', () => {
   assertEquals(
-    isString(new BooleanNode(true)),
-    new BooleanNode(false),
+    isString(types.createBooleanNode(true)),
+    types.createBooleanNode(false),
   );
 });
 
 Deno.test('symbol(): should create symbol from a string', () => {
-  const result = symbol(new StringNode('abc'));
-  assertEquals(result instanceof SymbolNode, true);
+  const result = symbol(types.createStringNode('abc'));
+  assertEquals(types.isSymbolNode(result), true);
 });
 
 Deno.test('isSymbol(): should return true if argument is a SymbolNode', () => {
   assertEquals(
-    isSymbolNode(new SymbolNode('abc')),
-    new BooleanNode(true),
+    isSymbolNode(types.createSymbolNode('abc')),
+    types.createBooleanNode(true),
   );
 });
 
 Deno.test('isSymbol(): should return false if argument is not a SymbolNode', () => {
   assertEquals(
-    isSymbolNode(new StringNode('abc')),
-    new BooleanNode(false),
+    isSymbolNode(types.createStringNode('abc')),
+    types.createBooleanNode(false),
   );
 });
 
 Deno.test('keyword(): should create keyword from a string', () => {
-  const result = keyword(new StringNode('pie'));
-  assertInstanceOf(result, KeywordNode);
+  const result = keyword(types.createStringNode('pie'));
+  assertInstanceOf(result, types.KeywordNode);
   assertEquals(result.value, ':pie');
 });
 
 Deno.test('keyword(): should create new keyword from a symbol', () => {
-  const result = keyword(new SymbolNode('cake'));
-  assertInstanceOf(result, KeywordNode);
+  const result = keyword(types.createSymbolNode('cake'));
+  assertInstanceOf(result, types.KeywordNode);
   assertEquals(result.value, ':cake');
 });
 
 Deno.test('keyword(): should return an existing keyword', () => {
-  const key = new KeywordNode('cookies');
+  const key = types.createKeywordNode('cookies');
   const result = keyword(key);
   assertStrictEquals(result, key);
 });
 
 Deno.test('isKeyword(): should return true if argument is a KeywordNode', () => {
   assertEquals(
-    isKeyword(new KeywordNode('abc')),
-    new BooleanNode(true),
+    isKeyword(types.createKeywordNode('abc')),
+    types.createBooleanNode(true),
   );
 });
 
 Deno.test('isKeyword(): should return false if argument is not a KeywordNode', () => {
   assertEquals(
-    isKeyword(new SymbolNode('abc')),
-    new BooleanNode(false),
+    isKeyword(types.createSymbolNode('abc')),
+    types.createBooleanNode(false),
   );
 });
 
 Deno.test('isNumber(): should return true if argument is a NumberNode', () => {
   assertEquals(
-    isNumber(new NumberNode(2)),
-    new BooleanNode(true),
+    isNumber(types.createNumberNode(2)),
+    types.createBooleanNode(true),
   );
 });
 
 Deno.test('isNumber(): should return false if argument is not a NumberNode', () => {
   assertEquals(
-    isNumber(new StringNode('2')),
-    new BooleanNode(false),
+    isNumber(types.createStringNode('2')),
+    types.createBooleanNode(false),
   );
 });
 
 Deno.test('isFn(): should return true if argument is a FunctionNode', () => {
-  const fn = new FunctionNode(() => new NilNode());
+  const fn = types.createFunctionNode(() => types.createNilNode());
   fn.isMacro = false;
-  assertEquals(isFn(fn), new BooleanNode(true));
+  assertEquals(isFn(fn), types.createBooleanNode(true));
 });
 
 Deno.test('isFn(): should return false if argument is not a FunctionNode', () => {
   assertEquals(
-    isFn(new NumberNode(2)),
-    new BooleanNode(false),
+    isFn(types.createNumberNode(2)),
+    types.createBooleanNode(false),
   );
 });
 
 Deno.test('isMacro(): should return true if argument is a macro', () => {
-  const fn = new FunctionNode(() => new NilNode());
+  const fn = types.createFunctionNode(() => types.createNilNode());
   fn.isMacro = true;
-  assertEquals(isMacro(fn), new BooleanNode(true));
+  assertEquals(isMacro(fn), types.createBooleanNode(true));
 });
 
 Deno.test('isMacro(): should return false if argument is not a macro', () => {
   assertEquals(
-    isMacro(new NumberNode(2)),
-    new BooleanNode(false),
+    isMacro(types.createNumberNode(2)),
+    types.createBooleanNode(false),
   );
 });
 
 Deno.test('vector(): should create a vector from args', () => {
   assertEquals(
     vector(
-      new NumberNode(1),
-      new NumberNode(2),
-      new NumberNode(3),
+      types.createNumberNode(1),
+      types.createNumberNode(2),
+      types.createNumberNode(3),
     ),
-    new VectorNode([
-      new NumberNode(1),
-      new NumberNode(2),
-      new NumberNode(3),
+    types.createVectorNode([
+      types.createNumberNode(1),
+      types.createNumberNode(2),
+      types.createNumberNode(3),
     ]),
   );
 });
@@ -1392,20 +1379,20 @@ Deno.test('vector(): should create a vector from args', () => {
 Deno.test('isVector(): should return true if argument is a VectorNode', () => {
   assertEquals(
     isVector(
-      new VectorNode([
-        new NumberNode(1),
-        new NumberNode(2),
-        new NumberNode(3),
+      types.createVectorNode([
+        types.createNumberNode(1),
+        types.createNumberNode(2),
+        types.createNumberNode(3),
       ]),
     ),
-    new BooleanNode(true),
+    types.createBooleanNode(true),
   );
 });
 
 Deno.test('isVector(): should return false if argument is not a VectorNode', () => {
   assertEquals(
-    isVector(new NumberNode(2)),
-    new BooleanNode(false),
+    isVector(types.createNumberNode(2)),
+    types.createBooleanNode(false),
   );
 });
 
@@ -1413,35 +1400,35 @@ Deno.test('isVector(): should return false if argument is not a VectorNode', () 
 Deno.test('hashMap(): should create a map from alternating args', () => {
   assertEquals(
     hashMap(
-      new StringNode('foo'),
-      new NumberNode(1),
-      new StringNode('bar'),
-      new NumberNode(2),
+      types.createStringNode('foo'),
+      types.createNumberNode(1),
+      types.createStringNode('bar'),
+      types.createNumberNode(2),
     ),
-    new MapNode(
+    types.createMapNode(
       new Map([
-        ['"foo"', new NumberNode(1)],
-        ['"bar"', new NumberNode(2)],
+        ['"foo"', types.createNumberNode(1)],
+        ['"bar"', types.createNumberNode(2)],
       ]),
     ),
   );
 });
 
 Deno.test('hashMap(): should return an empty map if no arguments are passed', () => {
-  assertEquals(hashMap(), new MapNode());
+  assertEquals(hashMap(), types.createMapNode());
 });
 
 Deno.test('isMap(): should return true if argument is a MapNode', () => {
   assertEquals(
-    isMap(new MapNode(new Map([['foo', new NumberNode(1)]]))),
-    new BooleanNode(true),
+    isMap(types.createMapNode(new Map([['foo', types.createNumberNode(1)]]))),
+    types.createBooleanNode(true),
   );
 });
 
 Deno.test('isMap(): should return false if argument is not a MapNode', () => {
   assertEquals(
-    isMap(new NumberNode(2)),
-    new BooleanNode(false),
+    isMap(types.createNumberNode(2)),
+    types.createBooleanNode(false),
   );
 });
 
@@ -1449,17 +1436,17 @@ Deno.test('assoc(): should merge key/value pairs into a map', () => {
   assertEquals(
     assoc(
       hashMap(
-        new StringNode('foo'),
-        new NumberNode(1),
+        types.createStringNode('foo'),
+        types.createNumberNode(1),
       ),
-      new StringNode('bar'),
-      new NumberNode(2),
+      types.createStringNode('bar'),
+      types.createNumberNode(2),
     ),
     hashMap(
-      new StringNode('foo'),
-      new NumberNode(1),
-      new StringNode('bar'),
-      new NumberNode(2),
+      types.createStringNode('foo'),
+      types.createNumberNode(1),
+      types.createStringNode('bar'),
+      types.createNumberNode(2),
     ),
   );
 });
@@ -1468,14 +1455,14 @@ Deno.test('dissoc(): should remove elements from a dict', () => {
   assertEquals(
     dissoc(
       hashMap(
-        new StringNode('foo'),
-        new NumberNode(1),
-        new StringNode('bar'),
-        new NumberNode(2),
+        types.createStringNode('foo'),
+        types.createNumberNode(1),
+        types.createStringNode('bar'),
+        types.createNumberNode(2),
       ),
-      new StringNode('foo'),
+      types.createStringNode('foo'),
     ),
-    hashMap(new StringNode('bar'), new NumberNode(2)),
+    hashMap(types.createStringNode('bar'), types.createNumberNode(2)),
   );
 });
 
@@ -1483,14 +1470,14 @@ Deno.test('get(): should get a value from a map using a key', () => {
   assertEquals(
     get(
       hashMap(
-        new KeywordNode(':foo'),
-        new NumberNode(1),
-        new KeywordNode(':bar'),
-        new NumberNode(2),
+        types.createKeywordNode(':foo'),
+        types.createNumberNode(1),
+        types.createKeywordNode(':bar'),
+        types.createNumberNode(2),
       ),
-      new KeywordNode(':bar'),
+      types.createKeywordNode(':bar'),
     ),
-    new NumberNode(2),
+    types.createNumberNode(2),
   );
 });
 
@@ -1498,21 +1485,21 @@ Deno.test('get(): should return nil if key does not exist', () => {
   assertEquals(
     get(
       hashMap(
-        new KeywordNode(':foo'),
-        new NumberNode(1),
-        new KeywordNode(':bar'),
-        new NumberNode(2),
+        types.createKeywordNode(':foo'),
+        types.createNumberNode(1),
+        types.createKeywordNode(':bar'),
+        types.createNumberNode(2),
       ),
-      new KeywordNode(':baz'),
+      types.createKeywordNode(':baz'),
     ),
-    new NilNode(),
+    types.createNilNode(),
   );
 });
 
 Deno.test('get(): should return nil for invalid maps', () => {
   assertEquals(
-    get(new StringNode('sharks'), new KeywordNode('surfers')),
-    new NilNode(),
+    get(types.createStringNode('sharks'), types.createKeywordNode('surfers')),
+    types.createNilNode(),
   );
 });
 
@@ -1520,14 +1507,14 @@ Deno.test('contains(): should return true if key exists', () => {
   assertEquals(
     contains(
       hashMap(
-        new KeywordNode(':foo'),
-        new NumberNode(1),
-        new KeywordNode(':bar'),
-        new NumberNode(2),
+        types.createKeywordNode(':foo'),
+        types.createNumberNode(1),
+        types.createKeywordNode(':bar'),
+        types.createNumberNode(2),
       ),
-      new KeywordNode(':bar'),
+      types.createKeywordNode(':bar'),
     ),
-    new BooleanNode(true),
+    types.createBooleanNode(true),
   );
 });
 
@@ -1535,28 +1522,28 @@ Deno.test('contains(): should return false if key does not exist', () => {
   assertEquals(
     contains(
       hashMap(
-        new KeywordNode(':foo'),
-        new NumberNode(1),
-        new KeywordNode(':bar'),
-        new NumberNode(2),
+        types.createKeywordNode(':foo'),
+        types.createNumberNode(1),
+        types.createKeywordNode(':bar'),
+        types.createNumberNode(2),
       ),
-      new KeywordNode(':baz'),
+      types.createKeywordNode(':baz'),
     ),
-    new BooleanNode(false),
+    types.createBooleanNode(false),
   );
 });
 
 Deno.test('keys(): should return a list of all keys in the map', () => {
   assertEquals(
     keys(hashMap(
-      new KeywordNode(':foo'),
-      new NumberNode(1),
-      new KeywordNode(':bar'),
-      new NumberNode(2),
+      types.createKeywordNode(':foo'),
+      types.createNumberNode(1),
+      types.createKeywordNode(':bar'),
+      types.createNumberNode(2),
     )),
-    new ListNode([
-      new KeywordNode(':foo'),
-      new KeywordNode(':bar'),
+    types.createListNode([
+      types.createKeywordNode(':foo'),
+      types.createKeywordNode(':bar'),
     ]),
   );
 });
@@ -1564,14 +1551,14 @@ Deno.test('keys(): should return a list of all keys in the map', () => {
 Deno.test('vals(): should return a list of all values in the map', () => {
   assertEquals(
     vals(hashMap(
-      new KeywordNode(':foo'),
-      new NumberNode(1),
-      new KeywordNode(':bar'),
-      new NumberNode(2),
+      types.createKeywordNode(':foo'),
+      types.createNumberNode(1),
+      types.createKeywordNode(':bar'),
+      types.createNumberNode(2),
     )),
-    new ListNode([
-      new NumberNode(1),
-      new NumberNode(2),
+    types.createListNode([
+      types.createNumberNode(1),
+      types.createNumberNode(2),
     ]),
   );
 });
@@ -1579,56 +1566,56 @@ Deno.test('vals(): should return a list of all values in the map', () => {
 Deno.test('isSequential(): should return true for lists', () => {
   assertEquals(
     isSequentialNode(
-      new ListNode([
-        new NumberNode(1),
-        new NumberNode(2),
-        new NumberNode(3),
+      types.createListNode([
+        types.createNumberNode(1),
+        types.createNumberNode(2),
+        types.createNumberNode(3),
       ]),
     ),
-    new BooleanNode(true),
+    types.createBooleanNode(true),
   );
 });
 
 Deno.test('isSequential(): should return true for vectors', () => {
   assertEquals(
     isSequentialNode(
-      new VectorNode([
-        new NumberNode(4),
-        new NumberNode(5),
-        new NumberNode(6),
+      types.createVectorNode([
+        types.createNumberNode(4),
+        types.createNumberNode(5),
+        types.createNumberNode(6),
       ]),
     ),
-    new BooleanNode(true),
+    types.createBooleanNode(true),
   );
 });
 
 Deno.test('isSequential(): should return false for non-sequential nodes', () => {
-  assertEquals(isSequentialNode(new NumberNode(42)), new BooleanNode(false));
+  assertEquals(isSequentialNode(types.createNumberNode(42)), types.createBooleanNode(false));
 });
 
 Deno.test('join(): should concatenate elements with the default delimeter (spaces)', () => {
   assertEquals(
     join(
-      new ListNode([
-        new NumberNode(1),
-        new NumberNode(2),
-        new StringNode('three'),
+      types.createListNode([
+        types.createNumberNode(1),
+        types.createNumberNode(2),
+        types.createStringNode('three'),
       ]),
     ),
-    new StringNode('1 2 three'),
+    types.createStringNode('1 2 three'),
   );
 });
 
 Deno.test('join(): should concatenate elements with the given delimeter', () => {
   assertEquals(
     join(
-      new ListNode([
-        new NumberNode(1),
-        new NumberNode(2),
-        new StringNode('three'),
+      types.createListNode([
+        types.createNumberNode(1),
+        types.createNumberNode(2),
+        types.createStringNode('three'),
       ]),
-      new StringNode(', '),
+      types.createStringNode(', '),
     ),
-    new StringNode('1, 2, three'),
+    types.createStringNode('1, 2, three'),
   );
 });

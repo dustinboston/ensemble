@@ -1,10 +1,9 @@
-// Returns the Fibonacci number at position `n` in the sequence
+; Binet's formula
+; @see https://en.wikipedia.org/wiki/Binet_equation
 
-(var fibonacci (=> (n)
-  (if (<= n 1) n 
-    (+ (fibonacci (- n 1)) 
-       (fibonacci (- n 2)))))); 
+(var binet (function (n) (const [sqrt5 (Math.sqrt 5)
+                                 phi (/ (+ 1 sqrt5) 2)
+                                 psi (/ (- 1 sqrt5) 2)]
+                                (Math.round (/ ((Math.pow phi n) - (Math.pow psi n)) sqrt5)))))
 
-(const (n (stringify (get (get location :searchParams) :n))) 
-       (console.log (fibonacci n)))
-
+(console.log (binet 7)) ; 13

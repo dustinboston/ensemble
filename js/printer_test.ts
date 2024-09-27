@@ -8,66 +8,66 @@ import { assertEquals, assertThrows } from '@std/assert';
 import { printString } from './printer.ts';
 import {
   AstNode,
-  AtomNode,
-  BooleanNode,
-  DomNode,
-  ErrorNode,
-  FunctionNode,
-  KeywordNode,
-  ListNode,
-  MapNode,
-  NilNode,
-  NumberNode,
-  StringNode,
-  SymbolNode,
-  VectorNode,
+  createAtomNode,
+  createBooleanNode,
+  createDomNode,
+  createErrorNode,
+  createFunctionNode,
+  createKeywordNode,
+  createListNode,
+  createMapNode,
+  createNilNode,
+  createNumberNode,
+  createStringNode,
+  createSymbolNode,
+  createVectorNode,
 } from './types.ts';
 
 Deno.test('printString(): should print strings without quotes if printReadably is false', () => {
   assertEquals(
-    printString(new StringNode('hello'), false),
+    printString(createStringNode('hello'), false),
     'hello',
   );
 });
 
 Deno.test('printString(): should print strings with quotes if printReadably is true', () => {
   assertEquals(
-    printString(new StringNode('hello'), true),
+    printString(createStringNode('hello'), true),
     '"hello"',
   );
 });
 
 Deno.test('printString(): should print symbols without quotes', () => {
   assertEquals(
-    printString(new SymbolNode('sym')),
+    printString(createSymbolNode('sym')),
     'sym',
   );
 });
 
 Deno.test('printString(): should print keywords', () => {
   assertEquals(
-    printString(new KeywordNode(':key')),
+    printString(createKeywordNode(':key')),
     ':key',
   );
 });
 
 Deno.test('printString(): should print booleans without quotes', () => {
   assertEquals(
-    printString(new BooleanNode(true)),
+    printString(createBooleanNode(true)),
     'true',
   );
 });
 
 Deno.test('printString(): should print numbers without quotes', () => {
   assertEquals(
-    printString(new NumberNode(123)),
+    printString(createNumberNode(123)),
     '123',
   );
 });
 
 Deno.test('printString(): should correctly print atom type', () => {
   assertEquals(
-    printString(new AtomNode(new StringNode('hello'))),
+    printString(createAtomNode(createStringNode('hello'))),
     '(atom hello)',
   );
 });
@@ -75,8 +75,8 @@ Deno.test('printString(): should correctly print atom type', () => {
 Deno.test('printString(): should correctly print error type', () => {
   assertEquals(
     printString(
-      new ErrorNode(
-        new StringNode('message'),
+      createErrorNode(
+        createStringNode('message'),
       ),
     ),
     'message',
@@ -84,15 +84,15 @@ Deno.test('printString(): should correctly print error type', () => {
 });
 
 Deno.test('printString(): should correctly print function type', () => {
-  assertEquals(printString(new FunctionNode(() => new NilNode())), '#<fn>');
+  assertEquals(printString(createFunctionNode(() => createNilNode())), '#<fn>');
 });
 
 Deno.test('printString(): should correctly print list type', () => {
   assertEquals(
     printString(
-      new ListNode([
-        new StringNode('a'),
-        new StringNode('b'),
+      createListNode([
+        createStringNode('a'),
+        createStringNode('b'),
       ]),
     ),
     '(a b)',
@@ -102,9 +102,9 @@ Deno.test('printString(): should correctly print list type', () => {
 Deno.test('printString(): should correctly print vector type', () => {
   assertEquals(
     printString(
-      new VectorNode([
-        new StringNode('x'),
-        new StringNode('y'),
+      createVectorNode([
+        createStringNode('x'),
+        createStringNode('y'),
       ]),
     ),
     '[x y]',
@@ -114,10 +114,10 @@ Deno.test('printString(): should correctly print vector type', () => {
 Deno.test('printString(): should correctly print MapNodes', () => {
   assertEquals(
     printString(
-      new MapNode(
+      createMapNode(
         new Map<string, AstNode>([
-          ['a', new NumberNode(1)],
-          ['b', new NumberNode(2)],
+          ['a', createNumberNode(1)],
+          ['b', createNumberNode(2)],
         ]),
       ),
     ),
@@ -126,32 +126,21 @@ Deno.test('printString(): should correctly print MapNodes', () => {
 });
 
 Deno.test('printString(): should correctly print DomNodes', () => {
-  assertEquals(
-    printString(
-      new DomNode(
-        new Map<string, AstNode>([
-          ['x', new NumberNode(10)],
-          ['y', new NumberNode(20)],
-        ]),
-      ),
-    ),
-    '<x 10 y 20>',
-  );
+  const domNode = createDomNode('a', new Map([['href', createStringNode('https://example.com')]]));
+  assertEquals(printString(domNode), '<a href="https://example.com"></a>');
 });
 
 Deno.test('printString(): should correctly print nil type', () => {
   assertEquals(
-    printString(new NilNode()),
+    printString(createNilNode()),
     'nil',
   );
 });
 
 Deno.test('printString(): should throw an error for unmatched types', () => {
-  class TestAst extends AstNode {
-    value = 'TestAst';
-  }
+  const invalid = new Set();
 
   assertThrows(() => {
-    printString(new TestAst());
+    printString(invalid as unknown as AstNode);
   });
 });

@@ -1,4 +1,4 @@
-import ts from 'npm:typescript@5.5.3';
+import ts from 'typescript';
 import { formatName, getDeclarationName, hasConstructSignature, isContainerDeclaration, isDeclarationWithName } from './utils.ts';
 import { Ast } from './ast.ts';
 
@@ -10,232 +10,319 @@ import { Ast } from './ast.ts';
  * The class is associated with a TypeScript program and is initialized by collecting all the declarations in the program.
  */
 export class AppCache {
-	/**
-	 * Map of variable declaration names to their types.
-	 * @example Array => ArrayConstructor
-	 */
-	public variableNameToTypeMap = new Map<string, string>();
+  /**
+   * Map of variable declaration names to their types.
+   * @example Array => ArrayConstructor
+   */
+  public variableNameToTypeMap = new Map<string, string>();
 
-	/**
-	 * Map of types to their variable declaration names.
-	 * @example ArrayConstructor => Array
-	 */
-	public variableTypeToNameMap = new Map<string, string>();
+  /**
+   * Map of types to their variable declaration names.
+   * @example ArrayConstructor => Array
+   */
+  public variableTypeToNameMap = new Map<string, string>();
 
-	/**
-	 * Names of interfaces that are constructors
-	 */
-	public constructors = new Set<string>();
+  /**
+   * Names of interfaces that are constructors
+   */
+  public constructors = new Set<string>();
 
-	/**
-	 * All Nodes by name with source file
-	 * named statementsCache in generator
-	 * @todo rename "containers"
-	 */
-	public statementsCache = new Map<string, [ts.SourceFile, ts.Node][]>();
+  /**
+   * All Nodes by name with source file
+   * named statementsCache in generator
+   * @todo rename "containers"
+   */
+  public statementsCache = new Map<string, [ts.SourceFile, ts.Node][]>();
 
-	/**
-	 * Global declarations: VariableDeclaration, FunctionDeclaration, ModuleDeclaration (namespace)
-	 */
-	public declarations = new Set<string>();
+  /**
+   * Global declarations: VariableDeclaration, FunctionDeclaration, ModuleDeclaration (namespace)
+   */
+  public declarations = new Set<string>();
 
-	/**
-	 * Cache type alias declarations so that they can be be expanded into their primitive forms as needed.
-	 */
-	// public typeAliasDeclarations = new Map<string, [ts.SourceFile, ts.TypeAliasDeclaration]>();
-	public typeAliasDeclarations = new Map<string, Ast[]>();
+  /**
+   * Cache type alias declarations so that they can be be expanded into their primitive forms as needed.
+   */
+  // public typeAliasDeclarations = new Map<string, [ts.SourceFile, ts.TypeAliasDeclaration]>();
+  public typeAliasDeclarations = new Map<string, Ast[]>();
 
-	/**
-	 * The TypeScript program that this cache is associated with.
-	 */
-	public program: ts.Program;
+  public typeAliasExclusionList = new Set<string>([
+    'A',
+    'B',
+    'C',
+    'D',
+    'E',
+    'F',
+    'G',
+    'H',
+    'I',
+    'J',
+    'K',
+    'L',
+    'M',
+    'N',
+    'O',
+    'P',
+    'Q',
+    'R',
+    'S',
+    'T',
+    'U',
+    'V',
+    'W',
+    'X',
+    'Y',
+    'Z',
+    'AggregateError',
+    'Array',
+    'ArrayBuffer',
+    'AsyncDisposableStack',
+    'Atomics',
+    'BigInt',
+    'BigInt64Array',
+    'BigUint64Array',
+    'Boolean',
+    'DataView',
+    'Date',
+    'DisposableStack',
+    'Error',
+    'EvalError',
+    'FinalizationRegistry',
+    'Float32Array',
+    'Float64Array',
+    'Function',
+    'Infinity',
+    'Int16Array',
+    'Int32Array',
+    'Int8Array',
+    'Intl.Collator',
+    'Intl.DateTimeFormat',
+    'Intl.DisplayNames',
+    'Intl.DurationFormat',
+    'Intl.ListFormat',
+    'Intl.Locale',
+    'Intl.NumberFormat',
+    'Intl.PluralRules',
+    'Intl.RelativeTimeFormat',
+    'Intl.Segmenter',
+    'JSON',
+    'Map',
+    'Math',
+    'NaN',
+    'Number',
+    'Object',
+    'Promise',
+    'Proxy',
+    'RangeError',
+    'ReferenceError',
+    'RegExp',
+    'Set',
+    'SharedArrayBuffer',
+    'String',
+    'SuppressedError',
+    'Symbol',
+    'SyntaxError',
+    'TypeError',
+    'Uint16Array',
+    'Uint32Array',
+    'Uint8Array',
+    'Uint8ClampedArray',
+    'URIError',
+    'WeakMap',
+    'WeakRef',
+    'WeakSet',
+  ]);
 
-	/**
-	 * Constructs a new instance of the `AppCache` class, which is associated with the provided TypeScript program.
-	 * @param program - The TypeScript program that this cache is associated with.
-	 * @throws {TypeError} If the `program` parameter is not provided.
-	 */
-	constructor(program: ts.Program) {
-		if (!program) {
-			throw new TypeError('A program is required');
-		}
+  /**
+   * The TypeScript program that this cache is associated with.
+   */
+  public program: ts.Program;
 
-		this.program = program;
-	}
+  /**
+   * Constructs a new instance of the `AppCache` class, which is associated with the provided TypeScript program.
+   * @param program - The TypeScript program that this cache is associated with.
+   * @throws {TypeError} If the `program` parameter is not provided.
+   */
+  constructor(program: ts.Program) {
+    if (!program) {
+      throw new TypeError('A program is required');
+    }
 
-	/**
-	 * Given a variable name (typically from node.name.getText()) return its type
-	 * @example `var Name: Type`
-	 * ```typescript
-	 * cache.getVariableTypeFromName('Name'); // => 'Type'
-	 * ```
-	 * @example `var Array: ArrayConstructor`
-	 * ```typescript
-	 * cache.getVariableTypeFromName('Array'); // => 'ArrayConstructor'
-	 * ```
-	 * @param variableName The name of a variable whose type we want to get.
-	 * @returns The variable type associated with the given name, or `undefined` if no such variable type exists.
-	 */
-	public getVariableTypeFromName(variableName: string): string | undefined {
-		return this.variableNameToTypeMap.get(variableName);
-	}
+    this.program = program;
+  }
 
-	/**
-	 * Given a type name, returns the corresponding variable name.
-	 * @example `var Name: Type`
-	 * ```typescript
-	 * cache.getVariableNameFromType('Type'); // => 'Name'
-	 * ```
-	 * @example `var Array: ArrayConstructor`
-	 * ```typescript
-	 * cache.getVariableNameFromType('ArrayConstructor'); // => 'Array'
-	 * ```
-	 * @param typeName - The type of a variable whose _name_ we want get.
-	 * @returns The variable name associated with the given type, or `undefined` if no such variable name exists.
-	 */
-	public getVariableNameFromType(typeName: string): string | undefined {
-		return this.variableTypeToNameMap.get(typeName);
-	}
+  /**
+   * Given a variable name (typically from node.name.getText()) return its type
+   * @example `var Name: Type`
+   * ```typescript
+   * cache.getVariableTypeFromName('Name'); // => 'Type'
+   * ```
+   * @example `var Array: ArrayConstructor`
+   * ```typescript
+   * cache.getVariableTypeFromName('Array'); // => 'ArrayConstructor'
+   * ```
+   * @param variableName The name of a variable whose type we want to get.
+   * @returns The variable type associated with the given name, or `undefined` if no such variable type exists.
+   */
+  public getVariableTypeFromName(variableName: string): string | undefined {
+    return this.variableNameToTypeMap.get(variableName);
+  }
 
-	/**
-	 * Checks if the cache contains a variable with the given name.
-	 * @param nodeName - The name of the variable to check for.
-	 * @returns `true` if the cache contains a variable with the given name, `false` otherwise.
-	 */
-	public hasVariableName(nodeName: string) {
-		return this.variableNameToTypeMap.has(nodeName);
-	}
+  /**
+   * Given a type name, returns the corresponding variable name.
+   * @example `var Name: Type`
+   * ```typescript
+   * cache.getVariableNameFromType('Type'); // => 'Name'
+   * ```
+   * @example `var Array: ArrayConstructor`
+   * ```typescript
+   * cache.getVariableNameFromType('ArrayConstructor'); // => 'Array'
+   * ```
+   * @param typeName - The type of a variable whose _name_ we want get.
+   * @returns The variable name associated with the given type, or `undefined` if no such variable name exists.
+   */
+  public getVariableNameFromType(typeName: string): string | undefined {
+    return this.variableTypeToNameMap.get(typeName);
+  }
 
-	/**
-	 * Checks if the cache contains a constructor with the given name.
-	 * @param constructorName - The name of the constructor to check for.
-	 * @returns `true` if the cache contains a constructor with the given name, `false` otherwise.
-	 */
-	public hasConstructor(constructorName: string): boolean {
-		return this.constructors.has(constructorName);
-	}
+  /**
+   * Checks if the cache contains a variable with the given name.
+   * @param nodeName - The name of the variable to check for.
+   * @returns `true` if the cache contains a variable with the given name, `false` otherwise.
+   */
+  public hasVariableName(nodeName: string) {
+    return this.variableNameToTypeMap.has(nodeName);
+  }
 
-	/**
-	 * Retrieves the container declarations (e.g. interfaces, classes, modules) that have the given name.
-	 * @param containerName - The name of the container to retrieve.
-	 * @returns An array of tuples, where the first element is the file path and the second element is the container declaration node.
-	 */
-	public getContainer(containerName: string): [ts.SourceFile, ts.Node][] {
-		return this.statementsCache.get(containerName) ?? [];
-	}
+  /**
+   * Checks if the cache contains a constructor with the given name.
+   * @param constructorName - The name of the constructor to check for.
+   * @returns `true` if the cache contains a constructor with the given name, `false` otherwise.
+   */
+  public hasConstructor(constructorName: string): boolean {
+    return this.constructors.has(constructorName);
+  }
 
-	/**
-	 * Collects all the declarations (variables, functions, type aliases, and modules) in the program and stores them in a map.
-	 * This method is called before parsing the source files to gather all the declarations that will be used later.
-	 */
-	public initialize(): void {
-		this.program.getSourceFiles().forEach((sourceFile) => this.visitChildren(sourceFile, sourceFile, ''));
-	}
+  /**
+   * Retrieves the container declarations (e.g. interfaces, classes, modules) that have the given name.
+   * @param containerName - The name of the container to retrieve.
+   * @returns An array of tuples, where the first element is the file path and the second element is the container declaration node.
+   */
+  public getContainer(containerName: string): [ts.SourceFile, ts.Node][] {
+    return this.statementsCache.get(containerName) ?? [];
+  }
 
-	/**
-	 * Recursively visits the children of the given node, calling `visitDeclarations` on each child.
-	 * @param node - The node whose children should be visited.
-	 * @param sourceFile - The source file containing the node.
-	 * @param globalPrefix - An optional prefix to apply to the names of the declarations.
-	 */
-	public visitChildren(node: ts.Node, sourceFile: ts.SourceFile, globalPrefix = ''): void {
-		ts.forEachChild(node, (child) => this.visitDeclarations(child, sourceFile, globalPrefix));
-	}
+  /**
+   * Collects all the declarations (variables, functions, type aliases, and modules) in the program and stores them in a map.
+   * This method is called before parsing the source files to gather all the declarations that will be used later.
+   */
+  public initialize(): void {
+    this.program.getSourceFiles().forEach((sourceFile) => this.visitChildren(sourceFile, sourceFile, ''));
+  }
 
-	/**
-	 * Recursively visits the children of the given node, calling `visitDeclarations` on each child.
-	 * This method is responsible for caching various types of declarations, such as interfaces, variables, functions, and modules.
-	 * It checks the type of the node and calls the appropriate caching methods based on the node type.
-	 *
-	 * @param node - The node whose children should be visited.
-	 * @param sourceFile - The source file containing the node.
-	 * @param globalPrefix - An optional prefix to apply to the names of the declarations.
-	 */
-	public visitDeclarations(node: ts.Node, sourceFile: ts.SourceFile, globalPrefix = ''): void {
-		if (!isDeclarationWithName(node)) {
-			return this.visitChildren(node, sourceFile, globalPrefix);
-		}
+  /**
+   * Recursively visits the children of the given node, calling `visitDeclarations` on each child.
+   * @param node - The node whose children should be visited.
+   * @param sourceFile - The source file containing the node.
+   * @param globalPrefix - An optional prefix to apply to the names of the declarations.
+   */
+  public visitChildren(node: ts.Node, sourceFile: ts.SourceFile, globalPrefix = ''): void {
+    ts.forEachChild(node, (child) => this.visitDeclarations(child, sourceFile, globalPrefix));
+  }
 
-		const name = getDeclarationName(node, sourceFile, globalPrefix);
+  /**
+   * Recursively visits the children of the given node, calling `visitDeclarations` on each child.
+   * This method is responsible for caching various types of declarations, such as interfaces, variables, functions, and modules.
+   * It checks the type of the node and calls the appropriate caching methods based on the node type.
+   *
+   * @param node - The node whose children should be visited.
+   * @param sourceFile - The source file containing the node.
+   * @param globalPrefix - An optional prefix to apply to the names of the declarations.
+   */
+  public visitDeclarations(node: ts.Node, sourceFile: ts.SourceFile, globalPrefix = ''): void {
+    if (!isDeclarationWithName(node)) {
+      return this.visitChildren(node, sourceFile, globalPrefix);
+    }
 
-		if (ts.isInterfaceDeclaration(node)) {
-			// Cache all interfaces
-			this.cacheContainer(node, sourceFile, globalPrefix);
-			this.cacheConstructor(node, sourceFile, globalPrefix);
-			this.visitChildren(node, sourceFile, globalPrefix);
-		} else if (ts.isVariableDeclaration(node)) {
-			this.declarations.add(name);
-			this.cacheType(node, sourceFile, globalPrefix);
-		} else if (ts.isFunctionDeclaration(node)) {
-			this.declarations.add(name);
-			this.cacheType(node, sourceFile, globalPrefix);
-		} else if (ts.isModuleDeclaration(node) && node.body) {
-			this.declarations.add(name);
-			this.variableNameToTypeMap.set(name, name);
-			this.cacheContainer(node, sourceFile, globalPrefix);
-			if (ts.isModuleBlock(node.body)) this.visitChildren(node, sourceFile, name);
-		} else if (ts.isTypeAliasDeclaration(node)) {
-			// this.typeAliasDeclarations.set(name, [sourceFile, node]);
-		}
-	}
+    const name = getDeclarationName(node, sourceFile, globalPrefix);
 
-	/**
-	 * Caches a container declaration, such as an interface or module, in the statements cache.
-	 * The cache maps the formatted name of the container to an array of [sourceFile, node] tuples,
-	 * where the node represents the container declaration.
-	 *
-	 * @param node - The container declaration node to cache.
-	 * @param sourceFile - The source file containing the container declaration.
-	 * @param globalPrefix - An optional prefix to apply to the name of the container.
-	 */
-	public cacheContainer<T extends ts.Node>(node: T, sourceFile: ts.SourceFile, globalPrefix = ''): void {
-		if (!isDeclarationWithName(node) || !isContainerDeclaration(node)) return;
-		const name = formatName(node.name.getText(sourceFile), globalPrefix);
-		const declarations = this.statementsCache.get(name) ?? [];
-		declarations.push([sourceFile, node]);
-		this.statementsCache.set(name, declarations);
-	}
+    if (ts.isInterfaceDeclaration(node)) {
+      // Cache all interfaces
+      this.cacheContainer(node, sourceFile, globalPrefix);
+      this.cacheConstructor(node, sourceFile, globalPrefix);
+      this.visitChildren(node, sourceFile, globalPrefix);
+    } else if (ts.isVariableDeclaration(node)) {
+      this.declarations.add(name);
+      this.cacheType(node, sourceFile, globalPrefix);
+    } else if (ts.isFunctionDeclaration(node)) {
+      this.declarations.add(name);
+      this.cacheType(node, sourceFile, globalPrefix);
+    } else if (ts.isModuleDeclaration(node) && node.body) {
+      this.declarations.add(name);
+      this.variableNameToTypeMap.set(name, name);
+      this.cacheContainer(node, sourceFile, globalPrefix);
+      if (ts.isModuleBlock(node.body)) this.visitChildren(node, sourceFile, name);
+    } else if (ts.isTypeAliasDeclaration(node)) {
+      // this.typeAliasDeclarations.set(name, [sourceFile, node]);
+    }
+  }
 
-	/**
-	 * Caches the type information for a variable or function declaration.
-	 * This method is responsible for extracting the type information from the declaration node
-	 * and storing it in the `variableNameToTypeMap` and `variableTypeToNameMap` caches.
-	 *
-	 * @param node - The variable or function declaration node to cache.
-	 * @param sourceFile - The source file containing the declaration.
-	 * @param globalPrefix - An optional prefix to apply to the name of the declaration.
-	 */
-	public cacheType(
-		node: ts.VariableDeclaration | ts.FunctionDeclaration | undefined,
-		sourceFile: ts.SourceFile,
-		globalPrefix = '',
-	): void { // DeclarationWithType
-		if (!node || !isDeclarationWithName(node)) return; // || !hasDeclarationWithType(node)) return;
-		const name = getDeclarationName(node, sourceFile, globalPrefix);
+  /**
+   * Caches a container declaration, such as an interface or module, in the statements cache.
+   * The cache maps the formatted name of the container to an array of [sourceFile, node] tuples,
+   * where the node represents the container declaration.
+   *
+   * @param node - The container declaration node to cache.
+   * @param sourceFile - The source file containing the container declaration.
+   * @param globalPrefix - An optional prefix to apply to the name of the container.
+   */
+  public cacheContainer<T extends ts.Node>(node: T, sourceFile: ts.SourceFile, globalPrefix = ''): void {
+    if (!isDeclarationWithName(node) || !isContainerDeclaration(node)) return;
+    const name = formatName(node.name.getText(sourceFile), globalPrefix);
+    const declarations = this.statementsCache.get(name) ?? [];
+    declarations.push([sourceFile, node]);
+    this.statementsCache.set(name, declarations);
+  }
 
-		let type = `Uhandled<unknown>`;
-		if (node.type && ts.isTypeReferenceNode(node.type) && ts.isVariableDeclaration(node)) {
-			type = formatName(node.type.typeName.getText(sourceFile), globalPrefix);
-			this.variableTypeToNameMap.set(type, name); // Reverse lookup for constructors
-		} else if (node.type && ts.isToken(node.type)) {
-			type = formatName(node.type.getText(sourceFile), globalPrefix);
-		} else if (node.type) {
-			type = `Uhandled<${ts.SyntaxKind[node.type.kind]}>`;
-		}
+  /**
+   * Caches the type information for a variable or function declaration.
+   * This method is responsible for extracting the type information from the declaration node
+   * and storing it in the `variableNameToTypeMap` and `variableTypeToNameMap` caches.
+   *
+   * @param node - The variable or function declaration node to cache.
+   * @param sourceFile - The source file containing the declaration.
+   * @param globalPrefix - An optional prefix to apply to the name of the declaration.
+   */
+  public cacheType(
+    node: ts.VariableDeclaration | ts.FunctionDeclaration | undefined,
+    sourceFile: ts.SourceFile,
+    globalPrefix = '',
+  ): void { // DeclarationWithType
+    if (!node || !isDeclarationWithName(node)) return; // || !hasDeclarationWithType(node)) return;
+    const name = getDeclarationName(node, sourceFile, globalPrefix);
 
-		this.variableNameToTypeMap.set(name, type);
-	}
+    let type = `Uhandled<unknown>`;
+    if (node.type && ts.isTypeReferenceNode(node.type) && ts.isVariableDeclaration(node)) {
+      type = formatName(node.type.typeName.getText(sourceFile), globalPrefix);
+      this.variableTypeToNameMap.set(type, name); // Reverse lookup for constructors
+    } else if (node.type && ts.isToken(node.type)) {
+      type = formatName(node.type.getText(sourceFile), globalPrefix);
+    } else if (node.type) {
+      type = `Uhandled<${ts.SyntaxKind[node.type.kind]}>`;
+    }
 
-	/**
-	 * Caches a constructor declaration in the `constructors` set.
-	 *
-	 * @param node - The constructor declaration node to cache.
-	 * @param sourceFile - The source file containing the constructor declaration.
-	 * @param globalPrefix - An optional prefix to apply to the name of the constructor.
-	 */
-	public cacheConstructor<T extends ts.Node>(node: T, sourceFile: ts.SourceFile, globalPrefix = ''): void {
-		if (!isDeclarationWithName(node) || !hasConstructSignature(node)) return;
-		const name = getDeclarationName(node, sourceFile, globalPrefix);
-		this.constructors.add(name);
-	}
+    this.variableNameToTypeMap.set(name, type);
+  }
+
+  /**
+   * Caches a constructor declaration in the `constructors` set.
+   *
+   * @param node - The constructor declaration node to cache.
+   * @param sourceFile - The source file containing the constructor declaration.
+   * @param globalPrefix - An optional prefix to apply to the name of the constructor.
+   */
+  public cacheConstructor<T extends ts.Node>(node: T, sourceFile: ts.SourceFile, globalPrefix = ''): void {
+    if (!isDeclarationWithName(node) || !hasConstructSignature(node)) return;
+    const name = getDeclarationName(node, sourceFile, globalPrefix);
+    this.constructors.add(name);
+  }
 }
