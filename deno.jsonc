@@ -11,10 +11,10 @@
     "fmt": "deno fmt",
     "generate-coverage": "./scripts/coverage.sh",
     "generate-docs": "./scripts/docs.sh",
-    "generate-interop": "deno run -A ./scripts/interop.ts > ./generated/js_interop.json",
+    "generate-interop": "deno run -A ./scripts/js_interop.ts > ./generated/js_functions.ts",
     "serve-coverage": "python -m http.server -d ./coverage",
     "serve-docs": "python -m http.server -d ./docs",
-    "start-repl": "deno run -A ./src/ensemble.ts",
+    "start-repl": "deno run -A ./js/ensemble.ts",
     "test": "./scripts/test.sh",
     "test-e2e": "./scripts/test.sh --e2e",
     "test-fun": "./scripts/test.sh --fun",
@@ -23,11 +23,18 @@
   "lint": {
     "exclude": [
       "coverage",
-      "data",
       "docs",
       "examples",
       "old",
       "interop/lib"
+    ],
+    "include": [
+      "data/*.ts",
+      "generated/*.ts",
+      "js/*.ts",
+      "scripts/*.ts",
+      "src/*.ts",
+      "tests/*.ts"
     ],
     "rules": {
       "tags": ["recommended"],
@@ -42,9 +49,16 @@
     "semiColons": true,
     "singleQuote": true,
     "proseWrap": "always",
+    "include": [
+      "data/*.ts",
+      "generated/*.ts",
+      "js/*.ts",
+      "scripts/*.ts",
+      "src/*.ts",
+      "tests/*.ts"
+    ],
     "exclude": [
       "coverage",
-      "data",
       "docs",
       "examples",
       "old",

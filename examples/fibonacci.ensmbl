@@ -1,0 +1,29 @@
+// # Binet's formula
+//  
+// Binet's formula is an expression that can compute the nth Fibonacci number without computing the previous numbers in O(1) time.
+// It uses the golden ratio, an irrational number that is approximately equal to 1.6180339887. (GitHub Copilot summary)
+// 
+// See [Binet Equation on Wikipedia](https://en.wikipedia.org/wiki/Binet_equation)
+
+(var sqrt5 (Math.sqrt 5))
+(var phi (/ (+ 1 sqrt5) 2))
+(var psi (/ (- 1 sqrt5) 2))
+
+(var binet (function (n) (Math.round (/ (- (** phi n) (** psi n)) sqrt5))))
+(console.log (binet 7)) // 13
+
+// ## JavaScript equivalent:
+//
+// ```javascript
+// this.sqrt5 = Math.sqrt(5);
+// this.phi = ((1 + this.sqrt5) / 2);
+// this.psi = ((1 - this.sqrt5) / 2);
+//
+// this.binet = n => Math.round(((this.phi ** n) - (this.psi ** n)) / this.sqrt5);
+// console.log(binet(7)); // 13
+// ```
+
+// Ensemble in one expression:
+// (var binet (function (n) (                                                  
+//   const [sqrt5 (Math.sqrt 5), phi (/ (+ 1 sqrt5) 2), psi (/ (- 1 sqrt5) 2)]
+//   (Math.round (/ (- (** phi n) (** psi n)) sqrt5)))))
