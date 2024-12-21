@@ -6,60 +6,154 @@
 
 import { type Env } from './env.ts';
 
-//
-// Classes
-// ============================================================================
+// MARK: TYPES
+// =============================================================================
 
+/**
+ * All of the possible types that an AstNode can be.
+ */
 export type AstNode =
   | AtomNode
   | BooleanNode
-  | MapNode
+  | DomNode
   | ErrorNode
   | FunctionNode
+  | JsNode<SupportedJsTypes>
   | KeywordNode
   | ListNode
+  | MapNode
   | NilNode
   | NumberNode
   | StringNode
   | SymbolNode
+  | VectorNode;
+
+/**
+ * Defines a union of JavaScript types that can be used with JsNode.
+ *
+ * @remarks
+ * This type alias is used to specify a set of JavaScript types that are supported by JsNode. It ensures that only types that we can handle are specified.
+ *
+ * @example
+ * ```typescript
+ * const dateValue = new Date();
+ * new JsNode(dateValue); // No type error
+ *
+ * const stringValue: SupportedJsTypes = "Hello"; // Type error: string is not assignable to SupportedJsTypes
+ * ```
+ */
+type SupportedJsTypes<U extends object = object, V extends unknown = unknown> =
+  | bigint
+  | Date
+  | RegExp
+  | Set<U>
+  | WeakMap<U, V>
+  | WeakSet<U>
+  | ArrayBuffer
+  | SharedArrayBuffer
+  | DataView
+  | Int8Array
+  | Uint8Array
+  | Uint8ClampedArray
+  | Int16Array
+  | Uint16Array
+  | Int32Array
+  | Uint32Array
+  | Float32Array
+  | Float64Array
+  | BigInt64Array
+  | BigUint64Array
+  | BigUint64Array;
+
+/**
+ * Defines the actual function that FunctionNode wraps.
+ */
+export type Closure = (...args: AstNode[]) => AstNode;
+
+/**
+ * The metadata for a FunctionNode. These values are used as the context for the function when it is evaluated.
+ */
+export type ClosureMetadata = {
+  ast: AstNode;
+  env: Env;
+  parameters: SymbolNode[];
+};
+
+/**
+ * Types that are valid map keys.
+ */
+export type MapKeyNode = KeywordNode | StringNode | SymbolNode;
+
+/**
+ * Represents a node type that is sequential.
+ */
+export type Seq = VectorNode | ListNode;
+
+/**
+ * Types that support metadata.
+ */
+export type MetadataTypes =
+  | FunctionNode
+  | ListNode
   | VectorNode
+  | MapNode
   | DomNode;
 
 /**
- * SymbolNode class
- * A data class which represents a part of the AST.
- * @param value - The data that this class represents.
+ * Names of builtin Ensemble functions
  */
-export class SymbolNode {
-  constructor(public value: string) {
-  }
-}
+type SymbolValues =
+  | 'def!'
+  | 'let*'
+  | 'quote'
+  | 'quasiquoteexpand'
+  | 'quasiquote'
+  | 'defmacro!'
+  | 'macroexpand'
+  | 'do'
+  | 'if'
+  | 'fn*'
+  | 'try*'
+  | 'catch*'
+  | 'default'
+  // JS interop
+  | 'globalThis'
+  | 'var'
+  | 'let'
+  | 'const'
+  | 'function'
+  | '=>'
+  | 'try'
+  | 'catch';
 
 /**
- * List class
- * A data class which represents a part of the AST.
- * @param value - The data that this class represents.
+ * Defines a symbol that identifies a builtin Ensemble function with a specific value.
  */
-export class ListNode {
-  constructor(
-    public value: AstNode[],
-    public metadata?: AstNode, // WAS = createNilNode()
-  ) {
-  }
-}
+export type SymWithValue<Value extends SymbolValues> = SymbolNode & {
+  value: Value;
+};
 
 /**
- * VectorNode class
- * A data class which represents a part of the AST.
- * @param value - The data that this class represents.
+ * Defines the possible types for typed vectors.
  */
-export class VectorNode<T extends AstNode = AstNode> {
-  constructor(
-    public value: T[],
-    public metadata?: AstNode, // WAS = createNilNode()
-  ) {
-  }
-}
+type TypeClass =
+  | typeof AtomNode
+  | typeof BooleanNode
+  | typeof DomNode
+  | typeof ErrorNode
+  | typeof FunctionNode
+  | typeof JsNode
+  | typeof KeywordNode
+  | typeof ListNode
+  | typeof MapNode
+  | typeof NilNode
+  | typeof NumberNode
+  | typeof StringNode
+  | typeof SymbolNode
+  | typeof VectorNode;
+
+// MARK: CLASSES
+// ============================================================================
 
 /**
  * AtomNode class
@@ -82,18 +176,16 @@ export class BooleanNode {
 }
 
 /**
- * MapNode class
+ * DomNode class
  * A data class which represents a part of the AST.
- * @description The Map value stores MapKeys as strings.
- * - A KeywordNode is stored as ':key'
- * - A StringNode is stored as '"str"'
- * - And a SymbolNode is stored as 'sym'.
  * @param value - The data that this class represents.
  */
-export class MapNode {
+export class DomNode {
   constructor(
-    public value: Map<string, AstNode> = new Map<string, AstNode>(),
-    public metadata?: AstNode, // WAS = createNilNode()
+    public value: string, // The tag name
+    public attributes: Map<string, AstNode> = new Map<string, AstNode>(),
+    public children: AstNode[] = [],
+    public metadata?: AstNode, // WAS = createNilNode(),
   ) {
   }
 }
@@ -107,13 +199,6 @@ export class ErrorNode {
   constructor(public value: AstNode) {
   }
 }
-
-export type Closure = (...args: AstNode[]) => AstNode;
-export type ClosureMetadata = {
-  ast: AstNode;
-  env: Env;
-  parameters: SymbolNode[];
-};
 
 /**
  * FunctionNode class
@@ -145,6 +230,36 @@ export class KeywordNode {
 }
 
 /**
+ * List class
+ * A data class which represents a part of the AST.
+ * @param value - The data that this class represents.
+ */
+export class ListNode {
+  constructor(
+    public value: AstNode[],
+    public metadata?: AstNode, // WAS = createNilNode()
+  ) {
+  }
+}
+
+/**
+ * MapNode class
+ * A data class which represents a part of the AST.
+ * @description The Map value stores MapKeys as strings.
+ * - A KeywordNode is stored as ':key'
+ * - A StringNode is stored as '"str"'
+ * - And a SymbolNode is stored as 'sym'.
+ * @param value - The data that this class represents.
+ */
+export class MapNode {
+  constructor(
+    public value: Map<string, AstNode> = new Map<string, AstNode>(),
+    public metadata?: AstNode, // WAS = createNilNode()
+  ) {
+  }
+}
+
+/**
  * NilNode class
  * A data class which represents a part of the AST.
  * @param value - The data that this class represents.
@@ -166,6 +281,16 @@ export class NumberNode {
 }
 
 /**
+ * SymbolNode class
+ * A data class which represents a part of the AST.
+ * @param value - The data that this class represents.
+ */
+export class SymbolNode {
+  constructor(public value: string) {
+  }
+}
+
+/**
  * StringNode class
  * A data class which represents a part of the AST.
  * @param value - The data that this class represents.
@@ -176,31 +301,29 @@ export class StringNode {
 }
 
 /**
- * DomNode class
+ * VectorNode class
  * A data class which represents a part of the AST.
  * @param value - The data that this class represents.
  */
-export class DomNode {
+export class VectorNode<T extends AstNode = AstNode> {
   constructor(
-    public value: string, // The tag name
-    public attributes: Map<string, AstNode> = new Map<string, AstNode>(),
-    public children: AstNode[] = [],
-    public metadata?: AstNode, // WAS = createNilNode(),
+    public value: T[],
+    public metadata?: AstNode, // WAS = createNilNode()
   ) {
   }
 }
 
 /**
  * JsNode class
- * A data class which represents a part of the AST.
+ * A wrapper for native JavaScript data types that we do not want to expose in Ensemble.
  * @param value - The data that this class represents.
  */
-export class JsNode<T = unknown> {
+export class JsNode<T extends SupportedJsTypes> {
   constructor(public value: T) {
   }
 }
 
-// ASSERTION FUNCTIONS
+// MARK: ASSERTION FNS
 // =============================================================================
 
 /**
@@ -375,7 +498,7 @@ export function assertSymbolNode(node: unknown): asserts node is SymbolNode & { 
 /**
  * Assert that a node is an instance of VectorNode.
  * @param node - The node to check.
- * @returns If the node is an instance of VectorNode.
+ * @returns undefined If the node is an instance of VectorNode.
  * @throws If the node is NOT an instance of VectorNode.
  * @example assertVectorNode(myNode);
  */
@@ -385,13 +508,35 @@ export function assertVectorNode(node: unknown): asserts node is VectorNode & { 
   }
 }
 
-// FACTORY FUNCTIONS
+/**
+ * Assert that a node is an instance of JsNode.
+ * @param node - The node to check.
+ * @returns undefined If the node is an instance of JsNode.
+ * @throws If the node is NOT an instance of JsNode.
+ * @example
+ * ```typescript
+ * const astNode = new JsNode(new Date());
+ * assertJsNode(astNode); // undefined
+ * ```
+ */
+export function assertJsNode(node: unknown): asserts node is JsNode<SupportedJsTypes> {
+  if (!(isJsNode(node))) {
+    throw new TypeError('Invalid JsNode');
+  }
+}
+
+// MARK: FACTORY FNS
 // =============================================================================
 
 /**
  * Factory function to create a DomNode.
  */
-export function createDomNode(value: string, attributes?: Map<string, AstNode>, children?: AstNode[], metadata?: AstNode): DomNode {
+export function createDomNode(
+  value: string,
+  attributes?: Map<string, AstNode>,
+  children?: AstNode[],
+  metadata?: AstNode,
+): DomNode {
   return new DomNode(value, attributes, children, metadata);
 }
 
@@ -426,7 +571,12 @@ export function createErrorNode(value: AstNode): ErrorNode {
 /**
  * Factory function to create a FunctionNode.
  */
-export function createFunctionNode(value: Closure, closureMeta?: ClosureMetadata | undefined, isMacro?: boolean, metadata?: AstNode): FunctionNode {
+export function createFunctionNode(
+  value: Closure,
+  closureMeta?: ClosureMetadata | undefined,
+  isMacro?: boolean,
+  metadata?: AstNode,
+): FunctionNode {
   return new FunctionNode(value, closureMeta, isMacro, metadata);
 }
 
@@ -480,7 +630,14 @@ export function createVectorNode(value: AstNode[], metadata?: AstNode): VectorNo
   return new VectorNode(value, metadata);
 }
 
-// TYPE GUARDS
+/**
+ * Factory function to create a JsNode.
+ */
+export function createJsNode<T extends SupportedJsTypes>(value: T): JsNode<T> {
+  return new JsNode(value);
+}
+
+// MARK: TYPE GUARDS
 // =============================================================================
 
 /**
@@ -500,19 +657,22 @@ export function isDomNode(node: unknown): node is DomNode {
  * @example isAstNode(myNode);
  */
 export function isAstNode(node: unknown): node is AstNode {
-  return isAtomNode(node) ||
+  return (
+    isAtomNode(node) ||
     isBooleanNode(node) ||
-    isMapNode(node) ||
+    isDomNode(node) ||
     isErrorNode(node) ||
     isFunctionNode(node) ||
+    isJsNode(node) ||
     isKeywordNode(node) ||
     isListNode(node) ||
+    isMapNode(node) ||
     isNilNode(node) ||
     isNumberNode(node) ||
     isStringNode(node) ||
     isSymbolNode(node) ||
-    isVectorNode(node) ||
-    isDomNode(node);
+    isVectorNode(node)
+  );
 }
 
 /**
@@ -564,6 +724,20 @@ export function isErrorNode(node: unknown): node is ErrorNode & { value: AstNode
  */
 export function isFunctionNode(node: unknown): node is FunctionNode & { value: Closure } {
   return node instanceof FunctionNode && typeof node.value === 'function';
+}
+
+/**
+ * Type guard to check if a node is an instance of JsNode.
+ * @param node - The node to check.
+ * @returns True if the node is an instance of JsNode, else false.
+ * @example
+ * ```typescript
+ * const myNode = new JsNode(new Date());
+ * isJsNode(myNode); // true
+ * ```
+ */
+export function isJsNode(node: unknown): node is JsNode<SupportedJsTypes> & { value: SupportedJsTypes } {
+  return node instanceof JsNode && isJsNodeSupportedType(node.value);
 }
 
 /**
@@ -636,50 +810,51 @@ export function isVectorNode(node: unknown): node is VectorNode {
   return node instanceof VectorNode && node.value.every(isAstNode);
 }
 
-// TYPES
-// =============================================================================
+// MARK: VALIDATION FNS
+// ============================================================================
 
-export type MapKeyNode = KeywordNode | StringNode | SymbolNode;
-export type Seq = VectorNode | ListNode;
-
-export type MetadataTypes =
-  | FunctionNode
-  | ListNode
-  | VectorNode
-  | MapNode
-  | DomNode;
-
-type SymbolValues =
-  | 'def!'
-  | 'let*'
-  | 'quote'
-  | 'quasiquoteexpand'
-  | 'quasiquote'
-  | 'defmacro!'
-  | 'macroexpand'
-  | 'do'
-  | 'if'
-  | 'fn*'
-  | 'try*'
-  | 'catch*'
-  | 'default'
-  // JS interop
-  | 'globalThis'
-  | 'var'
-  | 'let'
-  | 'const'
-  | 'function'
-  | '=>'
-  | 'try'
-  | 'catch';
-
-export type SymWithValue<Value extends SymbolValues> = SymbolNode & {
-  value: Value;
-};
-
-/// ============================================================================
-/// Functions
-/// ============================================================================
+/**
+ * Checks if a value is one of the supported JavaScript types.
+ *
+ * @remarks
+ * This function is used to verify if a given value matches any of the predefined supported JavaScript types. It ensures type safety and consistency when working with these types.
+ *
+ * @param value - The value to check.
+ * @returns True if the value is one of the supported JavaScript types, else false.
+ *
+ * @example
+ * ```typescript
+ * const isSupported = isJsNodeSupportedType(new Date());
+ * console.log(isSupported); // Outputs: true
+ *
+ * const isNotSupported = isJsNodeSupportedType("Hello");
+ * console.log(isNotSupported); // Outputs: false
+ * ```
+ */
+export function isJsNodeSupportedType(value: unknown): value is SupportedJsTypes {
+  return (
+    value instanceof Date ||
+    value instanceof RegExp ||
+    value instanceof Set ||
+    value instanceof WeakMap ||
+    value instanceof WeakSet ||
+    value instanceof ArrayBuffer ||
+    value instanceof SharedArrayBuffer ||
+    value instanceof DataView ||
+    value instanceof Int8Array ||
+    value instanceof Uint8Array ||
+    value instanceof Uint8ClampedArray ||
+    value instanceof Int16Array ||
+    value instanceof Uint16Array ||
+    value instanceof Int32Array ||
+    value instanceof Uint32Array ||
+    value instanceof Float32Array ||
+    value instanceof Float64Array ||
+    value instanceof BigInt64Array ||
+    value instanceof BigUint64Array ||
+    typeof value === 'bigint'
+  );
+}
 
 /**
  * Checks if two objects have the same prototype.
@@ -936,20 +1111,6 @@ export function assertEvenArgumentCount(maybeEven: number): void {
   }
 }
 
-type TypeClass =
-  | typeof SymbolNode
-  | typeof ListNode
-  | typeof VectorNode
-  | typeof AtomNode
-  | typeof BooleanNode
-  | typeof MapNode
-  | typeof ErrorNode
-  | typeof FunctionNode
-  | typeof KeywordNode
-  | typeof NilNode
-  | typeof NumberNode
-  | typeof StringNode;
-
 /**
  * Validates the type of each element in an array of Ast objects.
  * @description Ensures all elements in the array are instances of a specific
@@ -989,7 +1150,10 @@ export function assertIsOneOf<R extends AstNode>(
  * @param {TypeClass} typeClass - The class type to check each element against.
  * @returns {boolean} - Returns `true` if all elements in the vector are instances of the specified `TypeClass`, otherwise `false`.
  */
-export function isTypedVector<R extends AstNode = AstNode>(sequentialValues: VectorNode<R>, typeClass: TypeClass): sequentialValues is VectorNode<R> {
+export function isTypedVector<R extends AstNode = AstNode>(
+  sequentialValues: VectorNode<R>,
+  typeClass: TypeClass,
+): sequentialValues is VectorNode<R> {
   return sequentialValues.value.every((p) => p instanceof typeClass);
 }
 
@@ -1119,312 +1283,6 @@ export function assertSymWithValue<Value extends SymbolValues>(
   assertEqual(sym.value, value);
 }
 
-export type TryCatchAst = ListNode & {
-  value: [
-    SymWithValue<'try*' | 'try'>,
-    AstNode,
-    ListNode & {
-      value: [SymWithValue<'catch*' | 'catch'>, AstNode];
-    },
-  ];
-};
-
-/**
- * Asserts that an AST node represents a valid 'try-catch' construct.
- * @description Checks the structure of an AST node to ensure it correctly
- * represents a 'try-catch' block in the language, with valid number and types
- * of arguments.
- * @param a - The AST node being tested.
- * @throws Error if the node doesn't represent a valid 'try-catch' construct.
- * @example assertTryCatch(tryCatchAstNode);
- */
-export function assertTryCatch(a: AstNode): asserts a is TryCatchAst {
-  assertListNode(a);
-  assertVariableArgumentCount(a.value.length, 2, 3);
-  const symbolNode = a.value[0];
-  assertSymbolNode(symbolNode);
-  if (symbolNode.value !== 'try' && symbolNode.value !== 'try*') {
-    throw new Error('use `try` or `try*` in try/catch expressions');
-  }
-  // assertSymWithValue(a.value[0], 'try*');
-  assertAstNode(a.value[1]);
-  if (a.value[2]) {
-    assertListNode(a.value[2]);
-    assertArgumentCount(a.value[2].value.length, 3);
-    assertSymbolNode(a.value[2].value[0]);
-    const catchNode = a.value[2].value[0];
-    if (catchNode.value !== 'catch' && catchNode.value !== 'catch*') {
-      throw new Error('use `catch` or `catch*` in try/catch expressions');
-    }
-    assertSymbolNode(a.value[2].value[1]);
-    assertAstNode(a.value[2].value[2]);
-  }
-}
-
-export type DefAst = ListNode & {
-  value: [
-    SymWithValue<'def!' | 'globalThis' | 'var'>,
-    SymbolNode | StringNode | KeywordNode,
-    AstNode,
-  ];
-};
-
-/**
- * Asserts that an AST node represents a valid 'def!' construct.
- * @description Checks the structure of an AST node to ensure it correctly
- * represents a 'def!' declaration in the language, including the correct
- * number and types of arguments.
- * @param a - The AST node being tested.
- * @throws Error if the node doesn't represent a valid 'def!' construct.
- * @example assertDef(defAstNode);
- * @example (def! x "x")
- */
-export function assertDef(a: AstNode): asserts a is DefAst {
-  assertListNode(a); // (...)
-  assertArgumentCount(a.value.length, 3); // (1 2 3)
-  assertSymbolNode(a.value[0]); // (sym 2 3)
-  // assertSymWithValue(a.value[0], "def!"); // '(def! 2 3)
-  const symbolNode = a.value[0];
-  if (
-    symbolNode.value !== 'def!' &&
-    symbolNode.value !== 'globalThis' &&
-    symbolNode.value !== 'var'
-  ) {
-    throw new Error('use `def!`, `globalThis`, or `var` in def! expressions');
-  }
-  assertMapKeyNode(a.value[1]); // (def! DictKeys 3)
-  assertAstNode(a.value[2]); // (def! DictKeys Ast)
-}
-
-export type LetAst = ListNode & {
-  value: [
-    SymWithValue<'let*' | 'let' | 'const'>,
-    (VectorNode | ListNode) & {
-      value: Array<SymbolNode | AstNode>;
-    },
-  ];
-};
-
-/**
- * Asserts that an AST node represents a valid 'let*' construct.
- * @description Verifies that the AST node follows the correct structure for a
- * 'let*' construct, with the correct symbols and pairs of symbols and values.
- * @param a - The AST node to check.
- * @throws An error if the AST node does not correctly represent a 'let*'
- * construct.
- * @example assertLet(letAstNode);
- * @example (let* (z 9) z)
- */
-export function assertLet(a: AstNode): asserts a is LetAst {
-  assertListNode(a); // (...)
-  assertArgumentCount(a.value.length, 3); // (1 2 3)
-  assertSymbolNode(a.value[0]); // (sym 2 3)
-  // assertSymWithValue(a.value[0], "let*"); // (let* 2 3)
-  const symbolNode = a.value[0];
-  if (
-    symbolNode.value !== 'let*' &&
-    symbolNode.value !== 'let' &&
-    symbolNode.value !== 'const'
-  ) {
-    throw new Error('use `let*`, `let`, or `const` in let* expressions');
-  }
-  assertSequential(a.value[1]); // (let* Seq 3)
-  assertAstNode(a.value[2]); // (let* Seq Ast)
-  assertEvenArgumentCount(a.value[1].value.length); // (let* (any*2) Ast)
-  for (let i = 0; i < a.value[1].value.length; i += 2) {
-    assertSymbolNode(a.value[1].value[i]); // (let* ((Sym any)*) Ast)
-    assertAstNode(a.value[1].value[i + 1]); // (let* ((Sym Ast)*) Ast)
-  }
-}
-
-export type QuoteAst = ListNode & {
-  value: [SymWithValue<'quote'>, AstNode];
-};
-
-/**
- * Asserts that an AST node represents a valid 'quote' construct.
- * @description Verifies that the AST node follows the correct structure for a
- * 'quote' construct, with the correct symbol followed by an AST node.
- * @param a - The AST node to check.
- * @throws An error if the AST node does not correctly represent a 'quote'
- * construct.
- * @example assertQuote(quoteAstNode);
- * @example (quote (1 2 3))
- */
-export function assertQuote(a: AstNode): asserts a is QuoteAst {
-  assertListNode(a); // (...)
-  assertArgumentCount(a.value.length, 2); // (1 2)
-  assertSymbolNode(a.value[0]); // (sym 2)
-  assertSymWithValue(a.value[0], 'quote'); // '(quote 2)
-  assertAstNode(a.value[1]); // (quote Ast)
-}
-
-export type QuasiQuoteExpandAst = ListNode & {
-  value: [SymWithValue<'quasiquoteexpand'>, AstNode];
-};
-
-/**
- * Asserts that an AST node represents a valid 'quasiquoteexpand' construct.
- * @description Verifies that the AST node follows the correct structure for a
- * 'quasiquoteexpand' construct, with the correct symbol followed by an AST
- * node.
- * @param a - The AST node to check.
- * @throws An error if the AST node does not correctly represent a
- * 'quasiquoteexpand' construct.
- * @example assertQuasiQuoteExpand(quasiQuoteExpandAstNode);
- * @example (quasiquoteexpand a)
- */
-export function assertQuasiQuoteExpand(
-  a: AstNode,
-): asserts a is QuasiQuoteExpandAst {
-  const symbol = 'quasiquoteexpand';
-  assertListNode(a); // (...)
-  assertArgumentCount(a.value.length, 2); // (1 2)
-  assertSymbolNode(a.value[0]); // (sym 2)
-  assertSymWithValue(a.value[0], symbol); // '(quasiquoteexpand 2)
-  assertAstNode(a.value[1]); // (quasiquoteexpand Ast)
-}
-
-export type QuasiQuoteAst = ListNode & {
-  value: [SymWithValue<'quasiquote'>, AstNode];
-};
-
-/**
- * Asserts that an AST node represents a valid 'quasiquote' construct.
- * @description Verifies that the AST node follows the correct structure for a
- * 'quasiquote' construct, with the correct symbol followed by an AST node.
- * @param a - The AST node to check.
- * @throws An error if the AST node does not correctly represent a 'quasiquote'
- * construct.
- * @example assertQuasiQuote(quasiQuoteAstNode);
- * @example (quasiquote a)
- */
-export function assertQuasiQuote(a: AstNode): asserts a is QuasiQuoteAst {
-  const symbol = 'quasiquote';
-  assertListNode(a); // (...)
-  assertArgumentCount(a.value.length, 2); // (1 2)
-  assertSymbolNode(a.value[0]); // (sym 2)
-  assertSymWithValue(a.value[0], symbol); // '(quasiquote 2)
-  assertAstNode(a.value[1]); // (quasiquote Ast)
-}
-
-export type DefMacroAst = ListNode & {
-  value: [SymWithValue<'defmacro!'>, MapKeyNode, AstNode];
-};
-
-/**
- * Asserts that an AST node represents a valid 'defmacro!' construct.
- * @description Verifies that the AST node follows the correct structure for a
- * 'defmacro!' construct, including the correct symbol and key-value pair.
- * @param a - The AST node to check.
- * @throws Err - Throws an error if the AST node does not correctly represent a
- * 'defmacro!' construct.
- * @example assertDefMacro(defmacroAstNode);
- * @example (defmacro! one (fn* () 1))
- */
-export function assertDefMacro(a: AstNode): asserts a is DefMacroAst {
-  const symbol = 'defmacro!';
-  assertListNode(a); // (...)
-  assertArgumentCount(a.value.length, 3); // (1 2 3)
-  assertSymbolNode(a.value[0]); // (sym 2 3)
-  assertSymWithValue(a.value[0], symbol); // '(defmacro! 2 3)
-  assertMapKeyNode(a.value[1]); // (defmacro! DictKeys 3)
-  assertAstNode(a.value[2]); // (defmacro! DictKeys Ast)
-}
-
-export type DoAst = ListNode & {
-  value: [SymWithValue<'do'>, ...AstNode[]];
-};
-
-/**
- * Asserts that an AST node represents a valid 'do' construct.
- * @description Verifies that the AST node follows the correct structure for a
- * 'do' construct, including the correct symbol and a list of AST nodes.
- * @param a - The AST node to check.
- * @throws Err - Throws an error if the AST node does not correctly represent a
- * 'do' construct.
- * @example assertDo(doAstNode);
- * @example (do (prn 101) (prn 102) (+ 1 2))
- */
-export function assertDo(a: AstNode): asserts a is DoAst {
-  const symbol = 'do';
-  assertListNode(a); // (...)
-  assertMinimumArgumentCount(a.value.length, 1); // (1 n*)
-  assertSymbolNode(a.value[0]); // (sym 2)
-  assertSymWithValue(a.value[0], symbol); // (do n*)
-  for (const node of a.value.slice(1)) {
-    assertAstNode(node); // (do ast*)
-  }
-}
-
-export type IfAst = ListNode & {
-  value: [SymWithValue<'if'>, AstNode, AstNode, AstNode];
-};
-
-/**
- * Asserts that an AST node represents a valid 'if' construct.
- * @description Verifies that the AST node follows the correct structure for an
- * 'if' construct, including the correct symbol and between 2 and 3 AST nodes.
- * @param a - The AST node to check.
- * @throws Err - Throws an error if the AST node does not correctly represent an
- * 'if' construct.
- * @example assertIf(ifAstNode);
- * @example (if true 7 8)
- */
-export function assertIf(a: AstNode): asserts a is IfAst {
-  const symbol = 'if';
-  assertListNode(a); // (...)
-  assertVariableArgumentCount(a.value.length, 3, 4); // (1 2 3 4)
-  assertSymbolNode(a.value[0]); // (sym 2 3 4)
-  assertSymWithValue(a.value[0], symbol); // (if 2 3 4)
-  assertAstNode(a.value[1]); // (if Ast 3 4)
-  assertAstNode(a.value[2]); // (if Ast Ast 4)
-  if (isDefined(a.value[3])) {
-    assertAstNode(a.value[3]); // (if Ast Ast Ast)
-  }
-}
-
-export type FnAst = ListNode & {
-  value: [
-    SymWithValue<'fn*' | 'function' | '=>'>,
-    Seq & {
-      value: SymbolNode[];
-    },
-    AstNode,
-  ];
-};
-
-/**
- * Asserts that an AST node represents a valid 'fn*' construct.
- * @description Verifies that the AST node follows the correct structure for a
- * 'fn*' construct, including the correct symbol, a sequence of parameters,
- * and a body AST.
- * @param a - The AST node to check.
- * @throws Err - Throws an error if the AST node does not correctly represent a
- * 'fn*' construct.
- * @example assertFn(fnAstNode); // Verifies if it is a valid fn* node
- * @example ( (fn* (a b) (+ b a)) 3 4)
- */
-export function assertFn(a: AstNode): asserts a is FnAst {
-  // (...)
-  assertListNode(a);
-  // (1 2 3)
-  assertArgumentCount(a.value.length, 3);
-  // (sym 2 3)
-  assertSymbolNode(a.value[0]);
-  // (fn* 2 3)
-  const symbolNode = a.value[0];
-  if (!['fn*', 'function', '=>'].includes(symbolNode.value)) {
-    throw new Error('use `fn*`, `function`, of `=>` in fn* expressions');
-  }
-  // (if Seq 3)
-  assertSequential(a.value[1]);
-  // (if (Sym*) 3)
-  assertSequentialValues<SymbolNode>(a.value[1].value, SymbolNode);
-  // (if (Sym*) Ast)
-  assertAstNode(a.value[2]);
-}
-
 export type ContinueResult = {
   continue: { ast: AstNode; env: Env };
   return: undefined;
@@ -1493,6 +1351,8 @@ export const append = (acc: AstNode[], curr: AstNode): AstNode[] => [
   ...acc,
   curr,
 ];
+
+// MARK: COPY
 
 /**
  * Creates a deep copy of the given AST node.
@@ -1741,9 +1601,7 @@ export function copyVectorNode(a: VectorNode): VectorNode {
   return vec;
 }
 
-/**
- * Map functions.
- */
+// MARK: MAP FNS
 
 /**
  * Adds a new element with a specified DictKey and value to the Ast Map. If an
@@ -1909,6 +1767,8 @@ export function mapFlat(map: Map<string, AstNode>): AstNode[] {
   return flat;
 }
 
+// MARK: HELPER FNS
+
 /**
  * Splits a filename at the first dot.
  * @param filename - The filename to split.
@@ -1967,6 +1827,8 @@ export function slash(string_: string): string {
     .replaceAll('"', '\\"')
     .replaceAll('\n', '\\n');
 }
+
+// MARK: CONVERSION FNS
 
 /**
  * Converts an abstract syntax tree (AST) node to its corresponding JavaScript representation.
@@ -2035,6 +1897,10 @@ export function toJs<T extends AstNode = AstNode>(ast: T): T['value'] {
     return ast.value.map(toJs);
   }
 
+  if (isJsNode(ast)) {
+    return ast.value;
+  }
+
   throw new TypeError(`Could not convert '${JSON.stringify(ast)}' to JavaScript`);
 }
 
@@ -2070,8 +1936,7 @@ export function toAst(input: unknown): AstNode {
       return createBooleanNode(input);
     }
 
-    case 'symbol':
-    case 'bigint': {
+    case 'symbol': {
       return createStringNode(JSON.stringify(input));
     }
 
@@ -2096,6 +1961,10 @@ export function toAst(input: unknown): AstNode {
     }
 
     case 'object': {
+      if (isJsNodeSupportedType(input)) {
+        return createJsNode(input);
+      }
+
       if (input instanceof Error) {
         return createErrorNode(createStringNode(input.message));
       }

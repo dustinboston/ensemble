@@ -317,7 +317,8 @@ export function printCss(ast: types.AstNode, printReadably = false): string {
 
   // These types don't have a printable equivalent (yet)
   if (
-    ast instanceof types.BooleanNode || ast instanceof types.AtomNode || ast instanceof types.FunctionNode || ast instanceof types.DomNode ||
+    ast instanceof types.BooleanNode || ast instanceof types.AtomNode || ast instanceof types.FunctionNode ||
+    ast instanceof types.DomNode ||
     ast instanceof types.NilNode
   ) {
     return '';

@@ -1192,7 +1192,9 @@ export function from(...args: types.AstNode[]): types.AstNode {
   const ast = args[0];
 
   if (ast instanceof types.MapNode && ast.value.size > 0) {
-    const entries = Array.from<[string, types.AstNode]>(args[0].value.entries()).map(([k, v]) => new types.VectorNode([new types.StringNode(k), v]));
+    const entries = Array.from<[string, types.AstNode]>(args[0].value.entries()).map(([k, v]) =>
+      new types.VectorNode([new types.StringNode(k), v])
+    );
     return new types.VectorNode(entries);
   }
 
@@ -1881,7 +1883,9 @@ export function typeOf(...args: types.AstNode[]): types.BooleanNode {
     obj !== 'undefined'
   ) {
     throw new Error(
-      `Invalid type: "${args[1].value}". Type must be one of bigint, boolean, function, number, object, string, symbol, or undefined`,
+      `Invalid type: "${
+        args[1].value
+      }". Type must be one of bigint, boolean, function, number, object, string, symbol, or undefined`,
     );
   }
 

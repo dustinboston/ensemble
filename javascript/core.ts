@@ -5,7 +5,7 @@
 import * as printer from './printer.ts';
 import * as reader from './reader.ts';
 import * as types from './types.ts';
-import { javascriptNamespace } from '../generated/js_functions.ts';
+import { javascriptNamespace } from './interop_js.ts';
 
 const { readTextFileSync, writeFileSync, readDirSync } = Deno;
 
@@ -915,7 +915,9 @@ export function from(...args: types.AstNode[]): types.AstNode {
   }
 
   if (types.isMapNode(ast) && ast.value.size > 0) {
-    const entries = Array.from<[string, types.AstNode]>(ast.value.entries()).map(([k, v]) => types.createVectorNode([types.createStringNode(k), v]));
+    const entries = Array.from<[string, types.AstNode]>(ast.value.entries()).map(([k, v]) =>
+      types.createVectorNode([types.createStringNode(k), v])
+    );
     return types.createVectorNode(entries);
   }
 

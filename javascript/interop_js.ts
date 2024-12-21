@@ -1,8 +1,8 @@
 // import { DefinitionType, javascriptDefinitions } from '../data/javascript_definitions.ts';
 
-import * as types from './types.ts';
-import * as core from './core.ts';
 import * as globals from '../data/globals.ts';
+import * as core from './core.ts';
+import * as types from './types.ts';
 
 /** Defines language features and builtins for JavaScript */
 export const javascriptNamespace = new Map<types.MapKeyNode, types.FunctionNode>();
@@ -43,6 +43,8 @@ const javascriptCore: Array<[string, types.Closure]> = [
   // ['console.log', core.printUnescapedStringToScreen],
 ];
 
+// MARK: LOAD FNS
+
 // Add the core functions to the namespace
 for (const [sym, fn] of javascriptCore) {
   javascriptNamespace.set(types.createSymbolNode(sym), types.createFunctionNode(fn));
@@ -79,7 +81,7 @@ function createInteropFunction(path: string): types.FunctionNode {
       // deno-lint-ignore no-explicit-any
       let current = globalThis as any;
 
-      for (const part of parts) {        
+      for (const part of parts) {
         current = current[part];
         if (current === undefined) {
           throw new ReferenceError(`Unknown global: '${path}'`);
@@ -552,7 +554,9 @@ export function typeOf(...args: types.AstNode[]): types.BooleanNode {
     obj !== 'undefined'
   ) {
     throw new Error(
-      `Invalid type: "${args[1].value}". Type must be one of bigint, boolean, function, number, object, string, symbol, or undefined`,
+      `Invalid type: "${
+        args[1].value
+      }". Type must be one of bigint, boolean, function, number, object, string, symbol, or undefined`,
     );
   }
 
@@ -826,6 +830,7 @@ export function jsEval(...args: types.AstNode[]): types.AstNode {
 //   return current;
 // }
 
+/** Removes the '.new' suffix from a built-in name. */
 export function trimNew(builtinName: string): string {
   return builtinName.endsWith('.new') ? builtinName.slice(0, -4) : builtinName;
 }

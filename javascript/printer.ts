@@ -39,19 +39,6 @@ export function printString(ast: types.AstNode, printReadably = false): string {
 
   if (types.isAtomNode(ast)) {
     return `(atom ${printString(ast.value)})`;
-
-    // TODO: Coerce JS values into AstNodes?
-    // if (ast.types.isAstNode(value)) {
-    // 	return `(atom ${printString(ast.value)})`;
-    // } else {
-    // 	if (ast.value === globalThis) {
-    // 		return '(atom (global))';
-    // 	} else {
-    // 		return `(atom #<object>)`;
-    // 		// const value = types.toAst(ast.value);
-    // 		// return `(atom ${printString(value)})`;
-    // 	}
-    // }
   }
 
   if (types.isErrorNode(ast)) {
@@ -60,6 +47,10 @@ export function printString(ast: types.AstNode, printReadably = false): string {
 
   if (types.isFunctionNode(ast)) {
     return '#<fn>';
+  }
+
+  if (types.isJsNode(ast)) {
+    return '#<js>';
   }
 
   if (types.isSequentialNode(ast)) {

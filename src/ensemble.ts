@@ -205,7 +205,10 @@ export function evaluateAst(
 
   if (node instanceof types.DomNode) {
     const tagName = node.value;
-    const attributes = Array.from(node.attributes).reduce((map, [key, value]) => map.set(key, evaluate(value, appEnv)), new Map<string, types.AstNode>());
+    const attributes = Array.from(node.attributes).reduce(
+      (map, [key, value]) => map.set(key, evaluate(value, appEnv)),
+      new Map<string, types.AstNode>(),
+    );
     const children = node.children.map((child) => evaluate(child, appEnv));
 
     return new types.DomNode(tagName, attributes, children);

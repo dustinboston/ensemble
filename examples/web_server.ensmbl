@@ -1,0 +1,53 @@
+;; // Web server
+;; // https://docs.deno.com/examples/http-server-files/
+;; // import { serveDir, serveFile } from "jsr:@std/http/file-server";
+;; // Deno.serve((req: Request) => {
+;; //   const pathname = new URL(req.url).pathname;
+;; //   if (pathname === "/simple_file") {
+;; //     return serveFile(req, "./path/to/file.txt");
+;; //   }
+;; //   if (pathname.startsWith("/static")) {
+;; //     return serveDir(req, {
+;; //       fsRoot: "public",
+;; //       urlRoot: "static",
+;; //     });
+;; //   }
+;; //   return new Response("404: Not Found", {
+;; //     status: 404,
+;; //   });
+;; // });
+
+(serve
+  '(!doctype
+    (html {:lang "en"}
+      (head
+        (meta {:charset "utf-8"})
+        (title "Hello, world!"))
+        (style {} {
+          "html, body" {
+            :margin 0 
+            :padding 0
+          }
+          "body" {
+            :font "14px 1.4em sans-serif"
+            :background "#f5f5f5"
+            :color "#111"
+            :max-width "48em"
+            :margin "2em auto"
+          }
+        }))
+      (body
+        (div {:class "hero"}
+          (h1 (str "Hello," (span {:id "world"} "world") "!"))
+          (form {:id "form"}
+            (input {:type "text" :id "name" :name "name" :placeholder "What's your name?"})
+            (button {:type "submit"} "Say hello!")))
+
+        (script {:type "module"} (
+          (var form (Document::querySelector "#form"))
+          (var world (Document::querySelector "#world"))
+          (EventTarget::addEventListener form "submit" (function (e)
+            (Event::preventDefault e)
+            (var formData (FormData.new (getProp e "target")))
+            (var nameValue (FormData::get formData "name"))
+            (HTMLElement::textContent world nameValue))))))))

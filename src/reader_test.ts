@@ -6,7 +6,18 @@
 
 import { assertEquals, assertThrows } from '@std/assert';
 import { readAtom, Reader, readForm, readSequence, readString, tokenize, unescapeString } from './reader.ts';
-import { assertDefined, BooleanNode, KeywordNode, ListNode, MapNode, NilNode, NumberNode, StringNode, SymbolNode, VectorNode } from './types.ts';
+import {
+  assertDefined,
+  BooleanNode,
+  KeywordNode,
+  ListNode,
+  MapNode,
+  NilNode,
+  NumberNode,
+  StringNode,
+  SymbolNode,
+  VectorNode,
+} from './types.ts';
 import { printString } from './printer.ts';
 
 Deno.test('tokenize(): empty string as last token for valid input', () => {
