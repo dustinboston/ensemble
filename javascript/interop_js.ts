@@ -1,8 +1,9 @@
-import { DefinitionType, javascriptDefinitions } from '../data/javascript_definitions.ts';
+// import { DefinitionType, javascriptDefinitions } from '../data/javascript_definitions.ts';
 
 import * as types from './types.ts';
 import * as printer from './printer.ts';
 import * as core from './core.ts';
+import * as globals from '../data/globals.ts';
 
 /** Defines language features and builtins for JavaScript */
 export const javascriptNamespace = new Map<types.MapKeyNode, types.FunctionNode>();
@@ -49,18 +50,75 @@ for (const [sym, fn] of javascriptCore) {
   javascriptNamespace.set(types.createSymbolNode(sym), types.createFunctionNode(fn));
 }
 
-// Add the JavaScript builtins to the namespace
-for (const [builtinName, builtinDefinition] of Object.entries(javascriptDefinitions)) {
-  const symbol = types.createSymbolNode(builtinName);
-  const fn = types.createFunctionNode(curryBinding(builtinName, builtinDefinition.type));
-  javascriptNamespace.set(symbol, fn);
+for (const api of globals.builtins) {
+  javascriptNamespace.set(types.createSymbolNode(api), createInteropFunction(api));
+}
 
-  // Register '::' as a shorthand for '.prototype.', e.g. String::split 
-  if (builtinName.includes('.prototype') && !builtinName.endsWith('.prototype')) {
-    const protoAlias = builtinName.replace('.prototype.', '::');
-    const protoSymbol = types.createSymbolNode(protoAlias);
-    javascriptNamespace.set(protoSymbol, fn);
-  }
+// Add the JavaScript builtins to the namespace
+// for (const [builtinName, builtinDefinition] of Object.entries(javascriptDefinitions)) {
+//   const symbol = types.createSymbolNode(builtinName);
+//   const fn = types.createFunctionNode(curryBinding(builtinName, builtinDefinition.type));
+//   javascriptNamespace.set(symbol, fn);
+
+//   // Register '::' as a shorthand for '.prototype.', e.g. String::split 
+//   if (builtinName.includes('.prototype') && !builtinName.endsWith('.prototype')) {
+//     const protoAlias = builtinName.replace('.prototype.', '::');
+//     const protoSymbol = types.createSymbolNode(protoAlias);
+//     javascriptNamespace.set(protoSymbol, fn);
+//   }
+// }
+
+
+/**
+ * Utility function to dynamically create interop functions.
+ * @param path - The path to the JavaScript global object or property.
+ * @returns A FunctionNode that wraps the JavaScript function or property.
+ */
+function createInteropFunction(path: string): types.FunctionNode {
+  return types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
+    try {
+      const parts = path.split('.');
+      let current: any = globalThis;
+
+      for (const part of parts) {
+        current = current[part];
+        if (current === undefined) {
+          throw new ReferenceError(`Unknown global: '${path}'`);
+        }
+      }
+
+      if (path.endsWith('.new')) {
+        const constructorName = parts.slice(0, -1).join('.');
+        const Constructor = parts.reduce((obj: any, key) => obj[key], globalThis);
+        if (typeof Constructor === 'function') {
+          const jsArgs = astArgs.map(types.toJs);
+          const instance = new Constructor(...jsArgs);
+          return types.toAst(instance);
+        } else {
+          throw new TypeError(`'${constructorName}' is not a constructor`);
+        }
+      } else if (typeof current === 'function') {
+        const jsArgs = astArgs.map(types.toJs);
+        const result = current(...jsArgs);
+        return types.toAst(result);
+      } else if (typeof current === 'object' && parts.length > 1) {
+        const method = parts.pop();
+        const instance = parts.reduce((obj, key) => (obj as any)[key], globalThis) as Record<string, unknown>;
+        if (method && typeof instance[method] === 'function') {
+          const jsArgs = astArgs.map(types.toJs);
+          const result = instance[method].apply(instance, jsArgs);
+          return types.toAst(result);
+        }
+      } else {
+        return types.toAst(current);
+      }
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        return types.createErrorNode(types.createStringNode(error.message));
+      }
+      return types.createErrorNode(types.createStringNode(JSON.stringify(error)));
+    }
+  });
 }
 
 /**
@@ -654,121 +712,121 @@ export function some(...args: types.AstNode[]): types.AstNode {
   return types.createBooleanNode(result);
 }
 
-export function curryBinding(builtinName: string, defintionType: DefinitionType): types.Closure {
-  switch (defintionType) {
-    case DefinitionType.InstanceMethod:
-      return handleInstanceMethod(builtinName);
-    case DefinitionType.StaticMethod:
-      return handleStaticMethod(builtinName);
-    case DefinitionType.InstanceProperty:
-    case DefinitionType.StaticProperty:
-      return handleProperty(builtinName);
-    case DefinitionType.Constructor:
-      return handleConstructor(builtinName);
-    default: {
-      return handleInvalid(defintionType);
-    }
-  }
-}
+// export function curryBinding(builtinName: string, defintionType: DefinitionType): types.Closure {
+//   switch (defintionType) {
+//     case DefinitionType.InstanceMethod:
+//       return handleInstanceMethod(builtinName);
+//     case DefinitionType.StaticMethod:
+//       return handleStaticMethod(builtinName);
+//     case DefinitionType.InstanceProperty:
+//     case DefinitionType.StaticProperty:
+//       return handleProperty(builtinName);
+//     case DefinitionType.Constructor:
+//       return handleConstructor(builtinName);
+//     default: {
+//       return handleInvalid(defintionType);
+//     }
+//   }
+// }
 
-function handleInvalid(defintionType: never): types.Closure {
-  return (..._astArgs: types.AstNode[]): types.AstNode => {
-    return types.createErrorNode(types.createStringNode(`Invalid definition type: '${DefinitionType[defintionType]}'`));
-  };
-}
+// function handleInvalid(defintionType: never): types.Closure {
+//   return (..._astArgs: types.AstNode[]): types.AstNode => {
+//     return types.createErrorNode(types.createStringNode(`Invalid definition type: '${DefinitionType[defintionType]}'`));
+//   };
+// }
 
-function handleConstructor(builtinName: string): types.Closure {
-  return (...astArgs: types.AstNode[]): types.AstNode => {
-    try {
-      const Ctor = getGlobalValue(trimNew(builtinName)) ?? ReferenceError;
-      const jsArgs = isConstructorFunction(Ctor) ? astArgs.map(types.toJs) : [`Unknown global: '${builtinName}'`];
-      const result = new Ctor(...jsArgs);
-      return types.toAst(result);
-    } catch (e) {
-      return handleError(e);
-    }
-  };
-}
+// function handleConstructor(builtinName: string): types.Closure {
+//   return (...astArgs: types.AstNode[]): types.AstNode => {
+//     try {
+//       const Ctor = getGlobalValue(trimNew(builtinName)) ?? ReferenceError;
+//       const jsArgs = isConstructorFunction(Ctor) ? astArgs.map(types.toJs) : [`Unknown global: '${builtinName}'`];
+//       const result = new Ctor(...jsArgs);
+//       return types.toAst(result);
+//     } catch (e) {
+//       return handleError(e);
+//     }
+//   };
+// }
 
-function handleProperty(builtinName: string): types.Closure {
-  return (..._astArgs: types.AstNode[]): types.AstNode => {
-    try {
-      const obj = getGlobalValue(builtinName) ?? new ReferenceError(`Unknown global: '${builtinName}'`);
-      return types.toAst(obj);
-    } catch (e) {
-      return handleError(e);
-    }
-  };
-}
+// function handleProperty(builtinName: string): types.Closure {
+//   return (..._astArgs: types.AstNode[]): types.AstNode => {
+//     try {
+//       const obj = getGlobalValue(builtinName) ?? new ReferenceError(`Unknown global: '${builtinName}'`);
+//       return types.toAst(obj);
+//     } catch (e) {
+//       return handleError(e);
+//     }
+//   };
+// }
 
-function handleStaticMethod(builtinName: string): types.Closure {
-  return (...astArgs: types.AstNode[]): types.AstNode => {
-    try {
-      const fn = getGlobalValue(builtinName) ?? (() => new ReferenceError(`Unknown global: '${builtinName}'`));
-      const jsArgs = astArgs.map(types.toJs);
-      const result = fn(...jsArgs);
-      return types.toAst(result);
-    } catch (e) {
-      return handleError(e);
-    }
-  };
-}
+// function handleStaticMethod(builtinName: string): types.Closure {
+//   return (...astArgs: types.AstNode[]): types.AstNode => {
+//     try {
+//       const fn = getGlobalValue(builtinName) ?? (() => new ReferenceError(`Unknown global: '${builtinName}'`));
+//       const jsArgs = astArgs.map(types.toJs);
+//       const result = fn(...jsArgs);
+//       return types.toAst(result);
+//     } catch (e) {
+//       return handleError(e);
+//     }
+//   };
+// }
 
-function handleInstanceMethod(builtinName: string): types.Closure {
-  return (...astArgs: types.AstNode[]): types.AstNode => {
-    try {
-      const fn = getGlobalValue(builtinName) ?? (() => new ReferenceError(`Unknown global: '${builtinName}'`));
-      const jsArgs = astArgs.map(types.toJs);
-      const context = jsArgs.shift();
-      const result = fn.call(context, ...jsArgs);
-      return types.toAst(result);
-    } catch (e) {
-      return handleError(e);
-    }
-  };
-}
+// function handleInstanceMethod(builtinName: string): types.Closure {
+//   return (...astArgs: types.AstNode[]): types.AstNode => {
+//     try {
+//       const fn = getGlobalValue(builtinName) ?? (() => new ReferenceError(`Unknown global: '${builtinName}'`));
+//       const jsArgs = astArgs.map(types.toJs);
+//       const context = jsArgs.shift();
+//       const result = fn.call(context, ...jsArgs);
+//       return types.toAst(result);
+//     } catch (e) {
+//       return handleError(e);
+//     }
+//   };
+// }
 
-function isConstructorFunction(Ctor: unknown): boolean {
-  return typeof Ctor === 'function' && Ctor.prototype !== undefined;
-}
+// function isConstructorFunction(Ctor: unknown): boolean {
+//   return typeof Ctor === 'function' && Ctor.prototype !== undefined;
+// }
 
-function handleError(e: string | Error | types.AstNode): types.FunctionNode {
-  let message = '';
-  if (typeof e === 'string') message = e;
-  else if (e instanceof Error) message = e.message;
-  else if (types.isAstNode(e)) message = printer.printString(e);
-  else message = String(e);
+// function handleError(e: string | Error | types.AstNode): types.FunctionNode {
+//   let message = '';
+//   if (typeof e === 'string') message = e;
+//   else if (e instanceof Error) message = e.message;
+//   else if (types.isAstNode(e)) message = printer.printString(e);
+//   else message = String(e);
 
-  return types.createFunctionNode((..._astArgs: types.AstNode[]): types.AstNode => {
-    return types.createErrorNode(types.createStringNode(message));
-  });
-}
+//   return types.createFunctionNode((..._astArgs: types.AstNode[]): types.AstNode => {
+//     return types.createErrorNode(types.createStringNode(message));
+//   });
+// }
 
-// deno-lint-ignore no-explicit-any
-function getGlobalValue(path: string): any {
-  const parts = path.split('.');
-  // deno-lint-ignore no-explicit-any
-  let current: any = globalThis;
+// // deno-lint-ignore no-explicit-any
+// function getGlobalValue(path: string): any {
+//   const parts = path.split('.');
+//   // deno-lint-ignore no-explicit-any
+//   let current: any = globalThis;
 
-  for (let i = 0; i < parts.length; i++) {
-    const part = parts[i];
+//   for (let i = 0; i < parts.length; i++) {
+//     const part = parts[i];
 
-    // Check if the part is in square brackets
-    const match = part.match(/^\[(.+)\]$/);
-    if (match) {
-      const key = match[1];
-      current = current[Symbol.for(key)] || current[key];
-    } else {
-      current = current[part];
-    }
+//     // Check if the part is in square brackets
+//     const match = part.match(/^\[(.+)\]$/);
+//     if (match) {
+//       const key = match[1];
+//       current = current[Symbol.for(key)] || current[key];
+//     } else {
+//       current = current[part];
+//     }
 
-    if (current === undefined) {
-      return undefined;
-    }
-  }
+//     if (current === undefined) {
+//       return undefined;
+//     }
+//   }
 
-  return current;
-}
+//   return current;
+// }
 
 export function trimNew(builtinName: string): string {
   return builtinName.endsWith('.new') ? builtinName.slice(0, -4) : builtinName;

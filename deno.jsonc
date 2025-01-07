@@ -1,20 +1,19 @@
 {
   "compilerOptions": {
-    "allowJs": false,
     "checkJs": false,
     "strict": true,
     "lib": ["esnext", "dom", "dom.iterable", "dom.asynciterable", "deno.ns"]
   },
-  "nodeModulesDir": false,
+  "nodeModulesDir": "none",
   "tasks": {
     "build": "deno run -A npm:esbuild --bundle ./src/ensemble.ts --outfile=out.js --format=esm",
     "fmt": "deno fmt",
     "generate-coverage": "./scripts/coverage.sh",
     "generate-docs": "./scripts/docs.sh",
-    "generate-interop": "deno run -A ./scripts/js_interop.ts > ./generated/js_functions.ts",
+    "generate-interop": "deno run -A scripts/js_interop.ts > generated/js_functions.ts",
     "serve-coverage": "python -m http.server -d ./coverage",
     "serve-docs": "python -m http.server -d ./docs",
-    "start-repl": "deno run -A ./js/ensemble.ts",
+    "start-repl": "deno run -A ./javascript/ensemble.ts",
     "test": "./scripts/test.sh",
     "test-e2e": "./scripts/test.sh --e2e",
     "test-fun": "./scripts/test.sh --fun",
