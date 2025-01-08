@@ -22,7 +22,7 @@ import * as types from './types.ts';
  */
 export function read(malCode: string): types.AstNode {
   const ast = reader.readString(malCode);
-  console.log('ast:', ast);
+  // console.log('ast:', ast);
   return ast;
 }
 

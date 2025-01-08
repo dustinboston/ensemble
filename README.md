@@ -16,21 +16,22 @@ ENSEMBLE is a _web_ programming language that combines JavaScript, HTML, and CSS
 ## Development
 
 - Install [Deno](https://deno.land/)
-- Clone https://github.com/dustinboston/ensemble
+- Clone <https://github.com/dustinboston/ensemble>
 - Run `deno task repl`
 
-## Tests
+## Unit and Integration Tests
 
 Run all test suites:
 
 ```sh
-./test.sh
+deno test
 ```
 
-Run a single test suite:
+## End-to-End Tests
 
-```sh
-./test.sh [--e2e] [--fun] [--unit]
+```bash
+pip install -r requirement.txt
+python
 ```
 
 ## Standards
@@ -42,7 +43,7 @@ Run a single test suite:
 
 ## JSON Schema
 
-https://www.jsongenerator.io/schema
+<https://www.jsongenerator.io/schema>
 
 ## Credits
 
@@ -59,6 +60,5 @@ See [LICENSE](LICENSE)
 [Martin]: https://github.com/kanaka/mal
 [MDN]: https://github.com/mdn/content/tree/main/files/jsondata
 [Nystrom]: https://craftinginterpreters.com/
-[Peters]: https://github.com/tdp2110/crafting-interpreters-rs
 [TypeScript]: https://www.typescriptlang.org/docs/handbook/declaration-files/do-s-and-don-ts.html#any
 [Zemskov]: https://betterprogramming.pub/making-typescript-truly-strongly-typed-c3a8947434a2

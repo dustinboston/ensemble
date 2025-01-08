@@ -15,30 +15,14 @@
     "serve-docs": "python -m http.server -d ./docs",
     "start-repl": "deno run -A ./javascript/ensemble.ts",
     "test": "./scripts/test.sh",
-    "test-e2e": "./scripts/test.sh --e2e",
-    "test-fun": "./scripts/test.sh --fun",
-    "test-unit": "./scripts/test.sh --unit"
+    "test-e2e": "python scripts/runtest.py --deferrable --optional ./tests/step_A.mal -- deno run --allow-env --allow-write --allow-read --allow-sys --allow-hrtime ./javascript/ensemble.ts",
+    "test-fun": "deno --env-file --allow-env test -A --reporter=pretty --parallel ./tests/*_test.ts",
+    "test-unit": "deno --env-file --allow-env test -A --reporter=pretty --parallel ./javascript/_test.ts"
   },
   "lint": {
-    "exclude": [
-      "coverage",
-      "docs",
-      "examples",
-      "old",
-      "interop/lib"
-    ],
-    "include": [
-      "data/*.ts",
-      "generated/*.ts",
-      "js/*.ts",
-      "scripts/*.ts",
-      "src/*.ts",
-      "tests/*.ts"
-    ],
+    "exclude": [],
     "rules": {
-      "tags": ["recommended"],
-      "include": [],
-      "exclude": []
+      "tags": ["recommended"]
     }
   },
   "fmt": {
@@ -48,21 +32,7 @@
     "semiColons": true,
     "singleQuote": true,
     "proseWrap": "always",
-    "include": [
-      "data/*.ts",
-      "generated/*.ts",
-      "js/*.ts",
-      "scripts/*.ts",
-      "src/*.ts",
-      "tests/*.ts"
-    ],
-    "exclude": [
-      "coverage",
-      "docs",
-      "examples",
-      "old",
-      "interop/lib"
-    ]
+    "exclude": []
   },
   "imports": {
     "@/": "./src/",

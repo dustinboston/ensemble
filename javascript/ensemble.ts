@@ -5,11 +5,12 @@
  */
 import * as core from './core.ts';
 import * as env from './env.ts';
+import { htmlNamespace } from './interop_html.ts';
+import { javascriptNamespace } from './interop_js.ts';
 import * as printer from './printer.ts';
 import * as reader from './reader.ts';
+import { readline } from './readline.ts';
 import * as types from './types.ts';
-import { javascriptNamespace } from './interop_js.ts';
-import { htmlNamespace } from './interop_html.ts';
 
 /**
  * The READ step of the READ-EVAL-PRINT-LOOP.
@@ -760,7 +761,7 @@ export function initEnv(): env.Env {
  * @param args - [filepath: string, ...argv: any[]].
  * @example `deno run ./step0_repl.ts`
  */
-export function main(...args: string[]) {
+export async function main(...args: string[]) {
   const replEnv = initEnv();
 
   // Process the arguments
@@ -785,13 +786,13 @@ export function main(...args: string[]) {
   }
 
   // Show an interactive repl
-  rep('(println (str "Mal [" *host-language* "]"))', replEnv);
+  // rep('(println (str "Mal [" *host-language* "]"))', replEnv);
 
-  for (;;) {
-    const input = prompt('user>');
-    if (input === null || input === undefined) {
-      break;
-    }
+  for await (const input of readline('user>')) {
+    // const input = prompt('user>');
+    // if (input === null || input === undefined) {
+    //   break;
+    // }
 
     if (input === '') {
       continue;
@@ -811,5 +812,5 @@ export function main(...args: string[]) {
 }
 
 if (import.meta.main) {
-  main(...Deno.args);
+  await main(...Deno.args);
 }

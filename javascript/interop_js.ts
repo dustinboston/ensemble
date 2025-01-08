@@ -1,7 +1,6 @@
 // import { DefinitionType, javascriptDefinitions } from '../data/javascript_definitions.ts';
 
 import * as types from './types.ts';
-import * as printer from './printer.ts';
 import * as core from './core.ts';
 import * as globals from '../data/globals.ts';
 
@@ -36,13 +35,12 @@ const javascriptCore: Array<[string, types.Closure]> = [
   ['switch', switchCase],
 
   // Type checking
-  ['typeOf', typeOf],
-  ['instanceOf', instanceOf],
-  ['js-eval', jsEval],
-
-  // Basic (temporary) functions
-  ['includes', includes],
-  ['console.log', core.printUnescapedStringToScreen],
+  ['typeof', typeOf],
+  ['instanceof', instanceOf],
+  // Temporary functions
+  // ['js-eval', jsEval],
+  // ['includes', includes],
+  // ['console.log', core.printUnescapedStringToScreen],
 ];
 
 // Add the core functions to the namespace
@@ -60,14 +58,13 @@ for (const api of globals.builtins) {
 //   const fn = types.createFunctionNode(curryBinding(builtinName, builtinDefinition.type));
 //   javascriptNamespace.set(symbol, fn);
 
-//   // Register '::' as a shorthand for '.prototype.', e.g. String::split 
+//   // Register '::' as a shorthand for '.prototype.', e.g. String::split
 //   if (builtinName.includes('.prototype') && !builtinName.endsWith('.prototype')) {
 //     const protoAlias = builtinName.replace('.prototype.', '::');
 //     const protoSymbol = types.createSymbolNode(protoAlias);
 //     javascriptNamespace.set(protoSymbol, fn);
 //   }
 // }
-
 
 /**
  * Utility function to dynamically create interop functions.
@@ -77,10 +74,12 @@ for (const api of globals.builtins) {
 function createInteropFunction(path: string): types.FunctionNode {
   return types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
-      const parts = path.split('.');
-      let current: any = globalThis;
+      const abbreviatedPath = path.replace('::[', '.prototype').replace('::', '.prototype.');
+      const parts = abbreviatedPath.split('.');
+      // deno-lint-ignore no-explicit-any
+      let current = globalThis as any;
 
-      for (const part of parts) {
+      for (const part of parts) {        
         current = current[part];
         if (current === undefined) {
           throw new ReferenceError(`Unknown global: '${path}'`);
@@ -109,9 +108,8 @@ function createInteropFunction(path: string): types.FunctionNode {
           const result = instance[method].apply(instance, jsArgs);
           return types.toAst(result);
         }
-      } else {
-        return types.toAst(current);
       }
+      return types.toAst(current);
     } catch (error: unknown) {
       if (error instanceof Error) {
         return types.createErrorNode(types.createStringNode(error.message));
@@ -128,17 +126,17 @@ function createInteropFunction(path: string): types.FunctionNode {
  * @returns Types.Vector.
  * @example (filter isEven [1, 2, 3, 4]) ;=> [2, 4]
  */
-export function filter(...args: types.AstNode[]): types.AstNode {
-  types.assertArgumentCount(args.length, 2);
-  types.assertFunctionNode(args[0]);
-  types.assertVectorNode(args[1]);
+// export function filter(...args: types.AstNode[]): types.AstNode {
+//   types.assertArgumentCount(args.length, 2);
+//   types.assertFunctionNode(args[0]);
+//   types.assertVectorNode(args[1]);
 
-  const fn = args[0];
-  const vec = args[1];
+//   const fn = args[0];
+//   const vec = args[1];
 
-  const filtered = vec.value.filter((item) => Boolean(fn.value(item).value));
-  return types.createVectorNode(filtered);
-}
+//   const filtered = vec.value.filter((item) => Boolean(fn.value(item).value));
+//   return types.createVectorNode(filtered);
+// }
 
 /**
  * `reduce` reduces elements in a vector based on a reducer function and an initial value.
@@ -680,17 +678,17 @@ export function jsEval(...args: types.AstNode[]): types.AstNode {
  * @example (every isEven [2, 4, 6]) ;=> true
  * @example (every isEven [2, 3, 6]) ;=> false
  */
-export function every(...args: types.AstNode[]): types.AstNode {
-  const count = args.length;
-  types.assertArgumentCount(count, 2);
-  types.assertFunctionNode(args[0]);
-  types.assertVectorNode(args[1]);
+// export function every(...args: types.AstNode[]): types.AstNode {
+//   const count = args.length;
+//   types.assertArgumentCount(count, 2);
+//   types.assertFunctionNode(args[0]);
+//   types.assertVectorNode(args[1]);
 
-  const fn = args[0];
-  const vec = args[1];
-  const result = vec.value.every((item) => fn.value(item));
-  return types.createBooleanNode(result);
-}
+//   const fn = args[0];
+//   const vec = args[1];
+//   const result = vec.value.every((item) => fn.value(item));
+//   return types.createBooleanNode(result);
+// }
 
 /**
  * `some` checks if a predicate function returns true for at least one element in a vector.
@@ -700,17 +698,17 @@ export function every(...args: types.AstNode[]): types.AstNode {
  * @example (some isEven [1, 3, 4]) ;=> true
  * @example (some isEven [1, 3, 5]) ;=> false
  */
-export function some(...args: types.AstNode[]): types.AstNode {
-  const count = args.length;
-  types.assertArgumentCount(count, 2);
-  types.assertFunctionNode(args[0]);
-  types.assertVectorNode(args[1]);
+// export function some(...args: types.AstNode[]): types.AstNode {
+//   const count = args.length;
+//   types.assertArgumentCount(count, 2);
+//   types.assertFunctionNode(args[0]);
+//   types.assertVectorNode(args[1]);
 
-  const fn = args[0];
-  const vec = args[1];
-  const result = vec.value.some((item) => fn.value(item));
-  return types.createBooleanNode(result);
-}
+//   const fn = args[0];
+//   const vec = args[1];
+//   const result = vec.value.some((item) => fn.value(item));
+//   return types.createBooleanNode(result);
+// }
 
 // export function curryBinding(builtinName: string, defintionType: DefinitionType): types.Closure {
 //   switch (defintionType) {

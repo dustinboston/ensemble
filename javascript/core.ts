@@ -103,7 +103,6 @@ for (const [sym, fn] of nsValues) {
   ns.set(types.createSymbolNode(sym), types.createFunctionNode(fn));
 }
 
-
 /**
  * `=` determines if two AST nodes are equal by comparing them using the
  * `isEqualTo` method.
@@ -1290,6 +1289,3 @@ export function join(...args: types.AstNode[]): types.AstNode {
     .join(delim);
   return types.createStringNode(joined);
 }
-
-
-

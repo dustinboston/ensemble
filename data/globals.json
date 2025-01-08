@@ -73068,7 +73068,7 @@
         "kind": "Constructor",
         "params": "[pattern<string> (optional flags<string>)]",
         "returnType": "RegExp"
-      }      
+      }
     ],
     "inheritanceSources": [
       "Object",
