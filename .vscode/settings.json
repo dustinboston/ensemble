@@ -13,7 +13,18 @@
   "editor.formatOnSave": true,
   "editor.rulers": [160],
   "editor.tabSize": 2,
-  "editor.useTabStops": false
+  "editor.useTabStops": false,
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter"
+  },
+  "cSpell.words": [
+    "creationflags",
+    "INPUTRC",
+    "killpg",
+    "preexec",
+    "setsid",
+    "TIOCSWINSZ"
+  ]
   // "editor.detectIndentation": false,
   // "[clojure]": {
   //   "editor.defaultFormatter": "betterthantomorrow.calva"
