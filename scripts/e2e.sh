@@ -1,4 +1,4 @@
-#!/usr/bin/zsh
+#!/usr/bin/bash
 # ---------------------------------------------------------------------------
 # e2e.sh - Run end-to-end tests
 
@@ -95,8 +95,6 @@ run_tests() {
   local step="$1"
   local test_file="$2"
   if [[ "$full_output" -eq 1 ]]; then
-    # echo "Testing $step; step file: $step.ts, test file: $test_file"
-    # echo "Running: STEP=\"$step\" MAL_IMPL=ensemble python tests/runtest.py  --deferrable --optional \"$test_file\" -- ./run"
     STEP="$step" MAL_IMPL=ensemble python scripts/runtest.py  --deferrable --optional "$test_file" -- ./scripts/run
   else
     STEP="$step" MAL_IMPL=ensemble python scripts/runtest.py  --deferrable --optional "$test_file" -- ./scripts/run | tail -n 7
