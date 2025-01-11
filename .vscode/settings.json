@@ -24,7 +24,10 @@
     "preexec",
     "setsid",
     "TIOCSWINSZ"
-  ]
+  ],
+  "[clojure]": {
+    "editor.defaultFormatter": "pedrorgirardi.vscode-cljfmt"
+  }
   // "editor.detectIndentation": false,
   // "[clojure]": {
   //   "editor.defaultFormatter": "betterthantomorrow.calva"

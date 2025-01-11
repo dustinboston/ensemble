@@ -2,10 +2,10 @@
  * @file Provides all of the core functions for the language.
  */
 
+import { javascriptNamespace } from './interop_js.ts';
 import * as printer from './printer.ts';
 import * as reader from './reader.ts';
 import * as types from './types.ts';
-import { javascriptNamespace } from './interop_js.ts';
 
 const { readTextFileSync, writeFileSync, readDirSync } = Deno;
 
@@ -305,15 +305,18 @@ export function spit(...args: types.AstNode[]): types.AstNode {
   return types.createNilNode();
 }
 
-export function serve(...args: types.AstNode[]): types.AstNode {
+/**
+ * Serve the HTML shell for a SPA.
+ * @param args
+ * @returns types.NilNode
+ */
+export function serve(...args: types.AstNode[]): types.NilNode {
   types.assertMinimumArgumentCount(args.length, 1);
   types.assertDomNode(args[0]);
-  // args[1] is null (like EOF)
-  Deno.serve((_req) =>
-    new Response(printer.printHtml(args[0]), {
-      headers: { 'Content-Type': 'text/html' },
-    })
-  );
+  const body = printer.printHtml(args[0]);
+  const headers = { 'Content-Type': 'text/html' };
+
+  Deno.serve((_req) => new Response(body, { headers }));
   return types.createNilNode();
 }
 
@@ -337,7 +340,7 @@ export function trim(...args: types.AstNode[]): types.AstNode {
  * @example (< (2 1)) ;=>true
  */
 export function lt(...args: types.AstNode[]): types.AstNode {
-  types.assertArgumentCount(args.length, 2);
+  types.assertArgumentCount(args.length, 2, `\nargs: ${JSON.stringify(args, null, '  ')}`);
   const a = args[0];
   types.assertNumberNode(a);
   const b = args[1];

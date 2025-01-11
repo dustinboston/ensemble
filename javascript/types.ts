@@ -746,7 +746,7 @@ export function isJsNode(node: unknown): node is JsNode<SupportedJsTypes> & { va
  * @returns True if the node is an instance of KeywordNode, else false.
  * @example isKeywordNode(myNode);
  */
-export function isKeywordNode(node: unknown): node is KeywordNode & { value: `:${string}` } {
+export function isKeywordNode(node: unknown): node is KeywordNode & { value: `:${string}` | `${string}:` } {
   return node instanceof KeywordNode && typeof node.value === 'string' && node.value.startsWith(':');
 }
 
@@ -1055,9 +1055,15 @@ export function assertMetadataType(
 export function assertArgumentCount(
   actualCount: number,
   expectedCount: number,
+  optionalMessage?: string,
 ): void {
   if (actualCount !== expectedCount) {
-    throw new Error(`Wanted ${expectedCount} arguments but got ${actualCount}`);
+    let message = `Wanted ${expectedCount} arguments but got ${actualCount}`;
+    if (optionalMessage) {
+      message += ` ${optionalMessage}`;
+    }
+
+    throw new Error(message);
   }
 }
 
@@ -1830,14 +1836,25 @@ export function slash(string_: string): string {
 
 // MARK: CONVERSION FNS
 
+export type AllReturnableJsTypes =
+  | { [key: string]: AllReturnableJsTypes }
+  | ((...args: AllReturnableJsTypes[]) => AllReturnableJsTypes)
+  | Array<AllReturnableJsTypes>
+  | boolean
+  | Error
+  | null
+  | number
+  | string;
+
 /**
  * Converts an abstract syntax tree (AST) node to its corresponding JavaScript representation.
  * @param ast - The AST node to convert.
  * @returns The JavaScript representation of the AST node.
  * @throws Will throw an error if the AST node type is unmatched.
  */
-// // deno-lint-ignore no-explicit-any
-export function toJs<T extends AstNode = AstNode>(ast: T): T['value'] {
+export function toJs<T extends AstNode = AstNode>(
+  ast: T,
+): AllReturnableJsTypes {
   if (isAtomNode(ast)) {
     return toJs(ast.value);
   }
@@ -1847,8 +1864,7 @@ export function toJs<T extends AstNode = AstNode>(ast: T): T['value'] {
   }
 
   if (isMapNode(ast)) {
-    // deno-lint-ignore no-explicit-any
-    const obj: Record<string, any> = {};
+    const obj: Record<string, AllReturnableJsTypes> = {};
     for (const [key, value] of ast.value.entries()) {
       obj[key] = toJs(value);
     }
@@ -1865,12 +1881,11 @@ export function toJs<T extends AstNode = AstNode>(ast: T): T['value'] {
   }
 
   if (isFunctionNode(ast)) {
-    // deno-lint-ignore no-explicit-any
-    return (...args: any[]) => toJs(ast.value(...args.map(toAst)));
+    return ((...args: AllReturnableJsTypes[]) => toJs(ast.value(...args.map(toAst))));
   }
 
   if (isKeywordNode(ast)) {
-    return ast.value as string;
+    return ast.value;
   }
 
   if (isListNode(ast)) {
@@ -1897,9 +1912,9 @@ export function toJs<T extends AstNode = AstNode>(ast: T): T['value'] {
     return ast.value.map(toJs);
   }
 
-  if (isJsNode(ast)) {
-    return ast.value;
-  }
+  // if (isJsNode(ast)) {
+  //   return ast.value;
+  // }
 
   throw new TypeError(`Could not convert '${JSON.stringify(ast)}' to JavaScript`);
 }

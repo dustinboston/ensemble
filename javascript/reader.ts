@@ -47,6 +47,9 @@ export class Reader {
 
   // Peeks at the current token without advancing the position.
   peek = () => this.tokens[this.pos];
+
+  // Peeks at the next token without advancing the position.
+  peekNext = () => this.tokens[this.pos + 1];
 }
 
 /**
@@ -179,7 +182,15 @@ export function readForm(rdr: Reader): types.AstNode {
     }
 
     case '<': {
-      return readSequence(rdr, '>');
+      const nextToken = rdr.peekNext();
+      if (/^[a-zA-Z]/.test(nextToken)) {
+        return readSequence(rdr, '>');
+      } else if (/^[<= ]/.test(nextToken)) {
+        rdr.next();
+        return readAtom(rdr);
+      } else {
+        return readAtom(rdr);
+      }
     }
 
     case '(': {

@@ -1098,14 +1098,9 @@ export async function main(...args: string[]) {
   // rep('(println (str "Mal [" *host-language* "]"))', replEnv);
 
   for await (const input of readline('user> ')) {
-    // const input = prompt('user>');
-    // if (input === null || input === undefined) {
-    //   break;
-    // }
-
     if (input === '') {
       continue;
-    } /*	commented out for tests */
+    }
 
     try {
       const result = rep(input, replEnv);
@@ -1114,7 +1109,7 @@ export async function main(...args: string[]) {
       if (types.isErrorNode(error)) {
         console.error(`error: ${printer.printString(error, false)}`);
       } else if (error instanceof Error) {
-        console.error(error.message);
+        console.error(error);
       }
     }
   }

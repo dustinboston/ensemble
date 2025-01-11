@@ -196,7 +196,25 @@ export function printHtml(ast: types.AstNode, printReadably = false): string {
  */
 export function printJavaScript(ast: types.AstNode, printReadably = false): string {
   if (types.isDomNode(ast)) {
-    return '/* element */';
+    const element = `(const el = document.createElement("${ast.value}"); document.body.appendChild(el);)`;
+    return element;
+  }
+
+  if (types.isListNode(ast)) {
+    const serialized = ast.value;
+    const fn = serialized[0];
+    const args = serialized.slice(1);
+    return `(${fn.value}(${args.map((v) => printJavaScript(v)).join(', ')}))`;
+  }
+
+  if (types.isVectorNode(ast)) {
+    const serialized = ast.value.map((v) => printJavaScript(v)).join(',');
+    return `[${serialized}]`;
+  }
+
+  if (types.isFunctionNode(ast)) {
+    const body = ast.value.toString();
+    return `(${body})`;
   }
 
   if (types.isStringNode(ast) || types.isKeywordNode(ast) || types.isSymbolNode(ast)) {
@@ -207,41 +225,23 @@ export function printJavaScript(ast: types.AstNode, printReadably = false): stri
     return String(ast.value);
   }
 
-  if (types.isAtomNode(ast)) {
-    // return `(atom ${printJavaScript(ast.value)})`;
-    return `/* atom */`;
-  }
-
-  if (types.isErrorNode(ast)) {
-    // return printJavaScript(ast.value, printReadably);
-    return '/* error */';
-  }
-
-  if (types.isFunctionNode(ast)) {
-    return '#<fn>';
-  }
-
-  if (types.isSequentialNode(ast)) {
-    const isList = types.isListNode(ast);
-    const serialized = ast.value
-      .map((value) => printJavaScript(value, printReadably))
-      .join(' ');
-    return isList ? `(${serialized})` : `[${serialized}]`;
-  }
-
   if (types.isMapNode(ast)) {
-    const serialized = types
-      .mapFlat(ast.value)
-      .map((value) => printJavaScript(value, printReadably))
-      .join(' ');
+    const serialized = Object.entries(ast.value)
+      .map(([key, value]) => {
+        // Keys in JavaScript objects are usually strings
+        const jsKey = /^[a-zA-Z_$][0-9a-zA-Z_$]*$/.test(key) ? key : `"${key}"`;
+        const jsValue = printJavaScript(value, printReadably);
+        return `${jsKey}: ${jsValue}`;
+      })
+      .join(', ');
     return `{${serialized}}`;
   }
 
   if (types.isNilNode(ast)) {
-    return 'nil';
+    return 'null';
   }
 
-  throw new Error(`unmatched object ${JSON.stringify(ast)}`);
+  return '/* javascript */';
 }
 
 /**

@@ -1,5 +1,5 @@
-import * as types from './types.ts';
 import { htmlTags } from '../data/html_definitions.ts';
+import * as types from './types.ts';
 
 export const htmlNamespace = new Map<types.MapKeyNode, types.FunctionNode>();
 
@@ -10,7 +10,6 @@ for (const htmlTag of htmlTags) {
   htmlNamespace.set(symbol, fn);
 }
 
-// TODO: DOM
 htmlNamespace.set(types.createSymbolNode('document.querySelector'), types.createFunctionNode(querySelector));
 
 /**
