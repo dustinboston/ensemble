@@ -4,7 +4,7 @@
  */
 import * as types from './types.ts';
 
-export const tokenRegex = /[\s,]*(~@|[[\]{}()<>'`~^@]|"(?:\\.|[^\\"])*"?|;.*|\/\/.*|[^\s[\]{}<>('"`,;)]*)/g;
+export const tokenRegex = /[\s,]*(~@|[[\]{}()'`~^@]|"(?:\\.|[^\\"])*"?|;.*|\/\/.*|[^\s[\]{}('"`,;)]*)/g;
 export const numberRegex = /^-?\d+(\.\d+)?$/;
 export const stringRegex = /"(?:\\.|[^\\"])*"/;
 
@@ -47,9 +47,6 @@ export class Reader {
 
   // Peeks at the current token without advancing the position.
   peek = () => this.tokens[this.pos];
-
-  // Peeks at the next token without advancing the position.
-  peekNext = () => this.tokens[this.pos + 1];
 }
 
 /**
@@ -181,18 +178,6 @@ export function readForm(rdr: Reader): types.AstNode {
       throw new Error(`unexpected '${token}'`);
     }
 
-    case '<': {
-      const nextToken = rdr.peekNext();
-      if (/^[a-zA-Z]/.test(nextToken)) {
-        return readSequence(rdr, '>');
-      } else if (/^[<= ]/.test(nextToken)) {
-        rdr.next();
-        return readAtom(rdr);
-      } else {
-        return readAtom(rdr);
-      }
-    }
-
     case '(': {
       return readSequence(rdr, ')');
     }
@@ -303,7 +288,7 @@ export function unescapeString(token: string): string {
 export function readSequence(
   rdr: Reader,
   end: string,
-): types.VectorNode | types.ListNode | types.MapNode | types.DomNode {
+): types.VectorNode | types.ListNode | types.MapNode {
   const astNodes: types.AstNode[] = [];
 
   rdr.next();
@@ -322,16 +307,6 @@ export function readSequence(
   }
 
   switch (end) {
-    case '>': {
-      const tagName = astNodes[0];
-      types.assertSymbolNode(tagName);
-
-      const attributes = types.isMapNode(astNodes[1]) ? astNodes[1].value : undefined;
-      const children = types.isMapNode(astNodes[1]) ? astNodes.slice(2) : astNodes.slice(1);
-
-      return types.createDomNode(tagName.value, attributes, children);
-    }
-
     case ')': {
       return types.createListNode(astNodes);
     }

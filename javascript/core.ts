@@ -7,8 +7,6 @@ import * as printer from './printer.ts';
 import * as reader from './reader.ts';
 import * as types from './types.ts';
 
-const { readTextFileSync, writeFileSync, readDirSync } = Deno;
-
 export const ns = new Map<types.MapKeyNode, types.FunctionNode>(javascriptNamespace);
 
 const nsValues: Array<[string, types.Closure]> = [
@@ -32,12 +30,6 @@ const nsValues: Array<[string, types.Closure]> = [
   ['println', printUnescapedStringToScreen],
   ['console.log', printUnescapedStringToScreen],
   ['read-string', readString],
-  ['readline', readln],
-  ['readir', readir],
-  ['slurp', slurp],
-  ['readFile', slurp],
-  ['spit', spit],
-  ['writeFile', spit],
 
   // Strings
   ['string?', isString],
@@ -95,8 +87,7 @@ const nsValues: Array<[string, types.Closure]> = [
   ['reset!', reset],
   ['swap!', swap],
 
-  // Backend
-  ['serve', serve],
+  ['prop', getProp],
 ];
 
 for (const [sym, fn] of nsValues) {
@@ -214,110 +205,6 @@ export function readString(...args: types.AstNode[]): types.AstNode {
   const code = args[0];
   types.assertStringNode(code);
   return reader.readString(code.value);
-}
-
-/**
- * `readline` Exposes the readline function to read in user-code.
- * @description If readline is already running, only the prompt will change.
- * @param args - [types.Str] display prompt.
- * @returns Types.Nil - A handler must be registered to capture user input.
- * @see stepA_mal.ts
- * @example (readline "prompt$") ;=>
- */
-export function readln(...args: types.AstNode[]): types.AstNode {
-  types.assertArgumentCount(args.length, 1);
-  const cmdPrompt = args[0];
-  types.assertStringNode(cmdPrompt);
-
-  const input = prompt(cmdPrompt.value);
-  if (input === null || input === undefined) {
-    return types.createNilNode();
-  }
-
-  return types.createStringNode(input);
-}
-
-/**
- * Lists the contents of directory.
- * @param args - [types.Str]
- * - args[0] {Str} The directory to examine.
- * @returns A Dict with details about each item in the directory.
- * @example (readdir "./path/to/file.txt")
- */
-export function readir(...args: types.AstNode[]): types.AstNode {
-  types.assertArgumentCount(args.length, 1);
-  types.assertStringNode(args[0]);
-  const files: types.MapNode[] = [];
-  for (const entry of readDirSync(args[0].value)) {
-    const map = new Map<string, types.AstNode>();
-    map.set(':file', types.createBooleanNode(entry.isFile));
-    map.set(':directory', types.createBooleanNode(entry.isDirectory));
-    map.set(':symlink', types.createBooleanNode(entry.isSymlink));
-    map.set(':name', types.createStringNode(entry.name));
-
-    const firstDotIndex = entry.name.indexOf('.');
-    const slug = entry.name.slice(0, firstDotIndex);
-    const ext = entry.name.slice(firstDotIndex + 1);
-
-    map.set(':slug', types.createStringNode(slug));
-    map.set(':ext', types.createStringNode(ext));
-    files.push(types.createMapNode(map));
-  }
-
-  return types.createVectorNode(files);
-}
-
-/**
- * `slurp` Read a file and return the contents as a string.
- * @param args - [types.Str].
- * @returns Types.Str the contents of a file.
- * @throws An error when file doesn't exist or reading a directory.
- * @example (slurp "../tests/test.txt") ;=>"A line of text\n"
- */
-export function slurp(...args: types.AstNode[]): types.AstNode {
-  types.assertArgumentCount(args.length, 1);
-  const filePath = args[0];
-  types.assertStringNode(filePath);
-
-  const content = readTextFileSync(filePath.value);
-  return types.createStringNode(content);
-}
-
-/**
- * `spit` Write text to a file.
- * @param args - [types.Str, types.Str]
- * - args[0] the path to a file
- * - args[1] contents to write to the file.
- * @returns Nil.
- * @throws An error when the operation fails.
- * @example (spit "../tests/test.txt")
- */
-export function spit(...args: types.AstNode[]): types.AstNode {
-  types.assertArgumentCount(args.length, 2);
-  const filePath = args[0];
-  types.assertStringNode(filePath);
-  const content = args[1];
-  types.assertStringNode(content);
-
-  const encoder = new TextEncoder();
-  const data = encoder.encode(content.value);
-  writeFileSync(filePath.value, data);
-  return types.createNilNode();
-}
-
-/**
- * Serve the HTML shell for a SPA.
- * @param args
- * @returns types.NilNode
- */
-export function serve(...args: types.AstNode[]): types.NilNode {
-  types.assertMinimumArgumentCount(args.length, 1);
-  types.assertDomNode(args[0]);
-  const body = printer.printHtml(args[0]);
-  const headers = { 'Content-Type': 'text/html' };
-
-  Deno.serve((_req) => new Response(body, { headers }));
-  return types.createNilNode();
 }
 
 /**
@@ -1293,4 +1180,18 @@ export function join(...args: types.AstNode[]): types.AstNode {
     .map((ast) => printer.printString(ast, false))
     .join(delim);
   return types.createStringNode(joined);
+}
+
+function getProp(node: types.MapNode, keyPath: types.StringNode): types.AstNode {
+  const obj = types.toJs(node) as Record<string, any>;
+  const path = keyPath.value;
+
+  const result = path.split('.').reduce((current, key) => {
+    if (current && key in current) {
+      return current[key];
+    }
+    return undefined;
+  }, obj);
+
+  return types.toAst(result);
 }

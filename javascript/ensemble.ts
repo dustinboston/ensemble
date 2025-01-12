@@ -9,7 +9,6 @@ import { htmlNamespace } from './interop_html.ts';
 import { javascriptNamespace } from './interop_js.ts';
 import * as printer from './printer.ts';
 import * as reader from './reader.ts';
-import { readline } from './readline.ts';
 import * as types from './types.ts';
 
 export type TryCatchAst = types.ListNode & {
@@ -345,15 +344,15 @@ export function read(malCode: string): types.AstNode {
  * @returns The expanded AST, which can include "list", "concat",
  * "quote" or other forms based on the quasi-quoting rules.
  * @example Using "unquote" (~)
- * (quasiquote (~a b)) ;=> (list a b)
+ * (quasiQuote (~a b)) ;=> (list a b)
  * @example Using "unquote" shorthand
  * `(~a b) //=> (list a b)
  * @example Using "splice-unquote" (~@)
- * (quasiquote (~@a b)) ;=> (concat a b)
+ * (quasiQuote (~@a b)) ;=> (concat a b)
  * @example Using "splice-unquote" shorthand
  * `(~@a b)  =>  (concat a b)
  */
-export function quasiquote(node: types.AstNode): types.AstNode {
+export function quasiQuote(node: types.AstNode): types.AstNode {
   const isQuotableNode = types.isMapNode(node) ||
     types.isSymbolNode(node);
 
@@ -382,7 +381,7 @@ export function quasiquote(node: types.AstNode): types.AstNode {
       ])
       : types.createListNode([
         types.createSymbolNode('cons'),
-        quasiquote(element),
+        quasiQuote(element),
         result,
       ]);
   }
@@ -545,7 +544,7 @@ export function evaluateAst(
  */
 export function evaluate(node: types.AstNode, appEnv: env.Env): types.AstNode {
   for (;;) {
-    // Trace: console.log(`eval: ${print(ast)}`);
+    // console.log(`eval: ${print(node)}`);
 
     if (types.isListNode(node) === false) {
       return evaluateAst(node, appEnv);
@@ -749,7 +748,7 @@ export function evaluateQuasiQuoteExpand(
   _env: env.Env,
 ): types.ContinueReturn {
   assertQuasiQuoteExpand(node);
-  return types.returnResult(quasiquote(node.value[1]));
+  return types.returnResult(quasiQuote(node.value[1]));
 }
 
 /**
@@ -765,7 +764,7 @@ export function evaluateQuasiQuote(
   appEnv: env.Env,
 ): types.ContinueReturn {
   assertQuasiQuote(node);
-  const resultAst = quasiquote(node.value[1]);
+  const resultAst = quasiQuote(node.value[1]);
   return types.continueResult(resultAst, appEnv);
 }
 
@@ -1053,68 +1052,15 @@ export function initEnv(): env.Env {
   );
 
   rep('(def! not (fn* (a) (if a false true)))', replEnv);
-  rep(`(def! load-file (fn* (f) (eval (read-string (str "(do " (slurp f) "\nnil)")))))`, replEnv);
   rep(
-    `(defmacro! cond (fn* (& xs) (if (> (count xs) 0) (list 'if (first xs) (if (> (count xs) 1) (nth xs 1) (throw "odd number of forms to cond")) (cons 'cond (rest (rest xs)))))))`,
+    `(defmacro! cond
+      (fn* (& xs)
+       (if (> (count xs) 0) (list 'if (first xs)
+                                  (if (> (count xs) 1) (nth xs 1)
+                                      (throw "odd number of forms to cond"))
+                                  (cons 'cond (rest (rest xs)))))))`,
     replEnv,
   );
 
   return replEnv;
-}
-
-/**
- * Main program entry point.
- * @description Init the environment and register the readline event handlers.
- * If arguments are passed, the first one will be used as a filepath to a mal
- * program. Any additional arguments are loaded into the environment as *ARGV*.
- * @param args - [filepath: string, ...argv: any[]].
- * @example `deno run ./step0_repl.ts`
- */
-export async function main(...args: string[]) {
-  const replEnv = initEnv();
-
-  // Process the arguments
-  const userScriptPath: string | undefined = args[0];
-  const hostEnvArgs: types.StringNode[] = args
-    .slice(1)
-    .map((arg) => types.createStringNode(arg));
-
-  replEnv.set(
-    types.createSymbolNode('*ARGV*'),
-    types.createListNode(hostEnvArgs),
-  );
-  replEnv.set(
-    types.createSymbolNode('*host-language*'),
-    types.createStringNode('ENSEMBLE'),
-  );
-
-  // Run a user program and exit
-  if (userScriptPath) {
-    rep(`(load-file "${userScriptPath}")`, replEnv);
-    return;
-  }
-
-  // Show an interactive repl
-  // rep('(println (str "Mal [" *host-language* "]"))', replEnv);
-
-  for await (const input of readline('user> ')) {
-    if (input === '') {
-      continue;
-    }
-
-    try {
-      const result = rep(input, replEnv);
-      console.log(result);
-    } catch (error: unknown) {
-      if (types.isErrorNode(error)) {
-        console.error(`error: ${printer.printString(error, false)}`);
-      } else if (error instanceof Error) {
-        console.error(error);
-      }
-    }
-  }
-}
-
-if (import.meta.main) {
-  await main(...Deno.args);
 }

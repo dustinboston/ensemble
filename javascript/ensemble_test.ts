@@ -17,7 +17,7 @@ import {
   initEnv,
   isMacroCall,
   macroExpand,
-  quasiquote,
+  quasiQuote,
 } from './ensemble.ts';
 import { Env } from './env.ts';
 import {
@@ -47,7 +47,7 @@ Deno.test('quasiquote(): should quote a symbol', () => {
     createSymbolNode('quote'),
     input,
   ]);
-  assertEquals(quasiquote(input), expected);
+  assertEquals(quasiQuote(input), expected);
 });
 
 Deno.test('quasiquote(): should quote a dictionary', () => {
@@ -58,7 +58,7 @@ Deno.test('quasiquote(): should quote a dictionary', () => {
     createSymbolNode('quote'),
     input,
   ]);
-  assertEquals(quasiquote(input), expected);
+  assertEquals(quasiQuote(input), expected);
 });
 
 Deno.test('quasiquote(): should quote a Symbol', () => {
@@ -67,18 +67,18 @@ Deno.test('quasiquote(): should quote a Symbol', () => {
     createSymbolNode('quote'),
     input,
   ]);
-  assertEquals(quasiquote(input), expected);
+  assertEquals(quasiQuote(input), expected);
 });
 
 // Non-sequential types
 Deno.test('quasiquote(): should quote a nil', () => {
   const input = createNilNode();
-  assertEquals(quasiquote(input), input);
+  assertEquals(quasiQuote(input), input);
 });
 
 Deno.test('quasiquote(): should quote a number', () => {
   const input = createNumberNode(42);
-  assertEquals(quasiquote(input), input);
+  assertEquals(quasiQuote(input), input);
 });
 
 // Unquoted
@@ -88,7 +88,7 @@ Deno.test('quasiquote(): should unquote a symbol unquote in List', () => {
     createSymbolNode('x'),
   ]);
   assertEquals(
-    quasiquote(input),
+    quasiQuote(input),
     createSymbolNode('x'),
   );
 });
@@ -106,7 +106,7 @@ Deno.test('quasiquote(): should concat a symbol within a list with splice-unquot
     createSymbolNode('x'),
     createListNode([]),
   ]);
-  assertEquals(quasiquote(input), expected);
+  assertEquals(quasiQuote(input), expected);
 });
 
 Deno.test('quasiquote(): should cons a symbol within a list with splice-unquote', () => {
@@ -119,7 +119,7 @@ Deno.test('quasiquote(): should cons a symbol within a list with splice-unquote'
     ]),
     createListNode([]),
   ]);
-  assertEquals(quasiquote(input), expected);
+  assertEquals(quasiQuote(input), expected);
 });
 
 Deno.test('quasiquote(): should quote a with Vec', () => {
@@ -136,7 +136,7 @@ Deno.test('quasiquote(): should quote a with Vec', () => {
     createSymbolNode('vec'),
     intermediate,
   ]);
-  assertEquals(quasiquote(input), expected);
+  assertEquals(quasiQuote(input), expected);
 });
 
 Deno.test('evaluateDefMacro(): should define a macro', () => {
@@ -716,7 +716,7 @@ Deno.test('evaluateQuasiQuoteExpand(): returns expanded form', () => {
   ]);
 
   const result = evaluateQuasiQuoteExpand(ast, new Env());
-  const expectedResult = quasiquote(
+  const expectedResult = quasiQuote(
     createListNode([
       createSymbolNode('unquote'),
       createSymbolNode('a'),
@@ -747,7 +747,7 @@ Deno.test('evaluateQuasiQuote(): performs quasiquote transformation', () => {
 
   const env = new Env();
   const result = evaluateQuasiQuote(ast, env);
-  const expectedResult = quasiquote(
+  const expectedResult = quasiQuote(
     createListNode([
       createSymbolNode('unquote'),
       createSymbolNode('a'),

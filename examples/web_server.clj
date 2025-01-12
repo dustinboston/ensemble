@@ -17,15 +17,15 @@
               (form {:id "form"}
                     (input {:type "text" :id "name" :name "name" :placeholder "What's your name?" :aria-label "Name"})
                     (button {:type "submit"} "Say hello!")))
-         (script {:type "module"}
-                 (let [form (Document.querySelector "#form")
-                       world (Document.querySelector "#world")]
-                   '(EventTarget.addEventListener form "submit"
-                                                  (fn [e]
-                                                    (do
-                                                      (Event::preventDefault e)
-                                                      (let [formData (FormData.new (getProp e "target"))
-                                                            nameValue (FormData::get formData "name")]
-                                                        (when nameValue
-                                                          (HTMLElement::textContent world nameValue))))))))))))
+         (script)))))
 
+;; (let [form (Document::querySelector "#form")
+;;                        world (Document::querySelector "#world")]
+;;                    '(EventTarget.addEventListener form "submit"
+;;                                                   (fn [e]
+;;                                                     (do
+;;                                                       (Event::preventDefault e)
+;;                                                       (let [formData (FormData.new (getProp e "target"))
+;;                                                             nameValue (FormData::get formData "name")]
+;;                                                         (when nameValue
+;;                                                           (HTMLElement::textContent world nameValue)))))))
