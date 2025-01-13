@@ -53,7 +53,7 @@ function mdnDefToBuiltin(inputText: string): string[] {
     params: [],
     returns: any(),
     inherits: [${inheritance.join(', ')}],
-  },`);      
+  },`);
     } else if (currentSection === 'Instance properties' || currentSection === 'Static properties') {
       const isInstance = currentSection === 'Instance properties';
       collection.push(`  ['${isInstance ? `${className}.prototype.${line}` : `${className}.${line}`}']: {

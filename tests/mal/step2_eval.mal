@@ -39,8 +39,8 @@
 {"a" (+ 7 8)}
 ;=>{"a" 15}
 
-{:a (+ 7 8)}
-;=>{:a 15}
+{a: (+ 7 8)}
+;=>{a: 15}
 
 ;; Check that evaluation hasn't broken empty collections
 []

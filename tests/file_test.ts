@@ -8,21 +8,21 @@
  *
  * @file
  */
-import { assertEquals } from '@std/assert';
-import { initEnv, rep } from '@/ensemble.ts';
-import { AtomNode, BooleanNode, ListNode, MapNode, NilNode, NumberNode, StringNode, SymbolNode } from '@/types.ts';
+import { initMain, rep } from '@/ensemble_cli.ts';
 import { printString } from '@/printer.ts';
+import { AtomNode, BooleanNode, ListNode, MapNode, NilNode, NumberNode, StringNode, SymbolNode } from '@/types.ts';
+import { assertEquals } from '@std/assert';
 
 Deno.test('FILE: Execute the program in a sub process', () => {
   assertEquals(
-    rep('(+ 1 2)', initEnv()),
+    rep('(+ 1 2)', initMain()),
     printString(new NumberNode(3), true),
   );
 });
 
 Deno.test('FILE: Testing read-string with list containing integers and nil', () => {
   assertEquals(
-    rep('(read-string "(1 2 (3 4) nil)")', initEnv()),
+    rep('(read-string "(1 2 (3 4) nil)")', initMain()),
     '(1 2 (3 4) nil)',
     printString(
       new ListNode([
@@ -41,14 +41,14 @@ Deno.test('FILE: Testing read-string with list containing integers and nil', () 
 
 Deno.test('FILE: Testing read-string with nil', () => {
   assertEquals(
-    rep('(= nil (read-string "nil"))', initEnv()),
+    rep('(= nil (read-string "nil"))', initMain()),
     printString(new BooleanNode(true)),
   );
 });
 
 Deno.test('FILE: Testing read-string with addition expression', () => {
   assertEquals(
-    rep('(read-string "(+ 2 3)")', initEnv()),
+    rep('(read-string "(+ 2 3)")', initMain()),
     printString(
       new ListNode([
         new SymbolNode('+'),
@@ -62,14 +62,14 @@ Deno.test('FILE: Testing read-string with addition expression', () => {
 
 Deno.test('FILE: Testing read-string with newline character', () => {
   assertEquals(
-    rep(`(read-string "\\"\\n\\"")`, initEnv()),
+    rep(`(read-string "\\"\\n\\"")`, initMain()),
     printString(new StringNode('\n'), true),
   );
 });
 
 Deno.test('FILE: Testing read-string with comment', () => {
   assertEquals(
-    rep('(read-string "7 ;; comment")', initEnv()),
+    rep('(read-string "7 ;; comment")', initMain()),
     printString(new NumberNode(7), true),
   );
 });
@@ -77,20 +77,20 @@ Deno.test('FILE: Testing read-string with comment', () => {
 Deno.test('FILE: Testing read-string with comment only', () => {
   // No fatal error, returns empty string
   assertEquals(
-    rep('(read-string ";; comment")', initEnv()),
+    rep('(read-string ";; comment")', initMain()),
     printString(new NilNode(), true),
   );
 });
 
 Deno.test('FILE: Testing eval with addition expression', () => {
   assertEquals(
-    rep('(eval (read-string "(+ 2 3)"))', initEnv()),
+    rep('(eval (read-string "(+ 2 3)"))', initMain()),
     printString(new NumberNode(5), true),
   );
 });
 
 Deno.test('FILE: Testing slurp with file content', async (t) => {
-  const sharedEnv = initEnv();
+  const sharedEnv = initMain();
 
   assertEquals(
     rep('(slurp "./tests/fixtures/test.txt")', sharedEnv),
@@ -99,14 +99,14 @@ Deno.test('FILE: Testing slurp with file content', async (t) => {
 
   await t.step('FILE: Testing slurp with file content loaded twice', () => {
     assertEquals(
-      rep('(slurp "./tests/fixtures/test.txt")', initEnv()),
+      rep('(slurp "./tests/fixtures/test.txt")', initMain()),
       printString(new StringNode('A line of text\n'), true),
     );
   });
 });
 
 Deno.test('FILE: Testing load-file and function definitions', async (t) => {
-  const sharedEnv = initEnv();
+  const sharedEnv = initMain();
   assertEquals(
     rep('(load-file "./tests/fixtures/inc.mal")', sharedEnv),
     printString(new NilNode(), true),
@@ -128,7 +128,7 @@ Deno.test('FILE: Testing load-file and function definitions', async (t) => {
 });
 
 Deno.test('FILE: Testing atom creation and operations', async (t) => {
-  const sharedEnv = initEnv();
+  const sharedEnv = initMain();
 
   assertEquals(
     rep('(load-file "./tests/fixtures/inc.mal")', sharedEnv),
@@ -257,7 +257,7 @@ Deno.test('FILE: Testing atom creation and operations', async (t) => {
 });
 
 Deno.test('FILE: Testing large computations', async (t) => {
-  const sharedEnv = initEnv();
+  const sharedEnv = initMain();
 
   assertEquals(
     rep('(load-file "./tests/fixtures/computations.mal")', sharedEnv),
@@ -286,7 +286,7 @@ Deno.test('FILE: Testing large computations', async (t) => {
 });
 
 Deno.test('FILE: Testing *ARGV* existence and emptiness', () => {
-  const sharedEnv = initEnv();
+  const sharedEnv = initMain();
 
   sharedEnv.set(
     new SymbolNode('*ARGV*'),
@@ -313,14 +313,14 @@ Deno.test('FILE: Testing eval setting aa in root scope and access in nested scop
   assertEquals(
     rep(
       '(let* (b 12) (do (eval (read-string "(def! aa 7)")) aa ))',
-      initEnv(),
+      initMain(),
     ),
     printString(new NumberNode(7), true),
   );
 });
 
 Deno.test('FILE: Testing comments in file', async (t) => {
-  const sharedEnv = initEnv();
+  const sharedEnv = initMain();
 
   assertEquals(
     rep(
@@ -346,7 +346,7 @@ Deno.test('FILE: Testing comments in file', async (t) => {
 });
 
 Deno.test('FILE: Testing map literal across multiple lines in a file', async (t) => {
-  const sharedEnv = initEnv();
+  const sharedEnv = initMain();
 
   assertEquals(
     rep('(load-file "./tests/fixtures/incC.mal")', sharedEnv),
@@ -369,7 +369,7 @@ Deno.test('FILE: Testing map literal across multiple lines in a file', async (t)
 });
 
 Deno.test('FILE: Checking eval does not use local environments', async (t) => {
-  const sharedEnv = initEnv();
+  const sharedEnv = initMain();
 
   assertEquals(
     rep('(def! a 1)', sharedEnv),
@@ -389,77 +389,77 @@ Deno.test('FILE: Checking eval does not use local environments', async (t) => {
 
 Deno.test('FILE: Read commented out exclamation mark', () => {
   assertEquals(
-    rep('(read-string "1;!")', initEnv()),
+    rep('(read-string "1;!")', initMain()),
     printString(new NumberNode(1), true),
   );
 });
 
 Deno.test('FILE: Read commented out double quote', () => {
   assertEquals(
-    rep(`(read-string "1;\\"")`, initEnv()),
+    rep(`(read-string "1;\\"")`, initMain()),
     printString(new NumberNode(1), true),
   );
 });
 
 Deno.test('FILE: Read commented out exclamation pound sign', () => {
   assertEquals(
-    rep('(read-string "1;#")', initEnv()),
+    rep('(read-string "1;#")', initMain()),
     printString(new NumberNode(1), true),
   );
 });
 
 Deno.test('FILE: Read commented out exclamation dollar sign', () => {
   assertEquals(
-    rep('(read-string "1;$")', initEnv()),
+    rep('(read-string "1;$")', initMain()),
     printString(new NumberNode(1), true),
   );
 });
 
 Deno.test('FILE: Read commented out exclamation percent sign', () => {
   assertEquals(
-    rep('(read-string "1;%")', initEnv()),
+    rep('(read-string "1;%")', initMain()),
     printString(new NumberNode(1), true),
   );
 });
 
 Deno.test('FILE: Read commented out single quote', () => {
   assertEquals(
-    rep(`(read-string "1;'")`, initEnv()),
+    rep(`(read-string "1;'")`, initMain()),
     printString(new NumberNode(1), true),
   );
 });
 
 Deno.test('FILE: Read commented out backslash', () => {
   assertEquals(
-    rep(`(read-string "1;\\\\")`, initEnv()),
+    rep(`(read-string "1;\\\\")`, initMain()),
     printString(new NumberNode(1), true),
   );
 });
 
 Deno.test('FILE: Read commented out double backslash', () => {
   assertEquals(
-    rep('(read-string "1;\\\\\\\\")', initEnv()),
+    rep('(read-string "1;\\\\\\\\")', initMain()),
     printString(new NumberNode(1), true),
   );
 });
 
 Deno.test('FILE: Read commented out triple backslash', () => {
   assertEquals(
-    rep('(read-string "1;\\\\\\\\\\\\")', initEnv()),
+    rep('(read-string "1;\\\\\\\\\\\\")', initMain()),
     printString(new NumberNode(1), true),
   );
 });
 
 Deno.test('FILE: Read commented out backtick', () => {
   assertEquals(
-    rep('(read-string "1;`")', initEnv()),
+    rep('(read-string "1;`")', initMain()),
     printString(new NumberNode(1), true),
   );
 });
 
 Deno.test('FILE: Read the commented out kitchen sink of characters', () => {
   assertEquals(
-    rep('(read-string "1; &()*+,-./:;<=>?@[]^_{|}~")', initEnv()),
+    rep('(read-string "1; &()*+,-./:;<=>?@[]^_{|}~")', initMain()),
     printString(new NumberNode(1), true),
   );
 });

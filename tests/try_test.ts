@@ -13,9 +13,9 @@
 import { assertEquals, assertThrows } from '@std/assert';
 import { assertSpyCalls, spy } from '@std/testing/mock';
 
-import { initEnv, rep } from '@/ensemble.ts';
-import { ErrorNode, MapNode, NilNode, NumberNode, StringNode } from '@/types.ts';
-import { printString } from '@/printer.ts';
+import { initEnv, rep } from '../src/ensemble.ts';
+import { printString } from '../src/printer.ts';
+import { ErrorNode, MapNode, NilNode, NumberNode, StringNode } from '../src/types.ts';
 
 Deno.test(`TRY: Testing throw`, async (t) => {
   const sharedEnv = initEnv();
@@ -173,13 +173,13 @@ Deno.test(`TRY: Testing throwing a hash-map`, async (t) => {
   await t.step(`Throwing a hash-map`, () => {
     let threwError = false;
     try {
-      rep(`(throw {:msg "err2"})`, sharedEnv);
+      rep(`(throw {msg: "err2"})`, sharedEnv);
     } catch (error) {
       threwError = true;
       assertEquals(
         error,
         new ErrorNode(
-          new MapNode(new Map([[':msg', new StringNode('err2')]])),
+          new MapNode(new Map([['msg:', new StringNode('err2')]])),
         ),
       );
     }

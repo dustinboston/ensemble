@@ -4,7 +4,7 @@
  * @file
  */
 import { assertEquals, assertThrows } from '@std/assert';
-import { initEnv, rep } from '@/ensemble.ts';
+import { initEnv, rep } from '../src/ensemble.ts';
 
 // Share the same environment for all tests.
 const testEnv = initEnv();

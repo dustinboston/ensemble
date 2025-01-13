@@ -12,13 +12,13 @@
 
 import { assertEquals } from '@std/assert';
 
-import { initEnv, rep } from '@/ensemble.ts';
-import { BooleanNode, ListNode, NumberNode, VectorNode } from '@/types.ts';
-import { printString } from '@/printer.ts';
+import { initEnv, rep } from '../src/ensemble.ts';
+import { printString } from '../src/printer.ts';
+import { BooleanNode, ListNode, NumberNode, VectorNode } from '../src/types.ts';
 
-Deno.test(`CONSCAT: Testing cons function`, async (t) => {
+Deno.test(`Cons/Concat: Testing cons function`, async (t) => {
   const sharedEnv = initEnv();
-  await t.step(`CONSCAT: cons a number and empty list`, () => {
+  await t.step(`Cons/Concat: cons a number and empty list`, () => {
     assertEquals(
       rep(
         `(cons 1 (list))`,
@@ -34,7 +34,7 @@ Deno.test(`CONSCAT: Testing cons function`, async (t) => {
     );
   });
 
-  await t.step(`CONSCAT: cons a number and list containing a number`, () => {
+  await t.step(`Cons/Concat: cons a number and list containing a number`, () => {
     assertEquals(
       rep(
         `(cons 1 (list 2))`,
@@ -52,7 +52,7 @@ Deno.test(`CONSCAT: Testing cons function`, async (t) => {
   });
 
   await t.step(
-    `CONSCAT: cons a number and list containing several numbers`,
+    `Cons/Concat: cons a number and list containing several numbers`,
     () => {
       assertEquals(
         rep(
@@ -72,7 +72,7 @@ Deno.test(`CONSCAT: Testing cons function`, async (t) => {
     },
   );
 
-  await t.step(`CONSCAT: cons two lists`, () => {
+  await t.step(`Cons/Concat: cons two lists`, () => {
     assertEquals(
       rep(
         `(cons (list 1) (list 2 3))`,
@@ -93,13 +93,13 @@ Deno.test(`CONSCAT: Testing cons function`, async (t) => {
   });
 });
 
-Deno.test(`CONSCAT: Testing def + cons`, async (t) => {
+Deno.test(`Cons/Concat: Testing def + cons`, async (t) => {
   const sharedEnv = initEnv();
 
   // Define a symbol for testing
   rep(`(def! a (list 2 3))`, sharedEnv);
 
-  await t.step(`CONSCAT: cons a number and a symbol`, () => {
+  await t.step(`Cons/Concat: cons a number and a symbol`, () => {
     assertEquals(
       rep(
         `(cons 1 a)`,
@@ -117,7 +117,7 @@ Deno.test(`CONSCAT: Testing def + cons`, async (t) => {
     );
   });
 
-  await t.step(`CONSCAT: cons does not affect symbol value`, () => {
+  await t.step(`Cons/Concat: cons does not affect symbol value`, () => {
     assertEquals(
       rep(
         `a`,
@@ -135,10 +135,10 @@ Deno.test(`CONSCAT: Testing def + cons`, async (t) => {
   });
 });
 
-Deno.test(`CONSCAT: Testing concat function`, async (t) => {
+Deno.test(`Cons/Concat: Testing concat function`, async (t) => {
   const sharedEnv = initEnv();
 
-  await t.step(`CONSCAT: concat nothing`, () => {
+  await t.step(`Cons/Concat: concat nothing`, () => {
     assertEquals(
       rep(
         `(concat)`,
@@ -149,7 +149,7 @@ Deno.test(`CONSCAT: Testing concat function`, async (t) => {
     );
   });
 
-  await t.step(`CONSCAT: concat a list of numbers`, () => {
+  await t.step(`Cons/Concat: concat a list of numbers`, () => {
     assertEquals(
       rep(
         `(concat (list 1 2))`,
@@ -166,7 +166,7 @@ Deno.test(`CONSCAT: Testing concat function`, async (t) => {
     );
   });
 
-  await t.step(`CONSCAT: concat two lists of numbers`, () => {
+  await t.step(`Cons/Concat: concat two lists of numbers`, () => {
     assertEquals(
       rep(
         `(concat (list 1 2) (list 3 4))`,
@@ -185,7 +185,7 @@ Deno.test(`CONSCAT: Testing concat function`, async (t) => {
     );
   });
 
-  await t.step(`CONSCAT: concat three lists of numbers`, () => {
+  await t.step(`Cons/Concat: concat three lists of numbers`, () => {
     assertEquals(
       rep(
         `(concat (list 1 2) (list 3 4) (list 5 6))`,
@@ -206,7 +206,7 @@ Deno.test(`CONSCAT: Testing concat function`, async (t) => {
     );
   });
 
-  await t.step(`CONSCAT: concat a list that concats nothing`, () => {
+  await t.step(`Cons/Concat: concat a list that concats nothing`, () => {
     assertEquals(
       rep(
         `(concat (concat))`,
@@ -217,7 +217,7 @@ Deno.test(`CONSCAT: Testing concat function`, async (t) => {
     );
   });
 
-  await t.step(`CONSCAT: concat two empty lists`, () => {
+  await t.step(`Cons/Concat: concat two empty lists`, () => {
     assertEquals(
       rep(
         `(concat (list) (list))`,
@@ -229,7 +229,7 @@ Deno.test(`CONSCAT: Testing concat function`, async (t) => {
   });
 
   await t.step(
-    `CONSCAT: an empty list is equivalent to a concat of nothing`,
+    `Cons/Concat: an empty list is equivalent to a concat of nothing`,
     () => {
       assertEquals(
         rep(
@@ -243,14 +243,14 @@ Deno.test(`CONSCAT: Testing concat function`, async (t) => {
   );
 });
 
-Deno.test(`CONSCAT: Testing concat + def!`, async (t) => {
+Deno.test(`Cons/Concat: Testing concat + def!`, async (t) => {
   const sharedEnv = initEnv();
 
   // Define a symbols for testing
   rep(`(def! a (list 1 2))`, sharedEnv);
   rep(`(def! b (list 3 4))`, sharedEnv);
 
-  await t.step(`CONSCAT: concat evaluated symbols and lists`, () => {
+  await t.step(`Cons/Concat: concat evaluated symbols and lists`, () => {
     assertEquals(
       rep(
         `(concat a b (list 5 6))`,
@@ -271,7 +271,7 @@ Deno.test(`CONSCAT: Testing concat + def!`, async (t) => {
     );
   });
 
-  await t.step(`CONSCAT: concat does not affect symbol values`, () => {
+  await t.step(`Cons/Concat: concat does not affect symbol values`, () => {
     assertEquals(
       rep(
         `a`,
@@ -289,7 +289,7 @@ Deno.test(`CONSCAT: Testing concat + def!`, async (t) => {
   });
 
   await t.step(
-    `CONSCAT: symbols maintain their defined values after concat`,
+    `Cons/Concat: symbols maintain their defined values after concat`,
     () => {
       assertEquals(
         rep(
@@ -309,11 +309,11 @@ Deno.test(`CONSCAT: Testing concat + def!`, async (t) => {
   );
 });
 
-Deno.test(`CONSCAT: Testing cons and concat with vectors`, async (t) => {
+Deno.test(`Cons/Concat: Testing cons and concat with vectors`, async (t) => {
   const sharedEnv = initEnv();
 
   await t.step(
-    `CONSCAT: consing a number and vector results in a list`,
+    `Cons/Concat: consing a number and vector results in a list`,
     () => {
       assertEquals(
         rep(
@@ -331,7 +331,7 @@ Deno.test(`CONSCAT: Testing cons and concat with vectors`, async (t) => {
     },
   );
 
-  await t.step(`CONSCAT: the car is injected into the list as-is`, () => {
+  await t.step(`Cons/Concat: the car is injected into the list as-is`, () => {
     assertEquals(
       rep(
         `(cons [1] [2 3])`,
@@ -352,7 +352,7 @@ Deno.test(`CONSCAT: Testing cons and concat with vectors`, async (t) => {
   });
 
   await t.step(
-    `CONSCAT: each item in the cdr is injected into the list`,
+    `Cons/Concat: each item in the cdr is injected into the list`,
     () => {
       assertEquals(
         rep(
@@ -372,7 +372,7 @@ Deno.test(`CONSCAT: Testing cons and concat with vectors`, async (t) => {
     },
   );
 
-  await t.step(`CONSCAT: concat treats vectors and lists the same`, () => {
+  await t.step(`Cons/Concat: concat treats vectors and lists the same`, () => {
     assertEquals(
       rep(
         `(concat [1 2] (list 3 4) [5 6])`,
@@ -394,7 +394,7 @@ Deno.test(`CONSCAT: Testing cons and concat with vectors`, async (t) => {
   });
 
   await t.step(
-    `CONSCAT: concat returns a list when concatenating a vector`,
+    `Cons/Concat: concat returns a list when concatenating a vector`,
     () => {
       assertEquals(
         rep(

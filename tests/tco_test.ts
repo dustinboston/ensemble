@@ -4,7 +4,7 @@
  * @file
  */
 import { assertEquals } from '@std/assert';
-import { initEnv, rep } from '@/ensemble.ts';
+import { initEnv, rep } from '../src/ensemble.ts';
 
 const tcoEnv = initEnv();
 

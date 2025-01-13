@@ -6,7 +6,7 @@
   },
   "nodeModulesDir": "none",
   "tasks": {
-    "build": "deno run -A npm:esbuild --bundle ./javascript/ensemble.ts --outfile=./generated/ensemble.js --format=esm",
+    "build": "deno run -A npm:esbuild --bundle ./src/ensemble.ts --outfile=./generated/ensemble.js --format=esm",
     "fmt": "deno fmt",
     "generate-coverage": "./scripts/coverage.sh",
     "generate-docs": "./scripts/docs.sh",
@@ -14,14 +14,15 @@
     "serve-coverage": "python -m http.server -d ./coverage",
     "serve-docs": "python -m http.server -d ./docs",
     "serve-demo": "deno run --allow-net --allow-read --allow-sys jsr:@std/http/file-server",
-    "start-repl": "deno run -A ./javascript/ensemble.ts",
+    "start-repl": "deno run -A ./src/ensemble.ts",
     "test": "./scripts/test.sh",
-    "test-e2e": "python scripts/runtest.py --deferrable --optional ./tests/step_A.mal -- deno run --allow-env --allow-write --allow-read --allow-sys --allow-hrtime ./javascript/ensemble.ts",
-    "test-fun": "deno --env-file --allow-env test -A --reporter=pretty --parallel ./tests/*_test.ts",
-    "test-unit": "deno --env-file --allow-env test -A --reporter=pretty --parallel ./javascript/_test.ts"
+    "test-e2e": "python scripts/runtest.py --deferrable --optional ./tests/stepA_mal.mal -- ./scripts/run",
+    "test-fun": "deno test -A --reporter=pretty --parallel ./tests/**/*_test.ts",
+    "test-reference-implementation": "deno test -A --reporter=pretty --parallel ./reference/**/*_test.ts",
+    "test-unit": "deno test -A --reporter=pretty --parallel ./src/**/*_test.ts"
   },
   "lint": {
-    "exclude": [],
+    "exclude": ["./generated", "./extension"],
     "rules": {
       "tags": ["recommended"]
     }
@@ -33,7 +34,7 @@
     "semiColons": true,
     "singleQuote": true,
     "proseWrap": "always",
-    "exclude": []
+    "exclude": ["./generated", "./extension"]
   },
   "imports": {
     "@/": "./src/",

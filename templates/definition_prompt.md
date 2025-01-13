@@ -36,26 +36,26 @@ Here is the specification:
 Given text in this form:
 
 ```
-  ClassName
-  Constructor
-  ClassName()
-  Instance methods
-  instanceMethod1()
-  instanceMethod2()
-  Instance properties
-  instanceProperty1
-  instanceProperty2
-  Static methods
-  staticMethod1()
-  staticMethod2()
-  Static properties
-  staticProperty1
-  staticProperty2
-  Events
-  eventName
-  Inheritance
-  ClassA
-  ClassB
+ClassName
+Constructor
+ClassName()
+Instance methods
+instanceMethod1()
+instanceMethod2()
+Instance properties
+instanceProperty1
+instanceProperty2
+Static methods
+staticMethod1()
+staticMethod2()
+Static properties
+staticProperty1
+staticProperty2
+Events
+eventName
+Inheritance
+ClassA
+ClassB
 ```
 
 The first line is the name of the class
@@ -91,28 +91,29 @@ Events will follow the same form as above with these exceptions:
 
 **Inheritance**
 
-If, and only if there is an Inheritance section, include the names of the classes as a comment, like this: `// Inherits: ClassA, ClassB
+If, and only if there is an Inheritance section, include the names of the classes as a comment, like this: `// Inherits:
+ClassA, ClassB
 
 ## Example
 
 Given the value from above:
 
 ```
-  ClassName
-  Constructor
-  ClassName()
-  Instance methods
-  instanceMethod1()
-  Instance properties
-  instanceProperty1
-  Static methods
-  staticMethod1()
-  Static properties
-  staticProperty1
-  Events
-  eventName
-  Ineritance
-  FooBar
+ClassName
+Constructor
+ClassName()
+Instance methods
+instanceMethod1()
+Instance properties
+instanceProperty1
+Static methods
+staticMethod1()
+Static properties
+staticProperty1
+Events
+eventName
+Ineritance
+FooBar
 ```
 
 The output should be:
@@ -163,7 +164,7 @@ Here are the available parameter types:
 
 ```typescript
 export abstract class ParameterType {}
-class AnyParameter extends ParameterType {} 
+class AnyParameter extends ParameterType {}
 export class ArrayParameter extends ParameterType {
   constructor(public type: ParameterType = new AnyParameter());
 }
@@ -186,7 +187,7 @@ export class MapParameter extends ParameterType {
 export class NullParameter extends ParameterType {}
 export class NumberParameter extends ParameterType {}
 export class ObjectParameter extends ParameterType {
-  constructor(public key?: ParameterType, public value?: ParameterType)
+  constructor(public key?: ParameterType, public value?: ParameterType);
 }
 export class PromiseParameter extends ParameterType {
   constructor(public type: ParameterType = new AnyParameter());

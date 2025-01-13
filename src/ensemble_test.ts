@@ -1,6 +1,5 @@
 import { assertEquals, assertExists, assertInstanceOf, assertThrows } from '@std/assert';
 import { add } from './core.ts';
-import { Env } from './env.ts';
 import {
   evaluate,
   evaluateApply,
@@ -18,129 +17,134 @@ import {
   initEnv,
   isMacroCall,
   macroExpand,
-  quasiquote,
+  quasiQuote,
 } from './ensemble.ts';
+import { Env } from './env.ts';
 import {
   assertDefined,
   assertFunctionNode,
   AstNode,
-  BooleanNode,
   ClosureMetadata,
-  DomNode,
+  createBooleanNode,
+  createDomNode,
+  createFunctionNode,
+  createListNode,
+  createMapNode,
+  createNilNode,
+  createNumberNode,
+  createStringNode,
+  createSymbolNode,
+  createVectorNode,
   FunctionNode,
-  ListNode,
-  MapNode,
-  NilNode,
+  isFunctionNode,
+  isNumberNode,
   NumberNode,
-  StringNode,
-  SymbolNode,
-  VectorNode,
 } from './types.ts';
 
 Deno.test('quasiquote(): should quote a symbol', () => {
-  const input = new SymbolNode('a');
-  const expected = new ListNode([
-    new SymbolNode('quote'),
+  const input = createSymbolNode('a');
+  const expected = createListNode([
+    createSymbolNode('quote'),
     input,
   ]);
-  assertEquals(quasiquote(input), expected);
+  assertEquals(quasiQuote(input), expected);
 });
 
 Deno.test('quasiquote(): should quote a dictionary', () => {
-  const input = new MapNode(
-    new Map([['a', new SymbolNode('b')]]),
+  const input = createMapNode(
+    new Map([['a', createSymbolNode('b')]]),
   );
-  const expected = new ListNode([
-    new SymbolNode('quote'),
+  const expected = createListNode([
+    createSymbolNode('quote'),
     input,
   ]);
-  assertEquals(quasiquote(input), expected);
+  assertEquals(quasiQuote(input), expected);
 });
 
 Deno.test('quasiquote(): should quote a Symbol', () => {
-  const input = new SymbolNode('someSymbol');
-  const expected = new ListNode([
-    new SymbolNode('quote'),
+  const input = createSymbolNode('someSymbol');
+  const expected = createListNode([
+    createSymbolNode('quote'),
     input,
   ]);
-  assertEquals(quasiquote(input), expected);
+  assertEquals(quasiQuote(input), expected);
 });
 
 // Non-sequential types
 Deno.test('quasiquote(): should quote a nil', () => {
-  const input = new NilNode();
-  assertEquals(quasiquote(input), input);
+  const input = createNilNode();
+  assertEquals(quasiQuote(input), input);
 });
 
 Deno.test('quasiquote(): should quote a number', () => {
-  const input = new NumberNode(42);
-  assertEquals(quasiquote(input), input);
+  const input = createNumberNode(42);
+  assertEquals(quasiQuote(input), input);
 });
 
 // Unquoted
 Deno.test('quasiquote(): should unquote a symbol unquote in List', () => {
-  const input = new ListNode([
-    new SymbolNode('unquote'),
-    new SymbolNode('x'),
+  const input = createListNode([
+    createSymbolNode('unquote'),
+    createSymbolNode('x'),
   ]);
   assertEquals(
-    quasiquote(input),
-    new SymbolNode('x'),
+    quasiQuote(input),
+    createSymbolNode('x'),
   );
 });
 
 // Splice-unquote
 Deno.test('quasiquote(): should concat a symbol within a list with splice-unquote', () => {
-  const input = new ListNode([
-    new ListNode([
-      new SymbolNode('splice-unquote'),
-      new SymbolNode('x'),
+  const input = createListNode([
+    createListNode([
+      createSymbolNode('splice-unquote'),
+      createSymbolNode('x'),
     ]),
   ]);
-  const expected = new ListNode([
-    new SymbolNode('concat'),
-    new SymbolNode('x'),
-    new ListNode([]),
+  const expected = createListNode([
+    createSymbolNode('concat'),
+    createSymbolNode('x'),
+    createListNode([]),
   ]);
-  assertEquals(quasiquote(input), expected);
+  assertEquals(quasiQuote(input), expected);
 });
 
 Deno.test('quasiquote(): should cons a symbol within a list with splice-unquote', () => {
-  const input = new ListNode([new SymbolNode('y')]);
-  const expected = new ListNode([
-    new SymbolNode('cons'),
-    new ListNode([
-      new SymbolNode('quote'),
-      new SymbolNode('y'),
+  const input = createListNode([createSymbolNode('y')]);
+  const expected = createListNode([
+    createSymbolNode('cons'),
+    createListNode([
+      createSymbolNode('quote'),
+      createSymbolNode('y'),
     ]),
-    new ListNode([]),
+    createListNode([]),
   ]);
-  assertEquals(quasiquote(input), expected);
+  assertEquals(quasiQuote(input), expected);
 });
 
 Deno.test('quasiquote(): should quote a with Vec', () => {
-  const input = new VectorNode([new SymbolNode('z')]);
-  const intermediate = new ListNode([
-    new SymbolNode('cons'),
-    new ListNode([
-      new SymbolNode('quote'),
-      new SymbolNode('z'),
+  const input = createVectorNode([createSymbolNode('z')]);
+  const intermediate = createListNode([
+    createSymbolNode('cons'),
+    createListNode([
+      createSymbolNode('quote'),
+      createSymbolNode('z'),
     ]),
-    new ListNode([]),
+    createListNode([]),
   ]);
-  const expected = new ListNode([
-    new SymbolNode('vec'),
+  const expected = createListNode([
+    createSymbolNode('vec'),
     intermediate,
   ]);
-  assertEquals(quasiquote(input), expected);
+  assertEquals(quasiQuote(input), expected);
 });
 
 Deno.test('evaluateDefMacro(): should define a macro', () => {
   const result = evaluateDefMacro(
-    new ListNode([
-      new SymbolNode('defmacro!'),
-      new SymbolNode('a'),
-      new FunctionNode(() => new NilNode()),
+    createListNode([
+      createSymbolNode('defmacro!'),
+      createSymbolNode('a'),
+      createFunctionNode(() => createNilNode()),
     ]),
     new Env(),
   );
@@ -151,10 +155,10 @@ Deno.test('evaluateDefMacro(): should define a macro', () => {
 
 Deno.test('evaluateDefMacro(): should throw error on invalid key', () => {
   const env = new Env();
-  const ast = new ListNode([
-    new SymbolNode('defmacro!'),
-    new NumberNode(42),
-    new FunctionNode(() => new NilNode()),
+  const ast = createListNode([
+    createSymbolNode('defmacro!'),
+    createNumberNode(42),
+    createFunctionNode(() => createNilNode()),
   ]);
 
   assertThrows(
@@ -166,71 +170,71 @@ Deno.test('evaluateDefMacro(): should throw error on invalid key', () => {
 
 Deno.test('evaluateDefMacro(): should copy metadata', () => {
   const result = evaluateDefMacro(
-    new ListNode([
-      new SymbolNode('defmacro!'),
-      new SymbolNode('a'),
-      new FunctionNode(
-        () => new NilNode(),
+    createListNode([
+      createSymbolNode('defmacro!'),
+      createSymbolNode('a'),
+      createFunctionNode(
+        () => createNilNode(),
         undefined, // closureMetadata
         false, // isMacro
-        new StringNode('meta'), // metadata
+        createStringNode('meta'), // metadata
       ),
     ]),
     new Env(),
   );
 
   assertInstanceOf(result.return, FunctionNode);
-  assertEquals(result.return.metadata.value, 'meta');
+  assertEquals(result.return?.metadata?.value, 'meta');
 });
 
 Deno.test('isMacroCall(): should return false for non-list ast', () => {
   const env = new Env();
-  const ast = new SymbolNode('a');
+  const ast = createSymbolNode('a');
   assertEquals(isMacroCall(ast, env), false);
 });
 
 Deno.test('isMacroCall(): should return false for list with non-Sym first element', () => {
   const env = new Env();
-  const ast = new ListNode([new ListNode([])]);
+  const ast = createListNode([createListNode([])]);
   assertEquals(isMacroCall(ast, env), false);
 });
 
 Deno.test('isMacroCall(): should return false when symbol not found in any env', () => {
   const env = new Env();
-  const ast = new ListNode([new SymbolNode('unknown')]);
+  const ast = createListNode([createSymbolNode('unknown')]);
   assertEquals(isMacroCall(ast, env), false);
 });
 
 Deno.test('isMacroCall(): should return false when symbol is found but not a function', () => {
   const env = new Env();
-  env.set(new SymbolNode('a'), new ListNode([]));
-  const ast = new ListNode([new SymbolNode('a')]);
+  env.set(createSymbolNode('a'), createListNode([]));
+  const ast = createListNode([createSymbolNode('a')]);
   assertEquals(isMacroCall(ast, env), false);
 });
 
 Deno.test('isMacroCall(): should return false when function is not a macro', () => {
   const env = new Env();
-  const fn = new FunctionNode(() => new NilNode());
+  const fn = createFunctionNode(() => createNilNode());
   fn.isMacro = false;
-  env.set(new SymbolNode('a'), fn);
-  const ast = new ListNode([new SymbolNode('a')]);
+  env.set(createSymbolNode('a'), fn);
+  const ast = createListNode([createSymbolNode('a')]);
   assertEquals(isMacroCall(ast, env), false);
 });
 
 Deno.test('isMacroCall(): should return true when function is a macro', () => {
   const env = new Env();
-  const fn = new FunctionNode(() => new NilNode());
+  const fn = createFunctionNode(() => createNilNode());
   fn.isMacro = true;
-  env.set(new SymbolNode('a'), fn);
-  const ast = new ListNode([new SymbolNode('a')]);
+  env.set(createSymbolNode('a'), fn);
+  const ast = createListNode([createSymbolNode('a')]);
   assertEquals(isMacroCall(ast, env), true);
 });
 
 Deno.test('macroExpand(): should return the same AST when not a macro call', () => {
   const env = new Env();
-  const ast = new ListNode([
-    new SymbolNode('not_a_macro'),
-    new SymbolNode('a'),
+  const ast = createListNode([
+    createSymbolNode('not_a_macro'),
+    createSymbolNode('a'),
   ]);
   const expanded = macroExpand(ast, env);
   assertEquals(expanded, ast);
@@ -238,177 +242,175 @@ Deno.test('macroExpand(): should return the same AST when not a macro call', () 
 
 Deno.test('macroExpand(): should expand a single-layer macro', () => {
   const env = new Env();
-  const macroFunc = new FunctionNode(
-    (...args) => new ListNode([new SymbolNode('quote'), ...args]),
+  const macroFunc = createFunctionNode(
+    (...args) => createListNode([createSymbolNode('quote'), ...args]),
   );
   macroFunc.isMacro = true;
 
-  env.set(new SymbolNode('a_macro'), macroFunc);
-  const ast = new ListNode([
-    new SymbolNode('a_macro'),
-    new SymbolNode('a'),
+  env.set(createSymbolNode('a_macro'), macroFunc);
+  const ast = createListNode([
+    createSymbolNode('a_macro'),
+    createSymbolNode('a'),
   ]);
   const expanded = macroExpand(ast, env);
 
   assertEquals(
     expanded,
-    new ListNode([
-      new SymbolNode('quote'),
-      new SymbolNode('a'),
+    createListNode([
+      createSymbolNode('quote'),
+      createSymbolNode('a'),
     ]),
   );
 });
 
 Deno.test('macroExpand(): should expand nested macros', () => {
   const env = new Env();
-  const macroFunc1 = new FunctionNode(
-    (...args) => new ListNode([new SymbolNode('quote'), ...args]),
+  const macroFunc1 = createFunctionNode(
+    (...args) => createListNode([createSymbolNode('quote'), ...args]),
   );
   macroFunc1.isMacro = true;
-  const macroFunc2 = new FunctionNode(
-    (...args) => new ListNode([new SymbolNode('a_macro1'), ...args]),
+  const macroFunc2 = createFunctionNode(
+    (...args) => createListNode([createSymbolNode('a_macro1'), ...args]),
   );
   macroFunc2.isMacro = true;
 
-  env.set(new SymbolNode('a_macro1'), macroFunc1);
-  env.set(new SymbolNode('a_macro2'), macroFunc2);
+  env.set(createSymbolNode('a_macro1'), macroFunc1);
+  env.set(createSymbolNode('a_macro2'), macroFunc2);
 
-  const ast = new ListNode([
-    new SymbolNode('a_macro2'),
-    new SymbolNode('a'),
+  const ast = createListNode([
+    createSymbolNode('a_macro2'),
+    createSymbolNode('a'),
   ]);
   const expanded = macroExpand(ast, env);
 
   assertEquals(
     expanded,
-    new ListNode([
-      new SymbolNode('quote'),
-      new SymbolNode('a'),
+    createListNode([
+      createSymbolNode('quote'),
+      createSymbolNode('a'),
     ]),
   );
 });
 
 Deno.test('evaluateAst(): should return the value for a symbol', () => {
   const env = new Env();
-  const sym = new SymbolNode('x');
-  env.set(sym, new NumberNode(1));
+  const sym = createSymbolNode('x');
+  env.set(sym, createNumberNode(1));
   const result = evaluateAst(sym, env);
-  assertEquals(result, new NumberNode(1));
+  assertEquals(result, createNumberNode(1));
 });
 
 Deno.test('evaluateAst(): should evaluate vectors', () => {
   const env = new Env();
-  const vec = new VectorNode([new NumberNode(1)]);
+  const vec = createVectorNode([createNumberNode(1)]);
   const result = evaluateAst(vec, env);
   assertEquals(
     result,
-    new VectorNode([new NumberNode(1)]),
+    createVectorNode([createNumberNode(1)]),
   );
 });
 
 Deno.test('evaluateAst(): should evaluate lists', () => {
   const env = new Env();
-  const list = new ListNode([new NumberNode(1)]);
+  const list = createListNode([createNumberNode(1)]);
   const result = evaluateAst(list, env);
   assertEquals(
     result,
-    new ListNode([new NumberNode(1)]),
+    createListNode([createNumberNode(1)]),
   );
 });
 
 Deno.test('evaluateAst(): should evaluate dictionaries', () => {
   const env = new Env();
-  const dict = new MapNode(
-    new Map([['a', new NumberNode(1)]]),
+  const dict = createMapNode(
+    new Map([['a', createNumberNode(1)]]),
   );
   const result = evaluateAst(dict, env);
   assertEquals(
     result,
-    new MapNode(new Map([['a', new NumberNode(1)]])),
+    createMapNode(new Map([['a', createNumberNode(1)]])),
   );
 });
 
 Deno.test('evaluateAst(): should evaluate DomNodes', () => {
   const env = new Env();
-  const domNode = new DomNode(
-    new Map([['a', new NumberNode(1)]]),
-  );
+  const domNode = createDomNode('a', new Map([['href', createStringNode('https://example.com')]]));
   const result = evaluateAst(domNode, env);
   assertEquals(
     result,
-    new DomNode(new Map([['a', new NumberNode(1)]])),
+    createDomNode('a', new Map([['href', createStringNode('https://example.com')]])),
   );
 });
 
 Deno.test('evaluateAst(): should return the input for unsupported types', () => {
   const env = new Env();
-  const number_ = new NumberNode(1);
+  const number_ = createNumberNode(1);
   const result = evaluateAst(number_, env);
-  assertEquals(result, new NumberNode(1));
+  assertEquals(result, createNumberNode(1));
 });
 
 Deno.test("evaluate(): should handle 'def!' correctly", () => {
   const env = new Env();
   const result = evaluate(
-    new ListNode([
-      new SymbolNode('def!'),
-      new SymbolNode('a'),
-      new NumberNode(1),
+    createListNode([
+      createSymbolNode('def!'),
+      createSymbolNode('a'),
+      createNumberNode(1),
     ]),
     env,
   );
-  assertEquals(result instanceof NumberNode, true);
+  assertEquals(isNumberNode(result), true);
 });
 
 Deno.test("evaluate(): should handle 'let*' correctly", () => {
   const env = new Env();
   const result = evaluate(
-    new ListNode([
-      new SymbolNode('let*'),
-      new ListNode([]),
-      new NumberNode(1),
+    createListNode([
+      createSymbolNode('let*'),
+      createListNode([]),
+      createNumberNode(1),
     ]),
     env,
   );
   // Tail-call
-  assertEquals(result instanceof NumberNode, true);
+  assertEquals(isNumberNode(result), true);
 });
 
 Deno.test("evaluate(): should handle 'quote' correctly", () => {
   const env = new Env();
   const result = evaluate(
-    new ListNode([
-      new SymbolNode('quote'),
-      new NumberNode(1),
+    createListNode([
+      createSymbolNode('quote'),
+      createNumberNode(1),
     ]),
     env,
   );
-  assertEquals(result instanceof NumberNode, true);
+  assertEquals(isNumberNode(result), true);
 });
 
 Deno.test("evaluate(): should handle 'quasiquoteexpand' correctly", () => {
   const env = new Env();
   const result = evaluate(
-    new ListNode([
-      new SymbolNode('quasiquoteexpand'),
-      new NumberNode(1),
+    createListNode([
+      createSymbolNode('quasiquoteexpand'),
+      createNumberNode(1),
     ]),
     env,
   );
-  assertEquals(result instanceof NumberNode, true);
+  assertEquals(isNumberNode(result), true);
 });
 
 Deno.test("evaluate(): should handle 'quasiquote' correctly", () => {
   const env = new Env();
   const result = evaluate(
-    new ListNode([
-      new SymbolNode('quasiquote'),
-      new NumberNode(1),
+    createListNode([
+      createSymbolNode('quasiquote'),
+      createNumberNode(1),
     ]),
     env,
   );
   // Tail-call
-  assertEquals(result instanceof NumberNode, true);
+  assertEquals(isNumberNode(result), true);
 });
 
 // Test for debugging expansion:
@@ -419,122 +421,122 @@ Deno.test('evaluate(): Should create a macro', () => {
 
   const env = new Env();
   evaluate(
-    new ListNode([
-      new SymbolNode('defmacro!'),
-      new SymbolNode('hotdog'),
-      new FunctionNode(() => new StringNode('🌭')),
+    createListNode([
+      createSymbolNode('defmacro!'),
+      createSymbolNode('hotdog'),
+      createFunctionNode(() => createStringNode('🌭')),
     ]),
     env,
   );
 
   const result = evaluate(
-    new ListNode([
-      new SymbolNode('hotdog'),
+    createListNode([
+      createSymbolNode('hotdog'),
     ]),
     env,
   );
 
-  assertEquals(result, new StringNode('🌭'));
+  assertEquals(result, createStringNode('🌭'));
 });
 
 Deno.test("evaluate(): 'defmacro!' body can be anything", () => {
   const result = evaluate(
-    new ListNode([
-      new SymbolNode('defmacro!'),
-      new SymbolNode('a'),
-      new NumberNode(1),
+    createListNode([
+      createSymbolNode('defmacro!'),
+      createSymbolNode('a'),
+      createNumberNode(1),
     ]),
     new Env(),
   );
-  assertEquals(result instanceof NumberNode, true);
+  assertEquals(isNumberNode(result), true);
 });
 
 Deno.test("evaluate(): should handle 'macroexpand' correctly", () => {
   const env = new Env();
   const result = evaluate(
-    new ListNode([
-      new SymbolNode('macroexpand'),
-      new NumberNode(1),
+    createListNode([
+      createSymbolNode('macroexpand'),
+      createNumberNode(1),
     ]),
     env,
   );
-  assertEquals(result instanceof NumberNode, true);
+  assertEquals(isNumberNode(result), true);
 });
 
 Deno.test("evaluate(): should handle 'try*' correctly", () => {
   const env = new Env();
   const result = evaluate(
-    new ListNode([
-      new SymbolNode('try*'),
-      new NumberNode(1),
+    createListNode([
+      createSymbolNode('try*'),
+      createNumberNode(1),
     ]),
     env,
   );
-  assertEquals(result instanceof NumberNode, true);
+  assertEquals(isNumberNode(result), true);
 });
 
 Deno.test("evaluate(): should handle 'do' correctly", () => {
   const env = new Env();
   const result = evaluate(
-    new ListNode([
-      new SymbolNode('do'),
-      new NumberNode(1),
+    createListNode([
+      createSymbolNode('do'),
+      createNumberNode(1),
     ]),
     env,
   );
   // Tail-call
-  assertEquals(result instanceof NumberNode, true);
+  assertEquals(isNumberNode(result), true);
 });
 
 Deno.test("evaluate(): should handle 'if' correctly", () => {
   const env = new Env();
   const result = evaluate(
-    new ListNode([
-      new SymbolNode('if'),
-      new BooleanNode(true),
-      new NumberNode(1),
+    createListNode([
+      createSymbolNode('if'),
+      createBooleanNode(true),
+      createNumberNode(1),
     ]),
     env,
   );
-  assertEquals(result instanceof NumberNode, true);
+  assertEquals(isNumberNode(result), true);
 });
 
 Deno.test("evaluate(): should handle 'fn*' correctly", () => {
   const env = new Env();
   const result = evaluate(
-    new ListNode([
-      new SymbolNode('fn*'),
-      new ListNode([]),
-      new NumberNode(1),
+    createListNode([
+      createSymbolNode('fn*'),
+      createListNode([]),
+      createNumberNode(1),
     ]),
     env,
   );
-  assertEquals(result instanceof FunctionNode, true);
+  assertEquals(isFunctionNode(result), true);
 });
 
 Deno.test('evaluate(): should handle default case correctly', () => {
   const env = new Env();
   env.set(
-    new SymbolNode('+'),
-    new FunctionNode(() => new NumberNode(3)),
+    createSymbolNode('+'),
+    createFunctionNode(() => createNumberNode(3)),
   );
   const result = evaluate(
-    new ListNode([
-      new SymbolNode('+'),
-      new NumberNode(1),
-      new NumberNode(2),
+    createListNode([
+      createSymbolNode('+'),
+      createNumberNode(1),
+      createNumberNode(2),
     ]),
     env,
   );
-  assertEquals(result instanceof NumberNode, true);
+  assertEquals(isNumberNode(result), true);
 });
 
 Deno.test('evaluateDef(): should define a global variable', () => {
   const env = new Env();
-  const variableName = new SymbolNode('y');
-  const variableValue = new NumberNode(3);
-  const ast = new ListNode([
-    new SymbolNode('def!'),
+  const variableName = createSymbolNode('y');
+  const variableValue = createNumberNode(3);
+  const ast = createListNode([
+    createSymbolNode('def!'),
     variableName,
     variableValue,
   ]);
@@ -550,7 +552,7 @@ Deno.test('evaluateDef(): should define a global variable', () => {
 
 Deno.test('evaluateDef(): should throw an error for incorrect AST', () => {
   const env = new Env();
-  const ast = new ListNode([new SymbolNode('def!')]);
+  const ast = createListNode([createSymbolNode('def!')]);
 
   assertThrows(() => {
     evaluateDef(ast, env);
@@ -559,20 +561,20 @@ Deno.test('evaluateDef(): should throw an error for incorrect AST', () => {
 
 Deno.test('evaluateLet(): should define variables in a new scope', () => {
   const env = new Env();
-  const varName1 = new SymbolNode('a');
-  const varValue1 = new NumberNode(1);
-  const varName2 = new SymbolNode('b');
-  const varValue2 = new NumberNode(2);
+  const varName1 = createSymbolNode('a');
+  const varValue1 = createNumberNode(1);
+  const varName2 = createSymbolNode('b');
+  const varValue2 = createNumberNode(2);
 
-  const bindings = new ListNode([
+  const bindings = createListNode([
     varName1,
     varValue1,
     varName2,
     varValue2,
   ]);
-  const body = new SymbolNode('a');
-  const ast = new ListNode([
-    new SymbolNode('let*'),
+  const body = createSymbolNode('a');
+  const ast = createListNode([
+    createSymbolNode('let*'),
     bindings,
     body,
   ]);
@@ -587,14 +589,14 @@ Deno.test('evaluateLet(): should define variables in a new scope', () => {
 
 Deno.test('evaluateLet(): allows shadowing', () => {
   const env = new Env();
-  env.set(new SymbolNode('a'), new NumberNode(2));
-  const bindings = new ListNode([
-    new SymbolNode('a'),
-    new NumberNode(3),
+  env.set(createSymbolNode('a'), createNumberNode(2));
+  const bindings = createListNode([
+    createSymbolNode('a'),
+    createNumberNode(3),
   ]);
-  const body = new SymbolNode('a');
-  const ast = new ListNode([
-    new SymbolNode('let*'),
+  const body = createSymbolNode('a');
+  const ast = createListNode([
+    createSymbolNode('let*'),
     bindings,
     body,
   ]);
@@ -607,13 +609,13 @@ Deno.test('evaluateLet(): allows shadowing', () => {
   assertExists(newEnv);
   assertEquals(
     evaluate(finalAst, newEnv),
-    new NumberNode(3),
+    createNumberNode(3),
   );
 });
 
 Deno.test('evaluateLet(): throws for incorrect AST', () => {
   const env = new Env();
-  const ast = new ListNode([new SymbolNode('let*')]);
+  const ast = createListNode([createSymbolNode('let*')]);
 
   assertThrows(() => {
     evaluateLet(ast, env);
@@ -622,7 +624,7 @@ Deno.test('evaluateLet(): throws for incorrect AST', () => {
 
 Deno.test('evaluateLet(): should throw an error for incorrect AST', () => {
   const env = new Env();
-  const ast = new ListNode([new SymbolNode('let*')]);
+  const ast = createListNode([createSymbolNode('let*')]);
 
   assertThrows(() => {
     evaluateLet(ast, env);
@@ -630,9 +632,9 @@ Deno.test('evaluateLet(): should throw an error for incorrect AST', () => {
 });
 
 Deno.test('evaluateQuote(): with a number', () => {
-  const input = new NumberNode(7);
-  const quoted = new ListNode([
-    new SymbolNode('quote'),
+  const input = createNumberNode(7);
+  const quoted = createListNode([
+    createSymbolNode('quote'),
     input,
   ]);
   const result = evaluateQuote(quoted, new Env(undefined));
@@ -643,13 +645,13 @@ Deno.test('evaluateQuote(): with a number', () => {
 });
 
 Deno.test('evaluateQuote(): with a list of numbers', () => {
-  const input = new ListNode([
-    new NumberNode(1),
-    new NumberNode(2),
-    new NumberNode(3),
+  const input = createListNode([
+    createNumberNode(1),
+    createNumberNode(2),
+    createNumberNode(3),
   ]);
-  const quoted = new ListNode([
-    new SymbolNode('quote'),
+  const quoted = createListNode([
+    createSymbolNode('quote'),
     input,
   ]);
   const result = evaluateQuote(quoted, new Env(undefined));
@@ -660,16 +662,16 @@ Deno.test('evaluateQuote(): with a list of numbers', () => {
 });
 
 Deno.test('evaluateQuote(): with nested lists', () => {
-  const input = new ListNode([
-    new NumberNode(1),
-    new NumberNode(2),
-    new ListNode([
-      new NumberNode(3),
-      new NumberNode(4),
+  const input = createListNode([
+    createNumberNode(1),
+    createNumberNode(2),
+    createListNode([
+      createNumberNode(3),
+      createNumberNode(4),
     ]),
   ]);
-  const quoted = new ListNode([
-    new SymbolNode('quote'),
+  const quoted = createListNode([
+    createSymbolNode('quote'),
     input,
   ]);
   const result = evaluateQuote(quoted, new Env(undefined));
@@ -681,12 +683,12 @@ Deno.test('evaluateQuote(): with nested lists', () => {
 
 Deno.test('evaluateQuote(): should return the quoted expression', () => {
   const env = new Env();
-  const quotedExpr = new ListNode([
-    new NumberNode(1),
-    new NumberNode(2),
+  const quotedExpr = createListNode([
+    createNumberNode(1),
+    createNumberNode(2),
   ]);
-  const ast = new ListNode([
-    new SymbolNode('quote'),
+  const ast = createListNode([
+    createSymbolNode('quote'),
     quotedExpr,
   ]);
 
@@ -697,7 +699,7 @@ Deno.test('evaluateQuote(): should return the quoted expression', () => {
 
 Deno.test('evaluateQuote(): should throw an error for incorrect AST', () => {
   const env = new Env();
-  const ast = new ListNode([new SymbolNode('quote')]);
+  const ast = createListNode([createSymbolNode('quote')]);
 
   assertThrows(() => {
     evaluateQuote(ast, env);
@@ -705,19 +707,19 @@ Deno.test('evaluateQuote(): should throw an error for incorrect AST', () => {
 });
 
 Deno.test('evaluateQuasiQuoteExpand(): returns expanded form', () => {
-  const ast = new ListNode([
-    new SymbolNode('quasiquoteexpand'),
-    new ListNode([
-      new SymbolNode('unquote'),
-      new SymbolNode('a'),
+  const ast = createListNode([
+    createSymbolNode('quasiquoteexpand'),
+    createListNode([
+      createSymbolNode('unquote'),
+      createSymbolNode('a'),
     ]),
   ]);
 
   const result = evaluateQuasiQuoteExpand(ast, new Env());
-  const expectedResult = quasiquote(
-    new ListNode([
-      new SymbolNode('unquote'),
-      new SymbolNode('a'),
+  const expectedResult = quasiQuote(
+    createListNode([
+      createSymbolNode('unquote'),
+      createSymbolNode('a'),
     ]),
   );
 
@@ -725,8 +727,8 @@ Deno.test('evaluateQuasiQuoteExpand(): returns expanded form', () => {
 });
 
 Deno.test('evaluateQuasiQuoteExpand(): throws for incorrect AST', () => {
-  const ast = new ListNode([
-    new SymbolNode('quasiquoteexpand'),
+  const ast = createListNode([
+    createSymbolNode('quasiquoteexpand'),
   ]);
 
   assertThrows(() => {
@@ -735,20 +737,20 @@ Deno.test('evaluateQuasiQuoteExpand(): throws for incorrect AST', () => {
 });
 
 Deno.test('evaluateQuasiQuote(): performs quasiquote transformation', () => {
-  const ast = new ListNode([
-    new SymbolNode('quasiquote'),
-    new ListNode([
-      new SymbolNode('unquote'),
-      new SymbolNode('a'),
+  const ast = createListNode([
+    createSymbolNode('quasiquote'),
+    createListNode([
+      createSymbolNode('unquote'),
+      createSymbolNode('a'),
     ]),
   ]);
 
   const env = new Env();
   const result = evaluateQuasiQuote(ast, env);
-  const expectedResult = quasiquote(
-    new ListNode([
-      new SymbolNode('unquote'),
-      new SymbolNode('a'),
+  const expectedResult = quasiQuote(
+    createListNode([
+      createSymbolNode('unquote'),
+      createSymbolNode('a'),
     ]),
   );
 
@@ -757,7 +759,7 @@ Deno.test('evaluateQuasiQuote(): performs quasiquote transformation', () => {
 });
 
 Deno.test('evaluateQuasiQuote(): throws for incorrect AST', () => {
-  const ast = new ListNode([new SymbolNode('quasiquote')]);
+  const ast = createListNode([createSymbolNode('quasiquote')]);
 
   assertThrows(() => {
     evaluateQuasiQuote(ast, new Env());
@@ -765,27 +767,27 @@ Deno.test('evaluateQuasiQuote(): throws for incorrect AST', () => {
 });
 
 Deno.test('evaluateDefMacro(): defines a macro', () => {
-  const ast = new ListNode([
-    new SymbolNode('defmacro!'),
-    new SymbolNode('one'),
-    new ListNode([
-      new SymbolNode('fn*'),
-      new ListNode([]),
-      new NumberNode(1),
+  const ast = createListNode([
+    createSymbolNode('defmacro!'),
+    createSymbolNode('one'),
+    createListNode([
+      createSymbolNode('fn*'),
+      createListNode([]),
+      createNumberNode(1),
     ]),
   ]);
 
   const env = new Env();
   const result = evaluateDefMacro(ast, env);
-  const fn = env.get(new SymbolNode('one')) as FunctionNode;
+  const fn = env.get(createSymbolNode('one')) as FunctionNode;
 
-  assertEquals(fn instanceof FunctionNode, true);
+  assertEquals(isFunctionNode(fn), true);
   assertEquals(fn.isMacro, true);
   assertEquals(result.return, fn);
 });
 
 Deno.test('evaluateDefMacro(): throws for incorrect AST', () => {
-  const ast = new ListNode([new SymbolNode('defmacro!')]);
+  const ast = createListNode([createSymbolNode('defmacro!')]);
 
   assertThrows(() => {
     evaluateDefMacro(ast, new Env());
@@ -793,207 +795,207 @@ Deno.test('evaluateDefMacro(): throws for incorrect AST', () => {
 });
 
 Deno.test('evaluateDo(): processes a single action and returns it', () => {
-  const ast = new ListNode([
-    new SymbolNode('do'),
-    new NumberNode(3),
+  const ast = createListNode([
+    createSymbolNode('do'),
+    createNumberNode(3),
   ]);
   const env = new Env();
   const result = evaluateDo(ast, env);
-  assertEquals(result.continue?.ast, new NumberNode(3));
+  assertEquals(result.continue?.ast, createNumberNode(3));
 });
 
 Deno.test('evaluateDo(): processes multiple actions and returns the last one', () => {
-  const ast = new ListNode([
-    new SymbolNode('do'),
-    new NumberNode(3),
-    new NumberNode(4),
-    new StringNode('hello'),
+  const ast = createListNode([
+    createSymbolNode('do'),
+    createNumberNode(3),
+    createNumberNode(4),
+    createStringNode('hello'),
   ]);
 
   const env = new Env();
   const result = evaluateDo(ast, env);
   assertEquals(
     result.continue?.ast,
-    new StringNode('hello'),
+    createStringNode('hello'),
   );
 });
 
 Deno.test('evaluateTry(): evaluates without errors', () => {
-  const ast = new ListNode([
-    new SymbolNode('try*'),
-    new NumberNode(42),
+  const ast = createListNode([
+    createSymbolNode('try*'),
+    createNumberNode(42),
   ]);
   const env = new Env();
   const result = evaluateTry(ast, env);
-  assertEquals(result.return, new NumberNode(42));
+  assertEquals(result.return, createNumberNode(42));
 });
 
 Deno.test('evaluateTry(): catches thrown error and handles it', () => {
-  const ast = new ListNode([
-    new SymbolNode('try*'),
-    new ListNode([
-      new SymbolNode('custom-throw'),
-      new StringNode('we shouldnt be here'),
+  const ast = createListNode([
+    createSymbolNode('try*'),
+    createListNode([
+      createSymbolNode('custom-throw'),
+      createStringNode('we shouldnt be here'),
     ]),
-    new ListNode([
-      new SymbolNode('catch*'),
-      new SymbolNode('e'),
-      new ListNode([
-        new SymbolNode('str'),
-        new StringNode('caught!'),
+    createListNode([
+      createSymbolNode('catch*'),
+      createSymbolNode('e'),
+      createListNode([
+        createSymbolNode('str'),
+        createStringNode('caught!'),
       ]),
     ]),
   ]);
   const env = initEnv();
   env.set(
-    new SymbolNode('custom-throw'),
-    new FunctionNode((_args, _env) => {
+    createSymbolNode('custom-throw'),
+    createFunctionNode((_args, _env) => {
       throw 'error!';
     }),
   );
   const result = evaluateTry(ast, env);
   assertEquals(
     result.return,
-    new StringNode('caught!'),
+    createStringNode('caught!'),
   );
 });
 
 Deno.test('evaluateTry(): catches native error and handles it', () => {
-  const ast = new ListNode([
-    new SymbolNode('try*'),
-    new ListNode([
-      new SymbolNode('throw-native'),
-      new StringNode('native error!'),
+  const ast = createListNode([
+    createSymbolNode('try*'),
+    createListNode([
+      createSymbolNode('throw-native'),
+      createStringNode('native error!'),
     ]),
-    new ListNode([
-      new SymbolNode('catch*'),
-      new SymbolNode('e'),
-      new ListNode([
-        new SymbolNode('str'),
-        new StringNode('caught!'),
+    createListNode([
+      createSymbolNode('catch*'),
+      createSymbolNode('e'),
+      createListNode([
+        createSymbolNode('str'),
+        createStringNode('caught!'),
       ]),
     ]),
   ]);
   const env = initEnv();
   env.set(
-    new SymbolNode('throw-native'),
-    new FunctionNode((_args, _env) => {
+    createSymbolNode('throw-native'),
+    createFunctionNode((_args, _env) => {
       throw new Error('native error!');
     }),
   );
   const result = evaluateTry(ast, env);
   assertEquals(
     result.return,
-    new StringNode('caught!'),
+    createStringNode('caught!'),
   );
 });
 
 Deno.test('evaluateIf(): evaluates true condition and returns thenExpr', () => {
-  const ast = new ListNode([
-    new SymbolNode('if'),
-    new BooleanNode(true),
-    new NumberNode(42),
-    new NumberNode(0),
+  const ast = createListNode([
+    createSymbolNode('if'),
+    createBooleanNode(true),
+    createNumberNode(42),
+    createNumberNode(0),
   ]);
   const env = new Env();
   const result = evaluateIf(ast, env);
   assertEquals(result, {
     return: undefined,
-    continue: { ast: new NumberNode(42), env: env },
+    continue: { ast: createNumberNode(42), env: env },
   });
 });
 
 Deno.test('evaluateIf(): evaluates false condition and returns elseExpr', () => {
-  const ast = new ListNode([
-    new SymbolNode('if'),
-    new BooleanNode(false),
-    new NumberNode(42),
-    new NumberNode(0),
+  const ast = createListNode([
+    createSymbolNode('if'),
+    createBooleanNode(false),
+    createNumberNode(42),
+    createNumberNode(0),
   ]);
   const env = new Env();
   const result = evaluateIf(ast, env);
   assertEquals(result, {
     return: undefined,
-    continue: { ast: new NumberNode(0), env },
+    continue: { ast: createNumberNode(0), env },
   });
 });
 
 Deno.test('evaluateIf(): evaluates null condition and returns elseExpr', () => {
-  const ast = new ListNode([
-    new SymbolNode('if'),
-    new NilNode(),
-    new NumberNode(42),
-    new NumberNode(0),
+  const ast = createListNode([
+    createSymbolNode('if'),
+    createNilNode(),
+    createNumberNode(42),
+    createNumberNode(0),
   ]);
   const env = new Env();
   const result = evaluateIf(ast, env);
   assertEquals(result, {
     return: undefined,
-    continue: { ast: new NumberNode(0), env },
+    continue: { ast: createNumberNode(0), env },
   });
 });
 
 Deno.test('evaluateIf(): evaluates true condition without elseExpr returns thenExpr', () => {
-  const ast = new ListNode([
-    new SymbolNode('if'),
-    new BooleanNode(true),
-    new NumberNode(42),
+  const ast = createListNode([
+    createSymbolNode('if'),
+    createBooleanNode(true),
+    createNumberNode(42),
   ]);
   const env = new Env();
   const result = evaluateIf(ast, env);
   assertEquals(result, {
     return: undefined,
-    continue: { ast: new NumberNode(42), env },
+    continue: { ast: createNumberNode(42), env },
   });
 });
 
 Deno.test('evaluateIf(): evaluates false condition without elseExpr returns nil', () => {
-  const ast = new ListNode([
-    new SymbolNode('if'),
-    new BooleanNode(false),
-    new NumberNode(42),
+  const ast = createListNode([
+    createSymbolNode('if'),
+    createBooleanNode(false),
+    createNumberNode(42),
   ]);
   const env = new Env();
   const result = evaluateIf(ast, env);
   assertEquals(result, {
     continue: undefined,
-    return: new NilNode(),
+    return: createNilNode(),
   });
 });
 
 Deno.test('evaluateIf(): evaluates null condition without elseExpr returns nil', () => {
-  const ast = new ListNode([
-    new SymbolNode('if'),
-    new NilNode(),
-    new NumberNode(42),
+  const ast = createListNode([
+    createSymbolNode('if'),
+    createNilNode(),
+    createNumberNode(42),
   ]);
   const env = new Env();
   const result = evaluateIf(ast, env);
   assertEquals(result, {
     continue: undefined,
-    return: new NilNode(),
+    return: createNilNode(),
   });
 });
 
 Deno.test('evaluateFn(): creates a simple anonymous function', () => {
-  const ast = new ListNode([
-    new SymbolNode('fn*'),
-    new ListNode([
-      new SymbolNode('a'),
-      new SymbolNode('b'),
+  const ast = createListNode([
+    createSymbolNode('fn*'),
+    createListNode([
+      createSymbolNode('a'),
+      createSymbolNode('b'),
     ]),
-    new ListNode([
-      new SymbolNode('+'),
-      new SymbolNode('a'),
-      new SymbolNode('b'),
+    createListNode([
+      createSymbolNode('+'),
+      createSymbolNode('a'),
+      createSymbolNode('b'),
     ]),
   ]);
   const env = new Env();
   env.set(
-    new SymbolNode('+'),
-    new FunctionNode(
+    createSymbolNode('+'),
+    createFunctionNode(
       (...args: AstNode[]) =>
-        new NumberNode(
+        createNumberNode(
           (args[0] as NumberNode).value +
             (args[1] as NumberNode).value,
         ),
@@ -1003,114 +1005,114 @@ Deno.test('evaluateFn(): creates a simple anonymous function', () => {
   const fn = result.return as FunctionNode;
   assertExists(fn);
   const fnResult = fn.value(
-    new NumberNode(2),
-    new NumberNode(3),
+    createNumberNode(2),
+    createNumberNode(3),
   );
-  assertEquals(fnResult, new NumberNode(5));
+  assertEquals(fnResult, createNumberNode(5));
 });
 
 Deno.test('evaluateFn(): creates a function with empty args and returns body value', () => {
-  const ast = new ListNode([
-    new SymbolNode('fn*'),
-    new ListNode([]),
-    new NumberNode(10),
+  const ast = createListNode([
+    createSymbolNode('fn*'),
+    createListNode([]),
+    createNumberNode(10),
   ]);
   const env = new Env();
   const result = evaluateFn(ast, env);
   const fn = result.return as FunctionNode;
   assertExists(fn);
   const fnResult = fn.value();
-  assertEquals(fnResult, new NumberNode(10));
+  assertEquals(fnResult, createNumberNode(10));
 });
 
 Deno.test('evaluateFn(): captures environment in closure', () => {
-  const ast = new ListNode([
-    new SymbolNode('fn*'),
-    new ListNode([new SymbolNode('a')]),
-    new ListNode([
-      new SymbolNode('+'),
-      new SymbolNode('a'),
-      new SymbolNode('b'),
+  const ast = createListNode([
+    createSymbolNode('fn*'),
+    createListNode([createSymbolNode('a')]),
+    createListNode([
+      createSymbolNode('+'),
+      createSymbolNode('a'),
+      createSymbolNode('b'),
     ]),
   ]);
   const env = initEnv();
   env.set(
-    new SymbolNode('+'),
-    new FunctionNode(
+    createSymbolNode('+'),
+    createFunctionNode(
       (...args: AstNode[]) =>
-        new NumberNode(
+        createNumberNode(
           (args[0] as NumberNode).value +
             (args[1] as NumberNode).value,
         ),
     ),
   );
-  env.set(new SymbolNode('b'), new NumberNode(5));
+  env.set(createSymbolNode('b'), createNumberNode(5));
 
   const result = evaluateFn(ast, env);
   const fn = result.return as FunctionNode;
   assertExists(fn);
-  const fnResult = fn.value(new NumberNode(2));
-  assertEquals(fnResult, new NumberNode(7));
+  const fnResult = fn.value(createNumberNode(2));
+  assertEquals(fnResult, createNumberNode(7));
 });
 
 Deno.test('evaluateApply(): applies built-in function correctly', () => {
-  const ast = new ListNode([
-    new SymbolNode('+'),
-    new NumberNode(1),
-    new NumberNode(2),
+  const ast = createListNode([
+    createSymbolNode('+'),
+    createNumberNode(1),
+    createNumberNode(2),
   ]);
   const env = new Env();
-  env.set(new SymbolNode('+'), new FunctionNode(add));
+  env.set(createSymbolNode('+'), createFunctionNode(add));
   const result = evaluateApply(ast, env);
-  assertEquals(result.return, new NumberNode(3));
+  assertEquals(result.return, createNumberNode(3));
 });
 
 Deno.test('evaluateApply(): applies closure correctly', () => {
-  const ast = new ListNode([
-    new SymbolNode('add2'),
-    new NumberNode(5),
+  const ast = createListNode([
+    createSymbolNode('add2'),
+    createNumberNode(5),
   ]);
   const closureMeta: ClosureMetadata = {
-    ast: new ListNode([
-      new SymbolNode('+'),
-      new SymbolNode('a'),
-      new NumberNode(2),
+    ast: createListNode([
+      createSymbolNode('+'),
+      createSymbolNode('a'),
+      createNumberNode(2),
     ]),
     env: new Env(),
-    parameters: [new SymbolNode('a')],
+    parameters: [createSymbolNode('a')],
   };
   closureMeta.env.set(
-    new SymbolNode('+'),
-    new FunctionNode(add),
+    createSymbolNode('+'),
+    createFunctionNode(add),
   );
-  const add2 = new FunctionNode(
-    () => new NilNode(),
+  const add2 = createFunctionNode(
+    () => createNilNode(),
     closureMeta,
   );
   const env = new Env();
-  env.set(new SymbolNode('add2'), add2);
+  env.set(createSymbolNode('add2'), add2);
   const result = evaluateApply(ast, env);
 
   assertDefined(result.continue?.ast);
   assertEquals(
     result.continue?.ast,
-    new ListNode([
-      new SymbolNode('+'),
-      new SymbolNode('a'),
-      new NumberNode(2),
+    createListNode([
+      createSymbolNode('+'),
+      createSymbolNode('a'),
+      createNumberNode(2),
     ]),
   );
 });
 
 Deno.test('evaluateApply(): returns function itself if it is not applicable', () => {
-  const ast = new ListNode([new StringNode('non-fn')]);
+  const ast = createListNode([createStringNode('non-fn')]);
   const env = new Env();
   const result = evaluateApply(ast, env);
-  assertEquals(result.return, new StringNode('non-fn'));
+  assertEquals(result.return, createStringNode('non-fn'));
 });
 
 Deno.test('evaluateApply(): throws error for non-list input', () => {
-  const ast = new NumberNode(42);
+  const ast = createNumberNode(42);
   const env = new Env();
   assertThrows(() => evaluateApply(ast, env));
 });
@@ -1118,7 +1120,7 @@ Deno.test('evaluateApply(): throws error for non-list input', () => {
 Deno.test('initEnv(): initEnv initializes the core functions', () => {
   const env = initEnv();
   assertEquals(
-    typeof env.get(new SymbolNode('+')).value,
+    typeof env.get(createSymbolNode('+')).value,
     'function',
   );
 });
@@ -1126,7 +1128,7 @@ Deno.test('initEnv(): initEnv initializes the core functions', () => {
 Deno.test('initEnv(): initEnv initializes eval function', () => {
   const env = initEnv();
   assertEquals(
-    typeof env.get(new SymbolNode('eval')).value,
+    typeof env.get(createSymbolNode('eval')).value,
     'function',
   );
 });
@@ -1134,10 +1136,10 @@ Deno.test('initEnv(): initEnv initializes eval function', () => {
 // TODO: I messed up "not". The if might be too restrictive now
 Deno.test('initEnv(): initEnv runs repl with predefined functions', () => {
   const env = initEnv();
-  const fn = env.get(new SymbolNode('not')) as FunctionNode;
+  const fn = env.get(createSymbolNode('not')) as FunctionNode;
   assertFunctionNode(fn);
   assertEquals(
-    fn.value(new NumberNode(1)),
-    new BooleanNode(false),
+    fn.value(createNumberNode(1)),
+    createBooleanNode(false),
   );
 });

@@ -18,7 +18,9 @@
     "editor.defaultFormatter": "ms-python.black-formatter"
   },
   "cSpell.words": [
+    "Berners",
     "creationflags",
+    "Eich",
     "INPUTRC",
     "killpg",
     "preexec",

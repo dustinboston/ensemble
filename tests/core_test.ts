@@ -12,9 +12,9 @@
 
 import { assertEquals } from '@std/assert';
 import { assertSpyCalls, spy } from '@std/testing/mock';
-import { initEnv, rep } from '@/ensemble.ts';
-import { BooleanNode, KeywordNode, ListNode, NilNode, NumberNode, SymbolNode, VectorNode } from '@/types.ts';
-import { printString } from '@/printer.ts';
+import { initEnv, rep } from '../src/ensemble.ts';
+import { printString } from '../src/printer.ts';
+import { BooleanNode, KeywordNode, ListNode, NilNode, NumberNode, SymbolNode, VectorNode } from '../src/types.ts';
 
 Deno.test(`CORE: Testing is? functions`, async (t) => {
   const sharedEnv = initEnv();

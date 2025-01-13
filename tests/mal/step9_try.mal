@@ -103,7 +103,7 @@
 ;; ------- (Needed for self-hosting) -------
 
 ;; Testing symbol and keyword functions
-(symbol? :abc)
+(symbol? abc:)
 ;=>false
 (symbol? 'abc)
 ;=>true
@@ -111,7 +111,7 @@
 ;=>false
 (symbol? (symbol "abc"))
 ;=>true
-(keyword? :abc)
+(keyword? abc:)
 ;=>true
 (keyword? 'abc)
 ;=>false
@@ -125,7 +125,7 @@
 (symbol "abc")
 ;=>abc
 (keyword "abc")
-;=>:abc
+;=>abc:
 
 ;; Testing sequential? function
 
@@ -181,7 +181,7 @@
 ;=>false
 (map? 'abc)
 ;=>false
-(map? :abc)
+(map? abc:)
 ;=>false
 
 
@@ -259,55 +259,55 @@
 ;=>3
 
 ;; Testing keywords as hash-map keys
-(get {:abc 123} :abc)
+(get {abc: 123} abc:)
 ;=>123
-(contains? {:abc 123} :abc)
+(contains? {abc: 123} abc:)
 ;=>true
-(contains? {:abcd 123} :abc)
+(contains? {abcd: 123} abc:)
 ;=>false
-(assoc {} :bcd 234)
-;=>{:bcd 234}
-(keyword? (nth (keys {:abc 123 :def 456}) 0))
+(assoc {} bcd: 234)
+;=>{bcd: 234}
+(keyword? (nth (keys {abc: 123 def: 456}) 0))
 ;=>true
-(keyword? (nth (vals {"a" :abc "b" :def}) 0))
+(keyword? (nth (vals {"a" abc: "b" def:}) 0))
 ;=>true
 
 ;; Testing whether assoc updates properly
-(def! hm4 (assoc {:a 1 :b 2} :a 3 :c 1))
-(get hm4 :a)
+(def! hm4 (assoc {a: 1 b: 2} a: 3 c: 1))
+(get hm4 a:)
 ;=>3
-(get hm4 :b)
+(get hm4 b:)
 ;=>2
-(get hm4 :c)
+(get hm4 c:)
 ;=>1
 
 ;; Testing nil as hash-map values
-(contains? {:abc nil} :abc)
+(contains? {abc: nil} abc:)
 ;=>true
-(assoc {} :bcd nil)
-;=>{:bcd nil}
+(assoc {} bcd: nil)
+;=>{bcd: nil}
 
 ;;
 ;; Additional str and pr-str tests
 
-(str "A" {:abc "val"} "Z")
-;=>"A{:abc val}Z"
+(str "A" {abc: "val"} "Z")
+;=>"A{abc: val}Z"
 
-(str true "." false "." nil "." :keyw "." 'symb)
-;=>"true.false.nil.:keyw.symb"
+(str true "." false "." nil "." keyw: "." 'symb)
+;=>"true.false.nil.keyw:.symb"
 
-(pr-str "A" {:abc "val"} "Z")
-;=>"\"A\" {:abc \"val\"} \"Z\""
+(pr-str "A" {abc: "val"} "Z")
+;=>"\"A\" {abc: \"val\"} \"Z\""
 
-(pr-str true "." false "." nil "." :keyw "." 'symb)
-;=>"true \".\" false \".\" nil \".\" :keyw \".\" symb"
+(pr-str true "." false "." nil "." keyw: "." 'symb)
+;=>"true \".\" false \".\" nil \".\" keyw: \".\" symb"
 
-(def! s (str {:abc "val1" :def "val2"}))
-(cond (= s "{:abc val1 :def val2}") true (= s "{:def val2 :abc val1}") true)
+(def! s (str {abc: "val1" def: "val2"}))
+(cond (= s "{abc: val1 def: val2}") true (= s "{def: val2 abc: val1}") true)
 ;=>true
 
-(def! p (pr-str {:abc "val1" :def "val2"}))
-(cond (= p "{:abc \"val1\" :def \"val2\"}") true (= p "{:def \"val2\" :abc \"val1\"}") true)
+(def! p (pr-str {abc: "val1" def: "val2"}))
+(cond (= p "{abc: \"val1\" def: \"val2\"}") true (= p "{def: \"val2\" abc: \"val1\"}") true)
 ;=>true
 
 ;;
@@ -327,7 +327,7 @@
 
 
 ;; Testing throwing a hash-map
-(throw {:msg "err2"})
+(throw {msg: "err2"})
 ;/.*([Ee][Rr][Rr][Oo][Rr]|[Ee]xception).*msg.*err2.*
 
 ;;;TODO: fix so long lines don't trigger ANSI escape codes ;;;(try*
@@ -362,10 +362,10 @@
 (count (keys hm3))
 ;=>2
 
-(dissoc {:cde 345 :fgh 456} :cde)
-;=>{:fgh 456}
-(dissoc {:cde nil :fgh 456} :cde)
-;=>{:fgh 456}
+(dissoc {cde: 345 fgh: 456} cde:)
+;=>{fgh: 456}
+(dissoc {cde: nil fgh: 456} cde:)
+;=>{fgh: 456}
 
 ;;
 ;; Testing equality of hash-maps
@@ -373,32 +373,32 @@
 ;=>true
 (= {} (hash-map))
 ;=>true
-(= {:a 11 :b 22} (hash-map :b 22 :a 11))
+(= {a: 11 b: 22} (hash-map b: 22 a: 11))
 ;=>true
-(= {:a 11 :b [22 33]} (hash-map :b [22 33] :a 11))
+(= {a: 11 b: [22 33]} (hash-map b: [22 33] a: 11))
 ;=>true
-(= {:a 11 :b {:c 33}} (hash-map :b {:c 33} :a 11))
+(= {a: 11 b: {c: 33}} (hash-map b: {c: 33} a: 11))
 ;=>true
-(= {:a 11 :b 22} (hash-map :b 23 :a 11))
+(= {a: 11 b: 22} (hash-map b: 23 a: 11))
 ;=>false
-(= {:a 11 :b 22} (hash-map :a 11))
+(= {a: 11 b: 22} (hash-map a: 11))
 ;=>false
-(= {:a [11 22]} {:a (list 11 22)})
+(= {a: [11 22]} {a: (list 11 22)})
 ;=>true
-(= {:a 11 :b 22} (list :a 11 :b 22))
+(= {a: 11 b: 22} (list a: 11 b: 22))
 ;=>false
 (= {} [])
 ;=>false
 (= [] {})
 ;=>false
 
-(keyword :abc)
-;=>:abc
-(keyword? (first (keys {":abc" 123 ":def" 456})))
+(keyword abc:)
+;=>abc:
+(keyword? (first (keys {"abc:" 123 "def:" 456})))
 ;=>false
 
 ;; Testing that hashmaps don't alter function ast
-(def! bar (fn* [a] {:foo (get a :foo)}))
-(bar {:foo (fn* [x] x)})
-(bar {:foo 3})
+(def! bar (fn* [a] {foo: (get a foo:)}))
+(bar {foo: (fn* [x] x)})
+(bar {foo: 3})
 ;; shouldn't give an error

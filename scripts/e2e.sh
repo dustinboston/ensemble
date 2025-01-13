@@ -95,9 +95,9 @@ run_tests() {
   local step="$1"
   local test_file="$2"
   if [[ "$full_output" -eq 1 ]]; then
-    STEP="$step" MAL_IMPL=ensemble python scripts/runtest.py  --deferrable --optional "$test_file" -- ./scripts/run
+    STEP="$step" MAL_IMPL=ensemble python ./scripts/runtest.py  --deferrable --optional "$test_file" -- ./scripts/run
   else
-    STEP="$step" MAL_IMPL=ensemble python scripts/runtest.py  --deferrable --optional "$test_file" -- ./scripts/run | tail -n 7
+    STEP="$step" MAL_IMPL=ensemble python ./scripts/runtest.py  --deferrable --optional "$test_file" -- ./scripts/run | tail -n 7
   fi
   echo '----------------------------------------------'
 }
@@ -106,10 +106,10 @@ run_tests() {
 for step in "step2_eval" "step3_env" "step4_if_fn_do" "step5_tco" "step6_file" "step7_quote" "step8_macros" "step9_try" "stepA_mal"; do
 
   if [[ "$step" == "stepA_mal" ]]; then
-    run_tests "$step" "tests/$step.mal" # &
+    run_tests "$step" "./tests/$step.mal" # &
   fi
 
-  run_tests "$step" "tests/mal/$step.mal" # &
+  run_tests "$step" "./tests/mal/$step.mal" # &
 done
 
 # Wait for all background processes to complete

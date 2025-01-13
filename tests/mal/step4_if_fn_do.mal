@@ -428,13 +428,13 @@ nil
 
 
 ;; Testing keywords
-(= :abc :abc)
+(= abc: abc:)
 ;=>true
-(= :abc :def)
+(= abc: def:)
 ;=>false
-(= :abc ":abc")
+(= abc: "abc:")
 ;=>false
-(= (list :abc) (list :abc))
+(= (list abc:) (list abc:))
 ;=>true
 
 ;; Testing vector truthiness
@@ -470,7 +470,7 @@ nil
 ;=>true
 (= [7 8] [7 8])
 ;=>true
-(= [:abc] [:abc])
+(= [abc:] [abc:])
 ;=>true
 (= (list 1 2) [1 2])
 ;=>true

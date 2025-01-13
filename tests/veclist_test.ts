@@ -11,9 +11,9 @@
 
 import { assertEquals } from '@std/assert';
 
-import { initEnv, rep } from '@/ensemble.ts';
-import { ListNode, NilNode, NumberNode, StringNode, VectorNode } from '@/types.ts';
-import { printString } from '@/printer.ts';
+import { initEnv, rep } from '../src/ensemble.ts';
+import { printString } from '../src/printer.ts';
+import { ListNode, NilNode, NumberNode, StringNode, VectorNode } from '../src/types.ts';
 
 Deno.test(`VECLIST: Testing vec function`, async (t) => {
   const sharedEnv = initEnv();

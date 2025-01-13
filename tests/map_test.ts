@@ -9,20 +9,20 @@
  */
 
 import { assertEquals } from '@std/assert';
-import { initEnv, rep } from '@/ensemble.ts';
-import { BooleanNode, KeywordNode, ListNode, MapNode, NilNode, NumberNode, StringNode } from '@/types.ts';
-import { printString } from '@/printer.ts';
+import { initEnv, rep } from '../src/ensemble.ts';
+import { printString } from '../src/printer.ts';
+import { BooleanNode, KeywordNode, ListNode, MapNode, NilNode, NumberNode, StringNode } from '../src/types.ts';
 
 Deno.test(`MAP: Testing MapNode`, async (t) => {
   await t.step(
     `MAP: Creating a MapNode with a Map`,
     () => {
-      // {foo 1 "bar" 2 :baz 3}
+      // {foo 1 "bar" 2 baz: 3}
       const map = new MapNode(
         new Map([
           ['foo', new NumberNode(1)],
           ['"bar"', new NumberNode(2)],
-          [':baz', new NumberNode(3)],
+          ['baz:', new NumberNode(3)],
         ]),
       );
       assertEquals(
@@ -30,7 +30,7 @@ Deno.test(`MAP: Testing MapNode`, async (t) => {
         new Map([
           ['foo', new NumberNode(1)],
           ['"bar"', new NumberNode(2)],
-          [':baz', new NumberNode(3)],
+          ['baz:', new NumberNode(3)],
         ]),
       );
     },
@@ -39,12 +39,12 @@ Deno.test(`MAP: Testing MapNode`, async (t) => {
   await t.step(
     `MAP: Creating a MapNode an array`,
     () => {
-      // {foo 1 "bar" 2 :baz 3}
+      // {foo 1 "bar" 2 baz: 3}
       const map = new MapNode(
         new Map([
           ['foo', new NumberNode(1)],
           ['"bar"', new NumberNode(2)],
-          [':baz', new NumberNode(3)],
+          ['baz:', new NumberNode(3)],
         ]),
       );
       assertEquals(
@@ -52,7 +52,7 @@ Deno.test(`MAP: Testing MapNode`, async (t) => {
         new Map([
           ['foo', new NumberNode(1)],
           ['"bar"', new NumberNode(2)],
-          [':baz', new NumberNode(3)],
+          ['baz:', new NumberNode(3)],
         ]),
       );
     },
@@ -61,13 +61,13 @@ Deno.test(`MAP: Testing MapNode`, async (t) => {
   await t.step(
     `MAP: Strings can be used for keys`,
     () => {
-      // {foo 1 "bar" 2 :baz 3}
+      // {foo 1 "bar" 2 baz: 3}
       const map = new MapNode(
         new Map(
           [
             ['foo', new NumberNode(1)],
             ['"bar"', new NumberNode(2)],
-            [':baz', new NumberNode(3)],
+            ['baz:', new NumberNode(3)],
           ],
         ),
       );
@@ -76,7 +76,7 @@ Deno.test(`MAP: Testing MapNode`, async (t) => {
         new Map([
           ['foo', new NumberNode(1)],
           ['"bar"', new NumberNode(2)],
-          [':baz', new NumberNode(3)],
+          ['baz:', new NumberNode(3)],
         ]),
       );
     },
@@ -224,7 +224,7 @@ Deno.test(`MAP: Testing isMap`, async (t) => {
   await t.step(`MAP: Checking if a keyword is identified as a map`, () => {
     // false
     assertEquals(
-      rep(`(map? :abc)`, sharedEnv),
+      rep(`(map? abc:)`, sharedEnv),
       printString(new BooleanNode(false), true),
     );
   });
@@ -489,7 +489,7 @@ Deno.test(`MAP: Testing keywords as hash-map keys`, async (t) => {
   await t.step(`MAP: Retrieving value associated with a keyword key`, () => {
     // 123
     assertEquals(
-      rep(`(get {:abc 123} :abc)`, sharedEnv),
+      rep(`(get {abc: 123} abc:)`, sharedEnv),
       printString(new NumberNode(123), true),
     );
   });
@@ -499,7 +499,7 @@ Deno.test(`MAP: Testing keywords as hash-map keys`, async (t) => {
     () => {
       // true
       assertEquals(
-        rep(`(contains? {:abc 123} :abc)`, sharedEnv),
+        rep(`(contains? {abc: 123} abc:)`, sharedEnv),
         printString(new BooleanNode(true), true),
       );
     },
@@ -510,7 +510,7 @@ Deno.test(`MAP: Testing keywords as hash-map keys`, async (t) => {
     () => {
       // false
       assertEquals(
-        rep(`(contains? {:abcd 123} :abc)`, sharedEnv),
+        rep(`(contains? {abcd: 123} abc:)`, sharedEnv),
         printString(new BooleanNode(false), true),
       );
     },
@@ -519,13 +519,13 @@ Deno.test(`MAP: Testing keywords as hash-map keys`, async (t) => {
   await t.step(
     `MAP: Associating a new key-value pair in an empty hash-map`,
     () => {
-      // {:bcd 234}
+      // {bcd: 234}
       assertEquals(
-        rep(`(assoc {} :bcd 234)`, sharedEnv),
+        rep(`(assoc {} bcd: 234)`, sharedEnv),
         printString(
           new MapNode(
             new Map([[
-              ':bcd',
+              'bcd:',
               new NumberNode(234),
             ]]),
           ),
@@ -540,7 +540,7 @@ Deno.test(`MAP: Testing keywords as hash-map keys`, async (t) => {
     () => {
       // true
       assertEquals(
-        rep(`(keyword? (nth (keys {:abc 123 :def 456}) 0))`, sharedEnv),
+        rep(`(keyword? (nth (keys {abc: 123 def: 456}) 0))`, sharedEnv),
         printString(new BooleanNode(true), true),
       );
     },
@@ -551,7 +551,7 @@ Deno.test(`MAP: Testing keywords as hash-map keys`, async (t) => {
     () => {
       // true
       assertEquals(
-        rep(`(keyword? (nth (vals {"a" :abc "b" :def}) 0))`, sharedEnv),
+        rep(`(keyword? (nth (vals {"a" abc: "b" def:}) 0))`, sharedEnv),
         printString(new BooleanNode(true), true),
       );
     },
@@ -560,28 +560,28 @@ Deno.test(`MAP: Testing keywords as hash-map keys`, async (t) => {
 
 Deno.test(`MAP: Testing whether assoc updates properly`, async (t) => {
   const sharedEnv = initEnv();
-  rep(`(def! hm4 (assoc {:a 1 :b 2} :a 3 :c 1))`, sharedEnv);
+  rep(`(def! hm4 (assoc {a: 1 b: 2} a: 3 c: 1))`, sharedEnv);
 
-  await t.step(`MAP: Verifying updated value for key :a`, () => {
+  await t.step(`MAP: Verifying updated value for key a:`, () => {
     // 3
     assertEquals(
-      rep(`(get hm4 :a)`, sharedEnv),
+      rep(`(get hm4 a:)`, sharedEnv),
       printString(new NumberNode(3), true),
     );
   });
 
-  await t.step(`MAP: Verifying unchanged value for key :b`, () => {
+  await t.step(`MAP: Verifying unchanged value for key b:`, () => {
     // 2
     assertEquals(
-      rep(`(get hm4 :b)`, sharedEnv),
+      rep(`(get hm4 b:)`, sharedEnv),
       printString(new NumberNode(2), true),
     );
   });
 
-  await t.step(`MAP: Verifying newly added value for key :c`, () => {
+  await t.step(`MAP: Verifying newly added value for key c:`, () => {
     // 1
     assertEquals(
-      rep(`(get hm4 :c)`, sharedEnv),
+      rep(`(get hm4 c:)`, sharedEnv),
       printString(new NumberNode(1), true),
     );
   });
@@ -593,17 +593,17 @@ Deno.test(`MAP: Testing nil as hash-map values`, async (t) => {
   await t.step(`MAP: Checking if nil value is present in hash-map`, () => {
     // true
     assertEquals(
-      rep(`(contains? {:abc nil} :abc)`, sharedEnv),
+      rep(`(contains? {abc: nil} abc:)`, sharedEnv),
       printString(new BooleanNode(true), true),
     );
   });
 
   await t.step(`MAP: Associating nil value with a new key`, () => {
-    // {:bcd nil}
+    // {bcd: nil}
     assertEquals(
-      rep(`(assoc {} :bcd nil)`, sharedEnv),
+      rep(`(assoc {} bcd: nil)`, sharedEnv),
       printString(
-        new MapNode(new Map([[':bcd', new NilNode()]])),
+        new MapNode(new Map([['bcd:', new NilNode()]])),
         true,
       ),
     );
@@ -614,39 +614,39 @@ Deno.test(`MAP: Additional str and pr-str tests`, async (t) => {
   const sharedEnv = initEnv();
 
   await t.step(`MAP: Concatenating string with hash-map using str`, () => {
-    // "A{:abc val}Z"
+    // "A{abc: val}Z"
 
     assertEquals(
-      rep(`(str "A" {:abc "val"} "Z")`, sharedEnv),
-      printString(new StringNode('A{:abc val}Z'), true),
+      rep(`(str "A" {abc: "val"} "Z")`, sharedEnv),
+      printString(new StringNode('A{abc: val}Z'), true),
     );
   });
 
   await t.step(`MAP: Concatenating various types with str`, () => {
-    // "true.false.nil.:keyw.symb"
+    // "true.false.nil.keyw:.symb"
     assertEquals(
-      rep(`(str true "." false "." nil "." :keyw "." 'symb)`, sharedEnv),
-      printString(new StringNode('true.false.nil.:keyw.symb'), true),
+      rep(`(str true "." false "." nil "." keyw: "." 'symb)`, sharedEnv),
+      printString(new StringNode('true.false.nil.keyw:.symb'), true),
     );
   });
 
   await t.step(`MAP: Printing hash-map with pr-str`, () => {
-    // "\"A\" {:abc \"val\"} \"Z\""
+    // "\"A\" {abc: \"val\"} \"Z\""
     assertEquals(
-      rep(`(pr-str "A" {:abc "val"} "Z")`, sharedEnv),
-      printString(new StringNode('"A" {:abc "val"} "Z"'), true),
+      rep(`(pr-str "A" {abc: "val"} "Z")`, sharedEnv),
+      printString(new StringNode('"A" {abc: "val"} "Z"'), true),
     );
   });
 
   await t.step(`MAP: Printing various types with pr-str`, () => {
-    // "true \".\" false \".\" nil \".\" :keyw \".\" symb"
+    // "true \".\" false \".\" nil \".\" keyw: \".\" symb"
     assertEquals(
       rep(
-        `(pr-str true "." false "." nil "." :keyw "." 'symb)`,
+        `(pr-str true "." false "." nil "." keyw: "." 'symb)`,
         sharedEnv,
       ),
       printString(
-        new StringNode('true "." false "." nil "." :keyw "." symb'),
+        new StringNode('true "." false "." nil "." keyw: "." symb'),
         true,
       ),
     );
@@ -656,10 +656,10 @@ Deno.test(`MAP: Additional str and pr-str tests`, async (t) => {
     `MAP: Checking if str output for hash-map matches expected formats`,
     () => {
       // true
-      rep(`(def! s (str {:abc "val1" :def "val2"}))`, sharedEnv);
+      rep(`(def! s (str {abc: "val1" def: "val2"}))`, sharedEnv);
       assertEquals(
         rep(
-          `(cond (= s "{:abc val1 :def val2}") true (= s "{:def val2 :abc val1}") true)`,
+          `(cond (= s "{abc: val1 def: val2}") true (= s "{def: val2 abc: val1}") true)`,
           sharedEnv,
         ),
         printString(new BooleanNode(true), true),
@@ -671,11 +671,11 @@ Deno.test(`MAP: Additional str and pr-str tests`, async (t) => {
     `MAP: Checking if pr-str output for hash-map matches expected formats`,
     () => {
       // true
-      rep(`(def! p (pr-str {:abc "val1" :def "val2"}))`, sharedEnv);
+      rep(`(def! p (pr-str {abc: "val1" def: "val2"}))`, sharedEnv);
 
       assertEquals(
         rep(
-          `(cond (= p "{:abc \\"val1\\" :def \\"val2\\"}") true (= p "{:def \\"val2\\" :abc \\"val1\\"}") true) `,
+          `(cond (= p "{abc: \\"val1\\" def: \\"val2\\"}") true (= p "{def: \\"val2\\" abc: \\"val1\\"}") true) `,
           sharedEnv,
         ),
         printString(new BooleanNode(true), true),
@@ -748,13 +748,12 @@ Deno.test(`MAP: Testing dissoc`, async (t) => {
   await t.step(
     `MAP: Dissociating a key from a hash-map with nil value`,
     () => {
-      // {:fgh 456}
       assertEquals(
-        rep(`(dissoc {:cde 345 :fgh 456} :cde)`, sharedEnv),
+        rep(`(dissoc {cde: 345 fgh: 456} cde:)`, sharedEnv),
         printString(
           new MapNode(
             new Map([[
-              ':fgh',
+              'fgh:',
               new NumberNode(456),
             ]]),
           ),
@@ -765,11 +764,10 @@ Deno.test(`MAP: Testing dissoc`, async (t) => {
   );
 
   await t.step(`MAP: Dissociating a key with nil value`, () => {
-    // {:fgh 456}
     assertEquals(
-      rep(`(dissoc {:cde nil :fgh 456} :cde)`, sharedEnv),
+      rep(`(dissoc {cde: nil fgh: 456} cde:)`, sharedEnv),
       printString(
-        new MapNode(new Map([[':fgh', new NumberNode(456)]])),
+        new MapNode(new Map([['fgh:', new NumberNode(456)]])),
         true,
       ),
     );
@@ -806,7 +804,7 @@ Deno.test(`MAP: Testing equality of hash-maps`, async (t) => {
     () => {
       // true
       assertEquals(
-        rep(`(= {:a 11 :b 22} (hash-map :b 22 :a 11))`, sharedEnv),
+        rep(`(= {a: 11 b: 22} (hash-map b: 22 a: 11))`, sharedEnv),
         printString(new BooleanNode(true), true),
       );
     },
@@ -818,7 +816,7 @@ Deno.test(`MAP: Testing equality of hash-maps`, async (t) => {
       // true
       assertEquals(
         rep(
-          `(= {:a 11 :b [22 33]} (hash-map :b [22 33] :a 11))`,
+          `(= {a: 11 b: [22 33]} (hash-map b: [22 33] a: 11))`,
           sharedEnv,
         ),
         printString(new BooleanNode(true), true),
@@ -832,7 +830,7 @@ Deno.test(`MAP: Testing equality of hash-maps`, async (t) => {
       // true
       assertEquals(
         rep(
-          `(= {:a 11 :b {:c 33}} (hash-map :b {:c 33} :a 11))`,
+          `(= {a: 11 b: {c: 33}} (hash-map b: {c: 33} a: 11))`,
           sharedEnv,
         ),
         printString(new BooleanNode(true), true),
@@ -845,7 +843,7 @@ Deno.test(`MAP: Testing equality of hash-maps`, async (t) => {
     () => {
       // false
       assertEquals(
-        rep(`(= {:a 11 :b 22} (hash-map :b 23 :a 11))`, sharedEnv),
+        rep(`(= {a: 11 b: 22} (hash-map b: 23 a: 11))`, sharedEnv),
         printString(new BooleanNode(false), true),
       );
     },
@@ -856,7 +854,7 @@ Deno.test(`MAP: Testing equality of hash-maps`, async (t) => {
     () => {
       // false
       assertEquals(
-        rep(`(= {:a 11 :b 22} (hash-map :a 11))`, sharedEnv),
+        rep(`(= {a: 11 b: 22} (hash-map a: 11))`, sharedEnv),
         printString(new BooleanNode(false), true),
       );
     },
@@ -867,7 +865,7 @@ Deno.test(`MAP: Testing equality of hash-maps`, async (t) => {
     () => {
       // true
       assertEquals(
-        rep(`(= {:a [11 22]} {:a (list 11 22)})`, sharedEnv),
+        rep(`(= {a: [11 22]} {a: (list 11 22)})`, sharedEnv),
         printString(new BooleanNode(true), true),
       );
     },
@@ -878,7 +876,7 @@ Deno.test(`MAP: Testing equality of hash-maps`, async (t) => {
     () => {
       // false
       assertEquals(
-        rep(`(= {:a 11 :b 22} (list :a 11 :b 22))`, sharedEnv),
+        rep(`(= {a: 11 b: 22} (list a: 11 b: 22))`, sharedEnv),
         printString(new BooleanNode(false), true),
       );
     },
@@ -907,10 +905,10 @@ Deno.test(`MAP: Testing equality of hash-maps`, async (t) => {
   );
 
   await t.step(`MAP: Retrieving a keyword from a string`, () => {
-    // :abc
+    // abc:
     assertEquals(
-      rep(`(keyword :abc)`, sharedEnv),
-      printString(new KeywordNode(':abc'), true),
+      rep(`(keyword abc:)`, sharedEnv),
+      printString(new KeywordNode('abc:'), true),
     );
   });
 
@@ -920,7 +918,7 @@ Deno.test(`MAP: Testing equality of hash-maps`, async (t) => {
       // false
       assertEquals(
         rep(
-          `(keyword? (first (keys {":abc" 123 ":def" 456})))`,
+          `(keyword? (first (keys {"abc:" 123 "def:" 456})))`,
           sharedEnv,
         ),
         printString(new BooleanNode(false), true),
@@ -931,9 +929,9 @@ Deno.test(`MAP: Testing equality of hash-maps`, async (t) => {
 
 Deno.test(`MAP: Testing that hashmaps don't alter function ast`, () => {
   const sharedEnv = initEnv();
-  rep(`(def! bar (fn* [a] {:foo (get a :foo)}))`, sharedEnv);
-  rep(`(bar {:foo (fn* [x] x)})`, sharedEnv);
-  rep(`(bar {:foo 3})`, sharedEnv);
+  rep(`(def! bar (fn* [a] {foo: (get a foo:)}))`, sharedEnv);
+  rep(`(bar {foo: (fn* [x] x)})`, sharedEnv);
+  rep(`(bar {foo: 3})`, sharedEnv);
 
   // Shouldn't give an error
 });

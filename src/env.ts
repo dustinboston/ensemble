@@ -50,7 +50,7 @@ export class Env {
           const keyString = types.convertMapKeyToString(nextBind);
           this.value.set(
             keyString,
-            new types.ListNode(remainingExprs),
+            types.createListNode(remainingExprs),
           );
           break;
         }

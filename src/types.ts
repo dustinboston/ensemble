@@ -6,160 +6,73 @@
 
 import { type Env } from './env.ts';
 
-//
-// Classes
-// ============================================================================
+// MARK: TYPES
+// =============================================================================
 
 /**
- * @see https://craftinginterpreters.com/representing-code.html
+ * All of the possible types that an AstNode can be.
  */
-
-export class AstNode {
-  // deno-lint-ignore no-explicit-any
-  constructor(public value: any) {}
-
-  public toJs<T>(): T {
-    return this.astToJs(this) as T;
-  }
-
-  private astToJs(ast: unknown): unknown {
-    if (
-      ast instanceof StringNode ||
-      ast instanceof KeywordNode ||
-      ast instanceof SymbolNode ||
-      ast instanceof BooleanNode ||
-      ast instanceof NumberNode
-    ) {
-      return ast.value;
-    }
-
-    if (ast instanceof AtomNode) {
-      return this.astToJs(ast.value);
-    }
-
-    if (ast instanceof ErrorNode) {
-      const message = this.astToJs(ast.value);
-      return new Error(String(message));
-    }
-
-    if (ast instanceof FunctionNode) {
-      return ast.value;
-    }
-
-    if (ast instanceof ListNode || ast instanceof VectorNode) {
-      return ast.value.map((value: AstNode) => this.astToJs(value));
-    }
-
-    // Convert to a POJO because there aren't any JS APIs that take a Map as an argument.
-    if (ast instanceof MapNode) {
-      // deno-lint-ignore no-explicit-any
-      const obj: Record<string, any> = {};
-      for (const [key, valueAstNode] of ast.value.entries()) {
-        const value = this.astToJs(valueAstNode);
-        obj[key] = value;
-      }
-      return obj;
-    }
-
-    if (ast instanceof NilNode) {
-      return null;
-    }
-
-    throw new TypeError(`unmatched object ${JSON.stringify(ast)}`);
-  }
-}
+export type AstNode =
+  | AtomNode
+  | BooleanNode
+  | DomNode
+  | ErrorNode
+  | FunctionNode
+  // | JsNode<SupportedJsTypes>
+  | KeywordNode
+  | ListNode
+  | MapNode
+  | NilNode
+  | NumberNode
+  | StringNode
+  | SymbolNode
+  | VectorNode;
 
 /**
- * SymbolNode class
- * A data class which represents a part of the AST.
- * @param value - The data that this class represents.
+ * Defines a union of JavaScript types that can be used with JsNode.
+ *
+ * @remarks
+ * This type alias is used to specify a set of JavaScript types that are supported by JsNode. It ensures that only types that we can handle are specified.
+ *
+ * @example
+ * ```typescript
+ * const dateValue = new Date();
+ * new JsNode(dateValue); // No type error
+ *
+ * const stringValue: SupportedJsTypes = "Hello"; // Type error: string is not assignable to SupportedJsTypes
+ * ```
  */
-export class SymbolNode extends AstNode {
-  constructor(public value: string) {
-    super(value);
-  }
-}
+// type SupportedJsTypes<U extends object = object, V extends unknown = unknown> =
+//   | bigint
+//   | Date
+//   | RegExp
+//   | Set<U>
+//   | WeakMap<U, V>
+//   | WeakSet<U>
+//   | ArrayBuffer
+//   | SharedArrayBuffer
+//   | DataView
+//   | Int8Array
+//   | Uint8Array
+//   | Uint8ClampedArray
+//   | Int16Array
+//   | Uint16Array
+//   | Int32Array
+//   | Uint32Array
+//   | Float32Array
+//   | Float64Array
+//   | BigInt64Array
+//   | BigUint64Array
+//   | BigUint64Array;
 
 /**
- * List class
- * A data class which represents a part of the AST.
- * @param value - The data that this class represents.
+ * Defines the actual function that FunctionNode wraps.
  */
-export class ListNode extends AstNode {
-  constructor(
-    public value: AstNode[],
-    public metadata: AstNode = new NilNode(),
-  ) {
-    super(value);
-  }
-}
-
-/**
- * VectorNode class
- * A data class which represents a part of the AST.
- * @param value - The data that this class represents.
- */
-export class VectorNode<T extends AstNode[] = AstNode[]> extends AstNode {
-  constructor(
-    public value: T,
-    public metadata: AstNode = new NilNode(),
-  ) {
-    super(value);
-  }
-}
-
-/**
- * AtomNode class
- * A data class which represents a part of the AST.
- * @param value - The data that this class represents.
- */
-export class AtomNode extends AstNode {
-  constructor(public value: AstNode) {
-    super(value);
-  }
-}
-
-/**
- * BooleanNode class
- * A data class which represents a part of the AST.
- * @param value - The data that this class represents.
- */
-export class BooleanNode extends AstNode {
-  constructor(public value: boolean) {
-    super(value);
-  }
-}
-
-/**
- * MapNode class
- * A data class which represents a part of the AST.
- * @description The Map value stores MapKeys as strings.
- * - A KeywordNode is stored as ':key'
- * - A StringNode is stored as '"str"'
- * - And a SymbolNode is stored as 'sym'.
- * @param value - The data that this class represents.
- */
-export class MapNode extends AstNode {
-  constructor(
-    public value: Map<string, AstNode> = new Map<string, AstNode>(),
-    public metadata: AstNode = new NilNode(),
-  ) {
-    super(value);
-  }
-}
-
-/**
- * ErrorNode class
- * A data class which represents a part of the AST.
- * @param value - The data that this class represents.
- */
-export class ErrorNode extends AstNode {
-  constructor(public value: AstNode) {
-    super(value);
-  }
-}
-
 export type Closure = (...args: AstNode[]) => AstNode;
+
+/**
+ * The metadata for a FunctionNode. These values are used as the context for the function when it is evaluated.
+ */
 export type ClosureMetadata = {
   ast: AstNode;
   env: Env;
@@ -167,432 +80,18 @@ export type ClosureMetadata = {
 };
 
 /**
- * FunctionNode class
- * A data class which represents a part of the AST.
- * @param value - The data that this class represents.
- * @param closureMeta - A POJO that contains an AstNode, Env, and parameters
- * which are all used as the context for the function when it is evaluated.
- * @param isMacro - Whether the function is a macro.
- * @param metadata - Additional data to associate with this node.
+ * Types that are valid map keys.
  */
-export class FunctionNode extends AstNode {
-  constructor(
-    public value: Closure,
-    public closureMeta?: ClosureMetadata,
-    public isMacro = false,
-    public metadata: AstNode = new NilNode(),
-  ) {
-    super(value);
-  }
-}
-
-/**
- * KeywordNode class
- * A data class which represents a part of the AST.
- * @param value - The data that this class represents.
- */
-export class KeywordNode extends AstNode {
-  constructor(public value: string) {
-    super(value);
-  }
-}
-
-/**
- * NilNode class
- * A data class which represents a part of the AST.
- * @param value - The data that this class represents.
- */
-export class NilNode extends AstNode {
-  constructor(public value: unknown = null) {
-    super(value);
-  }
-}
-
-/**
- * NumberNode class
- * A data class which represents a part of the AST.
- * @param value - The data that this class represents.
- */
-export class NumberNode extends AstNode {
-  constructor(public value: number) {
-    super(value);
-  }
-}
-
-/**
- * StringNode class
- * A data class which represents a part of the AST.
- * @param value - The data that this class represents.
- */
-export class StringNode extends AstNode {
-  constructor(public value: string) {
-    super(value);
-  }
-}
-
-/**
- * DomNode class
- * A data class which represents a part of the AST.
- * @param value - The data that this class represents.
- */
-export class DomNode extends AstNode {
-  constructor(
-    public value: string, // The tag name
-    public attributes: Map<string, AstNode> = new Map<string, AstNode>(),
-    public children: AstNode[] = [],
-    public metadata: AstNode = new NilNode(),
-  ) {
-    super(value);
-  }
-}
-
-/**
- * JsNode class
- * A data class which represents a part of the AST.
- * @param value - The data that this class represents.
- */
-export class JsNode<T = unknown> extends AstNode {
-  constructor(public value: T) {
-    super(value);
-  }
-}
-
-// ASSERTION FUNCTIONS
-// =============================================================================
-
-/**
- * Assert that a node is an instance of DomNode.
- * @param node - The node to check.
- * @returns If the node is an instance of DomNode.
- * @throws If the node is NOT an instance of DomNode.
- * @example assertDomNode(myNode);
- */
-export function assertDomNode(node: unknown): asserts node is DomNode {
-  if (!(node instanceof DomNode)) {
-    throw new TypeError('Invalid DomNode');
-  }
-}
-
-/**
- * Assert that a node is an instance of AstNode.
- * @param node - The node to check.
- * @returns If the node is an instance of AstNode.
- * @throws If the node is NOT an instance of AstNode.
- * @example assertAstNode(myNode);
- */
-export function assertAstNode(node: unknown): asserts node is AstNode {
-  if (!(node instanceof AstNode)) {
-    throw new TypeError('Invalid AstNode');
-  }
-}
-
-/**
- * Assert that a node is an instance of AtomNode.
- * @param node - The node to check.
- * @returns If the node is an instance of AtomNode.
- * @throws If the node is NOT an instance of AtomNode.
- * @example assertAtomNode(myNode);
- */
-export function assertAtomNode(node: unknown): asserts node is AtomNode {
-  if (!(node instanceof AtomNode)) {
-    throw new TypeError('Invalid AtomNode');
-  }
-}
-
-/**
- * Assert that a node is an instance of BooleanNode.
- * @param node - The node to check.
- * @returns If the node is an instance of BooleanNode.
- * @throws If the node is NOT an instance of BooleanNode.
- * @example assertBooleanNode(myNode);
- */
-export function assertBooleanNode(node: unknown): asserts node is BooleanNode {
-  if (!(node instanceof BooleanNode)) {
-    throw new TypeError('Invalid BooleanNode');
-  }
-}
-
-/**
- * Assert that a node is an instance of MapNode.
- * @param node - The node to check.
- * @returns If the node is an instance of MapNode.
- * @throws If the node is NOT an instance of MapNode.
- * @example assertMapNode(myNode);
- */
-export function assertMapNode(node: unknown): asserts node is MapNode {
-  if (!(node instanceof MapNode)) {
-    throw new TypeError('Invalid MapNode');
-  }
-}
-
-/**
- * Assert that a node is an instance of ErrorNode.
- * @param node - The node to check.
- * @returns If the node is an instance of ErrorNode.
- * @throws If the node is NOT an instance of ErrorNode.
- * @example assertErrorNode(myNode);
- */
-export function assertErrorNode(node: unknown): asserts node is ErrorNode {
-  if (!(node instanceof ErrorNode)) {
-    throw new TypeError('Invalid ErrorNode');
-  }
-}
-
-/**
- * Assert that a node is an instance of FunctionNode.
- * @param node - The node to check.
- * @returns If the node is an instance of FunctionNode.
- * @throws If the node is NOT an instance of FunctionNode.
- * @example assertFunctionNode(myNode);
- */
-export function assertFunctionNode(
-  node: unknown,
-): asserts node is FunctionNode {
-  if (!(node instanceof FunctionNode)) {
-    throw new TypeError('Invalid FunctionNode');
-  }
-}
-
-/**
- * Assert that a node is an instance of KeywordNode.
- * @param node - The node to check.
- * @returns If the node is an instance of KeywordNode.
- * @throws If the node is NOT an instance of KeywordNode.
- * @example assertKeywordNode(myNode);
- */
-export function assertKeywordNode(node: unknown): asserts node is KeywordNode {
-  if (!(node instanceof KeywordNode)) {
-    throw new TypeError('Invalid KeywordNode');
-  }
-}
-
-/**
- * Assert that a node is an instance of ListNode.
- * @param node - The node to check.
- * @returns If the node is an instance of ListNode.
- * @throws If the node is NOT an instance of ListNode.
- * @example assertListNode(myNode);
- */
-export function assertListNode(node: unknown): asserts node is ListNode {
-  if (!(node instanceof ListNode)) {
-    throw new TypeError('Invalid ListNode');
-  }
-}
-
-/**
- * Assert that a node is an instance of NilNode.
- * @param node - The node to check.
- * @returns If the node is an instance of NilNode.
- * @throws If the node is NOT an instance of NilNode.
- * @example assertNilNode(myNode);
- */
-export function assertNilNode(node: unknown): asserts node is NilNode {
-  if (!(node instanceof NilNode)) {
-    throw new TypeError('Invalid NilNode');
-  }
-}
-
-/**
- * Assert that a node is an instance of NumberNode.
- * @param node - The node to check.
- * @returns If the node is an instance of NumberNode.
- * @throws If the node is NOT an instance of NumberNode.
- * @example assertNumberNode(myNode);
- */
-export function assertNumberNode(node: unknown): asserts node is NumberNode {
-  if (!(node instanceof NumberNode)) {
-    throw new TypeError('Invalid NumberNode');
-  }
-}
-
-/**
- * Assert that a node is an instance of StringNode.
- * @param node - The node to check.
- * @returns If the node is an instance of StringNode.
- * @throws If the node is NOT an instance of StringNode.
- * @example assertStringNode(myNode);
- */
-export function assertStringNode(node: unknown): asserts node is StringNode {
-  if (!(node instanceof StringNode)) {
-    throw new TypeError('Invalid StringNode');
-  }
-}
-
-/**
- * Assert that a node is an instance of SymbolNode.
- * @param node - The node to check.
- * @returns If the node is an instance of SymbolNode.
- * @throws If the node is NOT an instance of SymbolNode.
- * @example assertSymbolNode(myNode);
- */
-export function assertSymbolNode(node: unknown): asserts node is SymbolNode {
-  if (!(node instanceof SymbolNode)) {
-    throw new TypeError('Invalid SymbolNode');
-  }
-}
-
-/**
- * Assert that a node is an instance of VectorNode.
- * @param node - The node to check.
- * @returns If the node is an instance of VectorNode.
- * @throws If the node is NOT an instance of VectorNode.
- * @example assertVectorNode(myNode);
- */
-export function assertVectorNode(node: unknown): asserts node is VectorNode {
-  if (!(node instanceof VectorNode)) {
-    throw new TypeError('Invalid VectorNode');
-  }
-}
-
-// TYPE GUARDS
-// =============================================================================
-
-/**
- * Type guard to check if a node is an instance of DomNode.
- * @param node - The node to check.
- * @returns True if the node is an instance of DomNode, else false.
- * @example isDomNode(myNode);
- */
-export function isDomNode(node: unknown): node is DomNode {
-  return (node instanceof DomNode) ? true : false;
-}
-
-/**
- * Type guard to check if a node is an instance of AstNode.
- * @param node - The node to check.
- * @returns True if the node is an instance of AstNode, else false.
- * @example isAstNode(myNode);
- */
-export function isAstNode(node: unknown): node is AstNode {
-  return (node instanceof AstNode) ? true : false;
-}
-
-/**
- * Type guard to check if a node is an instance of AtomNode.
- * @param node - The node to check.
- * @returns True if the node is an instance of AtomNode, else false.
- * @example isAtomNode(myNode);
- */
-export function isAtomNode(node: unknown): node is AtomNode {
-  return (node instanceof AtomNode) ? true : false;
-}
-
-/**
- * Type guard to check if a node is an instance of BooleanNode.
- * @param node - The node to check.
- * @returns True if the node is an instance of BooleanNode, else false.
- * @example isBooleanNode(myNode);
- */
-export function isBooleanNode(node: unknown): node is BooleanNode {
-  return (node instanceof BooleanNode) ? true : false;
-}
-
-/**
- * Type guard to check if a node is an instance of MapNode.
- * @param node - The node to check.
- * @returns True if the node is an instance of MapNode, else false.
- * @example isMapNode(myNode);
- */
-export function isMapNode(node: unknown): node is MapNode {
-  return (node instanceof MapNode) ? true : false;
-}
-
-/**
- * Type guard to check if a node is an instance of ErrorNode.
- * @param node - The node to check.
- * @returns True if the node is an instance of ErrorNode, else false.
- * @example isErrorNode(myNode);
- */
-export function isErrorNode(node: unknown): node is ErrorNode {
-  return (node instanceof ErrorNode) ? true : false;
-}
-
-/**
- * Type guard to check if a node is an instance of FunctionNode.
- * @param node - The node to check.
- * @returns True if the node is an instance of FunctionNode, else false.
- * @example isFunctionNode(myNode);
- */
-export function isFunctionNode(node: unknown): node is FunctionNode {
-  return (node instanceof FunctionNode) ? true : false;
-}
-
-/**
- * Type guard to check if a node is an instance of KeywordNode.
- * @param node - The node to check.
- * @returns True if the node is an instance of KeywordNode, else false.
- * @example isKeywordNode(myNode);
- */
-export function isKeywordNode(node: unknown): node is KeywordNode {
-  return (node instanceof KeywordNode) ? true : false;
-}
-
-/**
- * Type guard to check if a node is an instance of ListNode.
- * @param node - The node to check.
- * @returns True if the node is an instance of ListNode, else false.
- * @example isListNode(myNode);
- */
-export function isListNode(node: unknown): node is ListNode {
-  return (node instanceof ListNode) ? true : false;
-}
-
-/**
- * Type guard to check if a node is an instance of NilNode.
- * @param node - The node to check.
- * @returns True if the node is an instance of NilNode, else false.
- * @example isNilNode(myNode);
- */
-export function isNilNode(node: unknown): node is NilNode {
-  return (node instanceof NilNode) ? true : false;
-}
-
-/**
- * Type guard to check if a node is an instance of NumberNode.
- * @param node - The node to check.
- * @returns True if the node is an instance of NumberNode, else false.
- * @example isNumberNode(myNode);
- */
-export function isNumberNode(node: unknown): node is NumberNode {
-  return (node instanceof NumberNode) ? true : false;
-}
-
-/**
- * Type guard to check if a node is an instance of StringNode.
- * @param node - The node to check.
- * @returns True if the node is an instance of StringNode, else false.
- * @example isStringNode(myNode);
- */
-export function isStringNode(node: unknown): node is StringNode {
-  return (node instanceof StringNode) ? true : false;
-}
-
-/**
- * Type guard to check if a node is an instance of SymbolNode.
- * @param node - The node to check.
- * @returns True if the node is an instance of SymbolNode, else false.
- * @example isSymbolNode(myNode);
- */
-export function isSymbolNode(node: unknown): node is SymbolNode {
-  return (node instanceof SymbolNode) ? true : false;
-}
-
-/**
- * Type guard to check if a node is an instance of VectorNode.
- * @param node - The node to check.
- * @returns True if the node is an instance of VectorNode, else false.
- * @example isVectorNode(myNode);
- */
-export function isVectorNode(node: unknown): node is VectorNode {
-  return (node instanceof VectorNode) ? true : false;
-}
-
-// TYPES
-// =============================================================================
-
 export type MapKeyNode = KeywordNode | StringNode | SymbolNode;
+
+/**
+ * Represents a node type that is sequential.
+ */
 export type Seq = VectorNode | ListNode;
 
+/**
+ * Types that support metadata.
+ */
 export type MetadataTypes =
   | FunctionNode
   | ListNode
@@ -600,6 +99,9 @@ export type MetadataTypes =
   | MapNode
   | DomNode;
 
+/**
+ * Names of builtin Ensemble functions
+ */
 type SymbolValues =
   | 'def!'
   | 'let*'
@@ -624,13 +126,757 @@ type SymbolValues =
   | 'try'
   | 'catch';
 
+/**
+ * Defines a symbol that identifies a builtin Ensemble function with a specific value.
+ */
 export type SymWithValue<Value extends SymbolValues> = SymbolNode & {
   value: Value;
 };
 
-/// ============================================================================
-/// Functions
-/// ============================================================================
+/**
+ * Defines the possible types for typed vectors.
+ */
+type TypeClass =
+  | typeof AtomNode
+  | typeof BooleanNode
+  | typeof DomNode
+  | typeof ErrorNode
+  | typeof FunctionNode
+  // | typeof JsNode
+  | typeof KeywordNode
+  | typeof ListNode
+  | typeof MapNode
+  | typeof NilNode
+  | typeof NumberNode
+  | typeof StringNode
+  | typeof SymbolNode
+  | typeof VectorNode;
+
+// MARK: CLASSES
+// ============================================================================
+
+/**
+ * AtomNode class
+ * A data class which represents a part of the AST.
+ * @param value - The data that this class represents.
+ */
+export class AtomNode {
+  constructor(public value: AstNode) {
+  }
+}
+
+/**
+ * BooleanNode class
+ * A data class which represents a part of the AST.
+ * @param value - The data that this class represents.
+ */
+export class BooleanNode {
+  constructor(public value: boolean) {
+  }
+}
+
+/**
+ * DomNode class
+ * A data class which represents a part of the AST.
+ * @param value - The data that this class represents.
+ */
+export class DomNode {
+  // domNode: HTMLElement | null = null;
+  constructor(
+    public value: string, // The tag name
+    public attributes: Map<string, AstNode> = new Map<string, AstNode>(), // TODO: Change to MapNode
+    public children: AstNode[] = [],
+    public metadata?: AstNode, // WAS = createNilNode(),
+  ) {
+    // this.domNode = document.createElement(value);
+    // this.attributes.forEach((value, key) => this.domNode?.setAttribute(key, String(unwrap(value))));
+    // this.children.forEach((child) => {
+    //   const unwrapped = unwrap(child);
+    //   if (unwrapped instanceof HTMLElement) {
+    //     this.domNode?.appendChild(unwrapped);
+    //   }
+    // });
+  }
+}
+
+/**
+ * ErrorNode class
+ * A data class which represents a part of the AST.
+ * @param value - The data that this class represents.
+ */
+export class ErrorNode {
+  constructor(public value: AstNode) {
+  }
+}
+
+/**
+ * FunctionNode class
+ * A data class which represents a part of the AST.
+ * @param value - The data that this class represents.
+ * @param closureMeta - A POJO that contains an AstNode, Env, and parameters
+ * which are all used as the context for the function when it is evaluated.
+ * @param isMacro - Whether the function is a macro.
+ * @param metadata - Additional data to associate with this node.
+ */
+export class FunctionNode {
+  constructor(
+    public value: Closure,
+    public closureMeta?: ClosureMetadata,
+    public isMacro = false,
+    public metadata?: AstNode, // WAS = createNilNode(),
+  ) {
+  }
+}
+
+/**
+ * KeywordNode class
+ * A data class which represents a part of the AST.
+ * @param value - The data that this class represents.
+ */
+export class KeywordNode {
+  constructor(private _value: string) {
+    this._value = _value.replaceAll(':', '');
+  }
+
+  public get value() {
+    return this._value + ':';
+  }
+
+  public set value(keyword: string) {
+    this._value = keyword.replaceAll(':', '') + ':';
+  }
+
+  public get bare() {
+    return this._value;
+  }
+}
+
+/**
+ * List class
+ * A data class which represents a part of the AST.
+ * @param value - The data that this class represents.
+ */
+export class ListNode {
+  constructor(
+    public value: AstNode[],
+    public metadata?: AstNode, // WAS = createNilNode()
+  ) {
+  }
+}
+
+/**
+ * MapNode class
+ * A data class which represents a part of the AST.
+ * @description The Map value stores MapKeys as strings.
+ * - A KeywordNode is stored as ':key'
+ * - A StringNode is stored as '"str"'
+ * - And a SymbolNode is stored as 'sym'.
+ * @param value - The data that this class represents.
+ */
+export class MapNode {
+  constructor(
+    public value: Map<string, AstNode> = new Map<string, AstNode>(),
+    public metadata?: AstNode, // WAS = createNilNode()
+  ) {
+  }
+}
+
+/**
+ * NilNode class
+ * A data class which represents a part of the AST.
+ * @param value - The data that this class represents.
+ */
+export class NilNode {
+  constructor(public value: unknown = null) {
+  }
+}
+
+/**
+ * NumberNode class
+ * A data class which represents a part of the AST.
+ * @param value - The data that this class represents.
+ */
+export class NumberNode {
+  // TODO: Add support for BigInt, e.g. value: number | bigint and handle internally
+  constructor(public value: number) {
+  }
+}
+
+/**
+ * SymbolNode class
+ * A data class which represents a part of the AST.
+ * @param value - The data that this class represents.
+ */
+export class SymbolNode {
+  constructor(public value: string) {
+  }
+}
+
+/**
+ * StringNode class
+ * A data class which represents a part of the AST.
+ * @param value - The data that this class represents.
+ */
+export class StringNode {
+  constructor(public value: string) {
+  }
+}
+
+/**
+ * VectorNode class
+ * A data class which represents a part of the AST.
+ * @param value - The data that this class represents.
+ */
+export class VectorNode<T extends AstNode = AstNode> {
+  constructor(
+    public value: T[],
+    public metadata?: AstNode, // WAS = createNilNode()
+  ) {
+  }
+}
+
+/**
+ * JsNode class
+ * A wrapper for native JavaScript data types that we do not want to expose in Ensemble.
+ * @param value - The data that this class represents.
+ */
+// export class JsNode<T extends SupportedJsTypes> {
+//   constructor(public value: T) {
+//   }
+// }
+
+// MARK: ASSERTION FNS
+// =============================================================================
+
+/**
+ * Assert that a node is an instance of DomNode.
+ * @param node - The node to check.
+ * @returns If the node is an instance of DomNode.
+ * @throws If the node is NOT an instance of DomNode.
+ * @example assertDomNode(myNode);
+ */
+export function assertDomNode(node: unknown): asserts node is DomNode & { value: string } {
+  if (!(isDomNode(node))) {
+    throw new TypeError('Invalid DomNode');
+  }
+}
+
+/**
+ * Assert that a node is an instance of AstNode.
+ * @param node - The node to check.
+ * @returns If the node is an instance of AstNode.
+ * @throws If the node is NOT an instance of AstNode.
+ * @example assertAstNode(myNode);
+ */
+export function assertAstNode(node: unknown): asserts node is AstNode & { value: AstNode } {
+  if (!(isAstNode(node))) {
+    throw new TypeError('Invalid AstNode');
+  }
+}
+
+/**
+ * Assert that a node is an instance of AtomNode.
+ * @param node - The node to check.
+ * @returns If the node is an instance of AtomNode.
+ * @throws If the node is NOT an instance of AtomNode.
+ * @example assertAtomNode(myNode);
+ */
+export function assertAtomNode(node: unknown): asserts node is AtomNode {
+  if (!(isAtomNode(node))) {
+    throw new TypeError('Invalid AtomNode');
+  }
+}
+
+/**
+ * Assert that a node is an instance of BooleanNode.
+ * @param node - The node to check.
+ * @returns If the node is an instance of BooleanNode.
+ * @throws If the node is NOT an instance of BooleanNode.
+ * @example assertBooleanNode(myNode);
+ */
+export function assertBooleanNode(node: unknown): asserts node is BooleanNode & { value: boolean } {
+  if (!(isBooleanNode(node))) {
+    throw new TypeError('Invalid BooleanNode');
+  }
+}
+
+/**
+ * Assert that a node is an instance of MapNode.
+ * @param node - The node to check.
+ * @returns If the node is an instance of MapNode.
+ * @throws If the node is NOT an instance of MapNode.
+ * @example assertMapNode(myNode);
+ */
+export function assertMapNode(node: unknown): asserts node is MapNode & { value: Map<string, AstNode> } {
+  if (!(isMapNode(node))) {
+    throw new TypeError('Invalid MapNode');
+  }
+}
+
+/**
+ * Assert that a node is an instance of ErrorNode.
+ * @param node - The node to check.
+ * @returns If the node is an instance of ErrorNode.
+ * @throws If the node is NOT an instance of ErrorNode.
+ * @example assertErrorNode(myNode);
+ */
+export function assertErrorNode(node: unknown): asserts node is ErrorNode & { value: AstNode } {
+  if (!(isErrorNode(node))) {
+    throw new TypeError('Invalid ErrorNode');
+  }
+}
+
+/**
+ * Assert that a node is an instance of FunctionNode.
+ * @param node - The node to check.
+ * @returns If the node is an instance of FunctionNode.
+ * @throws If the node is NOT an instance of FunctionNode.
+ * @example assertFunctionNode(myNode);
+ */
+export function assertFunctionNode(node: unknown): asserts node is FunctionNode & { value: Closure } {
+  if (!(isFunctionNode(node))) {
+    throw new TypeError('Invalid FunctionNode');
+  }
+}
+
+/**
+ * Assert that a node is an instance of KeywordNode.
+ * @param node - The node to check.
+ * @returns If the node is an instance of KeywordNode.
+ * @throws If the node is NOT an instance of KeywordNode.
+ * @example assertKeywordNode(myNode);
+ */
+export function assertKeywordNode(node: unknown): asserts node is KeywordNode & { value: `${string}:` } {
+  if (!(isKeywordNode(node))) {
+    throw new TypeError('Invalid KeywordNode');
+  }
+}
+
+/**
+ * Assert that a node is an instance of ListNode.
+ * @param node - The node to check.
+ * @returns If the node is an instance of ListNode.
+ * @throws If the node is NOT an instance of ListNode.
+ * @example assertListNode(myNode);
+ */
+export function assertListNode(node: unknown): asserts node is ListNode & { value: AstNode[] } {
+  if (!(isListNode(node))) {
+    throw new TypeError('Invalid ListNode');
+  }
+}
+
+/**
+ * Assert that a node is an instance of NilNode.
+ * @param node - The node to check.
+ * @returns If the node is an instance of NilNode.
+ * @throws If the node is NOT an instance of NilNode.
+ * @example assertNilNode(myNode);
+ */
+export function assertNilNode(node: unknown): asserts node is NilNode & { value: null } {
+  if (!(isNilNode(node))) {
+    throw new TypeError('Invalid NilNode');
+  }
+}
+
+/**
+ * Assert that a node is an instance of NumberNode.
+ * @param node - The node to check.
+ * @returns If the node is an instance of NumberNode.
+ * @throws If the node is NOT an instance of NumberNode.
+ * @example assertNumberNode(myNode);
+ */
+export function assertNumberNode(node: unknown): asserts node is NumberNode & { value: number } {
+  if (!(isNumberNode(node))) {
+    throw new TypeError('Invalid NumberNode');
+  }
+}
+
+/**
+ * Assert that a node is an instance of StringNode.
+ * @param node - The node to check.
+ * @returns If the node is an instance of StringNode.
+ * @throws If the node is NOT an instance of StringNode.
+ * @example assertStringNode(myNode);
+ */
+export function assertStringNode(node: unknown): asserts node is StringNode & { value: string } {
+  if (!(isStringNode(node))) {
+    throw new TypeError('Invalid StringNode');
+  }
+}
+
+/**
+ * Assert that a node is an instance of SymbolNode.
+ * @param node - The node to check.
+ * @returns If the node is an instance of SymbolNode.
+ * @throws If the node is NOT an instance of SymbolNode.
+ * @example assertSymbolNode(myNode);
+ */
+export function assertSymbolNode(node: unknown): asserts node is SymbolNode & { value: string } {
+  if (!(isSymbolNode(node))) {
+    throw new TypeError('Invalid SymbolNode');
+  }
+}
+
+/**
+ * Assert that a node is an instance of VectorNode.
+ * @param node - The node to check.
+ * @returns undefined If the node is an instance of VectorNode.
+ * @throws If the node is NOT an instance of VectorNode.
+ * @example assertVectorNode(myNode);
+ */
+export function assertVectorNode(node: unknown): asserts node is VectorNode & { value: AstNode[] } {
+  if (!(isVectorNode(node))) {
+    throw new TypeError('Invalid VectorNode');
+  }
+}
+
+/**
+ * Assert that a node is an instance of JsNode.
+ * @param node - The node to check.
+ * @returns undefined If the node is an instance of JsNode.
+ * @throws If the node is NOT an instance of JsNode.
+ * @example
+ * ```typescript
+ * const astNode = new JsNode(new Date());
+ * assertJsNode(astNode); // undefined
+ * ```
+ */
+// export function assertJsNode(node: unknown): asserts node is JsNode<SupportedJsTypes> {
+//   if (!(isJsNode(node))) {
+//     throw new TypeError('Invalid JsNode');
+//   }
+// }
+
+// MARK: FACTORY FNS
+// =============================================================================
+
+/**
+ * Factory function to create a DomNode.
+ */
+export function createDomNode(
+  value: string,
+  attributes?: Map<string, AstNode>,
+  children?: AstNode[],
+  metadata?: AstNode,
+): DomNode {
+  return new DomNode(value, attributes, children, metadata);
+}
+
+/**
+ * Factory function to create an AtomNode.
+ */
+export function createAtomNode(value: AstNode): AtomNode {
+  return new AtomNode(value);
+}
+
+/**
+ * Factory function to create a BooleanNode.
+ */
+export function createBooleanNode(value: boolean): BooleanNode {
+  return new BooleanNode(value);
+}
+
+/**
+ * Factory function to create a MapNode.
+ */
+export function createMapNode(value?: Map<string, AstNode>, metadata?: AstNode): MapNode {
+  return new MapNode(value, metadata);
+}
+
+/**
+ * Factory function to create a ErrorNode.
+ */
+export function createErrorNode(value: AstNode | string): ErrorNode {
+  if (typeof value === 'string') value = createStringNode(value);
+  return new ErrorNode(value);
+}
+
+/**
+ * Factory function to create a FunctionNode.
+ */
+export function createFunctionNode(
+  value: Closure,
+  closureMeta?: ClosureMetadata | undefined,
+  isMacro?: boolean,
+  metadata?: AstNode,
+): FunctionNode {
+  return new FunctionNode(value, closureMeta, isMacro, metadata);
+}
+
+/**
+ * Factory function to create a KeywordNode.
+ */
+export function createKeywordNode(value: string): KeywordNode {
+  return new KeywordNode(value);
+}
+
+/**
+ * Factory function to create a LcreatetNode.
+ */
+export function createListNode(value: AstNode[], metadata?: AstNode): ListNode {
+  return new ListNode(value, metadata);
+}
+
+/**
+ * Factory function to create a NilNode.
+ */
+export function createNilNode(value?: unknown): NilNode {
+  return new NilNode(value);
+}
+
+/**
+ * Factory function to create a NumberNode.
+ */
+export function createNumberNode(value: number): NumberNode {
+  return new NumberNode(value);
+}
+
+/**
+ * Factory function to create a StringNode.
+ */
+export function createStringNode(value: string): StringNode {
+  return new StringNode(value);
+}
+
+/**
+ * Factory function to create a SymbolNode.
+ */
+export function createSymbolNode(value: string): SymbolNode {
+  return new SymbolNode(value);
+}
+
+/**
+ * Factory function to create a VectorNode.
+ */
+export function createVectorNode(value: AstNode[] = [], metadata?: AstNode): VectorNode {
+  return new VectorNode(value, metadata);
+}
+
+/**
+ * Factory function to create a JsNode.
+ */
+// export function createJsNode<T extends SupportedJsTypes>(value: T): JsNode<T> {
+//   return new JsNode(value);
+// }
+
+// MARK: TYPE GUARDS
+// =============================================================================
+
+/**
+ * Type guard to check if a node is an instance of DomNode.
+ * @param node - The node to check.
+ * @returns True if the node is an instance of DomNode, else false.
+ * @example isDomNode(myNode);
+ */
+export function isDomNode(node: unknown): node is DomNode {
+  return node instanceof DomNode;
+}
+
+/**
+ * Type guard to check if a node is an instance of AstNode.
+ * @param node - The node to check.
+ * @returns True if the node is an instance of AstNode, else false.
+ * @example isAstNode(myNode);
+ */
+export function isAstNode(node: unknown): node is AstNode {
+  return (
+    isAtomNode(node) ||
+    isBooleanNode(node) ||
+    isDomNode(node) ||
+    isErrorNode(node) ||
+    isFunctionNode(node) ||
+    // isJsNode(node) ||
+    isKeywordNode(node) ||
+    isListNode(node) ||
+    isMapNode(node) ||
+    isNilNode(node) ||
+    isNumberNode(node) ||
+    isStringNode(node) ||
+    isSymbolNode(node) ||
+    isVectorNode(node)
+  );
+}
+
+/**
+ * Type guard to check if a node is an instance of AtomNode.
+ * @param node - The node to check.
+ * @returns True if the node is an instance of AtomNode, else false.
+ * @example isAtomNode(myNode);
+ */
+export function isAtomNode(node: unknown): node is AtomNode & { value: AstNode } {
+  return node instanceof AtomNode && isAstNode(node.value);
+}
+
+/**
+ * Type guard to check if a node is an instance of BooleanNode.
+ * @param node - The node to check.
+ * @returns True if the node is an instance of BooleanNode, else false.
+ * @example isBooleanNode(myNode);
+ */
+export function isBooleanNode(node: unknown): node is BooleanNode & { value: boolean } {
+  return node instanceof BooleanNode && typeof node.value === 'boolean';
+}
+
+/**
+ * Type guard to check if a node is an instance of MapNode.
+ * @param node - The node to check.
+ * @returns True if the node is an instance of MapNode, else false.
+ * @example isMapNode(myNode);
+ */
+export function isMapNode(node: unknown): node is MapNode & { value: Map<string, AstNode> } {
+  return node instanceof MapNode && node.value instanceof Map;
+}
+
+/**
+ * // TODO: Convert value to string
+ * Type guard to check if a node is an instance of ErrorNode.
+ * @param node - The node to check.
+ * @returns True if the node is an instance of ErrorNode, else false.
+ * @example isErrorNode(myNode);
+ */
+export function isErrorNode(node: unknown): node is ErrorNode & { value: AstNode } {
+  return node instanceof ErrorNode && isAstNode(node.value);
+}
+
+/**
+ * Type guard to check if a node is an instance of FunctionNode.
+ * @param node - The node to check.
+ * @returns True if the node is an instance of FunctionNode, else false.
+ * @example isFunctionNode(myNode);
+ */
+export function isFunctionNode(node: unknown): node is FunctionNode & { value: Closure } {
+  return node instanceof FunctionNode && typeof node.value === 'function';
+}
+
+/**
+ * Type guard to check if a node is an instance of JsNode.
+ * @param node - The node to check.
+ * @returns True if the node is an instance of JsNode, else false.
+ * @example
+ * ```typescript
+ * const myNode = new JsNode(new Date());
+ * isJsNode(myNode); // true
+ * ```
+ */
+// export function isJsNode(node: unknown): node is JsNode<SupportedJsTypes> & { value: SupportedJsTypes } {
+//   return node instanceof JsNode && isJsNodeSupportedType(node.value);
+// }
+
+/**
+ * Type guard to check if a node is an instance of KeywordNode.
+ * @param node - The node to check.
+ * @returns True if the node is an instance of KeywordNode, else false.
+ * @example isKeywordNode(myNode);
+ */
+export function isKeywordNode(node: unknown): node is KeywordNode & { value: `${string}:` } {
+  return node instanceof KeywordNode && typeof node.value === 'string' && node.value.endsWith(':');
+}
+
+/**
+ * Type guard to check if a node is an instance of ListNode.
+ * @param node - The node to check.
+ * @returns True if the node is an instance of ListNode, else false.
+ * @example isListNode(myNode);
+ */
+export function isListNode(node: unknown): node is ListNode & { value: AstNode[] } {
+  return node instanceof ListNode && node.value.every(isAstNode);
+}
+
+/**
+ * Type guard to check if a node is an instance of NilNode.
+ * @param node - The node to check.
+ * @returns True if the node is an instance of NilNode, else false.
+ * @example isNilNode(myNode);
+ */
+export function isNilNode(node: unknown): node is NilNode & { value: null } {
+  return node instanceof NilNode && node.value === null;
+}
+
+/**
+ * Type guard to check if a node is an instance of NumberNode.
+ * @param node - The node to check.
+ * @returns True if the node is an instance of NumberNode, else false.
+ * @example isNumberNode(myNode);
+ */
+export function isNumberNode(node: unknown): node is NumberNode & { value: number } {
+  return node instanceof NumberNode && typeof node.value === 'number';
+}
+
+/**
+ * Type guard to check if a node is an instance of StringNode.
+ * @param node - The node to check.
+ * @returns True if the node is an instance of StringNode, else false.
+ * @example isStringNode(myNode);
+ */
+export function isStringNode(node: unknown): node is StringNode & { value: string } {
+  return node instanceof StringNode && typeof node.value === 'string';
+}
+
+/**
+ * Type guard to check if a node is an instance of SymbolNode.
+ * @param node - The node to check.
+ * @returns True if the node is an instance of SymbolNode, else false.
+ * @example isSymbolNode(myNode);
+ */
+export function isSymbolNode(node: unknown): node is SymbolNode & { value: string } {
+  return node instanceof SymbolNode && typeof node.value === 'string';
+}
+
+/**
+ * Type guard to check if a node is an instance of VectorNode.
+ * @param node - The node to check.
+ * @returns True if the node is an instance of VectorNode, else false.
+ * @example isVectorNode(myNode);
+ */
+export function isVectorNode(node: unknown): node is VectorNode {
+  return node instanceof VectorNode && node.value.every(isAstNode);
+}
+
+// MARK: VALIDATION FNS
+// ============================================================================
+
+/**
+ * Checks if a value is one of the supported JavaScript types.
+ *
+ * @remarks
+ * This function is used to verify if a given value matches any of the predefined supported JavaScript types. It ensures type safety and consistency when working with these types.
+ *
+ * @param value - The value to check.
+ * @returns True if the value is one of the supported JavaScript types, else false.
+ *
+ * @example
+ * ```typescript
+ * const isSupported = isJsNodeSupportedType(new Date());
+ * console.log(isSupported); // Outputs: true
+ *
+ * const isNotSupported = isJsNodeSupportedType("Hello");
+ * console.log(isNotSupported); // Outputs: false
+ * ```
+ */
+// export function isJsNodeSupportedType(value: unknown): value is SupportedJsTypes {
+//   return (
+//     value instanceof Date ||
+//     value instanceof RegExp ||
+//     value instanceof Set ||
+//     value instanceof WeakMap ||
+//     value instanceof WeakSet ||
+//     value instanceof ArrayBuffer ||
+//     value instanceof SharedArrayBuffer ||
+//     value instanceof DataView ||
+//     value instanceof Int8Array ||
+//     value instanceof Uint8Array ||
+//     value instanceof Uint8ClampedArray ||
+//     value instanceof Int16Array ||
+//     value instanceof Uint16Array ||
+//     value instanceof Int32Array ||
+//     value instanceof Uint32Array ||
+//     value instanceof Float32Array ||
+//     value instanceof Float64Array ||
+//     value instanceof BigInt64Array ||
+//     value instanceof BigUint64Array ||
+//     typeof value === 'bigint'
+//   );
+// }
 
 /**
  * Checks if two objects have the same prototype.
@@ -723,23 +969,23 @@ export function assertTrue(object: unknown): asserts object is true {
  * @example isAstTruthy(astNode) // returns true if the Ast node is "truthy"
  */
 export function isAstTruthy(a: AstNode): boolean {
-  if (a instanceof AtomNode) {
-    if (a.value instanceof AstNode !== true) {
+  if (isAtomNode(a)) {
+    if (isAstNode(a.value) !== true) {
       return Boolean(a.value);
     }
     return isAstTruthy(a.value);
   }
 
-  if (a instanceof BooleanNode) {
+  if (isBooleanNode(a)) {
     return a.value;
   }
 
   const nilAst = a;
-  if (nilAst instanceof NilNode) {
+  if (isNilNode(nilAst)) {
     return false;
   }
 
-  if (a instanceof NumberNode) {
+  if (isNumberNode(a)) {
     return true;
   }
 
@@ -756,7 +1002,7 @@ export function isAstTruthy(a: AstNode): boolean {
 export function isSequentialNode(
   value: unknown,
 ): value is ListNode | VectorNode {
-  return value instanceof ListNode || value instanceof VectorNode;
+  return isListNode(value) || isVectorNode(value);
 }
 
 /**
@@ -768,7 +1014,7 @@ export function isSequentialNode(
 export function assertSequential<T extends ListNode | VectorNode>(
   value: unknown,
 ): asserts value is T {
-  if (!(value instanceof ListNode) && !(value instanceof VectorNode)) {
+  if (!(isListNode(value)) && !(isVectorNode(value))) {
     throw new TypeError('Invalid sequential type');
   }
 }
@@ -779,14 +1025,8 @@ export function assertSequential<T extends ListNode | VectorNode>(
  * @throws Throws an error if the value cannot be used as a dictionary key.
  * @example assertDictKey(dictKeyCandidate) // no output if valid, error if not
  */
-export function assertMapKeyNode<T extends MapKeyNode>(
-  value: unknown,
-): asserts value is T {
-  if (
-    !(value instanceof StringNode) &&
-    !(value instanceof SymbolNode) &&
-    !(value instanceof KeywordNode)
-  ) {
+export function assertMapKeyNode<T extends MapKeyNode>(value: unknown): asserts value is T {
+  if (!(isStringNode(value) || isSymbolNode(value) || isKeywordNode(value))) {
     throw new TypeError('Invalid dictionary key');
   }
 }
@@ -800,9 +1040,9 @@ export function assertMapKeyNode<T extends MapKeyNode>(
  */
 export function isMapKeyNode(value: unknown): value is MapKeyNode {
   return (
-    value instanceof StringNode ||
-    value instanceof SymbolNode ||
-    value instanceof KeywordNode
+    isStringNode(value) ||
+    isSymbolNode(value) ||
+    isKeywordNode(value)
   );
 }
 
@@ -817,11 +1057,11 @@ export function assertMetadataType(
   value: unknown,
 ): asserts value is MetadataTypes {
   if (
-    !(value instanceof FunctionNode) &&
-    !(value instanceof ListNode) &&
-    !(value instanceof VectorNode) &&
-    !(value instanceof MapNode) &&
-    !(value instanceof DomNode)
+    !(isFunctionNode(value)) &&
+    !(isListNode(value)) &&
+    !(isVectorNode(value)) &&
+    !(isMapNode(value)) &&
+    !(isDomNode(value))
   ) {
     throw new TypeError('Invalid metadata type');
   }
@@ -837,9 +1077,15 @@ export function assertMetadataType(
 export function assertArgumentCount(
   actualCount: number,
   expectedCount: number,
+  optionalMessage?: string,
 ): void {
   if (actualCount !== expectedCount) {
-    throw new Error(`Wanted ${expectedCount} arguments but got ${actualCount}`);
+    let message = `Wanted ${expectedCount} arguments but got ${actualCount}`;
+    if (optionalMessage) {
+      message += ` ${optionalMessage}`;
+    }
+
+    throw new Error(message);
   }
 }
 
@@ -893,20 +1139,6 @@ export function assertEvenArgumentCount(maybeEven: number): void {
   }
 }
 
-type TypeClass =
-  | typeof SymbolNode
-  | typeof ListNode
-  | typeof VectorNode
-  | typeof AtomNode
-  | typeof BooleanNode
-  | typeof MapNode
-  | typeof ErrorNode
-  | typeof FunctionNode
-  | typeof KeywordNode
-  | typeof NilNode
-  | typeof NumberNode
-  | typeof StringNode;
-
 /**
  * Validates the type of each element in an array of Ast objects.
  * @description Ensures all elements in the array are instances of a specific
@@ -918,10 +1150,10 @@ type TypeClass =
  * @example assertSequentialValues([num1, num2], Num); // No error thrown
  * @example assertSequentialValues([num1, str1], Num); // Error
  */
-export function assertSequentialValues<R extends AstNode>(
+export function assertSequentialValues<ReturnType extends AstNode>(
   sequentialValues: AstNode[],
   typeClass: TypeClass,
-): asserts sequentialValues is R[] {
+): asserts sequentialValues is ReturnType[] {
   for (const p of sequentialValues) {
     if (!(p instanceof typeClass)) {
       throw new TypeError('All values must be of the same type');
@@ -939,6 +1171,21 @@ export function assertIsOneOf<R extends AstNode>(
 }
 
 /**
+ * Checks if all elements in the given `VectorNode` are instances of the specified `TypeClass`.
+ *
+ * @template R - The type of the elements in the `VectorNode`, extending `AstNode`.
+ * @param {VectorNode<R>} sequentialValues - The vector containing elements to be checked.
+ * @param {TypeClass} typeClass - The class type to check each element against.
+ * @returns {boolean} - Returns `true` if all elements in the vector are instances of the specified `TypeClass`, otherwise `false`.
+ */
+export function isTypedVector<R extends AstNode = AstNode>(
+  sequentialValues: VectorNode<R>,
+  typeClass: TypeClass,
+): sequentialValues is VectorNode<R> {
+  return sequentialValues.value.every((p) => p instanceof typeClass);
+}
+
+/**
  * Performs a deep equality check on Ast values, considering the internal
  * structure and types of the values.
  * @description Compares two Ast nodes deeply, considering the values and
@@ -953,44 +1200,44 @@ export function assertIsOneOf<R extends AstNode>(
 export function isEqualTo(a: AstNode, b: AstNode): BooleanNode {
   if (isSequentialNode(a) && isSequentialNode(b)) {
     if (a.value.length !== b.value.length) {
-      return new BooleanNode(false);
+      return createBooleanNode(false);
     }
 
     for (let i = 0; i < a.value.length; i++) {
       if (!isEqualTo(a.value[i], b.value[i]).value) {
-        return new BooleanNode(false);
+        return createBooleanNode(false);
       }
     }
 
-    return new BooleanNode(true);
+    return createBooleanNode(true);
   }
 
-  if (a instanceof MapNode && b instanceof MapNode) {
+  if (isMapNode(a) && isMapNode(b)) {
     if (a.value.size !== b.value.size) {
-      return new BooleanNode(false);
+      return createBooleanNode(false);
     }
 
     for (const [aKeyString, aValue] of a.value) {
       const bValue = b.value.get(aKeyString);
       if (bValue === undefined) {
-        return new BooleanNode(false);
+        return createBooleanNode(false);
       }
 
       const recurResult = isEqualTo(aValue, bValue);
       if (!recurResult.value) {
-        return new BooleanNode(false);
+        return createBooleanNode(false);
       }
     }
 
-    return new BooleanNode(true);
+    return createBooleanNode(true);
   }
 
   if (!isSameClass(a, b)) {
-    return new BooleanNode(false);
+    return createBooleanNode(false);
   }
 
   const result = a.value === b.value;
-  return new BooleanNode(result);
+  return createBooleanNode(result);
 }
 
 /**
@@ -1005,8 +1252,8 @@ export function listStartsWithSymbol(
   listNode: AstNode,
   symbolValue?: string,
 ): listNode is ListNode & { value: [SymbolNode] } {
-  const isListWithSymbol = listNode instanceof ListNode &&
-    listNode.value[0] instanceof SymbolNode;
+  const isListWithSymbol = isListNode(listNode) &&
+    isSymbolNode(listNode.value[0]);
 
   if (isListWithSymbol && symbolValue !== undefined) {
     return listNode.value[0].value === symbolValue;
@@ -1062,312 +1309,6 @@ export function assertSymWithValue<Value extends SymbolValues>(
   value: Value,
 ): asserts sym is SymWithValue<Value> {
   assertEqual(sym.value, value);
-}
-
-export type TryCatchAst = ListNode & {
-  value: [
-    SymWithValue<'try*' | 'try'>,
-    AstNode,
-    ListNode & {
-      value: [SymWithValue<'catch*' | 'catch'>, AstNode];
-    },
-  ];
-};
-
-/**
- * Asserts that an AST node represents a valid 'try-catch' construct.
- * @description Checks the structure of an AST node to ensure it correctly
- * represents a 'try-catch' block in the language, with valid number and types
- * of arguments.
- * @param a - The AST node being tested.
- * @throws Error if the node doesn't represent a valid 'try-catch' construct.
- * @example assertTryCatch(tryCatchAstNode);
- */
-export function assertTryCatch(a: AstNode): asserts a is TryCatchAst {
-  assertListNode(a);
-  assertVariableArgumentCount(a.value.length, 2, 3);
-  const symbolNode = a.value[0];
-  assertSymbolNode(symbolNode);
-  if (symbolNode.value !== 'try' && symbolNode.value !== 'try*') {
-    throw new Error('use `try` or `try*` in try/catch expressions');
-  }
-  // assertSymWithValue(a.value[0], 'try*');
-  assertAstNode(a.value[1]);
-  if (a.value[2]) {
-    assertListNode(a.value[2]);
-    assertArgumentCount(a.value[2].value.length, 3);
-    assertSymbolNode(a.value[2].value[0]);
-    const catchNode = a.value[2].value[0];
-    if (catchNode.value !== 'catch' && catchNode.value !== 'catch*') {
-      throw new Error('use `catch` or `catch*` in try/catch expressions');
-    }
-    assertSymbolNode(a.value[2].value[1]);
-    assertAstNode(a.value[2].value[2]);
-  }
-}
-
-export type DefAst = ListNode & {
-  value: [
-    SymWithValue<'def!' | 'globalThis' | 'var'>,
-    SymbolNode | StringNode | KeywordNode,
-    AstNode,
-  ];
-};
-
-/**
- * Asserts that an AST node represents a valid 'def!' construct.
- * @description Checks the structure of an AST node to ensure it correctly
- * represents a 'def!' declaration in the language, including the correct
- * number and types of arguments.
- * @param a - The AST node being tested.
- * @throws Error if the node doesn't represent a valid 'def!' construct.
- * @example assertDef(defAstNode);
- * @example (def! x "x")
- */
-export function assertDef(a: AstNode): asserts a is DefAst {
-  assertListNode(a); // (...)
-  assertArgumentCount(a.value.length, 3); // (1 2 3)
-  assertSymbolNode(a.value[0]); // (sym 2 3)
-  // assertSymWithValue(a.value[0], "def!"); // '(def! 2 3)
-  const symbolNode = a.value[0];
-  if (
-    symbolNode.value !== 'def!' &&
-    symbolNode.value !== 'globalThis' &&
-    symbolNode.value !== 'var'
-  ) {
-    throw new Error('use `def!`, `globalThis`, or `var` in def! expressions');
-  }
-  assertMapKeyNode(a.value[1]); // (def! DictKeys 3)
-  assertAstNode(a.value[2]); // (def! DictKeys Ast)
-}
-
-export type LetAst = ListNode & {
-  value: [
-    SymWithValue<'let*' | 'let' | 'const'>,
-    (VectorNode | ListNode) & {
-      value: Array<SymbolNode | AstNode>;
-    },
-  ];
-};
-
-/**
- * Asserts that an AST node represents a valid 'let*' construct.
- * @description Verifies that the AST node follows the correct structure for a
- * 'let*' construct, with the correct symbols and pairs of symbols and values.
- * @param a - The AST node to check.
- * @throws An error if the AST node does not correctly represent a 'let*'
- * construct.
- * @example assertLet(letAstNode);
- * @example (let* (z 9) z)
- */
-export function assertLet(a: AstNode): asserts a is LetAst {
-  assertListNode(a); // (...)
-  assertArgumentCount(a.value.length, 3); // (1 2 3)
-  assertSymbolNode(a.value[0]); // (sym 2 3)
-  // assertSymWithValue(a.value[0], "let*"); // (let* 2 3)
-  const symbolNode = a.value[0];
-  if (
-    symbolNode.value !== 'let*' &&
-    symbolNode.value !== 'let' &&
-    symbolNode.value !== 'const'
-  ) {
-    throw new Error('use `let*`, `let`, or `const` in let* expressions');
-  }
-  assertSequential(a.value[1]); // (let* Seq 3)
-  assertAstNode(a.value[2]); // (let* Seq Ast)
-  assertEvenArgumentCount(a.value[1].value.length); // (let* (any*2) Ast)
-  for (let i = 0; i < a.value[1].value.length; i += 2) {
-    assertSymbolNode(a.value[1].value[i]); // (let* ((Sym any)*) Ast)
-    assertAstNode(a.value[1].value[i + 1]); // (let* ((Sym Ast)*) Ast)
-  }
-}
-
-export type QuoteAst = ListNode & {
-  value: [SymWithValue<'quote'>, AstNode];
-};
-
-/**
- * Asserts that an AST node represents a valid 'quote' construct.
- * @description Verifies that the AST node follows the correct structure for a
- * 'quote' construct, with the correct symbol followed by an AST node.
- * @param a - The AST node to check.
- * @throws An error if the AST node does not correctly represent a 'quote'
- * construct.
- * @example assertQuote(quoteAstNode);
- * @example (quote (1 2 3))
- */
-export function assertQuote(a: AstNode): asserts a is QuoteAst {
-  assertListNode(a); // (...)
-  assertArgumentCount(a.value.length, 2); // (1 2)
-  assertSymbolNode(a.value[0]); // (sym 2)
-  assertSymWithValue(a.value[0], 'quote'); // '(quote 2)
-  assertAstNode(a.value[1]); // (quote Ast)
-}
-
-export type QuasiQuoteExpandAst = ListNode & {
-  value: [SymWithValue<'quasiquoteexpand'>, AstNode];
-};
-
-/**
- * Asserts that an AST node represents a valid 'quasiquoteexpand' construct.
- * @description Verifies that the AST node follows the correct structure for a
- * 'quasiquoteexpand' construct, with the correct symbol followed by an AST
- * node.
- * @param a - The AST node to check.
- * @throws An error if the AST node does not correctly represent a
- * 'quasiquoteexpand' construct.
- * @example assertQuasiQuoteExpand(quasiQuoteExpandAstNode);
- * @example (quasiquoteexpand a)
- */
-export function assertQuasiQuoteExpand(
-  a: AstNode,
-): asserts a is QuasiQuoteExpandAst {
-  const symbol = 'quasiquoteexpand';
-  assertListNode(a); // (...)
-  assertArgumentCount(a.value.length, 2); // (1 2)
-  assertSymbolNode(a.value[0]); // (sym 2)
-  assertSymWithValue(a.value[0], symbol); // '(quasiquoteexpand 2)
-  assertAstNode(a.value[1]); // (quasiquoteexpand Ast)
-}
-
-export type QuasiQuoteAst = ListNode & {
-  value: [SymWithValue<'quasiquote'>, AstNode];
-};
-
-/**
- * Asserts that an AST node represents a valid 'quasiquote' construct.
- * @description Verifies that the AST node follows the correct structure for a
- * 'quasiquote' construct, with the correct symbol followed by an AST node.
- * @param a - The AST node to check.
- * @throws An error if the AST node does not correctly represent a 'quasiquote'
- * construct.
- * @example assertQuasiQuote(quasiQuoteAstNode);
- * @example (quasiquote a)
- */
-export function assertQuasiQuote(a: AstNode): asserts a is QuasiQuoteAst {
-  const symbol = 'quasiquote';
-  assertListNode(a); // (...)
-  assertArgumentCount(a.value.length, 2); // (1 2)
-  assertSymbolNode(a.value[0]); // (sym 2)
-  assertSymWithValue(a.value[0], symbol); // '(quasiquote 2)
-  assertAstNode(a.value[1]); // (quasiquote Ast)
-}
-
-export type DefMacroAst = ListNode & {
-  value: [SymWithValue<'defmacro!'>, MapKeyNode, AstNode];
-};
-
-/**
- * Asserts that an AST node represents a valid 'defmacro!' construct.
- * @description Verifies that the AST node follows the correct structure for a
- * 'defmacro!' construct, including the correct symbol and key-value pair.
- * @param a - The AST node to check.
- * @throws Err - Throws an error if the AST node does not correctly represent a
- * 'defmacro!' construct.
- * @example assertDefMacro(defmacroAstNode);
- * @example (defmacro! one (fn* () 1))
- */
-export function assertDefMacro(a: AstNode): asserts a is DefMacroAst {
-  const symbol = 'defmacro!';
-  assertListNode(a); // (...)
-  assertArgumentCount(a.value.length, 3); // (1 2 3)
-  assertSymbolNode(a.value[0]); // (sym 2 3)
-  assertSymWithValue(a.value[0], symbol); // '(defmacro! 2 3)
-  assertMapKeyNode(a.value[1]); // (defmacro! DictKeys 3)
-  assertAstNode(a.value[2]); // (defmacro! DictKeys Ast)
-}
-
-export type DoAst = ListNode & {
-  value: [SymWithValue<'do'>, ...AstNode[]];
-};
-
-/**
- * Asserts that an AST node represents a valid 'do' construct.
- * @description Verifies that the AST node follows the correct structure for a
- * 'do' construct, including the correct symbol and a list of AST nodes.
- * @param a - The AST node to check.
- * @throws Err - Throws an error if the AST node does not correctly represent a
- * 'do' construct.
- * @example assertDo(doAstNode);
- * @example (do (prn 101) (prn 102) (+ 1 2))
- */
-export function assertDo(a: AstNode): asserts a is DoAst {
-  const symbol = 'do';
-  assertListNode(a); // (...)
-  assertMinimumArgumentCount(a.value.length, 1); // (1 n*)
-  assertSymbolNode(a.value[0]); // (sym 2)
-  assertSymWithValue(a.value[0], symbol); // (do n*)
-  for (const node of a.value.slice(1)) {
-    assertAstNode(node); // (do ast*)
-  }
-}
-
-export type IfAst = ListNode & {
-  value: [SymWithValue<'if'>, AstNode, AstNode, AstNode];
-};
-
-/**
- * Asserts that an AST node represents a valid 'if' construct.
- * @description Verifies that the AST node follows the correct structure for an
- * 'if' construct, including the correct symbol and between 2 and 3 AST nodes.
- * @param a - The AST node to check.
- * @throws Err - Throws an error if the AST node does not correctly represent an
- * 'if' construct.
- * @example assertIf(ifAstNode);
- * @example (if true 7 8)
- */
-export function assertIf(a: AstNode): asserts a is IfAst {
-  const symbol = 'if';
-  assertListNode(a); // (...)
-  assertVariableArgumentCount(a.value.length, 3, 4); // (1 2 3 4)
-  assertSymbolNode(a.value[0]); // (sym 2 3 4)
-  assertSymWithValue(a.value[0], symbol); // (if 2 3 4)
-  assertAstNode(a.value[1]); // (if Ast 3 4)
-  assertAstNode(a.value[2]); // (if Ast Ast 4)
-  if (isDefined(a.value[3])) {
-    assertAstNode(a.value[3]); // (if Ast Ast Ast)
-  }
-}
-
-export type FnAst = ListNode & {
-  value: [
-    SymWithValue<'fn*' | 'function' | '=>'>,
-    Seq & {
-      value: SymbolNode[];
-    },
-    AstNode,
-  ];
-};
-
-/**
- * Asserts that an AST node represents a valid 'fn*' construct.
- * @description Verifies that the AST node follows the correct structure for a
- * 'fn*' construct, including the correct symbol, a sequence of parameters,
- * and a body AST.
- * @param a - The AST node to check.
- * @throws Err - Throws an error if the AST node does not correctly represent a
- * 'fn*' construct.
- * @example assertFn(fnAstNode); // Verifies if it is a valid fn* node
- * @example ( (fn* (a b) (+ b a)) 3 4)
- */
-export function assertFn(a: AstNode): asserts a is FnAst {
-  // (...)
-  assertListNode(a);
-  // (1 2 3)
-  assertArgumentCount(a.value.length, 3);
-  // (sym 2 3)
-  assertSymbolNode(a.value[0]);
-  // (fn* 2 3)
-  const symbolNode = a.value[0];
-  if (!['fn*', 'function', '=>'].includes(symbolNode.value)) {
-    throw new Error('use `fn*`, `function`, of `=>` in fn* expressions');
-  }
-  // (if Seq 3)
-  assertSequential(a.value[1]);
-  // (if (Sym*) 3)
-  assertSequentialValues<SymbolNode>(a.value[1].value, SymbolNode);
-  // (if (Sym*) Ast)
-  assertAstNode(a.value[2]);
 }
 
 export type ContinueResult = {
@@ -1439,6 +1380,8 @@ export const append = (acc: AstNode[], curr: AstNode): AstNode[] => [
   curr,
 ];
 
+// MARK: COPY
+
 /**
  * Creates a deep copy of the given AST node.
  * @description Uses different copy functions based on the type of the AST
@@ -1449,55 +1392,55 @@ export const append = (acc: AstNode[], curr: AstNode): AstNode[] => [
  * @example copy(astNode); // Creates a deep copy of astNode
  */
 export function copy(ast: AstNode): AstNode {
-  if (ast instanceof AtomNode) {
+  if (isAtomNode(ast)) {
     return copyAtomNode(ast);
   }
 
-  if (ast instanceof BooleanNode) {
+  if (isBooleanNode(ast)) {
     return copyBooleanNode(ast);
   }
 
-  if (ast instanceof MapNode) {
+  if (isMapNode(ast)) {
     return copyMapNode(ast);
   }
 
-  if (ast instanceof ErrorNode) {
+  if (isErrorNode(ast)) {
     return copyErrorNode(ast);
   }
 
-  if (ast instanceof FunctionNode) {
+  if (isFunctionNode(ast)) {
     return copyFunctionNode(ast);
   }
 
-  if (ast instanceof KeywordNode) {
+  if (isKeywordNode(ast)) {
     return copyKeywordNode(ast);
   }
 
-  if (ast instanceof ListNode) {
+  if (isListNode(ast)) {
     return copyListNode(ast);
   }
 
-  if (ast instanceof NilNode) {
+  if (isNilNode(ast)) {
     return copyNilNode(ast);
   }
 
-  if (ast instanceof NumberNode) {
+  if (isNumberNode(ast)) {
     return copyNumberNode(ast);
   }
 
-  if (ast instanceof StringNode) {
+  if (isStringNode(ast)) {
     return copyStringNode(ast);
   }
 
-  if (ast instanceof SymbolNode) {
+  if (isSymbolNode(ast)) {
     return copySymbolNode(ast);
   }
 
-  if (ast instanceof VectorNode) {
+  if (isVectorNode(ast)) {
     return copyVectorNode(ast);
   }
 
-  if (ast instanceof DomNode) {
+  if (isDomNode(ast)) {
     return copyDomNode(ast);
   }
 
@@ -1514,10 +1457,10 @@ export function copy(ast: AstNode): AstNode {
  */
 export function copyAtomNode(a: AtomNode): AtomNode {
   // TODO: Coerce JS values into AstNodes?
-  // if (a.value instanceof AstNode === false) {
-  // 	return new AtomNode(structuredClone(a.value));
+  // if (a.isAstNode(value) === false) {
+  // 	return createAtomNode(structuredClone(a.value));
   // }
-  return new AtomNode(copy(a.value));
+  return createAtomNode(copy(a.value));
 }
 
 /**
@@ -1529,7 +1472,7 @@ export function copyAtomNode(a: AtomNode): AtomNode {
  * @example copyBool(boolNode); // Creates a copy of boolNode
  */
 export function copyBooleanNode(a: BooleanNode): BooleanNode {
-  return new BooleanNode(a.value);
+  return createBooleanNode(a.value);
 }
 
 /**
@@ -1541,17 +1484,17 @@ export function copyBooleanNode(a: BooleanNode): BooleanNode {
  * @example copyDict(dictNode); // Creates a copy of dictNode
  */
 export function copyMapNode(a: MapNode): MapNode {
-  const dict = new MapNode(new Map(a.value));
-  dict.metadata = copy(a.metadata);
+  const dict = createMapNode(new Map(a.value));
+  dict.metadata = copy(a.metadata ?? createNilNode());
   return dict;
 }
 
 /**
  * Creates a copy of a DomNode.
- * @description Creates a new DomNode instance with a deep copy of the value
+ * @description Creates a createDomNode instance with a deep copy of the value
  * and metadata from the given DomNode instance.
  * @param a - The DomNode to copy.
- * @returns Dict - A new DomNode instance with copied values and metadata.
+ * @returns Dict - A createDomNode instance with copied values and metadata.
  * @example copyDomNode(domNodeInstance); // Creates a copy of domNodeInstance
  */
 export function copyDomNode(a: DomNode): DomNode {
@@ -1559,8 +1502,8 @@ export function copyDomNode(a: DomNode): DomNode {
   const attributes = a.attributes;
   const children = a.children;
 
-  const domNode = new DomNode(tagName, new Map(attributes), children.map(copy));
-  domNode.metadata = copy(a.metadata);
+  const domNode = createDomNode(tagName, new Map(attributes), children.map(copy));
+  domNode.metadata = copy(a.metadata ?? createNilNode());
   return domNode;
 }
 
@@ -1573,7 +1516,7 @@ export function copyDomNode(a: DomNode): DomNode {
  * @example copyErr(errNode); // Creates a copy of errNode
  */
 export function copyErrorNode(a: ErrorNode): ErrorNode {
-  return new ErrorNode(copy(a.value));
+  return createErrorNode(copy(a.value));
 }
 
 /**
@@ -1586,15 +1529,15 @@ export function copyErrorNode(a: ErrorNode): ErrorNode {
  * @example copyFunc(funcNode); // Creates a copy of funcNode
  */
 export function copyFunctionNode(a: FunctionNode): FunctionNode {
-  const func = new FunctionNode(a.value);
+  const func = createFunctionNode(a.value);
   func.isMacro = a.isMacro;
-  func.metadata = copy(a.metadata);
+  func.metadata = copy(a.metadata ?? createNilNode());
   if (a.closureMeta) {
     const cl = a.closureMeta;
     func.closureMeta = {
       ast: copy(cl.ast),
       env: cl.env, // Copy env?
-      parameters: cl.parameters.map((sym) => new SymbolNode(sym.value)),
+      parameters: cl.parameters.map((sym) => createSymbolNode(sym.value)),
     };
   }
 
@@ -1610,7 +1553,7 @@ export function copyFunctionNode(a: FunctionNode): FunctionNode {
  * @example copyKey(keyNode); // Creates a copy of keyNode
  */
 export function copyKeywordNode(a: KeywordNode): KeywordNode {
-  return new KeywordNode(a.value);
+  return createKeywordNode(a.value);
 }
 
 /**
@@ -1622,8 +1565,8 @@ export function copyKeywordNode(a: KeywordNode): KeywordNode {
  * @example copyList(listNode); // Creates a copy of listNode
  */
 export function copyListNode(a: ListNode): ListNode {
-  const list = new ListNode(a.value.map((value) => copy(value)));
-  list.metadata = copy(a.metadata);
+  const list = createListNode(a.value.map((value) => copy(value)));
+  list.metadata = copy(a.metadata ?? createNilNode());
   return list;
 }
 
@@ -1636,7 +1579,7 @@ export function copyListNode(a: ListNode): ListNode {
  * @example copyNil(nilNode); // Creates a new Nil node
  */
 export function copyNilNode(_ast: NilNode): NilNode {
-  return new NilNode();
+  return createNilNode();
 }
 
 /**
@@ -1647,7 +1590,7 @@ export function copyNilNode(_ast: NilNode): NilNode {
  * @example copyNum(numNode); // Creates a copy of numNode
  */
 export function copyNumberNode(a: NumberNode): NumberNode {
-  return new NumberNode(a.value);
+  return createNumberNode(a.value);
 }
 
 /**
@@ -1658,7 +1601,7 @@ export function copyNumberNode(a: NumberNode): NumberNode {
  * @example copyStr(strNode); // Creates a copy of strNode
  */
 export function copyStringNode(a: StringNode): StringNode {
-  return new StringNode(a.value);
+  return createStringNode(a.value);
 }
 
 /**
@@ -1669,7 +1612,7 @@ export function copyStringNode(a: StringNode): StringNode {
  * @example copySym(symNode); // Creates a copy of symNode
  */
 export function copySymbolNode(a: SymbolNode): SymbolNode {
-  return new SymbolNode(a.value);
+  return createSymbolNode(a.value);
 }
 
 /**
@@ -1681,14 +1624,12 @@ export function copySymbolNode(a: SymbolNode): SymbolNode {
  * @example copyVec(vecNode); // Creates a copy of vecNode
  */
 export function copyVectorNode(a: VectorNode): VectorNode {
-  const vec = new VectorNode(a.value.map((value) => copy(value)));
-  vec.metadata = copy(a.metadata);
+  const vec = createVectorNode(a.value.map((value) => copy(value)));
+  vec.metadata = copy(a.metadata ?? createNilNode());
   return vec;
 }
 
-/**
- * Map functions.
- */
+// MARK: MAP FNS
 
 /**
  * Adds a new element with a specified DictKey and value to the Ast Map. If an
@@ -1761,7 +1702,7 @@ export function getMapElement(
  */
 export function getMapKeys(map: Map<string, AstNode>): ListNode {
   const keys = [...map.keys()];
-  return new ListNode(keys.map((key) => convertStringToMapKey(key)));
+  return createListNode(keys.map((key) => convertStringToMapKey(key)));
 }
 
 /**
@@ -1777,12 +1718,12 @@ export function getMapKeys(map: Map<string, AstNode>): ListNode {
  */
 export function convertMapKeyToString(ast: MapKeyNode): string {
   const key = ast; // Key has : at the beginning
-  if (key instanceof KeywordNode) {
+  if (isKeywordNode(key)) {
     return key.value;
   }
 
   const string_ = ast; // Str must be re-quoted
-  if (string_ instanceof StringNode) {
+  if (isStringNode(string_)) {
     return `"${string_.value}"`;
   }
 
@@ -1793,18 +1734,19 @@ export function convertMapKeyToString(ast: MapKeyNode): string {
  * Converts a MapKey (string) into a DictKey.
  * @param key - A string which can be converted into DictKeys.
  * @returns The converted dict key.
- * @example mapKeyToDictKey(':foobar') //=> Key {value: ':foobar'}
+ * @example mapKeyToDictKey(':foobar') //=> Key {value: 'foobar:'}
+ * @example mapKeyToDictKey('foobar:') //=> Key {value: 'foobar:'}
  */
 export function convertStringToMapKey(key: string): MapKeyNode {
-  if (key.startsWith(':')) {
-    return new KeywordNode(key);
+  if (key.endsWith(':')) {
+    return createKeywordNode(key);
   }
 
   if (key.startsWith('"')) {
-    return new StringNode(key.slice(1, -1));
+    return createStringNode(key.slice(1, -1));
   }
 
-  return new SymbolNode(key);
+  return createSymbolNode(key);
 }
 
 /**
@@ -1816,8 +1758,8 @@ export function convertStringToMapKey(key: string): MapKeyNode {
 export function dekey(key: string | MapKeyNode): string {
   const value = isMapKeyNode(key) ? key.value : key;
 
-  if (value.startsWith(':')) {
-    return value.slice(1);
+  if (value.startsWith(':') || value.endsWith(':')) {
+    return value.replaceAll(':', '');
   }
 
   if (value.startsWith('"') && value.endsWith('"')) {
@@ -1835,7 +1777,7 @@ export function dekey(key: string | MapKeyNode): string {
  */
 export function getMapValues(map: Map<string, AstNode>): ListNode {
   const values = [...map.values()];
-  return new ListNode(values);
+  return createListNode(values);
 }
 
 /**
@@ -1853,6 +1795,8 @@ export function mapFlat(map: Map<string, AstNode>): AstNode[] {
 
   return flat;
 }
+
+// MARK: HELPER FNS
 
 /**
  * Splits a filename at the first dot.
@@ -1913,6 +1857,203 @@ export function slash(string_: string): string {
     .replaceAll('\n', '\\n');
 }
 
+// MARK: CONVERSION FNS
+
+export type AllReturnableJsTypes =
+  | { [key: string]: AllReturnableJsTypes }
+  | ((...args: AllReturnableJsTypes[]) => AllReturnableJsTypes)
+  | Array<AllReturnableJsTypes>
+  | boolean
+  | Error
+  | null
+  | number
+  | string;
+
+export function unwrap(ast: AstNode) {
+  if (isAtomNode(ast)) {
+    return unwrapAtomNode(ast);
+  }
+
+  if (isBooleanNode(ast)) {
+    return unwrapBooleanNode(ast);
+  }
+
+  if (isMapNode(ast)) {
+    return unwrapMapNode(ast);
+  }
+
+  if (isErrorNode(ast)) {
+    return unwrapErrorNode(ast);
+  }
+
+  if (isFunctionNode(ast)) {
+    return unwrapFunctionNode(ast);
+  }
+
+  if (isKeywordNode(ast)) {
+    return unwrapKeywordNode(ast);
+  }
+
+  if (isListNode(ast)) {
+    return unwrapListNode(ast);
+  }
+
+  if (isNilNode(ast)) {
+    return unwrapNilNode();
+  }
+
+  if (isNumberNode(ast)) {
+    return unwrapNumberNode(ast);
+  }
+
+  if (isStringNode(ast)) {
+    return unwrapStringNode(ast);
+  }
+
+  if (isSymbolNode(ast)) {
+    return unwrapSymbolNode(ast);
+  }
+
+  if (isVectorNode(ast)) {
+    return unwrapVectorNode(ast);
+  }
+
+  return ast.value;
+}
+
+export function unwrapAtomNode(ast: AtomNode): unknown {
+  return unwrap(ast.value);
+}
+
+export function unwrapBooleanNode(ast: BooleanNode): boolean {
+  return ast.value;
+}
+
+export function unwrapDomNode(ast: DomNode): string { // HTMLElement | null
+  // return ast.domNode;
+  return ast.value;
+}
+
+export function unwrapErrorNode(ast: ErrorNode): Error {
+  const message = isStringNode(ast.value) ? ast.value.value : String(unwrap(ast.value));
+  return new Error(message);
+}
+
+export function unwrapFunctionNode(ast: FunctionNode): (...args: AstNode[]) => AstNode {
+  return (...args: AstNode[]) => toAst(unwrap(ast.value(...args)));
+}
+
+export function unwrapKeywordNode(ast: KeywordNode): string {
+  return ast.value;
+}
+
+export function unwrapListNode(ast: ListNode): unknown[] {
+  return ast.value.map(unwrap);
+}
+
+export function unwrapMapNode(ast: MapNode): Record<string, unknown> {
+  const plainObject: Record<string, unknown> = {};
+  for (const [key, value] of ast.value.entries()) {
+    plainObject[key] = unwrap(value);
+  }
+
+  return plainObject;
+}
+
+export function unwrapNilNode(): null {
+  return null;
+}
+
+export function unwrapNumberNode(ast: NumberNode): number {
+  return ast.value;
+}
+
+export function unwrapStringNode(ast: StringNode): string {
+  return ast.value;
+}
+
+export function unwrapSymbolNode(ast: SymbolNode): string {
+  return ast.value;
+}
+
+export function unwrapVectorNode(ast: VectorNode): unknown[] {
+  return ast.value.map(unwrap);
+}
+
+// TODO: Rename toJs to unwrap, unwrapJs, or unwrapAstNode
+/**
+ * Converts an abstract syntax tree (AST) node to its corresponding JavaScript representation.
+ * @param ast - The AST node to convert.
+ * @returns The JavaScript representation of the AST node.
+ * @throws Will throw an error if the AST node type is unmatched.
+ */
+export function toJs<T extends AstNode = AstNode>(
+  ast: T,
+): T['value'] { // AllReturnableJsTypes
+  if (isAtomNode(ast)) {
+    return toJs(ast.value);
+  }
+
+  if (isBooleanNode(ast)) {
+    return ast.value;
+  }
+
+  if (isMapNode(ast)) {
+    const obj: Record<string, T['value']> = {};
+    for (const [key, value] of ast.value.entries()) {
+      obj[key] = toJs(value);
+    }
+
+    return obj;
+  }
+
+  if (isErrorNode(ast)) {
+    if (isStringNode(ast.value)) {
+      return new Error(ast.value.value);
+    } else {
+      return new Error(String(ast.value));
+    }
+  }
+
+  if (isFunctionNode(ast)) {
+    return ((...args: AllReturnableJsTypes[]) => toJs(ast.value(...args.map(toAst))));
+  }
+
+  if (isKeywordNode(ast)) {
+    return ast.value;
+  }
+
+  if (isListNode(ast)) {
+    return ast.value.map(toJs);
+  }
+
+  if (isNilNode(ast)) {
+    return null;
+  }
+
+  if (isNumberNode(ast)) {
+    return ast.value;
+  }
+
+  if (isStringNode(ast)) {
+    return ast.value;
+  }
+
+  if (isSymbolNode(ast)) {
+    return ast.value;
+  }
+
+  if (isVectorNode(ast)) {
+    return ast.value.map((n) => toJs(n));
+  }
+
+  // if (isJsNode(ast)) {
+  //   return ast.value;
+  // }
+
+  throw new TypeError(`Could not convert '${JSON.stringify(ast)}' to JavaScript`);
+}
+
 /**
  * Translate JavaScript primative values into Ast's.
  * @param jsValue - A JavaScript primative to convert into an Ast.
@@ -1922,48 +2063,47 @@ export function slash(string_: string): string {
 export function toAst(input: unknown): AstNode {
   switch (typeof input) {
     case 'undefined': {
-      return new NilNode();
+      return createNilNode();
     }
 
     case 'number': {
-      return new NumberNode(input);
+      return createNumberNode(input);
     }
 
     case 'string': {
       if (input.startsWith('"')) {
-        return new StringNode(input);
+        return createStringNode(input);
       }
 
       if (input.startsWith(':')) {
-        return new KeywordNode(input);
+        return createKeywordNode(input);
       }
 
-      return new SymbolNode(input);
+      return createSymbolNode(input);
     }
 
     case 'boolean': {
-      return new BooleanNode(input);
+      return createBooleanNode(input);
     }
 
-    case 'symbol':
-    case 'bigint': {
-      return new StringNode(JSON.stringify(input));
+    case 'symbol': {
+      return createStringNode(JSON.stringify(input));
     }
 
     case 'function': {
-      return new FunctionNode(
+      return createFunctionNode(
         (...args: AstNode[]): AstNode => {
           try {
             return toAst(input(...args.map((x) => x.value)));
           } catch (error: unknown) {
             if (error instanceof Error) {
-              return new ErrorNode(
-                new StringNode(error.message),
+              return createErrorNode(
+                createStringNode(error.message),
               );
             }
 
-            return new ErrorNode(
-              new StringNode(JSON.stringify(error)),
+            return createErrorNode(
+              createStringNode(JSON.stringify(error)),
             );
           }
         },
@@ -1971,17 +2111,21 @@ export function toAst(input: unknown): AstNode {
     }
 
     case 'object': {
+      // if (isJsNodeSupportedType(input)) {
+      //   return createJsNode(input);
+      // }
+
       if (input instanceof Error) {
-        return new ErrorNode(new StringNode(input.message));
+        return createErrorNode(createStringNode(input.message));
       }
 
       if (input === null) {
-        return new NilNode();
+        return createNilNode();
       }
 
       if (Array.isArray(input)) {
         const array = input.map((element) => toAst(element));
-        return new ListNode(array);
+        return createListNode(array);
       }
 
       if (input instanceof Map) {
@@ -1992,7 +2136,7 @@ export function toAst(input: unknown): AstNode {
           map.set(key, value);
         }
 
-        return new MapNode(map);
+        return createMapNode(map);
       }
 
       const inputObject = input as Record<string, unknown>;
@@ -2007,14 +2151,27 @@ export function toAst(input: unknown): AstNode {
         map.set(key, value);
       }
 
-      return new MapNode(map);
+      return createMapNode(map);
     }
 
     default: {
       const coercedUnknown = String(input);
-      return new ErrorNode(
-        new StringNode(`uknown type ${coercedUnknown}`),
+      return createErrorNode(
+        createStringNode(`unknown type ${coercedUnknown}`),
       );
     }
   }
+}
+
+/**
+ * Converts a given input into an `AstNode` of type `ErrorNode`.
+ *
+ * @param caughtError - The input to convert, which can be a string, an Error, or an AstNode.
+ * @returns An `AstNode` of type `ErrorNode`.
+ */
+export function toErrorNode(caughtError: unknown): AstNode {
+  if (isErrorNode(caughtError)) return caughtError;
+  if (isAstNode(caughtError)) return createErrorNode(caughtError);
+  if (caughtError instanceof Error) return createErrorNode(caughtError.message);
+  return createErrorNode(String(caughtError));
 }

@@ -3,11 +3,319 @@
  * language. Additionally, it adds the core functions: meta, with-meta, the
  * reader macro (^), time-ms, conj, string?, number?, fn?, macro?, and seq,.
  */
-import * as core from './core.ts';
-import * as env from './env.ts';
-import * as printer from './printer.ts';
-import * as reader from './reader.ts';
-import * as types from './types.ts';
+import * as core from '@/core.ts';
+import * as env from '@/env.ts';
+import * as html from '@/interop/html.ts';
+import * as js from '@/interop/js.ts';
+import * as printer from '@/printer.ts';
+import * as reader from '@/reader.ts';
+import * as types from '@/types.ts';
+
+export type TryCatchAst = types.ListNode & {
+  value: [
+    types.SymWithValue<'try*' | 'try'>,
+    types.AstNode,
+    types.ListNode & {
+      value: [types.SymWithValue<'catch*' | 'catch'>, types.AstNode];
+    },
+  ];
+};
+
+/**
+ * Asserts that an AST node represents a valid 'try-catch' construct.
+ * @description Checks the structure of an AST node to ensure it correctly
+ * represents a 'try-catch' block in the language, with valid number and types
+ * of arguments.
+ * @param a - The AST node being tested.
+ * @throws Error if the node doesn't represent a valid 'try-catch' construct.
+ * @example assertTryCatch(tryCatchAstNode);
+ */
+export function assertTryCatch(a: types.AstNode): asserts a is TryCatchAst {
+  types.assertListNode(a);
+  types.assertVariableArgumentCount(a.value.length, 2, 3);
+  const symbolNode = a.value[0];
+  types.assertSymbolNode(symbolNode);
+  if (symbolNode.value !== 'try' && symbolNode.value !== 'try*') {
+    throw new Error('use `try` or `try*` in try/catch expressions');
+  }
+  // assertSymWithValue(a.value[0], 'try*');
+  types.assertAstNode(a.value[1]);
+  if (a.value[2]) {
+    types.assertListNode(a.value[2]);
+    types.assertArgumentCount(a.value[2].value.length, 3);
+    types.assertSymbolNode(a.value[2].value[0]);
+    const catchNode = a.value[2].value[0];
+    if (catchNode.value !== 'catch' && catchNode.value !== 'catch*') {
+      throw new Error('use `catch` or `catch*` in try/catch expressions');
+    }
+    types.assertSymbolNode(a.value[2].value[1]);
+    types.assertAstNode(a.value[2].value[2]);
+  }
+}
+
+export type DefAst = types.ListNode & {
+  value: [
+    types.SymWithValue<'def!' | 'globalThis' | 'var'>,
+    types.SymbolNode | types.StringNode | types.KeywordNode,
+    types.AstNode,
+  ];
+};
+
+/**
+ * Asserts that an AST node represents a valid 'def!' construct.
+ * @description Checks the structure of an AST node to ensure it correctly
+ * represents a 'def!' declaration in the language, including the correct
+ * number and types of arguments.
+ * @param a - The AST node being tested.
+ * @throws Error if the node doesn't represent a valid 'def!' construct.
+ * @example assertDef(defAstNode);
+ * @example (def! x "x")
+ */
+export function assertDef(a: types.AstNode): asserts a is DefAst {
+  types.assertListNode(a); // (...)
+  types.assertArgumentCount(a.value.length, 3); // (1 2 3)
+  types.assertSymbolNode(a.value[0]); // (sym 2 3)
+  // assertSymWithValue(a.value[0], "def!"); // '(def! 2 3)
+  const symbolNode = a.value[0];
+  if (
+    symbolNode.value !== 'def!' &&
+    symbolNode.value !== 'globalThis' &&
+    symbolNode.value !== 'var'
+  ) {
+    throw new Error('use `def!`, `globalThis`, or `var` in def! expressions');
+  }
+  types.assertMapKeyNode(a.value[1]); // (def! DictKeys 3)
+  types.assertAstNode(a.value[2]); // (def! DictKeys Ast)
+}
+
+export type LetAst = types.ListNode & {
+  value: [
+    types.SymWithValue<'let*' | 'let' | 'const'>,
+    (types.VectorNode | types.ListNode) & {
+      value: Array<types.SymbolNode | types.AstNode>;
+    },
+  ];
+};
+
+/**
+ * Asserts that an AST node represents a valid 'let*' construct.
+ * @description Verifies that the AST node follows the correct structure for a
+ * 'let*' construct, with the correct symbols and pairs of symbols and values.
+ * @param a - The AST node to check.
+ * @throws An error if the AST node does not correctly represent a 'let*'
+ * construct.
+ * @example assertLet(letAstNode);
+ * @example (let* (z 9) z)
+ */
+export function assertLet(a: types.AstNode): asserts a is LetAst {
+  types.assertListNode(a); // (...)
+  types.assertArgumentCount(a.value.length, 3); // (1 2 3)
+  types.assertSymbolNode(a.value[0]); // (sym 2 3)
+  // assertSymWithValue(a.value[0], "let*"); // (let* 2 3)
+  const symbolNode = a.value[0];
+  if (
+    symbolNode.value !== 'let*' &&
+    symbolNode.value !== 'let' &&
+    symbolNode.value !== 'const'
+  ) {
+    throw new Error('use `let*`, `let`, or `const` in let* expressions');
+  }
+  types.assertSequential(a.value[1]); // (let* Seq 3)
+  types.assertAstNode(a.value[2]); // (let* Seq Ast)
+  types.assertEvenArgumentCount(a.value[1].value.length); // (let* (any*2) Ast)
+  for (let i = 0; i < a.value[1].value.length; i += 2) {
+    types.assertSymbolNode(a.value[1].value[i]); // (let* ((Sym any)*) Ast)
+    types.assertAstNode(a.value[1].value[i + 1]); // (let* ((Sym Ast)*) Ast)
+  }
+}
+
+export type QuoteAst = types.ListNode & {
+  value: [types.SymWithValue<'quote'>, types.AstNode];
+};
+
+/**
+ * Asserts that an AST node represents a valid 'quote' construct.
+ * @description Verifies that the AST node follows the correct structure for a
+ * 'quote' construct, with the correct symbol followed by an AST node.
+ * @param a - The AST node to check.
+ * @throws An error if the AST node does not correctly represent a 'quote'
+ * construct.
+ * @example assertQuote(quoteAstNode);
+ * @example (quote (1 2 3))
+ */
+export function assertQuote(a: types.AstNode): asserts a is QuoteAst {
+  types.assertListNode(a); // (...)
+  types.assertArgumentCount(a.value.length, 2); // (1 2)
+  types.assertSymbolNode(a.value[0]); // (sym 2)
+  types.assertSymWithValue(a.value[0], 'quote'); // '(quote 2)
+  types.assertAstNode(a.value[1]); // (quote Ast)
+}
+
+export type QuasiQuoteExpandAst = types.ListNode & {
+  value: [types.SymWithValue<'quasiquoteexpand'>, types.AstNode];
+};
+
+/**
+ * Asserts that an AST node represents a valid 'quasiquoteexpand' construct.
+ * @description Verifies that the AST node follows the correct structure for a
+ * 'quasiquoteexpand' construct, with the correct symbol followed by an AST
+ * node.
+ * @param a - The AST node to check.
+ * @throws An error if the AST node does not correctly represent a
+ * 'quasiquoteexpand' construct.
+ * @example assertQuasiQuoteExpand(quasiQuoteExpandAstNode);
+ * @example (quasiquoteexpand a)
+ */
+export function assertQuasiQuoteExpand(
+  a: types.AstNode,
+): asserts a is QuasiQuoteExpandAst {
+  const symbol = 'quasiquoteexpand';
+  types.assertListNode(a); // (...)
+  types.assertArgumentCount(a.value.length, 2); // (1 2)
+  types.assertSymbolNode(a.value[0]); // (sym 2)
+  types.assertSymWithValue(a.value[0], symbol); // '(quasiquoteexpand 2)
+  types.assertAstNode(a.value[1]); // (quasiquoteexpand Ast)
+}
+
+export type QuasiQuoteAst = types.ListNode & {
+  value: [types.SymWithValue<'quasiquote'>, types.AstNode];
+};
+
+/**
+ * Asserts that an AST node represents a valid 'quasiquote' construct.
+ * @description Verifies that the AST node follows the correct structure for a
+ * 'quasiquote' construct, with the correct symbol followed by an AST node.
+ * @param a - The AST node to check.
+ * @throws An error if the AST node does not correctly represent a 'quasiquote'
+ * construct.
+ * @example assertQuasiQuote(quasiQuoteAstNode);
+ * @example (quasiquote a)
+ */
+export function assertQuasiQuote(a: types.AstNode): asserts a is QuasiQuoteAst {
+  const symbol = 'quasiquote';
+  types.assertListNode(a); // (...)
+  types.assertArgumentCount(a.value.length, 2); // (1 2)
+  types.assertSymbolNode(a.value[0]); // (sym 2)
+  types.assertSymWithValue(a.value[0], symbol); // '(quasiquote 2)
+  types.assertAstNode(a.value[1]); // (quasiquote Ast)
+}
+
+export type DefMacroAst = types.ListNode & {
+  value: [types.SymWithValue<'defmacro!'>, types.MapKeyNode, types.AstNode];
+};
+
+/**
+ * Asserts that an AST node represents a valid 'defmacro!' construct.
+ * @description Verifies that the AST node follows the correct structure for a
+ * 'defmacro!' construct, including the correct symbol and key-value pair.
+ * @param a - The AST node to check.
+ * @throws Err - Throws an error if the AST node does not correctly represent a
+ * 'defmacro!' construct.
+ * @example assertDefMacro(defmacroAstNode);
+ * @example (defmacro! one (fn* () 1))
+ */
+export function assertDefMacro(a: types.AstNode): asserts a is DefMacroAst {
+  const symbol = 'defmacro!';
+  types.assertListNode(a); // (...)
+  types.assertArgumentCount(a.value.length, 3); // (1 2 3)
+  types.assertSymbolNode(a.value[0]); // (sym 2 3)
+  types.assertSymWithValue(a.value[0], symbol); // '(defmacro! 2 3)
+  types.assertMapKeyNode(a.value[1]); // (defmacro! DictKeys 3)
+  types.assertAstNode(a.value[2]); // (defmacro! DictKeys Ast)
+}
+
+export type DoAst = types.ListNode & {
+  value: [types.SymWithValue<'do'>, ...types.AstNode[]];
+};
+
+/**
+ * Asserts that an AST node represents a valid 'do' construct.
+ * @description Verifies that the AST node follows the correct structure for a
+ * 'do' construct, including the correct symbol and a list of AST nodes.
+ * @param a - The AST node to check.
+ * @throws Err - Throws an error if the AST node does not correctly represent a
+ * 'do' construct.
+ * @example assertDo(doAstNode);
+ * @example (do (prn 101) (prn 102) (+ 1 2))
+ */
+export function assertDo(a: types.AstNode): asserts a is DoAst {
+  const symbol = 'do';
+  types.assertListNode(a); // (...)
+  types.assertMinimumArgumentCount(a.value.length, 1); // (1 n*)
+  types.assertSymbolNode(a.value[0]); // (sym 2)
+  types.assertSymWithValue(a.value[0], symbol); // (do n*)
+  for (const node of a.value.slice(1)) {
+    types.assertAstNode(node); // (do ast*)
+  }
+}
+
+export type IfAst = types.ListNode & {
+  value: [types.SymWithValue<'if'>, types.AstNode, types.AstNode, types.AstNode];
+};
+
+/**
+ * Asserts that an AST node represents a valid 'if' construct.
+ * @description Verifies that the AST node follows the correct structure for an
+ * 'if' construct, including the correct symbol and between 2 and 3 AST nodes.
+ * @param a - The AST node to check.
+ * @throws Err - Throws an error if the AST node does not correctly represent an
+ * 'if' construct.
+ * @example assertIf(ifAstNode);
+ * @example (if true 7 8)
+ */
+export function assertIf(a: types.AstNode): asserts a is IfAst {
+  const symbol = 'if';
+  types.assertListNode(a); // (...)
+  types.assertVariableArgumentCount(a.value.length, 3, 4); // (1 2 3 4)
+  types.assertSymbolNode(a.value[0]); // (sym 2 3 4)
+  types.assertSymWithValue(a.value[0], symbol); // (if 2 3 4)
+  types.assertAstNode(a.value[1]); // (if Ast 3 4)
+  types.assertAstNode(a.value[2]); // (if Ast Ast 4)
+  if (types.isDefined(a.value[3])) {
+    types.assertAstNode(a.value[3]); // (if Ast Ast Ast)
+  }
+}
+
+export type FnAst = types.ListNode & {
+  value: [
+    types.SymWithValue<'fn*' | 'function' | '=>'>,
+    types.Seq & {
+      value: types.SymbolNode[];
+    },
+    types.AstNode,
+  ];
+};
+
+/**
+ * Asserts that an AST node represents a valid 'fn*' construct.
+ * @description Verifies that the AST node follows the correct structure for a
+ * 'fn*' construct, including the correct symbol, a sequence of parameters,
+ * and a body AST.
+ * @param a - The AST node to check.
+ * @throws Err - Throws an error if the AST node does not correctly represent a
+ * 'fn*' construct.
+ * @example assertFn(fnAstNode); // Verifies if it is a valid fn* node
+ * @example ( (fn* (a b) (+ b a)) 3 4)
+ */
+export function assertFn(a: types.AstNode): asserts a is FnAst {
+  // (...)
+  types.assertListNode(a);
+  // (1 2 3)
+  types.assertArgumentCount(a.value.length, 3);
+  // (sym 2 3)
+  types.assertSymbolNode(a.value[0]);
+  // (fn* 2 3)
+  const symbolNode = a.value[0];
+  if (!['fn*', 'function', '=>'].includes(symbolNode.value)) {
+    throw new Error('use `fn*`, `function`, of `=>` in fn* expressions');
+  }
+  // (if Seq 3)
+  types.assertSequential(a.value[1]);
+  // (if (Sym*) 3)
+  types.assertSequentialValues<types.SymbolNode>(a.value[1].value, types.SymbolNode);
+  // (if (Sym*) Ast)
+  types.assertAstNode(a.value[2]);
+}
 
 /**
  * The READ step of the READ-EVAL-PRINT-LOOP.
@@ -36,20 +344,20 @@ export function read(malCode: string): types.AstNode {
  * @returns The expanded AST, which can include "list", "concat",
  * "quote" or other forms based on the quasi-quoting rules.
  * @example Using "unquote" (~)
- * (quasiquote (~a b)) ;=> (list a b)
+ * (quasiQuote (~a b)) ;=> (list a b)
  * @example Using "unquote" shorthand
  * `(~a b) //=> (list a b)
  * @example Using "splice-unquote" (~@)
- * (quasiquote (~@a b)) ;=> (concat a b)
+ * (quasiQuote (~@a b)) ;=> (concat a b)
  * @example Using "splice-unquote" shorthand
  * `(~@a b)  =>  (concat a b)
  */
-export function quasiquote(node: types.AstNode): types.AstNode {
-  const isQuotableNode = node instanceof types.MapNode ||
-    node instanceof types.SymbolNode;
+export function quasiQuote(node: types.AstNode): types.AstNode {
+  const isQuotableNode = types.isMapNode(node) ||
+    types.isSymbolNode(node);
 
   if (isQuotableNode) {
-    return new types.ListNode([new types.SymbolNode('quote'), node]);
+    return types.createListNode([types.createSymbolNode('quote'), node]);
   }
 
   if (!types.isSequentialNode(node)) {
@@ -62,24 +370,24 @@ export function quasiquote(node: types.AstNode): types.AstNode {
     return node.value[1];
   }
 
-  let result = new types.ListNode([]);
+  let result = types.createListNode([]);
   for (let i = node.value.length - 1; i >= 0; i--) {
     const element = node.value[i];
     result = types.listStartsWithSymbol(element, 'splice-unquote')
-      ? new types.ListNode([
-        new types.SymbolNode('concat'),
+      ? types.createListNode([
+        types.createSymbolNode('concat'),
         element.value[1],
         result,
       ])
-      : new types.ListNode([
-        new types.SymbolNode('cons'),
-        quasiquote(element),
+      : types.createListNode([
+        types.createSymbolNode('cons'),
+        quasiQuote(element),
         result,
       ]);
   }
 
-  if (node instanceof types.VectorNode) {
-    result = new types.ListNode([new types.SymbolNode('vec'), result]);
+  if (types.isVectorNode(node)) {
+    result = types.createListNode([types.createSymbolNode('vec'), result]);
   }
 
   return result;
@@ -107,7 +415,7 @@ export function isMacroCall(
   appEnv: env.Env,
 ): ast is types.ListNode & { value: [types.SymbolNode] } {
   if (
-    !(ast instanceof types.ListNode) ||
+    !(types.isListNode(ast)) ||
     !(ast.value[0] instanceof types.SymbolNode)
   ) {
     return false;
@@ -120,7 +428,7 @@ export function isMacroCall(
   }
 
   const fn = foundEnv.get(symbol);
-  if (!(fn instanceof types.FunctionNode)) {
+  if (!(types.isFunctionNode(fn))) {
     return false;
   }
 
@@ -180,30 +488,30 @@ export function evaluateAst(
   node: types.AstNode,
   appEnv: env.Env,
 ): types.AstNode {
-  if (node instanceof types.SymbolNode) {
+  if (types.isSymbolNode(node)) {
     return appEnv.get(node);
   }
 
-  if (node instanceof types.VectorNode) {
+  if (types.isVectorNode(node)) {
     const evaluated = node.value.map((v) => evaluate(v, appEnv));
-    return new types.VectorNode(evaluated);
+    return types.createVectorNode(evaluated);
   }
 
-  if (node instanceof types.ListNode) {
+  if (types.isListNode(node)) {
     const evaluated = node.value.map((v) => evaluate(v, appEnv));
-    return new types.ListNode(evaluated);
+    return types.createListNode(evaluated);
   }
 
-  if (node instanceof types.MapNode) {
+  if (types.isMapNode(node)) {
     const evaluated = new Map<string, types.AstNode>();
     for (const [key, value] of node.value.entries()) {
       evaluated.set(key, evaluate(value, appEnv));
     }
 
-    return new types.MapNode(evaluated);
+    return types.createMapNode(evaluated);
   }
 
-  if (node instanceof types.DomNode) {
+  if (types.isDomNode(node)) {
     const tagName = node.value;
     const attributes = Array.from(node.attributes).reduce(
       (map, [key, value]) => map.set(key, evaluate(value, appEnv)),
@@ -211,7 +519,7 @@ export function evaluateAst(
     );
     const children = node.children.map((child) => evaluate(child, appEnv));
 
-    return new types.DomNode(tagName, attributes, children);
+    return types.createDomNode(tagName, attributes, children);
   }
 
   return node;
@@ -236,9 +544,9 @@ export function evaluateAst(
  */
 export function evaluate(node: types.AstNode, appEnv: env.Env): types.AstNode {
   for (;;) {
-    // Trace: console.log(`eval: ${print(ast)}`);
+    // console.log(`eval: ${print(node)}`);
 
-    if (node instanceof types.ListNode === false) {
+    if (types.isListNode(node) === false) {
       return evaluateAst(node, appEnv);
     }
 
@@ -248,7 +556,7 @@ export function evaluate(node: types.AstNode, appEnv: env.Env): types.AstNode {
 
     node = macroExpand(node, appEnv);
 
-    if (node instanceof types.ListNode === false) {
+    if (types.isListNode(node) === false) {
       return evaluateAst(node, appEnv);
     }
 
@@ -256,7 +564,7 @@ export function evaluate(node: types.AstNode, appEnv: env.Env): types.AstNode {
       return node;
     }
 
-    const symbolValue = node.value[0] instanceof types.SymbolNode ? node.value[0].value : 'goto_default_clause';
+    const symbolValue = types.isSymbolNode(node.value[0]) ? node.value[0].value : 'goto_default_clause';
     let result: types.ContinueReturn;
 
     switch (symbolValue) {
@@ -374,7 +682,7 @@ export function evaluateDef(
   node: types.AstNode,
   appEnv: env.Env,
 ): types.ContinueReturn {
-  types.assertDef(node);
+  assertDef(node);
   const variableName = node.value[1];
   const variableValue = node.value[2];
   const evaluatedValue = evaluate(variableValue, appEnv);
@@ -396,7 +704,7 @@ export function evaluateLet(
   node: types.AstNode,
   appEnv: env.Env,
 ): types.ContinueReturn {
-  types.assertLet(node);
+  assertLet(node);
   const bindings = node.value[1];
   const bindingsCount = bindings.value.length;
   const letEnv = new env.Env(appEnv);
@@ -423,7 +731,7 @@ export function evaluateQuote(
   node: types.AstNode,
   _: env.Env,
 ): types.ContinueReturn {
-  types.assertQuote(node);
+  assertQuote(node);
   return types.returnResult(node.value[1]);
 }
 
@@ -439,8 +747,8 @@ export function evaluateQuasiQuoteExpand(
   node: types.AstNode,
   _env: env.Env,
 ): types.ContinueReturn {
-  types.assertQuasiQuoteExpand(node);
-  return types.returnResult(quasiquote(node.value[1]));
+  assertQuasiQuoteExpand(node);
+  return types.returnResult(quasiQuote(node.value[1]));
 }
 
 /**
@@ -455,8 +763,8 @@ export function evaluateQuasiQuote(
   node: types.AstNode,
   appEnv: env.Env,
 ): types.ContinueReturn {
-  types.assertQuasiQuote(node);
-  const resultAst = quasiquote(node.value[1]);
+  assertQuasiQuote(node);
+  const resultAst = quasiQuote(node.value[1]);
   return types.continueResult(resultAst, appEnv);
 }
 
@@ -474,12 +782,12 @@ export function evaluateDefMacro(
   node: types.AstNode,
   appEnv: env.Env,
 ): types.ContinueReturn {
-  types.assertDefMacro(node);
+  assertDefMacro(node);
   const variableName = node.value[1];
   const variableValue = node.value[2];
   const evaluatedValue = evaluate(variableValue, appEnv);
   const copiedValue = types.copy(evaluatedValue);
-  if (copiedValue instanceof types.FunctionNode) {
+  if (types.isFunctionNode(copiedValue)) {
     copiedValue.isMacro = true;
   }
 
@@ -501,9 +809,9 @@ export function evaluateDo(
   node: types.AstNode,
   appEnv: env.Env,
 ): types.ContinueReturn {
-  types.assertDo(node);
+  assertDo(node);
   // Process all arguments sequentially and keep the last one
-  let lastResult: types.AstNode = new types.NilNode();
+  let lastResult: types.AstNode = types.createNilNode();
   for (let i = 1; i < node.value.length; i++) {
     lastResult = evaluate(node.value[i], appEnv);
   }
@@ -532,7 +840,7 @@ export function evaluateTry(
   node: types.AstNode,
   appEnv: env.Env,
 ): types.ContinueReturn {
-  types.assertTryCatch(node);
+  assertTryCatch(node);
   try {
     return {
       return: evaluate(node.value[1], appEnv),
@@ -547,15 +855,15 @@ export function evaluateTry(
     const list = node.value[2].value[2] as types.ListNode;
 
     let message: types.AstNode;
-    if (error instanceof types.ErrorNode) {
+    if (types.isErrorNode(error)) {
       message = error;
     } else if (error instanceof Error) {
-      message = new types.StringNode(error.message);
+      message = types.createStringNode(error.message);
     } else {
-      message = new types.StringNode(JSON.stringify(error));
+      message = types.createStringNode(JSON.stringify(error));
     }
 
-    const caught = new types.ErrorNode(message);
+    const caught = types.createErrorNode(message);
     const errorEnv = new env.Env(appEnv, [sym], [caught]);
     return { return: evaluate(list, errorEnv), continue: undefined };
   }
@@ -586,7 +894,7 @@ export function evaluateIf(
   node: types.AstNode,
   appEnv: env.Env,
 ): types.ContinueReturn {
-  types.assertIf(node);
+  assertIf(node);
   const condition = node.value[1];
   const result = evaluate(condition, appEnv);
   if (result.value !== false && result.value !== null) {
@@ -599,7 +907,7 @@ export function evaluateIf(
     return types.continueResult(elseExpr, appEnv);
   }
 
-  return types.returnResult(new types.NilNode());
+  return types.returnResult(types.createNilNode());
 }
 
 /**
@@ -624,7 +932,7 @@ export function evaluateFn(
   node: types.AstNode,
   appEnv: env.Env,
 ): types.ContinueReturn {
-  types.assertFn(node);
+  assertFn(node);
   const parameters = node.value[1].value;
   const bodyExpr = node.value[2];
   const outerEnv = appEnv;
@@ -633,7 +941,7 @@ export function evaluateFn(
     env: outerEnv,
     parameters,
   };
-  const fn = new types.FunctionNode(
+  const fn = types.createFunctionNode(
     (...args: types.AstNode[]): types.AstNode => {
       const fnEnv = new env.Env(outerEnv, parameters, args);
       // TODO: Check if this should be types.returnResult(evaluate(...))
@@ -663,7 +971,7 @@ export function evaluateApply(
   types.assertListNode(evaluatedList);
 
   const fn = evaluatedList.value[0];
-  if (fn instanceof types.FunctionNode) {
+  if (types.isFunctionNode(fn)) {
     const args = evaluatedList.value.slice(1);
     if (fn.closureMeta) {
       const ast = fn.closureMeta.ast;
@@ -698,7 +1006,7 @@ export function print(value: types.AstNode): string {
 }
 
 /**
- * The READ-EVAL-PRINT or REP handles everything expect the LOOP part of REPL.
+ * The read-eval-print (rep) function handles everything except looping (to receive input).
  * @param input - User input from the command line.
  * @param appEnv - The environment which contains all of the core functions.
  * @returns An evaluated and stringified AST.
@@ -724,83 +1032,40 @@ export function initEnv(): env.Env {
     replEnv.set(coreSymbol, coreFunc);
   }
 
+  // Core JavaScript functions
+  for (const [jsSymbol, jsFunc] of js.operators.ns.entries()) {
+    replEnv.set(jsSymbol, jsFunc);
+  }
+
+  // JavaScript arrays
+  for (const [jsSymbol, jsFunc] of js.arrays.ns.entries()) {
+    replEnv.set(jsSymbol, jsFunc);
+  }
+
+  // Core HTML functions
+  for (const [htmlSymbol, htmlFunc] of html.ns.entries()) {
+    replEnv.set(htmlSymbol, htmlFunc);
+  }
+
   // Eval treats mal-data as a mal program
   replEnv.set(
-    new types.SymbolNode('eval'),
-    new types.FunctionNode((...args: types.AstNode[]): types.AstNode => {
+    types.createSymbolNode('eval'),
+    types.createFunctionNode((...args: types.AstNode[]): types.AstNode => {
       types.assertArgumentCount(args.length, 1);
       return evaluate(args[0], replEnv);
     }),
   );
 
   rep('(def! not (fn* (a) (if a false true)))', replEnv);
-  rep(`(def! load-file (fn* (f) (eval (read-string (str "(do " (slurp f) "\nnil)")))))`, replEnv);
   rep(
-    `(defmacro! cond (fn* (& xs) (if (> (count xs) 0) (list 'if (first xs) (if (> (count xs) 1) (nth xs 1) (throw "odd number of forms to cond")) (cons 'cond (rest (rest xs)))))))`,
+    `(defmacro! cond
+      (fn* (& xs)
+       (if (> (count xs) 0) (list 'if (first xs)
+                                  (if (> (count xs) 1) (nth xs 1)
+                                      (throw "odd number of forms to cond"))
+                                  (cons 'cond (rest (rest xs)))))))`,
     replEnv,
   );
 
   return replEnv;
-}
-
-/**
- * Main program entry point.
- * @description Init the environment and register the readline event handlers.
- * If arguments are passed, the first one will be used as a filepath to a mal
- * program. Any additional arguments are loaded into the environment as *ARGV*.
- * @param args - [filepath: string, ...argv: any[]].
- * @example `deno run ./step0_repl.ts`
- */
-export function main(...args: string[]) {
-  const replEnv = initEnv();
-
-  // Process the arguments
-  const userScriptPath: string | undefined = args[0];
-  const hostEnvArgs: types.StringNode[] = args
-    .slice(1)
-    .map((arg) => new types.StringNode(arg));
-
-  replEnv.set(
-    new types.SymbolNode('*ARGV*'),
-    new types.ListNode(hostEnvArgs),
-  );
-  replEnv.set(
-    new types.SymbolNode('*host-language*'),
-    new types.StringNode('ENSEMBLE'),
-  );
-
-  // Run a user program and exit
-  if (userScriptPath) {
-    rep(`(load-file "${userScriptPath}")`, replEnv);
-    return;
-  }
-
-  // Show an interactive repl
-  rep('(println (str "Mal [" *host-language* "]"))', replEnv);
-
-  for (;;) {
-    const input = prompt('user>');
-    if (input === null || input === undefined) {
-      break;
-    }
-
-    if (input === '') {
-      continue;
-    } /*	commented out for tests */
-
-    try {
-      const result = rep(input, replEnv);
-      console.log(result);
-    } catch (error: unknown) {
-      if (error instanceof types.ErrorNode) {
-        console.error(`error: ${printer.printString(error, false)}`);
-      } else if (error instanceof Error) {
-        console.error(error);
-      }
-    }
-  }
-}
-
-if (import.meta.main) {
-  main(...Deno.args);
 }

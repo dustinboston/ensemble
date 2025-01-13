@@ -11,7 +11,7 @@
  * In theory the `javascript_definitions.ts` file could be analyzed directly by Ensemble at runtime. However, it is very helpful to pre-generate
  * the interop code so that we can visually and programmatically inspect it to find and fix errors at compile time.
  */
-import * as types from '../javascript/types.ts';
+import * as types from '../src/types.ts';
 export const javascriptNamespace = new Map<types.MapKeyNode, types.FunctionNode>();
 
 javascriptNamespace.set(
