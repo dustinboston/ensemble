@@ -29,7 +29,9 @@
   ],
   "[clojure]": {
     "editor.defaultFormatter": "pedrorgirardi.vscode-cljfmt"
-  }
+  },
+  "IDX.aI.enableInlineCompletion": true,
+  "IDX.aI.enableCodebaseIndexing": true
   // "editor.detectIndentation": false,
   // "[clojure]": {
   //   "editor.defaultFormatter": "betterthantomorrow.calva"
