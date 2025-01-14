@@ -65,7 +65,7 @@ export function newDate(...args: types.AstNode[]): types.AstNode {
   return types.createNumberNode(date.getTime());
 }
 
-export function now(...args: types.AstNode[]): types.AstNode {
+export function now(..._args: types.AstNode[]): types.AstNode {
   return types.createNumberNode(Date.now());
 }
 

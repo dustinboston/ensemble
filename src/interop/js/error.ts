@@ -25,7 +25,7 @@ export function newError(...args: types.AstNode[]): types.AstNode {
     cause = args[2];
   }
 
-  return types.createErrorNode(message.value, name, cause);
+  return types.createErrorNode(message, name, cause);
 }
 
 export function getMessage(...args: types.AstNode[]): types.AstNode {

@@ -18,14 +18,24 @@
     "editor.defaultFormatter": "ms-python.black-formatter"
   },
   "cSpell.words": [
+    "apos",
     "Berners",
     "creationflags",
+    "defmacro",
+    "dissoc",
     "Eich",
+    "imgmap",
     "INPUTRC",
     "killpg",
+    "macroexpand",
     "preexec",
+    "quasiquote",
+    "quasiquoteexpand",
+    "readir",
+    "readln",
     "setsid",
-    "TIOCSWINSZ"
+    "TIOCSWINSZ",
+    "vals"
   ],
   "[clojure]": {
     "editor.defaultFormatter": "pedrorgirardi.vscode-cljfmt"

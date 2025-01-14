@@ -4,33 +4,29 @@ import { assertSpyCall, assertSpyCalls, returnsNext, stub } from '@std/testing/m
 import { readir, readln, slurp, spit } from './ensemble_cli.ts';
 import * as types from './types.ts';
 
-Deno.test('readir(): should list directory contents', () => {
-  const temporaryDir = Deno.makeTempDirSync();
-  Deno.mkdirSync(`${temporaryDir}/subdir`);
-  Deno.writeTextFileSync(`${temporaryDir}/file.txt`, 'hello');
+Deno.test('readir(): should list directory contents', async () => {
+  const temporaryDir = await Deno.makeTempDir();
+  await Deno.mkdir(`${temporaryDir}/subdir`);
+  await Deno.writeTextFile(`${temporaryDir}/file.txt`, 'hello');
 
   const input = types.createStringNode(temporaryDir);
-  const expected = types.createVectorNode([
+  const expected: types.VectorNode<types.AstNode> = types.createVectorNode([
     types.createMapNode(
       // Make slug and ext null or empty for dirs
       new Map<string, types.AstNode>([
-        [':directory', types.createBooleanNode(false)],
-        [':ext', types.createStringNode('txt')],
-        [':file', types.createBooleanNode(true)],
-        [':name', types.createStringNode('file.txt')],
-        [':slug', types.createStringNode('file')],
-        [':symlink', types.createBooleanNode(false)],
+        ['isDirectory', types.createBooleanNode(false)],
+        ['isFile', types.createBooleanNode(true)],
+        ['isSymlink', types.createBooleanNode(false)],
+        ['name', types.createSymbolNode('file.txt')],
       ]),
     ),
     types.createMapNode(
       // Make slug and ext null or empty for dirs
       new Map<string, types.AstNode>([
-        [':directory', types.createBooleanNode(true)],
-        [':ext', types.createStringNode('subdir')],
-        [':file', types.createBooleanNode(false)],
-        [':name', types.createStringNode('subdir')],
-        [':slug', types.createStringNode('subdi')],
-        [':symlink', types.createBooleanNode(false)],
+        ['isDirectory', types.createBooleanNode(true)],
+        ['isFile', types.createBooleanNode(false)],
+        ['isSymlink', types.createBooleanNode(false)],
+        ['name', types.createSymbolNode('subdir')],
       ]),
     ),
   ]);
@@ -41,8 +37,8 @@ Deno.test('readir(): should list directory contents', () => {
 
 Deno.test('readir(): should throw error if argument is not a string', () => {
   assertThrows(
-    () => readir(types.createNumberNode(123)),
-    Error,
+    () => readir(types.createNumberNode(123) as unknown as types.StringNode),
+    TypeError,
     'Invalid',
   );
 });
@@ -64,8 +60,8 @@ Deno.test('slurp(): should throw error if file does not exist', () => {
   );
 });
 
-Deno.test('spit(): should write to a file', () => {
-  const temporaryDir = Deno.makeTempDirSync();
+Deno.test('spit(): should write to a file', async () => {
+  const temporaryDir = await Deno.makeTempDir();
   const filePath = `${temporaryDir}/file.txt`;
   const content = 'newContent';
 
@@ -74,7 +70,7 @@ Deno.test('spit(): should write to a file', () => {
     types.createStringNode(content),
   );
 
-  const result = Deno.readTextFileSync(filePath);
+  const result = await Deno.readTextFile(filePath);
   assertEquals(result, content);
 });
 

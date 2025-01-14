@@ -109,7 +109,7 @@ export function printHtml(ast: types.AstNode, printReadably = false): string {
     if (ast.attributes.size > 0) {
       attributes = ' ' + Array.from(ast.attributes).map(([key, value]) => {
         if (key === 'style') return printInlineCss(value, printReadably);
-        return `${types.dekey(key)}="${printHtml(value, printReadably)}"`;
+        return `${types.getBareMapKey(key)}="${printHtml(value, printReadably)}"`;
       }).join(' ');
     }
 
@@ -190,7 +190,10 @@ export function printHtml(ast: types.AstNode, printReadably = false): string {
  * @returns A JavaScript representation of the AST
  * @throws If it encounters an unmatched or unrecognized AST node type.
  */
-export function printJavaScript(ast: types.AstNode, printReadably = false): string {
+export function printJavaScript(
+  ast: types.AstNode,
+  printReadably = false,
+): string {
   if (types.isDomNode(ast)) {
     const element = `(const el = document.createElement("${ast.value}"); document.body.appendChild(el);)`;
     return element;
@@ -213,7 +216,10 @@ export function printJavaScript(ast: types.AstNode, printReadably = false): stri
     return `(${body})`;
   }
 
-  if (types.isStringNode(ast) || types.isKeywordNode(ast) || types.isSymbolNode(ast)) {
+  if (
+    types.isStringNode(ast) || types.isKeywordNode(ast) ||
+    types.isSymbolNode(ast)
+  ) {
     return `"${ast.value}"`;
   }
 
@@ -282,17 +288,20 @@ export function printCss(ast: types.AstNode, printReadably = false): string {
   if (types.isMapNode(ast)) {
     return [...ast.value]
       .map(([key, valueAst]) => {
-        const selector = types.dekey(key);
+        const selector = types.getBareMapKey(key);
         // Use nil for things like {"@import './norm.css'" nil} - When nil is detected the value will be ignored
         if (types.isNilNode(valueAst)) return selector;
-        if (types.isMapNode(valueAst)) return `${selector} {${printCss(valueAst, printReadably)}}`;
-        return `${types.dekey(key)}: ${printCss(valueAst, printReadably)};`;
+        if (types.isMapNode(valueAst)) {
+          return `${selector} {${printCss(valueAst, printReadably)}}`;
+        }
+        return `${types.getBareMapKey(key)}: ${printCss(valueAst, printReadably)};`;
       }).join(' ');
   }
 
   // These types don't have a printable equivalent (yet)
   if (
-    types.isBooleanNode(ast) || types.isAtomNode(ast) || types.isFunctionNode(ast) || types.isDomNode(ast) ||
+    types.isBooleanNode(ast) || types.isAtomNode(ast) ||
+    types.isFunctionNode(ast) || types.isDomNode(ast) ||
     types.isNilNode(ast)
   ) {
     return '';
@@ -301,7 +310,10 @@ export function printCss(ast: types.AstNode, printReadably = false): string {
   throw new Error('unmatched object');
 }
 
-export function printStyleTag(ast: types.AstNode, printReadably = false): string {
+export function printStyleTag(
+  ast: types.AstNode,
+  printReadably = false,
+): string {
   return printCss(ast, printReadably);
 }
 
@@ -311,7 +323,10 @@ export function printStyleTag(ast: types.AstNode, printReadably = false): string
  * @param printReadably
  * @returns
  */
-export function printInlineCss(ast: types.AstNode, printReadably = false): string {
+export function printInlineCss(
+  ast: types.AstNode,
+  printReadably = false,
+): string {
   return types.isMapNode(ast) ? printCssDeclarationBlock(ast, printReadably) : '{}';
 }
 
@@ -321,6 +336,10 @@ export function printInlineCss(ast: types.AstNode, printReadably = false): strin
  * @param printReadably
  * @returns string
  */
-function printCssDeclarationBlock(valueAst: types.MapNode, printReadably = false): string {
-  return [...valueAst.value].map(([key, value]) => `${types.dekey(key)}: ${printCss(value, printReadably)};`).join('');
+function printCssDeclarationBlock(
+  valueAst: types.MapNode,
+  printReadably = false,
+): string {
+  return [...valueAst.value].map(([key, value]) => `${types.getBareMapKey(key)}: ${printCss(value, printReadably)};`)
+    .join('');
 }

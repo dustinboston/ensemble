@@ -18,7 +18,7 @@ export function readln(...args: types.AstNode[]): types.AstNode {
   const cmdPrompt = args[0];
   types.assertStringNode(cmdPrompt);
 
-  const input = readline.prompt(cmdPrompt.value);
+  const input = prompt(cmdPrompt.value);
   if (input === null || input === undefined) {
     return types.createNilNode();
   }
@@ -38,19 +38,10 @@ export function readir(...args: types.AstNode[]): types.AstNode {
   types.assertStringNode(args[0]);
   const files: types.MapNode[] = [];
   for (const entry of Deno.readDirSync(args[0].value)) {
-    const map = new Map<string, types.AstNode>();
-    map.set(':file', types.createBooleanNode(entry.isFile));
-    map.set(':directory', types.createBooleanNode(entry.isDirectory));
-    map.set(':symlink', types.createBooleanNode(entry.isSymlink));
-    map.set(':name', types.createStringNode(entry.name));
-
-    const firstDotIndex = entry.name.indexOf('.');
-    const slug = entry.name.slice(0, firstDotIndex);
-    const ext = entry.name.slice(firstDotIndex + 1);
-
-    map.set(':slug', types.createStringNode(slug));
-    map.set(':ext', types.createStringNode(ext));
-    files.push(types.createMapNode(map));
+    const map = types.toAst(entry);
+    if (types.isMapNode(map)) {
+      files.push(map);
+    }
   }
 
   return types.createVectorNode(files);
