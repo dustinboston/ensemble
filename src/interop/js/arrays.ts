@@ -1,8 +1,9 @@
-import * as core from '../../core.ts';
-import * as types from '../../types.ts';
+import * as core from '@/core.ts';
+import * as types from '@/types.ts';
 
-export const ns = new Map<types.MapKeyNode, types.FunctionNode>();
-export const nsValues: Array<[string, types.Closure]> = [
+// TODO: Implement forEach and reduceRight
+export const arrayFunctions: Array<[string, types.Closure]> = [
+  ['Array', toArray],
   ['Array.from', arrayFrom],
   ['Array.isArray', core.isSequentialNode],
   ['Array.length', core.length],
@@ -20,7 +21,6 @@ export const nsValues: Array<[string, types.Closure]> = [
   ['Array.prototype.findLastIndex', findLastIndex],
   ['Array.prototype.flat', flat],
   ['Array.prototype.flatMap', flatMap],
-  // No forEach to avoid side effects
   ['Array.prototype.includes', includes],
   ['Array.prototype.indexOf', indexOf],
   ['Array.prototype.join', join],
@@ -29,7 +29,6 @@ export const nsValues: Array<[string, types.Closure]> = [
   ['Array.prototype.pop', core.lastNodeInList],
   ['Array.prototype.push', core.conj],
   ['Array.prototype.reduce', reduce],
-  ['Array.prototype.reduceRight', reduce], // TODO: Implement reduceRight
   ['Array.prototype.reverse', reverse],
   ['Array.prototype.shift', core.firstNodeInList],
   ['Array.prototype.slice', slice],
@@ -45,8 +44,15 @@ export const nsValues: Array<[string, types.Closure]> = [
   ['Array.toString', core.printEscapedString],
 ];
 
-for (const [sym, fn] of nsValues) {
-  ns.set(types.createSymbolNode(sym), types.createFunctionNode(fn));
+export function toArray(...args: types.AstNode[]): types.AstNode {
+  types.assertMinimumArgumentCount(args.length, 1);
+
+  if (args.length === 1 && types.isNumberNode(args[0])) {
+    const fillableArray = Array(args[0].value).fill(types.createNilNode());
+    return types.createVectorNode(fillableArray);
+  }
+
+  return types.createVectorNode(args);
 }
 
 /**
@@ -266,8 +272,6 @@ export function flatMap(...args: types.AstNode[]): types.AstNode {
 
   return types.createVectorNode(result);
 }
-
-// No for each to avoid side effects
 
 /**
  * `includes` checks if a vector includes a specified element.

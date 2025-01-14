@@ -1033,12 +1033,7 @@ export function initEnv(): env.Env {
   }
 
   // Core JavaScript functions
-  for (const [jsSymbol, jsFunc] of js.operators.ns.entries()) {
-    replEnv.set(jsSymbol, jsFunc);
-  }
-
-  // JavaScript arrays
-  for (const [jsSymbol, jsFunc] of js.arrays.ns.entries()) {
+  for (const [jsSymbol, jsFunc] of js.ns.entries()) {
     replEnv.set(jsSymbol, jsFunc);
   }
 
