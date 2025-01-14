@@ -1,7 +1,4 @@
-import * as types from '../src/types.ts';
-
-/** Defines language features and builtins for JavaScript */
-export const javascriptNamespace = new Map<types.MapKeyNode, types.FunctionNode>();
+/*
 
 javascriptNamespace.set(
   types.createSymbolNode('RegExp.apply'),
@@ -28,7 +25,7 @@ javascriptNamespace.set(
     try {
       if ((astArgs.length === 2) && types.isAstNode(astArgs[0]) && types.isVectorNode(astArgs[1])) {
         const thisArg = types.toJs<types.AstNode>(astArgs[0]);
-        /* rest */
+
         const argArray = astArgs.slice(1).map((x) => types.toJs<types.VectorNode>(x));
         const result = RegExp.bind(thisArg, ...argArray);
         return types.toAst(result);
@@ -46,7 +43,7 @@ javascriptNamespace.set(
     try {
       if ((astArgs.length === 2) && types.isAstNode(astArgs[0]) && types.isVectorNode(astArgs[1])) {
         const thisArg = types.toJs<types.AstNode>(astArgs[0]);
-        /* rest */
+
         const argArray = astArgs.slice(1).map((x) => types.toJs<types.VectorNode>(x));
         const result = Function.prototype.call.apply(RegExp, [thisArg, ...argArray]);
         return types.toAst(result);
@@ -222,7 +219,7 @@ javascriptNamespace.set(
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 2) && types.isAstNode(astArgs[0]) && types.isStringNode(astArgs[1])) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const stringValue = types.toJs<types.AstNode>(astArgs[1]);
         const result = RegExp.prototype.exec.call(context, stringValue);
@@ -240,7 +237,7 @@ javascriptNamespace.set(
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 2) && types.isAstNode(astArgs[0]) && types.isStringNode(astArgs[1])) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const stringValue = types.toJs<types.AstNode>(astArgs[1]);
         const result = RegExp.prototype[Symbol.match].call(context, stringValue);
@@ -258,7 +255,7 @@ javascriptNamespace.set(
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 2) && types.isAstNode(astArgs[0]) && types.isStringNode(astArgs[1])) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const stringValue = types.toJs<types.AstNode>(astArgs[1]);
         const result = RegExp.prototype[Symbol.matchAll].call(context, stringValue);
@@ -279,7 +276,7 @@ javascriptNamespace.set(
         (astArgs.length === 3) && types.isAstNode(astArgs[0]) && types.isStringNode(astArgs[1]) &&
         types.isStringNode(astArgs[2])
       ) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const stringValue = types.toJs<types.AstNode>(astArgs[1]);
         const replaceValue = types.toJs<types.StringNode>(astArgs[2]);
@@ -290,7 +287,7 @@ javascriptNamespace.set(
         (astArgs.length === 3) && types.isAstNode(astArgs[0]) && types.isStringNode(astArgs[1]) &&
         types.isFunctionNode(astArgs[2])
       ) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const stringValue = types.toJs<types.AstNode>(astArgs[1]);
         const replaceValue = types.toJs<types.StringNode>(astArgs[2]);
@@ -309,7 +306,7 @@ javascriptNamespace.set(
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 2) && types.isAstNode(astArgs[0]) && types.isStringNode(astArgs[1])) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const stringValue = types.toJs<types.AstNode>(astArgs[1]);
         const result = RegExp.prototype[Symbol.search].call(context, stringValue);
@@ -330,7 +327,7 @@ javascriptNamespace.set(
         (astArgs.length >= 2 && astArgs.length <= 3) && types.isAstNode(astArgs[0]) && types.isStringNode(astArgs[1]) &&
         types.isNumberNode(astArgs[2])
       ) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const stringValue = types.toJs<types.AstNode>(astArgs[1]);
         const limit = types.toJs<types.StringNode>(astArgs[2] ?? types.createNilNode());
@@ -349,7 +346,7 @@ javascriptNamespace.set(
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 2) && types.isAstNode(astArgs[0]) && types.isStringNode(astArgs[1])) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const stringValue = types.toJs<types.AstNode>(astArgs[1]);
         const result = RegExp.prototype.test.call(context, stringValue);
@@ -367,7 +364,7 @@ javascriptNamespace.set(
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 1) && types.isAstNode(astArgs[0])) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const result = RegExp.prototype.dotAll;
         return types.toAst(result);
@@ -384,7 +381,7 @@ javascriptNamespace.set(
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 1) && types.isAstNode(astArgs[0])) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const result = RegExp.prototype.flags;
         return types.toAst(result);
@@ -401,7 +398,7 @@ javascriptNamespace.set(
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 1) && types.isAstNode(astArgs[0])) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const result = RegExp.prototype.global;
         return types.toAst(result);
@@ -418,7 +415,7 @@ javascriptNamespace.set(
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 1) && types.isAstNode(astArgs[0])) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const result = RegExp.prototype.hasIndices;
         return types.toAst(result);
@@ -435,7 +432,7 @@ javascriptNamespace.set(
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 1) && types.isAstNode(astArgs[0])) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const result = RegExp.prototype.ignoreCase;
         return types.toAst(result);
@@ -452,7 +449,7 @@ javascriptNamespace.set(
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 1) && types.isAstNode(astArgs[0])) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const result = RegExp.prototype.lastIndex;
         return types.toAst(result);
@@ -469,7 +466,7 @@ javascriptNamespace.set(
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 1) && types.isAstNode(astArgs[0])) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const result = RegExp.prototype.multiline;
         return types.toAst(result);
@@ -486,7 +483,7 @@ javascriptNamespace.set(
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 1) && types.isAstNode(astArgs[0])) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const result = RegExp.prototype.source;
         return types.toAst(result);
@@ -503,7 +500,7 @@ javascriptNamespace.set(
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 1) && types.isAstNode(astArgs[0])) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const result = RegExp.prototype.sticky;
         return types.toAst(result);
@@ -520,7 +517,7 @@ javascriptNamespace.set(
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 1) && types.isAstNode(astArgs[0])) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const result = RegExp.prototype.unicode;
         return types.toAst(result);
@@ -537,7 +534,7 @@ javascriptNamespace.set(
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 1) && types.isAstNode(astArgs[0])) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const result = RegExp.prototype.unicodeSets;
         return types.toAst(result);
@@ -548,3 +545,5 @@ javascriptNamespace.set(
     }
   }),
 );
+
+*/

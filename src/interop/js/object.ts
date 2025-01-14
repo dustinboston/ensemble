@@ -1,8 +1,4 @@
-import * as types from '../src/types.ts';
-
-/** Defines language features and builtins for JavaScript */
-export const javascriptNamespace = new Map<types.MapKeyNode, types.FunctionNode>();
-
+/*
 javascriptNamespace.set(
   types.createSymbolNode('Object'),
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
@@ -41,7 +37,7 @@ javascriptNamespace.set(
     try {
       if ((astArgs.length === 2) && types.isAstNode(astArgs[0]) && types.isVectorNode(astArgs[1])) {
         const target = types.toJs<types.AstNode>(astArgs[0]);
-        /* rest */
+
         const sources = astArgs.slice(1).map((x) => types.toJs<types.VectorNode>(x));
         const result = Object.assign(target, ...sources);
         return types.toAst(result);
@@ -447,7 +443,7 @@ javascriptNamespace.set(
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 1) && types.isAstNode(astArgs[0])) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const result = Object.prototype.toLocaleString.call(context);
         return types.toAst(result);
@@ -464,7 +460,7 @@ javascriptNamespace.set(
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 1) && types.isAstNode(astArgs[0])) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const result = Object.prototype.toString.call(context);
         return types.toAst(result);
@@ -481,7 +477,7 @@ javascriptNamespace.set(
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 1) && types.isAstNode(astArgs[0])) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const result = Object.prototype.valueOf.call(context);
         return types.toAst(result);
@@ -498,7 +494,7 @@ javascriptNamespace.set(
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 1) && types.isAstNode(astArgs[0])) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const result = Object.prototype.constructor;
         return types.toAst(result);
@@ -509,3 +505,4 @@ javascriptNamespace.set(
     }
   }),
 );
+*/

@@ -1,7 +1,4 @@
-import * as types from '../src/types.ts';
-
-/** Defines language features and builtins for JavaScript */
-export const javascriptNamespace = new Map<types.MapKeyNode, types.FunctionNode>();
+/*
 
 javascriptNamespace.set(
   types.createSymbolNode('Number.apply'),
@@ -28,7 +25,7 @@ javascriptNamespace.set(
     try {
       if ((astArgs.length === 2) && types.isAstNode(astArgs[0]) && types.isVectorNode(astArgs[1])) {
         const thisArg = types.toJs<types.AstNode>(astArgs[0]);
-        /* rest */
+
         const argArray = astArgs.slice(1).map((x) => types.toJs<types.VectorNode>(x));
         const result = Number.bind(thisArg, ...argArray);
         return types.toAst(result);
@@ -46,7 +43,7 @@ javascriptNamespace.set(
     try {
       if ((astArgs.length === 2) && types.isAstNode(astArgs[0]) && types.isVectorNode(astArgs[1])) {
         const thisArg = types.toJs<types.AstNode>(astArgs[0]);
-        /* rest */
+
         const argArray = astArgs.slice(1).map((x) => types.toJs<types.VectorNode>(x));
         const result = Function.prototype.call.apply(Number, [thisArg, ...argArray]);
         return types.toAst(result);
@@ -436,7 +433,7 @@ javascriptNamespace.set(
       if (
         (astArgs.length >= 1 && astArgs.length <= 2) && types.isAstNode(astArgs[0]) && types.isNumberNode(astArgs[1])
       ) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const fractionDigits = types.toJs<types.AstNode>(astArgs[1] ?? types.createNilNode());
         const result = Number.prototype.toExponential.call(context, fractionDigits);
@@ -456,7 +453,7 @@ javascriptNamespace.set(
       if (
         (astArgs.length >= 1 && astArgs.length <= 2) && types.isAstNode(astArgs[0]) && types.isNumberNode(astArgs[1])
       ) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const digits = types.toJs<types.AstNode>(astArgs[1] ?? types.createNilNode());
         const result = Number.prototype.toFixed.call(context, digits);
@@ -476,7 +473,7 @@ javascriptNamespace.set(
       if (
         (astArgs.length >= 1 && astArgs.length <= 2) && types.isAstNode(astArgs[0]) && types.isNumberNode(astArgs[1])
       ) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const precision = types.toJs<types.AstNode>(astArgs[1] ?? types.createNilNode());
         const result = Number.prototype.toPrecision.call(context, precision);
@@ -488,3 +485,4 @@ javascriptNamespace.set(
     }
   }),
 );
+*/

@@ -1,8 +1,4 @@
-import * as types from '../src/types.ts';
-
-/** Defines language features and builtins for JavaScript */
-export const javascriptNamespace = new Map<types.MapKeyNode, types.FunctionNode>();
-
+/*
 javascriptNamespace.set(
   types.createSymbolNode('Math.abs'),
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
@@ -267,7 +263,7 @@ javascriptNamespace.set(
       if (
         (astArgs.length === 1) && types.isVectorNode(astArgs[0]) && types.isTypedVector(astArgs[0], types.NumberNode)
       ) {
-        /* rest */
+
         const values = astArgs.slice(0).map((x) => types.toJs<types.VectorNode<types.NumberNode>>(x));
         const result = Math.hypot(...values);
         return types.toAst(result);
@@ -363,7 +359,7 @@ javascriptNamespace.set(
       if (
         (astArgs.length === 1) && types.isVectorNode(astArgs[0]) && types.isTypedVector(astArgs[0], types.NumberNode)
       ) {
-        /* rest */
+
         const values = astArgs.slice(0).map((x) => types.toJs<types.VectorNode<types.NumberNode>>(x));
         const result = Math.max(...values);
         return types.toAst(result);
@@ -382,7 +378,7 @@ javascriptNamespace.set(
       if (
         (astArgs.length === 1) && types.isVectorNode(astArgs[0]) && types.isTypedVector(astArgs[0], types.NumberNode)
       ) {
-        /* rest */
+
         const values = astArgs.slice(0).map((x) => types.toJs<types.VectorNode<types.NumberNode>>(x));
         const result = Math.min(...values);
         return types.toAst(result);
@@ -665,3 +661,4 @@ javascriptNamespace.set(
     }
   }),
 );
+*/

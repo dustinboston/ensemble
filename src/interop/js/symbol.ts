@@ -1,7 +1,4 @@
-import * as types from '../src/types.ts';
-
-/** Defines language features and builtins for JavaScript */
-export const javascriptNamespace = new Map<types.MapKeyNode, types.FunctionNode>();
+/*
 
 javascriptNamespace.set(
   types.createSymbolNode('Symbol.apply'),
@@ -28,7 +25,7 @@ javascriptNamespace.set(
     try {
       if ((astArgs.length === 2) && types.isAstNode(astArgs[0]) && types.isVectorNode(astArgs[1])) {
         const thisArg = types.toJs<types.AstNode>(astArgs[0]);
-        /* rest */
+        
         const argArray = astArgs.slice(1).map((x) => types.toJs<types.VectorNode>(x));
         const result = Symbol.bind(thisArg, ...argArray);
         return types.toAst(result);
@@ -46,7 +43,7 @@ javascriptNamespace.set(
     try {
       if ((astArgs.length === 2) && types.isAstNode(astArgs[0]) && types.isVectorNode(astArgs[1])) {
         const thisArg = types.toJs<types.AstNode>(astArgs[0]);
-        /* rest */
+        
         const argArray = astArgs.slice(1).map((x) => types.toJs<types.VectorNode>(x));
         const result = Function.prototype.call.apply(Symbol, [thisArg, ...argArray]);
         return types.toAst(result);
@@ -324,7 +321,7 @@ javascriptNamespace.set(
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 1) && types.isAstNode(astArgs[0])) {
-        /* context */
+        
         const context = types.toJs<undefined>(astArgs[0]);
         const result = Symbol.prototype.description;
         return types.toAst(result);
@@ -341,7 +338,7 @@ javascriptNamespace.set(
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 2) && types.isAstNode(astArgs[0]) && types.isStringNode(astArgs[1])) {
-        /* context */
+        
         const context = types.toJs<undefined>(astArgs[0]);
         const hint = types.toJs<types.AstNode>(astArgs[1]);
         const result = Symbol.prototype[Symbol.toPrimitive].call(context, hint);
@@ -445,3 +442,5 @@ javascriptNamespace.set(
     }
   }),
 );
+
+*/

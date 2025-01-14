@@ -1,7 +1,4 @@
-import * as types from '../src/types.ts';
-
-/** Defines language features and builtins for JavaScript */
-export const javascriptNamespace = new Map<types.MapKeyNode, types.FunctionNode>();
+/*
 
 javascriptNamespace.set(
   types.createSymbolNode('String.apply'),
@@ -28,7 +25,7 @@ javascriptNamespace.set(
     try {
       if ((astArgs.length === 2) && types.isAstNode(astArgs[0]) && types.isVectorNode(astArgs[1])) {
         const thisArg = types.toJs<types.AstNode>(astArgs[0]);
-        /* rest */
+
         const argArray = astArgs.slice(1).map((x) => types.toJs<types.VectorNode>(x));
         const result = String.bind(thisArg, ...argArray);
         return types.toAst(result);
@@ -46,7 +43,7 @@ javascriptNamespace.set(
     try {
       if ((astArgs.length === 2) && types.isAstNode(astArgs[0]) && types.isVectorNode(astArgs[1])) {
         const thisArg = types.toJs<types.AstNode>(astArgs[0]);
-        /* rest */
+
         const argArray = astArgs.slice(1).map((x) => types.toJs<types.VectorNode>(x));
         const result = Function.prototype.call.apply(String, [thisArg, ...argArray]);
         return types.toAst(result);
@@ -218,7 +215,7 @@ javascriptNamespace.set(
       if (
         (astArgs.length === 1) && types.isVectorNode(astArgs[0]) && types.isTypedVector(astArgs[0], types.NumberNode)
       ) {
-        /* rest */
+
         const codeUnits = astArgs.slice(0).map((x) => types.toJs<types.VectorNode<types.NumberNode>>(x));
         const result = String.fromCharCode(...codeUnits);
         return types.toAst(result);
@@ -237,7 +234,7 @@ javascriptNamespace.set(
       if (
         (astArgs.length === 1) && types.isVectorNode(astArgs[0]) && types.isTypedVector(astArgs[0], types.NumberNode)
       ) {
-        /* rest */
+
         const codePoints = astArgs.slice(0).map((x) => types.toJs<types.VectorNode<types.NumberNode>>(x));
         const result = String.fromCodePoint(...codePoints);
         return types.toAst(result);
@@ -254,7 +251,7 @@ javascriptNamespace.set(
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 2) && types.isAstNode(astArgs[0]) && types.isNumberNode(astArgs[1])) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const index = types.toJs<types.AstNode>(astArgs[1]);
         const result = String.prototype.at.call(context, index);
@@ -272,7 +269,7 @@ javascriptNamespace.set(
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 2) && types.isAstNode(astArgs[0]) && types.isNumberNode(astArgs[1])) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const index = types.toJs<types.AstNode>(astArgs[1]);
         const result = String.prototype.charAt.call(context, index);
@@ -290,7 +287,7 @@ javascriptNamespace.set(
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 2) && types.isAstNode(astArgs[0]) && types.isNumberNode(astArgs[1])) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const index = types.toJs<types.AstNode>(astArgs[1]);
         const result = String.prototype.charCodeAt.call(context, index);
@@ -308,7 +305,7 @@ javascriptNamespace.set(
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 2) && types.isAstNode(astArgs[0]) && types.isNumberNode(astArgs[1])) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const index = types.toJs<types.AstNode>(astArgs[1]);
         const result = String.prototype.codePointAt.call(context, index);
@@ -329,9 +326,9 @@ javascriptNamespace.set(
         (astArgs.length === 2) && types.isAstNode(astArgs[0]) && types.isVectorNode(astArgs[1]) &&
         types.isTypedVector(astArgs[1], types.StringNode)
       ) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
-        /* rest */
+
         const strings = astArgs.slice(1).map((x) => types.toJs<types.AstNode>(x));
         const result = String.prototype.concat.call(context, ...strings);
         return types.toAst(result);
@@ -351,7 +348,7 @@ javascriptNamespace.set(
         (astArgs.length >= 2 && astArgs.length <= 3) && types.isAstNode(astArgs[0]) && types.isStringNode(astArgs[1]) &&
         types.isNumberNode(astArgs[2])
       ) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const searchString = types.toJs<types.AstNode>(astArgs[1]);
         const length = types.toJs<types.StringNode>(astArgs[2] ?? types.createNilNode());
@@ -373,7 +370,7 @@ javascriptNamespace.set(
         (astArgs.length >= 2 && astArgs.length <= 3) && types.isAstNode(astArgs[0]) && types.isStringNode(astArgs[1]) &&
         types.isNumberNode(astArgs[2])
       ) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const searchString = types.toJs<types.AstNode>(astArgs[1]);
         const position = types.toJs<types.StringNode>(astArgs[2] ?? types.createNilNode());
@@ -395,7 +392,7 @@ javascriptNamespace.set(
         (astArgs.length >= 2 && astArgs.length <= 3) && types.isAstNode(astArgs[0]) && types.isStringNode(astArgs[1]) &&
         types.isNumberNode(astArgs[2])
       ) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const searchString = types.toJs<types.AstNode>(astArgs[1]);
         const position = types.toJs<types.StringNode>(astArgs[2] ?? types.createNilNode());
@@ -414,7 +411,7 @@ javascriptNamespace.set(
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 1) && types.isAstNode(astArgs[0])) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const result = String.prototype.isWellFormed.call(context);
         return types.toAst(result);
@@ -434,7 +431,7 @@ javascriptNamespace.set(
         (astArgs.length >= 2 && astArgs.length <= 3) && types.isAstNode(astArgs[0]) && types.isStringNode(astArgs[1]) &&
         types.isNumberNode(astArgs[2])
       ) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const searchString = types.toJs<types.AstNode>(astArgs[1]);
         const position = types.toJs<types.StringNode>(astArgs[2] ?? types.createNilNode());
@@ -453,7 +450,7 @@ javascriptNamespace.set(
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 1) && types.isAstNode(astArgs[0])) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const result = String.prototype.length;
         return types.toAst(result);
@@ -470,7 +467,7 @@ javascriptNamespace.set(
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 2) && types.isAstNode(astArgs[0]) && types.isStringNode(astArgs[1])) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const that = types.toJs<types.AstNode>(astArgs[1]);
         const result = String.prototype.localeCompare.call(context, that);
@@ -482,7 +479,7 @@ javascriptNamespace.set(
           (types.isVectorNode(astArgs[2]) && types.isTypedVector(astArgs[2], types.StringNode))) &&
         types.isMapNode(astArgs[3])
       ) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const that = types.toJs<types.AstNode>(astArgs[1]);
         const locales = types.toJs<types.StringNode>(astArgs[2] ?? types.createNilNode());
@@ -494,7 +491,7 @@ javascriptNamespace.set(
         (astArgs.length >= 2 && astArgs.length <= 4) && types.isAstNode(astArgs[0]) && types.isStringNode(astArgs[1]) &&
         (types.isNilNode(astArgs[2]) || types.isStringNode(astArgs[2])) && types.isMapNode(astArgs[3])
       ) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const that = types.toJs<types.AstNode>(astArgs[1]);
         const locales = types.toJs<types.StringNode>(astArgs[2] ?? types.createNilNode());
@@ -514,7 +511,7 @@ javascriptNamespace.set(
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 2) && types.isAstNode(astArgs[0]) && types.isStringNode(astArgs[1])) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const regexp = types.toJs<types.AstNode>(astArgs[1]);
         const result = String.prototype.match.call(context, regexp);
@@ -532,7 +529,7 @@ javascriptNamespace.set(
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 2) && types.isAstNode(astArgs[0]) && types.isStringNode(astArgs[1])) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const regexp = types.toJs<types.AstNode>(astArgs[1]);
         const result = String.prototype.matchAll.call(context, regexp);
@@ -552,7 +549,7 @@ javascriptNamespace.set(
       if (
         (astArgs.length >= 1 && astArgs.length <= 2) && types.isAstNode(astArgs[0]) && types.isStringNode(astArgs[1])
       ) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const form = types.toJs<types.AstNode>(astArgs[1] ?? types.createNilNode());
         const result = String.prototype.normalize.call(context, form);
@@ -573,7 +570,7 @@ javascriptNamespace.set(
         (astArgs.length >= 2 && astArgs.length <= 3) && types.isAstNode(astArgs[0]) && types.isNumberNode(astArgs[1]) &&
         types.isStringNode(astArgs[2])
       ) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const maxLength = types.toJs<types.AstNode>(astArgs[1]);
         const fillString = types.toJs<types.NumberNode>(astArgs[2] ?? types.createNilNode());
@@ -595,7 +592,7 @@ javascriptNamespace.set(
         (astArgs.length >= 2 && astArgs.length <= 3) && types.isAstNode(astArgs[0]) && types.isNumberNode(astArgs[1]) &&
         types.isStringNode(astArgs[2])
       ) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const maxLength = types.toJs<types.AstNode>(astArgs[1]);
         const fillString = types.toJs<types.NumberNode>(astArgs[2] ?? types.createNilNode());
@@ -614,7 +611,7 @@ javascriptNamespace.set(
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 2) && types.isAstNode(astArgs[0]) && types.isNumberNode(astArgs[1])) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const count = types.toJs<types.AstNode>(astArgs[1]);
         const result = String.prototype.repeat.call(context, count);
@@ -635,7 +632,7 @@ javascriptNamespace.set(
         (astArgs.length === 3) && types.isAstNode(astArgs[0]) && types.isStringNode(astArgs[1]) &&
         types.isStringNode(astArgs[2])
       ) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const stringValue = types.toJs<types.AstNode>(astArgs[1]);
         const replaceValue = types.toJs<types.StringNode>(astArgs[2]);
@@ -646,7 +643,7 @@ javascriptNamespace.set(
         (astArgs.length === 3) && types.isAstNode(astArgs[0]) && types.isStringNode(astArgs[1]) &&
         types.isFunctionNode(astArgs[2])
       ) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const stringValue = types.toJs<types.AstNode>(astArgs[1]);
         const replacer = types.toJs<types.StringNode>(astArgs[2]);
@@ -668,7 +665,7 @@ javascriptNamespace.set(
         (astArgs.length === 3) && types.isAstNode(astArgs[0]) && types.isStringNode(astArgs[1]) &&
         types.isStringNode(astArgs[2])
       ) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const stringValue = types.toJs<types.AstNode>(astArgs[1]);
         const replaceValue = types.toJs<types.StringNode>(astArgs[2]);
@@ -679,7 +676,7 @@ javascriptNamespace.set(
         (astArgs.length === 3) && types.isAstNode(astArgs[0]) && types.isStringNode(astArgs[1]) &&
         types.isFunctionNode(astArgs[2])
       ) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const stringValue = types.toJs<types.AstNode>(astArgs[1]);
         const replacer = types.toJs<types.StringNode>(astArgs[2]);
@@ -698,7 +695,7 @@ javascriptNamespace.set(
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 2) && types.isAstNode(astArgs[0]) && types.isStringNode(astArgs[1])) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const regexp = types.toJs<types.AstNode>(astArgs[1]);
         const result = String.prototype.search.call(context, regexp);
@@ -719,7 +716,7 @@ javascriptNamespace.set(
         (astArgs.length >= 1 && astArgs.length <= 3) && types.isAstNode(astArgs[0]) && types.isNumberNode(astArgs[1]) &&
         types.isNumberNode(astArgs[2])
       ) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const start = types.toJs<types.AstNode>(astArgs[1] ?? types.createNilNode());
         const end = types.toJs<types.NumberNode>(astArgs[2] ?? types.createNilNode());
@@ -741,7 +738,7 @@ javascriptNamespace.set(
         (astArgs.length >= 2 && astArgs.length <= 3) && types.isAstNode(astArgs[0]) && types.isStringNode(astArgs[1]) &&
         types.isNumberNode(astArgs[2])
       ) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const separator = types.toJs<types.AstNode>(astArgs[1]);
         const limit = types.toJs<types.StringNode>(astArgs[2] ?? types.createNilNode());
@@ -763,7 +760,7 @@ javascriptNamespace.set(
         (astArgs.length >= 2 && astArgs.length <= 3) && types.isAstNode(astArgs[0]) && types.isStringNode(astArgs[1]) &&
         types.isNumberNode(astArgs[2])
       ) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const searchString = types.toJs<types.AstNode>(astArgs[1]);
         const position = types.toJs<types.StringNode>(astArgs[2] ?? types.createNilNode());
@@ -785,7 +782,7 @@ javascriptNamespace.set(
         (astArgs.length === 2) && types.isAstNode(astArgs[0]) &&
         (types.isNilNode(astArgs[1]) || types.isStringNode(astArgs[1]))
       ) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const locales = types.toJs<types.AstNode>(astArgs[1]);
         const result = String.prototype.toLocaleLowerCase.call(context, locales);
@@ -806,7 +803,7 @@ javascriptNamespace.set(
         (astArgs.length === 2) && types.isAstNode(astArgs[0]) &&
         (types.isNilNode(astArgs[1]) || types.isStringNode(astArgs[1]))
       ) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const locales = types.toJs<types.AstNode>(astArgs[1]);
         const result = String.prototype.toLocaleUpperCase.call(context, locales);
@@ -824,7 +821,7 @@ javascriptNamespace.set(
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 1) && types.isAstNode(astArgs[0])) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const result = String.prototype.toLowerCase.call(context);
         return types.toAst(result);
@@ -841,7 +838,7 @@ javascriptNamespace.set(
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 1) && types.isAstNode(astArgs[0])) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const result = String.prototype.toUpperCase.call(context);
         return types.toAst(result);
@@ -858,7 +855,7 @@ javascriptNamespace.set(
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 1) && types.isAstNode(astArgs[0])) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const result = String.prototype.toWellFormed.call(context);
         return types.toAst(result);
@@ -875,7 +872,7 @@ javascriptNamespace.set(
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 1) && types.isAstNode(astArgs[0])) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const result = String.prototype.trim.call(context);
         return types.toAst(result);
@@ -892,7 +889,7 @@ javascriptNamespace.set(
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 1) && types.isAstNode(astArgs[0])) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const result = String.prototype.trimEnd.call(context);
         return types.toAst(result);
@@ -909,7 +906,7 @@ javascriptNamespace.set(
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 1) && types.isAstNode(astArgs[0])) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const result = String.prototype.trimStart.call(context);
         return types.toAst(result);
@@ -926,7 +923,7 @@ javascriptNamespace.set(
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 1) && types.isAstNode(astArgs[0])) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
         const result = String.prototype[Symbol.iterator].call(context);
         return types.toAst(result);
@@ -944,7 +941,7 @@ javascriptNamespace.set(
     try {
       if ((astArgs.length === 2) && types.isMapNode(astArgs[0]) && types.isVectorNode(astArgs[1])) {
         const template = types.toJs<types.MapNode>(astArgs[0]);
-        /* rest */
+
         const substitutions = astArgs.slice(1).map((x) => types.toJs<types.VectorNode>(x));
         const result = String.raw(template, ...substitutions);
         return types.toAst(result);
@@ -955,3 +952,5 @@ javascriptNamespace.set(
     }
   }),
 );
+
+*/

@@ -2,7 +2,6 @@ import * as core from '@/core.ts';
 import * as types from '@/types.ts';
 
 export const operators: Array<[string, types.Closure]> = [
-  ['js-eval', jsEval],
   ['===', core.eq],
   ['!==', notEqualTo],
   ['??', nullishCoalesce],
@@ -439,28 +438,4 @@ export function power(
     return types.createNumberNode(base.value ** exponent.value);
   }
   throw new TypeError('not a number');
-}
-
-/**
- * Dangerously evaluates a javascript expression with Function.
- * @param args - The expression to evaluate.
- * @returns Result of the evaluated expression or an Err.
- * @example (js-eval "console.log('give me a donut');")
- */
-export function jsEval(...args: types.AstNode[]): types.AstNode {
-  types.assertArgumentCount(args.length, 1);
-  types.assertStringNode(args[0]);
-  try {
-    // eslint-disable-next-line no-new-func
-    const result: unknown = new Function(
-      `'use strict'; return (${args[0].value})`,
-    )();
-    return types.toAst(result);
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      return types.createErrorNode(types.createStringNode(error.message));
-    }
-
-    return types.createErrorNode(types.createStringNode(JSON.stringify(error)));
-  }
 }

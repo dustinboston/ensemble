@@ -1,10 +1,7 @@
-import * as types from '../src/types.ts';
-
-/** Defines language features and builtins for JavaScript */
-export const javascriptNamespace = new Map<types.MapKeyNode, types.FunctionNode>();
+/*
 
 javascriptNamespace.set(
-  types.createSymbolNode('Map.apply'),
+  types.createSymbolNode('Set.apply'),
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if (
@@ -12,10 +9,10 @@ javascriptNamespace.set(
       ) {
         const thisArg = types.toJs<types.AstNode>(astArgs[0]);
         const argArray = types.toJs<types.VectorNode>(astArgs[1] ?? types.createNilNode());
-        const result = Map.apply(thisArg, argArray);
+        const result = Set.apply(thisArg, argArray);
         return types.toAst(result);
       }
-      return types.createErrorNode('Invalid arguments to "Map.apply"');
+      return types.createErrorNode('Invalid arguments to "Set.apply"');
     } catch (e) {
       return types.toErrorNode(e);
     }
@@ -23,17 +20,17 @@ javascriptNamespace.set(
 );
 
 javascriptNamespace.set(
-  types.createSymbolNode('Map.bind'),
+  types.createSymbolNode('Set.bind'),
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 2) && types.isAstNode(astArgs[0]) && types.isVectorNode(astArgs[1])) {
         const thisArg = types.toJs<types.AstNode>(astArgs[0]);
-        /* rest */
+
         const argArray = astArgs.slice(1).map((x) => types.toJs<types.VectorNode>(x));
-        const result = Map.bind(thisArg, ...argArray);
+        const result = Set.bind(thisArg, ...argArray);
         return types.toAst(result);
       }
-      return types.createErrorNode('Invalid arguments to "Map.bind"');
+      return types.createErrorNode('Invalid arguments to "Set.bind"');
     } catch (e) {
       return types.toErrorNode(e);
     }
@@ -41,17 +38,17 @@ javascriptNamespace.set(
 );
 
 javascriptNamespace.set(
-  types.createSymbolNode('Map.call'),
+  types.createSymbolNode('Set.call'),
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 2) && types.isAstNode(astArgs[0]) && types.isVectorNode(astArgs[1])) {
         const thisArg = types.toJs<types.AstNode>(astArgs[0]);
-        /* rest */
+
         const argArray = astArgs.slice(1).map((x) => types.toJs<types.VectorNode>(x));
-        const result = Function.prototype.call.apply(Map, [thisArg, ...argArray]);
+        const result = Function.prototype.call.apply(Set, [thisArg, ...argArray]);
         return types.toAst(result);
       }
-      return types.createErrorNode('Invalid arguments to "Map.call"');
+      return types.createErrorNode('Invalid arguments to "Set.call"');
     } catch (e) {
       return types.toErrorNode(e);
     }
@@ -59,15 +56,15 @@ javascriptNamespace.set(
 );
 
 javascriptNamespace.set(
-  types.createSymbolNode('Map[Symbol.hasInstance]'),
+  types.createSymbolNode('Set[Symbol.hasInstance]'),
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 1) && types.isAstNode(astArgs[0])) {
         const value = types.toJs<types.AstNode>(astArgs[0]);
-        const result = Map[Symbol.hasInstance](value);
+        const result = Set[Symbol.hasInstance](value);
         return types.toAst(result);
       }
-      return types.createErrorNode('Invalid arguments to "Map[Symbol.hasInstance]"');
+      return types.createErrorNode('Invalid arguments to "Set[Symbol.hasInstance]"');
     } catch (e) {
       return types.toErrorNode(e);
     }
@@ -75,14 +72,14 @@ javascriptNamespace.set(
 );
 
 javascriptNamespace.set(
-  types.createSymbolNode('Map.toString'),
+  types.createSymbolNode('Set.toString'),
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 0)) {
-        const result = Map.toString();
+        const result = Set.toString();
         return types.toAst(result);
       }
-      return types.createErrorNode('Invalid arguments to "Map.toString"');
+      return types.createErrorNode('Invalid arguments to "Set.toString"');
     } catch (e) {
       return types.toErrorNode(e);
     }
@@ -90,14 +87,14 @@ javascriptNamespace.set(
 );
 
 javascriptNamespace.set(
-  types.createSymbolNode('Map.length'),
+  types.createSymbolNode('Set.length'),
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 0)) {
-        const result = Map.length;
+        const result = Set.length;
         return types.toAst(result);
       }
-      return types.createErrorNode('Invalid arguments to "Map.length"');
+      return types.createErrorNode('Invalid arguments to "Set.length"');
     } catch (e) {
       return types.toErrorNode(e);
     }
@@ -105,14 +102,14 @@ javascriptNamespace.set(
 );
 
 javascriptNamespace.set(
-  types.createSymbolNode('Map.name'),
+  types.createSymbolNode('Set.name'),
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 0)) {
-        const result = Map.name;
+        const result = Set.name;
         return types.toAst(result);
       }
-      return types.createErrorNode('Invalid arguments to "Map.name"');
+      return types.createErrorNode('Invalid arguments to "Set.name"');
     } catch (e) {
       return types.toErrorNode(e);
     }
@@ -120,14 +117,14 @@ javascriptNamespace.set(
 );
 
 javascriptNamespace.set(
-  types.createSymbolNode('Map.prototype'),
+  types.createSymbolNode('Set.prototype'),
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 0)) {
-        const result = Map.prototype;
+        const result = Set.prototype;
         return types.toAst(result);
       }
-      return types.createErrorNode('Invalid arguments to "Map.prototype"');
+      return types.createErrorNode('Invalid arguments to "Set.prototype"');
     } catch (e) {
       return types.toErrorNode(e);
     }
@@ -135,14 +132,14 @@ javascriptNamespace.set(
 );
 
 javascriptNamespace.set(
-  types.createSymbolNode('Map.toLocaleString'),
+  types.createSymbolNode('Set.toLocaleString'),
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 0)) {
-        const result = Map.toLocaleString();
+        const result = Set.toLocaleString();
         return types.toAst(result);
       }
-      return types.createErrorNode('Invalid arguments to "Map.toLocaleString"');
+      return types.createErrorNode('Invalid arguments to "Set.toLocaleString"');
     } catch (e) {
       return types.toErrorNode(e);
     }
@@ -150,14 +147,14 @@ javascriptNamespace.set(
 );
 
 javascriptNamespace.set(
-  types.createSymbolNode('Map.valueOf'),
+  types.createSymbolNode('Set.valueOf'),
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 0)) {
-        const result = Map.valueOf();
+        const result = Set.valueOf();
         return types.toAst(result);
       }
-      return types.createErrorNode('Invalid arguments to "Map.valueOf"');
+      return types.createErrorNode('Invalid arguments to "Set.valueOf"');
     } catch (e) {
       return types.toErrorNode(e);
     }
@@ -165,14 +162,14 @@ javascriptNamespace.set(
 );
 
 javascriptNamespace.set(
-  types.createSymbolNode('Map.constructor'),
+  types.createSymbolNode('Set.constructor'),
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 0)) {
-        const result = Map.constructor;
+        const result = Set.constructor;
         return types.toAst(result);
       }
-      return types.createErrorNode('Invalid arguments to "Map.constructor"');
+      return types.createErrorNode('Invalid arguments to "Set.constructor"');
     } catch (e) {
       return types.toErrorNode(e);
     }
@@ -180,26 +177,15 @@ javascriptNamespace.set(
 );
 
 javascriptNamespace.set(
-  types.createSymbolNode('Map.new'),
+  types.createSymbolNode('Set.new'),
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
-      if ((astArgs.length === 0)) {
-        const result = new Map(); // new
+      if ((astArgs.length >= 0 && astArgs.length <= 1) && types.isVectorNode(astArgs[0])) {
+        const iterable = types.toJs<types.VectorNode>(astArgs[0] ?? types.createNilNode());
+        const result = new Set(iterable); // new
         return types.toAst(result);
       }
-      if (
-        (astArgs.length >= 0 && astArgs.length <= 1) &&
-        (types.isNilNode(astArgs[0]) ||
-          (types.isVectorNode(astArgs[0]) && (astArgs[0].value.length === 2) && types.isAstNode(astArgs[0].value[0]) &&
-            types.isAstNode(astArgs[0].value[1])))
-      ) {
-        const entries = types.toJs<types.NilNode | types.VectorNode<types.VectorNode<types.AstNode>>>(
-          astArgs[0] ?? types.createNilNode(),
-        );
-        const result = new Map(entries); // new
-        return types.toAst(result);
-      }
-      return types.createErrorNode('Invalid arguments to "Map.new"');
+      return types.createErrorNode('Invalid arguments to "Set.new"');
     } catch (e) {
       return types.toErrorNode(e);
     }
@@ -207,17 +193,17 @@ javascriptNamespace.set(
 );
 
 javascriptNamespace.set(
-  types.createSymbolNode('Map.prototype.delete'),
+  types.createSymbolNode('Set.prototype.add'),
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 2) && types.isAstNode(astArgs[0]) && types.isAstNode(astArgs[1])) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
-        const key = types.toJs<types.AstNode>(astArgs[1]);
-        const result = Map.prototype.delete.call(context, key);
+        const value = types.toJs<types.AstNode>(astArgs[1]);
+        const result = Set.prototype.add.call(context, value);
         return types.toAst(result);
       }
-      return types.createErrorNode('Invalid arguments to "Map.prototype.delete"');
+      return types.createErrorNode('Invalid arguments to "Set.prototype.add"');
     } catch (e) {
       return types.toErrorNode(e);
     }
@@ -225,16 +211,16 @@ javascriptNamespace.set(
 );
 
 javascriptNamespace.set(
-  types.createSymbolNode('Map.prototype.entries'),
+  types.createSymbolNode('Set.prototype.clear'),
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 1) && types.isAstNode(astArgs[0])) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
-        const result = Map.prototype.entries.call(context);
+        const result = Set.prototype.clear.call(context);
         return types.toAst(result);
       }
-      return types.createErrorNode('Invalid arguments to "Map.prototype.entries"');
+      return types.createErrorNode('Invalid arguments to "Set.prototype.clear"');
     } catch (e) {
       return types.toErrorNode(e);
     }
@@ -242,21 +228,56 @@ javascriptNamespace.set(
 );
 
 javascriptNamespace.set(
-  types.createSymbolNode('Map.prototype.forEach'),
+  types.createSymbolNode('Set.prototype.delete'),
+  types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
+    try {
+      if ((astArgs.length === 2) && types.isAstNode(astArgs[0]) && types.isAstNode(astArgs[1])) {
+
+        const context = types.toJs<undefined>(astArgs[0]);
+        const value = types.toJs<types.AstNode>(astArgs[1]);
+        const result = Set.prototype.delete.call(context, value);
+        return types.toAst(result);
+      }
+      return types.createErrorNode('Invalid arguments to "Set.prototype.delete"');
+    } catch (e) {
+      return types.toErrorNode(e);
+    }
+  }),
+);
+
+javascriptNamespace.set(
+  types.createSymbolNode('Set.prototype.entries'),
+  types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
+    try {
+      if ((astArgs.length === 1) && types.isAstNode(astArgs[0])) {
+
+        const context = types.toJs<undefined>(astArgs[0]);
+        const result = Set.prototype.entries.call(context);
+        return types.toAst(result);
+      }
+      return types.createErrorNode('Invalid arguments to "Set.prototype.entries"');
+    } catch (e) {
+      return types.toErrorNode(e);
+    }
+  }),
+);
+
+javascriptNamespace.set(
+  types.createSymbolNode('Set.prototype.forEach'),
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if (
         (astArgs.length >= 2 && astArgs.length <= 3) && types.isAstNode(astArgs[0]) &&
         types.isFunctionNode(astArgs[1]) && types.isAstNode(astArgs[2])
       ) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
-        const callback = types.toJs<types.AstNode>(astArgs[1]);
+        const callbackfn = types.toJs<types.AstNode>(astArgs[1]);
         const thisArg = types.toJs<types.FunctionNode>(astArgs[2] ?? types.createNilNode());
-        const result = Map.prototype.forEach.call(context, callback, thisArg);
+        const result = Set.prototype.forEach.call(context, callbackfn, thisArg);
         return types.toAst(result);
       }
-      return types.createErrorNode('Invalid arguments to "Map.prototype.forEach"');
+      return types.createErrorNode('Invalid arguments to "Set.prototype.forEach"');
     } catch (e) {
       return types.toErrorNode(e);
     }
@@ -264,17 +285,17 @@ javascriptNamespace.set(
 );
 
 javascriptNamespace.set(
-  types.createSymbolNode('Map.prototype.get'),
+  types.createSymbolNode('Set.prototype.has'),
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 2) && types.isAstNode(astArgs[0]) && types.isAstNode(astArgs[1])) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
-        const key = types.toJs<types.AstNode>(astArgs[1]);
-        const result = Map.prototype.get.call(context, key);
+        const value = types.toJs<types.AstNode>(astArgs[1]);
+        const result = Set.prototype.has.call(context, value);
         return types.toAst(result);
       }
-      return types.createErrorNode('Invalid arguments to "Map.prototype.get"');
+      return types.createErrorNode('Invalid arguments to "Set.prototype.has"');
     } catch (e) {
       return types.toErrorNode(e);
     }
@@ -282,34 +303,16 @@ javascriptNamespace.set(
 );
 
 javascriptNamespace.set(
-  types.createSymbolNode('Map.prototype.has'),
-  types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
-    try {
-      if ((astArgs.length === 2) && types.isAstNode(astArgs[0]) && types.isAstNode(astArgs[1])) {
-        /* context */
-        const context = types.toJs<undefined>(astArgs[0]);
-        const key = types.toJs<types.AstNode>(astArgs[1]);
-        const result = Map.prototype.has.call(context, key);
-        return types.toAst(result);
-      }
-      return types.createErrorNode('Invalid arguments to "Map.prototype.has"');
-    } catch (e) {
-      return types.toErrorNode(e);
-    }
-  }),
-);
-
-javascriptNamespace.set(
-  types.createSymbolNode('Map.prototype.keys'),
+  types.createSymbolNode('Set.prototype.keys'),
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 1) && types.isAstNode(astArgs[0])) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
-        const result = Map.prototype.keys.call(context);
+        const result = Set.prototype.keys.call(context);
         return types.toAst(result);
       }
-      return types.createErrorNode('Invalid arguments to "Map.prototype.keys"');
+      return types.createErrorNode('Invalid arguments to "Set.prototype.keys"');
     } catch (e) {
       return types.toErrorNode(e);
     }
@@ -317,38 +320,16 @@ javascriptNamespace.set(
 );
 
 javascriptNamespace.set(
-  types.createSymbolNode('Map.prototype.set'),
-  types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
-    try {
-      if (
-        (astArgs.length === 3) && types.isAstNode(astArgs[0]) && types.isAstNode(astArgs[1]) &&
-        types.isAstNode(astArgs[2])
-      ) {
-        /* context */
-        const context = types.toJs<undefined>(astArgs[0]);
-        const key = types.toJs<types.AstNode>(astArgs[1]);
-        const value = types.toJs<types.AstNode>(astArgs[2]);
-        const result = Map.prototype.set.call(context, key, value);
-        return types.toAst(result);
-      }
-      return types.createErrorNode('Invalid arguments to "Map.prototype.set"');
-    } catch (e) {
-      return types.toErrorNode(e);
-    }
-  }),
-);
-
-javascriptNamespace.set(
-  types.createSymbolNode('Map.prototype.values'),
+  types.createSymbolNode('Set.prototype.values'),
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 1) && types.isAstNode(astArgs[0])) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
-        const result = Map.prototype.values.call(context);
+        const result = Set.prototype.values.call(context);
         return types.toAst(result);
       }
-      return types.createErrorNode('Invalid arguments to "Map.prototype.values"');
+      return types.createErrorNode('Invalid arguments to "Set.prototype.values"');
     } catch (e) {
       return types.toErrorNode(e);
     }
@@ -356,16 +337,16 @@ javascriptNamespace.set(
 );
 
 javascriptNamespace.set(
-  types.createSymbolNode('Map.prototype[Symbol.iterator]'),
+  types.createSymbolNode('Set.prototype[Symbol.iterator]'),
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 1) && types.isAstNode(astArgs[0])) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
-        const result = Map.prototype[Symbol.iterator].call(context);
+        const result = Set.prototype[Symbol.iterator].call(context);
         return types.toAst(result);
       }
-      return types.createErrorNode('Invalid arguments to "Map.prototype[Symbol.iterator]"');
+      return types.createErrorNode('Invalid arguments to "Set.prototype[Symbol.iterator]"');
     } catch (e) {
       return types.toErrorNode(e);
     }
@@ -373,18 +354,20 @@ javascriptNamespace.set(
 );
 
 javascriptNamespace.set(
-  types.createSymbolNode('Map.prototype.size'),
+  types.createSymbolNode('Set.prototype.size'),
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 1) && types.isAstNode(astArgs[0])) {
-        /* context */
+
         const context = types.toJs<undefined>(astArgs[0]);
-        const result = Map.prototype.size;
+        const result = Set.prototype.size;
         return types.toAst(result);
       }
-      return types.createErrorNode('Invalid arguments to "Map.prototype.size"');
+      return types.createErrorNode('Invalid arguments to "Set.prototype.size"');
     } catch (e) {
       return types.toErrorNode(e);
     }
   }),
 );
+
+*/
