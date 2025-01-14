@@ -1,6 +1,7 @@
 import { arrayFunctions } from '@/interop/js/arrays.ts';
 import { booleanFunctions } from '@/interop/js/booleans.ts';
 import { dateFunctions } from '@/interop/js/dates.ts';
+import { errorFunctions } from '@/interop/js/error.ts';
 import { operators } from '@/interop/js/operators.ts';
 import * as types from '@/types.ts';
 
@@ -9,6 +10,7 @@ const nsValues: Array<[string, types.Closure]> = [
   ...booleanFunctions,
   ...operators,
   ...dateFunctions,
+  ...errorFunctions,
 ];
 
 export const ns = new Map<types.MapKeyNode, types.FunctionNode>();

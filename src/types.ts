@@ -199,13 +199,61 @@ export class DomNode {
   }
 }
 
+type ErrorTypes =
+  | 'Error'
+  | 'AggregateError'
+  | 'RangeError'
+  | 'ReferenceError'
+  | 'SyntaxError'
+  | 'TypeError'
+  | 'URIError';
+
+const errorTypes = [
+  'Error',
+  'AggregateError',
+  'RangeError',
+  'ReferenceError',
+  'SyntaxError',
+  'TypeError',
+  'URIError',
+];
+
+export type NameStringNode = StringNode & {
+  value: ErrorTypes;
+};
+
 /**
  * ErrorNode class
  * A data class which represents a part of the AST.
  * @param value - The data that this class represents.
  */
 export class ErrorNode {
-  constructor(public value: AstNode) {
+  name: StringNode = createStringNode('Error');
+  cause?: AstNode;
+
+  static isErrorName(name: StringNode): name is NameStringNode {
+    const value = name.value;
+    return errorTypes.includes(value as ErrorTypes);
+  }
+
+  static assertErrorName(name: StringNode): asserts name is NameStringNode {
+    if (!ErrorNode.isErrorName(name)) {
+      throw new TypeError(
+        "Error type must be 'Error', 'AggregateError', 'RangeError', 'ReferenceError', 'SyntaxError', 'TypeError', or 'URIError'.",
+      );
+    }
+  }
+
+  /**
+   * @param value - message
+   */
+  constructor(public value: StringNode, name?: NameStringNode, cause: AstNode = createNilNode()) {
+    if (name !== undefined && ErrorNode.assertErrorName(name)) {
+      this.name = name;
+    }
+    if (cause !== undefined) {
+      this.cause = cause;
+    }
   }
 }
 
@@ -586,9 +634,10 @@ export function createMapNode(value?: Map<string, AstNode>, metadata?: AstNode):
 /**
  * Factory function to create a ErrorNode.
  */
-export function createErrorNode(value: AstNode | string): ErrorNode {
+export function createErrorNode(value: AstNode | string, type?: NameStringNode, cause?: AstNode): ErrorNode {
   if (typeof value === 'string') value = createStringNode(value);
-  return new ErrorNode(value);
+  assertStringNode(value);
+  return new ErrorNode(value, type, cause);
 }
 
 /**
