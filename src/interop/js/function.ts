@@ -1,11 +1,13 @@
+import * as core from '@/core.ts';
 import * as types from '@/types.ts';
 
 export const functionFunctions: Array<[string, types.Closure]> = [
   ['Function', jsEval], // Javascript Interop
-  ['js-eval', jsEval], // Javascript Interop
+  ['Function.isFunction', core.isFn], // Javascript Interop
   ['Function.prototype.apply', apply],
   ['Function.prototype.bind', bind],
   ['Function.prototype.call', call],
+  ['js-eval', jsEval], // Javascript Interop
 ];
 
 /**

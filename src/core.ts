@@ -946,6 +946,12 @@ export function hashMap(...args: types.AstNode[]): types.MapNode {
     return types.createMapNode();
   }
 
+  // Create a MapNode from another MapNode
+  if (args.length === 1 && types.isMapNode(args[0])) {
+    return types.createMapNode(new Map(args[0].value));
+  }
+
+  // Create a new MapNode from key/value pairs.
   types.assertEvenArgumentCount(args.length);
 
   const dict = types.createMapNode();

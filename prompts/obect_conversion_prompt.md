@@ -1,4 +1,14 @@
-/*
+Convert the following code code below into the following:
+
+1. An array of tuples, each with a string representing the name of a JavaScript function, and a reference to the local
+   implementation of that function. An example is referenced in the section ARRAY, below.
+2. Functions updated to be compatible with the current paradigm which is documented in the section FUNCTIONS, below.
+
+## CODE
+
+Here is the code for reference:
+
+```typescript
 javascriptNamespace.set(
   types.createSymbolNode('Object'),
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
@@ -443,7 +453,6 @@ javascriptNamespace.set(
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 1) && types.isAstNode(astArgs[0])) {
-
         const context = types.toJs<undefined>(astArgs[0]);
         const result = Object.prototype.toLocaleString.call(context);
         return types.toAst(result);
@@ -460,7 +469,6 @@ javascriptNamespace.set(
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 1) && types.isAstNode(astArgs[0])) {
-
         const context = types.toJs<undefined>(astArgs[0]);
         const result = Object.prototype.toString.call(context);
         return types.toAst(result);
@@ -477,7 +485,6 @@ javascriptNamespace.set(
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 1) && types.isAstNode(astArgs[0])) {
-
         const context = types.toJs<undefined>(astArgs[0]);
         const result = Object.prototype.valueOf.call(context);
         return types.toAst(result);
@@ -494,7 +501,6 @@ javascriptNamespace.set(
   types.createFunctionNode((...astArgs: types.AstNode[]): types.AstNode => {
     try {
       if ((astArgs.length === 1) && types.isAstNode(astArgs[0])) {
-
         const context = types.toJs<undefined>(astArgs[0]);
         const result = Object.prototype.constructor;
         return types.toAst(result);
@@ -505,4 +511,90 @@ javascriptNamespace.set(
     }
   }),
 );
-*/
+```
+
+The top of the file should contain an array of strings and function references, like this:
+
+```typescript
+import * as types from '@/types.ts';
+
+export const objectFunctions: Array<[string, types.Closure]> = [
+  // ['Object.functionOrPropertyName', functionOrPropertyName],
+];
+```
+
+Functions should be converted to the following format:
+
+```typescript
+// CORRECT:
+function mathImul(...astArgs: types.AstNode[]): types.AstNode {
+  types.assertArgumentCount(astArgs.length, 2);
+  types.assertNumberNode(astArgs[0]);
+  types.assertNumberNode(astArgs[1]);
+
+  const a = astArgs[0].value;
+  const b = astArgs[1].value;
+
+  const result = Math.imul(a, b);
+  return types.toAst(result);
+}
+```
+
+You should always use assertions and never throw an error.
+
+Note, do not throw errors like this. This is wrong:
+
+```typescript
+// INCORRECT:
+function mathImul(...astArgs: types.AstNode[]): types.AstNode {
+  if ((astArgs.length === 2) && types.isNumberNode(astArgs[0]) && types.isNumberNode(astArgs[1])) {
+    const a = astArgs[0].value;
+    const b = astArgs[1].value;
+    const result = Math.imul(a, b);
+    return types.toAst(result);
+  }
+  throw new TypeError('Invalid arguments to "Math.imul"');
+}
+```
+
+## GUIDELINES
+
+### Do not inline the function. Create a separate function instead.
+
+```typescript
+// INCORRECT
+export const objectFunctions: Array<[string, types.Closure]> = [
+  // Do
+  ['Object', function Object(...astArgs: types.AstNode[]): types.AstNode {
+    // ....
+    types.assertArgumentCount(astArgs.length, 1);
+    types.assertAstNode(astArgs[0]);
+    const value = types.toJs<types.AstNode>(astArgs[0]);
+    const result = Object(value);
+    return types.toAst(result);
+  }],
+];
+```
+
+```typescript
+// CORRECT
+function newObject(...astArgs: types.AstNode[]): types.AstNode {
+  // ....
+}
+```
+
+### Do not use types.toJs. Use create*Node and `.value` instead
+
+```typescript
+// INCORRECT
+const value = types.toJs<types.AstNode>(astArgs[0]);
+```
+
+```typescript
+// CORRECT
+const value = types.createNumberNode(astArgs[0].value);
+```
+
+Reference these files src/interop/js/arrays.ts, src/interop/js/booleans.ts, src/interop/js/dates.ts,
+src/interop/js/error.ts, src/interop/js/function.ts, src/interop/js/json.ts, src/interop/js/map.ts,
+src/interop/js/math.ts, src/interop/js/number.ts

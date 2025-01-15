@@ -4,7 +4,7 @@
 
 // TODO: Move assertions functions for Ensemble *forms* into ensemble.ts
 
-import { type Env } from './env.ts';
+import { type Env } from '@/env.ts';
 
 // MARK: TYPES
 // =============================================================================
@@ -161,7 +161,8 @@ type TypeClass =
  * @param value - The data that this class represents.
  */
 export class AtomNode {
-  constructor(public value: AstNode) {
+  // deno-lint-ignore no-explicit-any
+  constructor(public value: any) {
   }
 }
 
@@ -608,6 +609,12 @@ export function assertVectorNode(
   }
 }
 
+export function assertRegExp(value: unknown): asserts value is RegExp {
+  if (!(value instanceof RegExp)) {
+    throw new Error('Expected a RegExp object.');
+  }
+}
+
 /**
  * Assert that a node is an instance of JsNode.
  * @param node - The node to check.
@@ -643,7 +650,8 @@ export function createDomNode(
 /**
  * Factory function to create an AtomNode.
  */
-export function createAtomNode(value: AstNode): AtomNode {
+// deno-lint-ignore no-explicit-any
+export function createAtomNode(value: any): AtomNode {
   return new AtomNode(value);
 }
 
@@ -793,8 +801,9 @@ export function isAstNode(node: unknown): node is AstNode {
  */
 export function isAtomNode(
   node: unknown,
-): node is AtomNode & { value: AstNode } {
-  return node instanceof AtomNode && isAstNode(node.value);
+  // deno-lint-ignore no-explicit-any
+): node is AtomNode & { value: any } {
+  return node instanceof AtomNode;
 }
 
 /**
@@ -1082,15 +1091,13 @@ export function assertTrue(object: unknown): asserts object is true {
  * @example isAstTruthy(astNode) // returns true if the Ast node is "truthy"
  */
 export function isAstTruthy(a: AstNode): boolean {
-  if (isAtomNode(a)) {
-    if (isAstNode(a.value) !== true) {
-      return Boolean(a.value);
-    }
-    return isAstTruthy(a.value);
-  }
-
   if (isBooleanNode(a)) {
     return a.value;
+  }
+
+  const atom = a;
+  if (isAtomNode(atom)) {
+    return isAstNode(atom.value) ? isAstTruthy(atom.value) : Boolean(atom.value);
   }
 
   const nilAst = a;
@@ -2184,6 +2191,10 @@ export function toJs<T extends AstNode = AstNode>(
  * @example toAst('foobar') //=> Str { value: 'foobar' }
  */
 export function toAst(input: unknown): AstNode {
+  if (isAstNode(input)) {
+    return input;
+  }
+
   switch (typeof input) {
     case 'undefined': {
       return createNilNode();
