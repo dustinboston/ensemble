@@ -29,8 +29,9 @@ export const operators: Array<[string, types.Closure]> = [
  * @return types.Bool whether the ast is truthy
  */
 export function and(...args: types.AstNode[]): types.BooleanNode {
+  const useJavaScriptTruthiness = true;
   for (const arg of args) {
-    const isTruthy = types.isAstTruthy(arg);
+    const isTruthy = types.isAstTruthy(arg, useJavaScriptTruthiness);
     if (!isTruthy) {
       return types.createBooleanNode(false);
     }
@@ -355,47 +356,44 @@ export function typeOf(...args: types.AstNode[]): types.BooleanNode {
   return types.createBooleanNode(obj === args[1].value);
 }
 
+// export function instanceOf(...args: types.AstNode[]): types.BooleanNode {
+//   types.assertArgumentCount(args.length, 2);
+//   types.assertAstNode(args[0]);
+//   types.assertAtomNode(args[1]);
+
+//   const value = args[0].value;
+//   const instance = args[1].value;
+
+//   return types.createBooleanNode(value instanceof instance);
+// }
+
 /**
  * Wraps instanceof
  * @returns types.BooleanNode
  */
 export function instanceOf(...args: types.AstNode[]): types.BooleanNode {
   types.assertArgumentCount(args.length, 2);
-  types.assertAstNode(args[0]); // object
-  if (
-    types.isStringNode(args[1]) === false ||
-    types.isSymbolNode(args[1]) === false
-  ) {
-    throw new TypeError(
-      `Instance type must be a string or symbol. Got "${String(args[1].value)}"`,
-    );
-  }
-  types.assertStringNode(args[1]); // instance
+  types.assertAstNode(args[0]);
+  types.assertStringNode(args[1]); // instance type
 
-  if (typeof args[1].value !== 'string') {
-    throw new TypeError(
-      `Instance type must be a string. Got "${String(args[1].value)}"`,
-    );
-  }
-
-  const a = args[0].value;
-  const b = args[1].value;
+  const value = args[0];
+  const type = args[1].value;
   let instance = undefined;
 
   if (
-    b === 'AstNode' ||
-    b === 'SymbolNode' ||
-    b === 'ListNode' ||
-    b === 'VectorNode' ||
-    b === 'AtomNode' ||
-    b === 'BooleanNode' ||
-    b === 'MapNode' ||
-    b === 'ErrorNode' ||
-    b === 'KeywordNode' ||
-    b === 'NilNode' ||
-    b === 'NumberNode' ||
-    b === 'StringNode' ||
-    b === 'FunctionNode'
+    type === 'AstNode' ||
+    type === 'AtomNode' ||
+    type === 'BooleanNode' ||
+    type === 'ErrorNode' ||
+    type === 'FunctionNode' ||
+    type === 'KeywordNode' ||
+    type === 'ListNode' ||
+    type === 'MapNode' ||
+    type === 'NilNode' ||
+    type === 'NumberNode' ||
+    type === 'StringNode' ||
+    type === 'SymbolNode' ||
+    type === 'VectorNode'
   ) {
     // deno-lint-ignore no-explicit-any
     instance = (types as any)[args[1].value];
@@ -406,7 +404,7 @@ export function instanceOf(...args: types.AstNode[]): types.BooleanNode {
     throw new TypeError(`Unknown instance: "${args[1].value}"`);
   }
 
-  return types.createBooleanNode(a instanceof instance);
+  return types.createBooleanNode(value instanceof instance);
 }
 
 /**

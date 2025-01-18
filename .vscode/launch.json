@@ -3,6 +3,21 @@
   "configurations": [
     {
       "request": "launch",
+      "name": "Debug Current File with Deno",
+      "type": "node",
+      "program": "${file}",
+      "cwd": "${workspaceFolder}",
+      "env": {},
+      "runtimeExecutable": "deno",
+      "runtimeArgs": [
+        "test",
+        "--inspect-wait",
+        "--allow-all"
+      ],
+      "attachSimplePort": 9229
+    },
+    {
+      "request": "launch",
       "name": "Launch REPL",
       "type": "node",
       "program": "${workspaceFolder}/ensemble.ts",
@@ -15,37 +30,6 @@
         "--allow-all"
       ],
       "attachSimplePort": 9229
-    },
-    {
-      "request": "launch",
-      "name": "Run Tests",
-      "type": "node",
-      "program": "${workspaceFolder}/tests/veclist_test.ts",
-      "cwd": "${workspaceFolder}",
-      "env": {},
-      "runtimeExecutable": "deno",
-      "runtimeArgs": [
-        "test",
-        "--inspect-wait",
-        "--allow-all"
-      ],
-      "attachSimplePort": 9229
-    },
-    {
-      "request": "launch",
-      "name": "Debug Interop Generator",
-      "type": "node",
-      "program": "${workspaceFolder}/generator/interop_light_test.ts",
-      "cwd": "${workspaceFolder}",
-      "env": {},
-      "runtimeExecutable": "deno",
-      "runtimeArgs": [
-        "test",
-        "--inspect-wait",
-        "--allow-all"
-      ],
-      "attachSimplePort": 9229,
-      "args": []
     }
   ]
 }

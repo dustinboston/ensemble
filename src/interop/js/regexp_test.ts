@@ -32,62 +32,102 @@ Deno.test('RegExp.new: Throws with zero arguments', () => {
   }, Error);
 });
 
-Deno.test('RegExp.new: three arguments', () => {
-  assertThrows(() => {
-    createRegExp(types.createStringNode('abc'), types.createStringNode('i'), types.createStringNode('g'));
-  }, Error);
-});
-
-Deno.test('RegExp.new: first argument not a string', () => {
+Deno.test("RegExp.new: Throws if first arg isn't a string", () => {
   assertThrows(() => {
     createRegExp(123 as unknown as string);
   }, Error);
 });
 
-Deno.test('RegExp.new: second argument not a string', () => {
+Deno.test("RegExp.new: Throws if second arg isn't a string", () => {
   assertThrows(() => {
-    createRegExp(types.createStringNode('abc'), types.createNumberNode(123));
+    createRegExp('abc', 123 as unknown as string);
   }, Error);
 });
 
-// regExpPrototypeExec tests
-Deno.test('regExpPrototypeExec: result is nullish', () => {
-  const regexp = createRegExpAtom('abc');
+Deno.test('execRegExp: Result is null', () => {
+  const regexp = createRegExp('abc');
   const stringValue = types.createStringNode('def');
   const result = fns.execRegExp(regexp, stringValue);
   assert(types.isNilNode(result));
 });
 
-Deno.test('regExpPrototypeExec: result is not nullish', () => {
-  const regexp = createRegExpAtom('abc');
+Deno.test('execRegExp: Result is not null', () => {
+  const regexp = createRegExp('abc');
   const stringValue = types.createStringNode('abcdef');
   const result = fns.execRegExp(regexp, stringValue);
 
   assert(types.isVectorNode(result));
-  assertEquals(result.elements.length, 1);
-  assertEquals(types.isAtomNode(result.elements[0]), true);
-  assertEquals(types.isStringNode(result.elements[0]), true);
-  assertEquals(result.elements[0].value, 'abc');
+  assertEquals(result.value.length, 1);
+  assertEquals(types.isSymbolNode(result.value[0]), true);
+  assertEquals(result.value[0].value, 'abc');
 });
 
-Deno.test('regExpPrototypeExec: result is not nullish with groups', () => {
-  const regexp = createRegExp(types.createStringNode('a(b)c'));
+Deno.test('execRegExp: Result has groups', () => {
+  const regexp = createRegExp('a(b)c');
   const stringValue = types.createStringNode('abcdef');
   const result = fns.execRegExp(regexp, stringValue);
+
   assert(types.isVectorNode(result));
-  assertEquals(result.elements.length, 2);
-  assertEquals(types.isAtomNode(result.elements[0]), true);
-  assertEquals(types.isStringNode(result.elements[0]), true);
-  assertEquals(result.elements[0].value, 'abc');
-  assertEquals(types.isAtomNode(result.elements[1]), true);
-  assertEquals(types.isStringNode(result.elements[1]), true);
-  assertEquals(result.elements[1].value, 'b');
+  assertEquals(result.value.length, 2);
+  assertEquals(types.isSymbolNode(result.value[0]), true);
+  assertEquals(result.value[0].value, 'abc');
+  assertEquals(types.isSymbolNode(result.value[1]), true);
+  assertEquals(result.value[1].value, 'b');
 });
 
-Deno.test('regExpPrototypeExec: result is not nullish with global flag', () => {
-  const regexp = createRegExp(types.createStringNode('a(b)c'), types.createStringNode('g'));
-  const stringValue = types.createStringNode('abcdefabc');
+Deno.test('execRegExp: Result is not null with global flag', () => {
+  const regexp = createRegExp('a(b)c', 'g');
+  const stringValue = types.createStringNode('abcdef,abc');
   const result = fns.execRegExp(regexp, stringValue);
+
   assert(types.isVectorNode(result));
-  assertEquals(result.elements.length, 2);
+  assertEquals(result.value.length, 2);
+});
+
+Deno.test('regExpPrototypeTest: returns true for match', () => {
+  const regexp = createRegExp('abc');
+  const stringValue = types.createStringNode('abc');
+  const result = fns.testRegExp(regexp, stringValue);
+  assert(types.isBooleanNode(result));
+  assertEquals(result.value, true);
+});
+
+Deno.test('regExpPrototypeTest: returns false for no match', () => {
+  const regexp = createRegExp('abc');
+  const stringValue = types.createStringNode('def');
+  const result = fns.testRegExp(regexp, stringValue);
+  assert(types.isBooleanNode(result));
+  assertEquals(result.value, false);
+});
+
+Deno.test('regExpPrototypeTest: throws if first arg is not an AstNode', () => {
+  const regexp = /abc/;
+  const stringValue = types.createStringNode('abc');
+
+  assertThrows(() => {
+    // deno-lint-ignore no-explicit-any
+    fns.testRegExp(regexp as any, stringValue);
+  }, Error);
+});
+
+Deno.test('regExpPrototypeTest: throws if second arg is not a string node', () => {
+  const regexp = types.createAtomNode(/abc/);
+  const stringValue = 123;
+
+  assertThrows(() => {
+    fns.testRegExp(regexp, stringValue as any);
+  }, Error);
+});
+
+Deno.test('regExpPrototypeTest: throws if wrong number of args', () => {
+  const regexp = createRegExp('abc');
+  const stringValue = types.createStringNode('abc');
+
+  assertThrows(() => {
+    fns.testRegExp(regexp);
+  }, Error);
+
+  assertThrows(() => {
+    fns.testRegExp(regexp, stringValue, regexp);
+  }, Error);
 });

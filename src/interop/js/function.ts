@@ -34,7 +34,7 @@ export function jsEval(...args: types.AstNode[]): types.AstNode {
   }
 }
 
-function apply(...args: types.AstNode[]): types.AstNode {
+export function apply(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 2);
   types.assertFunctionNode(args[0]);
   types.assertVectorNode(args[1]);
@@ -42,7 +42,7 @@ function apply(...args: types.AstNode[]): types.AstNode {
   return types.toAst(result);
 }
 
-function call(...args: types.AstNode[]): types.AstNode {
+export function call(...args: types.AstNode[]): types.AstNode {
   types.assertMinimumArgumentCount(args.length, 1);
   types.assertFunctionNode(args[0]);
   const result = args[0].value.call(null, ...args.slice(1));
@@ -50,7 +50,7 @@ function call(...args: types.AstNode[]): types.AstNode {
 }
 
 // Only allows binding a function to an AstNode (such as a FunctionNode).
-function bind(...args: types.AstNode[]): types.AstNode {
+export function bind(...args: types.AstNode[]): types.AstNode {
   types.assertMinimumArgumentCount(args.length, 2);
   types.assertFunctionNode(args[0]);
   types.assertAstNode(args[1]);

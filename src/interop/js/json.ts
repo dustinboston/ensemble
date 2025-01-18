@@ -6,23 +6,43 @@ export const jsonFunctions: Array<[string, types.Closure]> = [
 ];
 
 // TODO: Implement reviver?
-function parseJson(...astArgs: types.AstNode[]): types.AstNode {
+export function parseJson(...astArgs: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(astArgs.length, 1);
   types.assertStringNode(astArgs[0]);
   const result = JSON.parse(astArgs[0].value);
   return types.toAst(result);
 }
 
-// TODO: Implement replacer?
-function stringifyJson(...astArgs: types.AstNode[]): types.AstNode {
-  types.assertArgumentCount(astArgs.length, 3);
+// BUG: Replacer doesn't work as expected (at all).
+export function stringifyJson(...astArgs: types.AstNode[]): types.AstNode {
+  types.assertVariableArgumentCount(astArgs.length, 1, 3);
   types.assertAstNode(astArgs[0]);
-  let space: number | string | undefined = undefined;
-  if (astArgs.length === 2 && (types.isNumberNode(astArgs[1]) || types.isStringNode(astArgs[1]))) {
-    space = astArgs[1].value;
+
+  const astNode = types.unwrap(astArgs[0]);
+
+  let replacer: types.Closure | undefined = undefined;
+  if (astArgs.length >= 2) {
+    if (types.isNilNode(astArgs[1])) {
+      replacer = undefined;
+    } else if (types.isFunctionNode(astArgs[1])) {
+      replacer = astArgs[1].value;
+    }
   }
 
-  types.assertStringNode(astArgs[2]);
-  const result = JSON.stringify(types.unwrap(astArgs[0]), null, space);
+  let space: number | string | undefined = undefined;
+  if (astArgs.length === 3) {
+    if (types.isNumberNode(astArgs[2]) || types.isStringNode(astArgs[2])) {
+      space = astArgs[2].value;
+    } else {
+      throw new TypeError('Space must be either a number or string.');
+    }
+  }
+
+  const result = JSON.stringify(astNode, (key, value) => {
+    const keyNode = types.toAst(key);
+    const replaced = replacer ? replacer(keyNode, value) : value;
+    return types.isNilNode(replaced) ? undefined : replaced;
+  }, space);
+
   return types.createStringNode(result);
 }

@@ -12,11 +12,16 @@ export function newError(...args: types.AstNode[]): types.AstNode {
   const message = args[0];
   types.assertStringNode(message);
 
-  let name: types.NameStringNode | undefined = undefined;
+  let name: types.NameStringNode | undefined;
   if (args[1] !== undefined) {
-    types.assertStringNode(args[1]);
-    types.ErrorNode.assertErrorName(args[1]);
-    name = args[1];
+    if (!types.isStringNode(args[1]) && !types.isNilNode(args[1])) {
+      throw new TypeError('Second argument must be a string or nil.');
+    }
+
+    if (types.isStringNode(args[1])) {
+      types.ErrorNode.assertErrorName(args[1]);
+      name = args[1];
+    }
   }
 
   let cause: types.AstNode | undefined = undefined;

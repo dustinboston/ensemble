@@ -37,8 +37,9 @@ export function printString(ast: types.AstNode, printReadably = false): string {
     return String(ast.value);
   }
 
-  if (types.isAtomNode(ast)) {
-    return `(atom ${printString(ast.value)})`;
+  const atom = ast;
+  if (types.isAtomNode(atom)) {
+    return `(atom ${printString(atom.value)})`;
   }
 
   if (types.isErrorNode(ast)) {
@@ -148,8 +149,9 @@ export function printHtml(ast: types.AstNode, printReadably = false): string {
     return String(ast.value);
   }
 
-  if (types.isAtomNode(ast)) {
-    return `(atom ${printHtml(ast.value)})`;
+  const atom = ast;
+  if (types.isAtomNode(atom)) {
+    return `(atom ${printHtml(atom.value)})`;
   }
 
   if (types.isErrorNode(ast)) {

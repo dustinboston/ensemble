@@ -5,11 +5,7 @@ export const booleanFunctions: Array<[string, types.Closure]> = [
 ];
 
 export function toBoolean(...astArgs: types.AstNode[]): types.AstNode {
-  try {
-    types.assertArgumentCount(astArgs.length, 1);
-    types.assertAstNode(astArgs[0]);
-    return types.createBooleanNode(Boolean(astArgs[0]));
-  } catch (e) {
-    return types.toErrorNode(e);
-  }
+  types.assertArgumentCount(astArgs.length, 1);
+  types.assertAstNode(astArgs[0]);
+  return types.createBooleanNode(Boolean(astArgs[0].value));
 }

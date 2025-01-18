@@ -615,6 +615,12 @@ export function assertRegExp(value: unknown): asserts value is RegExp {
   }
 }
 
+export function assertSymbol(value: unknown): asserts value is symbol {
+  if (typeof value !== 'symbol') {
+    throw new Error('Expected a Symbol object.');
+  }
+}
+
 /**
  * Assert that a node is an instance of JsNode.
  * @param node - The node to check.
@@ -1090,7 +1096,7 @@ export function assertTrue(object: unknown): asserts object is true {
  * @throws Will not throw an error.
  * @example isAstTruthy(astNode) // returns true if the Ast node is "truthy"
  */
-export function isAstTruthy(a: AstNode): boolean {
+export function isAstTruthy(a: AstNode, useJavaScriptTruthiness = false): boolean {
   if (isBooleanNode(a)) {
     return a.value;
   }
@@ -1106,7 +1112,11 @@ export function isAstTruthy(a: AstNode): boolean {
   }
 
   if (isNumberNode(a)) {
-    return true;
+    if (useJavaScriptTruthiness) {
+      return Boolean(a.value);
+    } else {
+      return true;
+    }
   }
 
   return Boolean(a.value);
@@ -2044,7 +2054,7 @@ export function unwrap(ast: AstNode) {
     return unwrapVectorNode(ast);
   }
 
-  return ast.value;
+  throw new Error('Could not unwrap object.');
 }
 
 export function unwrapAtomNode(ast: AtomNode): unknown {
@@ -2108,81 +2118,81 @@ export function unwrapVectorNode(ast: VectorNode): unknown[] {
   return ast.value.map(unwrap);
 }
 
-// TODO: Rename toJs to unwrap, unwrapJs, or unwrapAstNode
-/**
- * Converts an abstract syntax tree (AST) node to its corresponding JavaScript representation.
- * @param ast - The AST node to convert.
- * @returns The JavaScript representation of the AST node.
- * @throws Will throw an error if the AST node type is unmatched.
- */
-export function toJs<T extends AstNode = AstNode>(
-  ast: T,
-): T['value'] { // AllReturnableJsTypes
-  if (isAtomNode(ast)) {
-    return toJs(ast.value);
-  }
+// // TODO: Rename toJs to unwrap, unwrapJs, or unwrapAstNode
+// /**
+//  * Converts an abstract syntax tree (AST) node to its corresponding JavaScript representation.
+//  * @param ast - The AST node to convert.
+//  * @returns The JavaScript representation of the AST node.
+//  * @throws Will throw an error if the AST node type is unmatched.
+//  */
+// export function toJs<T extends AstNode = AstNode>(
+//   ast: T,
+// ): T['value'] { // AllReturnableJsTypes
+//   if (isAtomNode(ast)) {
+//     return toJs(ast.value);
+//   }
 
-  if (isBooleanNode(ast)) {
-    return ast.value;
-  }
+//   if (isBooleanNode(ast)) {
+//     return ast.value;
+//   }
 
-  if (isMapNode(ast)) {
-    const obj: Record<string, T['value']> = {};
-    for (const [key, value] of ast.value.entries()) {
-      obj[key] = toJs(value);
-    }
+//   if (isMapNode(ast)) {
+//     const obj: Record<string, T['value']> = {};
+//     for (const [key, value] of ast.value.entries()) {
+//       obj[key] = toJs(value);
+//     }
 
-    return obj;
-  }
+//     return obj;
+//   }
 
-  if (isErrorNode(ast)) {
-    if (isStringNode(ast.value)) {
-      return new Error(ast.value.value);
-    } else {
-      return new Error(String(ast.value));
-    }
-  }
+//   if (isErrorNode(ast)) {
+//     if (isStringNode(ast.value)) {
+//       return new Error(ast.value.value);
+//     } else {
+//       return new Error(String(ast.value));
+//     }
+//   }
 
-  if (isFunctionNode(ast)) {
-    return ((...args: AllReturnableJsTypes[]) => toJs(ast.value(...args.map(toAst))));
-  }
+//   if (isFunctionNode(ast)) {
+//     return ((...args: AllReturnableJsTypes[]) => toJs(ast.value(...args.map(toAst))));
+//   }
 
-  if (isKeywordNode(ast)) {
-    return ast.value;
-  }
+//   if (isKeywordNode(ast)) {
+//     return ast.value;
+//   }
 
-  if (isListNode(ast)) {
-    return ast.value.map(toJs);
-  }
+//   if (isListNode(ast)) {
+//     return ast.value.map(toJs);
+//   }
 
-  if (isNilNode(ast)) {
-    return null;
-  }
+//   if (isNilNode(ast)) {
+//     return null;
+//   }
 
-  if (isNumberNode(ast)) {
-    return ast.value;
-  }
+//   if (isNumberNode(ast)) {
+//     return ast.value;
+//   }
 
-  if (isStringNode(ast)) {
-    return ast.value;
-  }
+//   if (isStringNode(ast)) {
+//     return ast.value;
+//   }
 
-  if (isSymbolNode(ast)) {
-    return ast.value;
-  }
+//   if (isSymbolNode(ast)) {
+//     return ast.value;
+//   }
 
-  if (isVectorNode(ast)) {
-    return ast.value.map((n) => toJs(n));
-  }
+//   if (isVectorNode(ast)) {
+//     return ast.value.map((n) => toJs(n));
+//   }
 
-  // if (isJsNode(ast)) {
-  //   return ast.value;
-  // }
+//   // if (isJsNode(ast)) {
+//   //   return ast.value;
+//   // }
 
-  throw new TypeError(
-    `Could not convert '${JSON.stringify(ast)}' to JavaScript`,
-  );
-}
+//   throw new TypeError(
+//     `Could not convert '${JSON.stringify(ast)}' to JavaScript`,
+//   );
+// }
 
 /**
  * Translate JavaScript primitive values into Ast's.

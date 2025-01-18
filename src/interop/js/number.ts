@@ -23,7 +23,7 @@ export const numberFunctions: Array<[string, types.Closure]> = [
   ['Number.POSITIVE_INFINITY', numberPositiveInfinity],
 ];
 
-function newNumber(...astArgs: types.AstNode[]): types.AstNode {
+export function newNumber(...astArgs: types.AstNode[]): types.AstNode {
   if ((astArgs.length === 1) && types.isAstNode(astArgs[0])) {
     const value = astArgs[0].value;
     const result = Number(value); // ctor
@@ -32,7 +32,7 @@ function newNumber(...astArgs: types.AstNode[]): types.AstNode {
   throw new TypeError('Invalid arguments to "Number"');
 }
 
-function numberIsFinite(...astArgs: types.AstNode[]): types.AstNode {
+export function numberIsFinite(...astArgs: types.AstNode[]): types.AstNode {
   if ((astArgs.length === 1) && types.isAstNode(astArgs[0])) {
     const value = astArgs[0].value;
     const result = Number.isFinite(value);
@@ -41,7 +41,7 @@ function numberIsFinite(...astArgs: types.AstNode[]): types.AstNode {
   throw new TypeError('Invalid arguments to "Number.isFinite"');
 }
 
-function numberIsInteger(...astArgs: types.AstNode[]): types.AstNode {
+export function numberIsInteger(...astArgs: types.AstNode[]): types.AstNode {
   if ((astArgs.length === 1) && types.isAstNode(astArgs[0])) {
     const value = astArgs[0].value;
     const result = Number.isInteger(value);
@@ -50,33 +50,33 @@ function numberIsInteger(...astArgs: types.AstNode[]): types.AstNode {
   throw new TypeError('Invalid arguments to "Number.isInteger"');
 }
 
-function numberIsNaN(...astArgs: types.AstNode[]): types.AstNode {
+export function numberIsNaN(...astArgs: types.AstNode[]): types.AstNode {
   if ((astArgs.length === 1) && types.isAstNode(astArgs[0])) {
-    const value = astArgs[0];
+    const value = astArgs[0].value;
     const result = Number.isNaN(value);
     return types.toAst(result);
   }
   throw new TypeError('Invalid arguments to "Number.isNaN"');
 }
 
-function numberIsSafeInteger(...astArgs: types.AstNode[]): types.AstNode {
+export function numberIsSafeInteger(...astArgs: types.AstNode[]): types.AstNode {
   if ((astArgs.length === 1) && types.isAstNode(astArgs[0])) {
-    const value = astArgs[0];
+    const value = astArgs[0].value;
     const result = Number.isSafeInteger(value);
     return types.toAst(result);
   }
   throw new TypeError('Invalid arguments to "Number.isSafeInteger"');
 }
 
-function numberParseFloat(...astArgs: types.AstNode[]): types.AstNode {
+export function numberParseFloat(...astArgs: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(astArgs.length, 1);
   types.assertStringNode(astArgs[0]);
-  const stringValue = types.toJs<types.StringNode>(astArgs[0]);
+  const stringValue = types.unwrapStringNode(astArgs[0]);
   const result = Number.parseFloat(stringValue);
   return types.toAst(result);
 }
 
-function numberParseInt(...astArgs: types.AstNode[]): types.AstNode {
+export function numberParseInt(...astArgs: types.AstNode[]): types.AstNode {
   types.assertVariableArgumentCount(astArgs.length, 1, 2);
   types.assertStringNode(astArgs[0]);
 
@@ -93,7 +93,7 @@ function numberParseInt(...astArgs: types.AstNode[]): types.AstNode {
   return types.createNumberNode(result);
 }
 
-function numberEpsilon(...astArgs: types.AstNode[]): types.AstNode {
+export function numberEpsilon(...astArgs: types.AstNode[]): types.AstNode {
   if ((astArgs.length === 0)) {
     const result = Number.EPSILON;
     return types.toAst(result);
@@ -101,7 +101,7 @@ function numberEpsilon(...astArgs: types.AstNode[]): types.AstNode {
   throw new TypeError('Invalid arguments to "Number.EPSILON"');
 }
 
-function numberMaxSafeInteger(...astArgs: types.AstNode[]): types.AstNode {
+export function numberMaxSafeInteger(...astArgs: types.AstNode[]): types.AstNode {
   if ((astArgs.length === 0)) {
     const result = Number.MAX_SAFE_INTEGER;
     return types.toAst(result);
@@ -109,7 +109,7 @@ function numberMaxSafeInteger(...astArgs: types.AstNode[]): types.AstNode {
   throw new TypeError('Invalid arguments to "Number.MAX_SAFE_INTEGER"');
 }
 
-function numberMaxValue(...astArgs: types.AstNode[]): types.AstNode {
+export function numberMaxValue(...astArgs: types.AstNode[]): types.AstNode {
   if ((astArgs.length === 0)) {
     const result = Number.MAX_VALUE;
     return types.toAst(result);
@@ -117,7 +117,7 @@ function numberMaxValue(...astArgs: types.AstNode[]): types.AstNode {
   throw new TypeError('Invalid arguments to "Number.MAX_VALUE"');
 }
 
-function numberMinSafeInteger(...astArgs: types.AstNode[]): types.AstNode {
+export function numberMinSafeInteger(...astArgs: types.AstNode[]): types.AstNode {
   if ((astArgs.length === 0)) {
     const result = Number.MIN_SAFE_INTEGER;
     return types.toAst(result);
@@ -125,7 +125,7 @@ function numberMinSafeInteger(...astArgs: types.AstNode[]): types.AstNode {
   throw new TypeError('Invalid arguments to "Number.MIN_SAFE_INTEGER"');
 }
 
-function numberMinValue(...astArgs: types.AstNode[]): types.AstNode {
+export function numberMinValue(...astArgs: types.AstNode[]): types.AstNode {
   if ((astArgs.length === 0)) {
     const result = Number.MIN_VALUE;
     return types.toAst(result);
@@ -133,7 +133,7 @@ function numberMinValue(...astArgs: types.AstNode[]): types.AstNode {
   throw new TypeError('Invalid arguments to "Number.MIN_VALUE"');
 }
 
-function numberNaN(...astArgs: types.AstNode[]): types.AstNode {
+export function numberNaN(...astArgs: types.AstNode[]): types.AstNode {
   if ((astArgs.length === 0)) {
     const result = Number.NaN;
     return types.toAst(result);
@@ -141,7 +141,7 @@ function numberNaN(...astArgs: types.AstNode[]): types.AstNode {
   throw new TypeError('Invalid arguments to "Number.NaN"');
 }
 
-function numberNegativeInfinity(...astArgs: types.AstNode[]): types.AstNode {
+export function numberNegativeInfinity(...astArgs: types.AstNode[]): types.AstNode {
   if ((astArgs.length === 0)) {
     const result = Number.NEGATIVE_INFINITY;
     return types.toAst(result);
@@ -149,7 +149,7 @@ function numberNegativeInfinity(...astArgs: types.AstNode[]): types.AstNode {
   throw new TypeError('Invalid arguments to "Number.NEGATIVE_INFINITY"');
 }
 
-function numberPositiveInfinity(...astArgs: types.AstNode[]): types.AstNode {
+export function numberPositiveInfinity(...astArgs: types.AstNode[]): types.AstNode {
   if ((astArgs.length === 0)) {
     const result = Number.POSITIVE_INFINITY;
     return types.toAst(result);
@@ -157,7 +157,7 @@ function numberPositiveInfinity(...astArgs: types.AstNode[]): types.AstNode {
   throw new TypeError('Invalid arguments to "Number.POSITIVE_INFINITY"');
 }
 
-function numberPrototypeToExponential(...astArgs: types.AstNode[]): types.AstNode {
+export function numberPrototypeToExponential(...astArgs: types.AstNode[]): types.AstNode {
   types.assertVariableArgumentCount(astArgs.length, 1, 2);
   types.assertNumberNode(astArgs[0]);
   if (astArgs.length === 2) {
@@ -170,7 +170,7 @@ function numberPrototypeToExponential(...astArgs: types.AstNode[]): types.AstNod
   return types.createStringNode(result);
 }
 
-function numberPrototypeToFixed(...astArgs: types.AstNode[]): types.AstNode {
+export function numberPrototypeToFixed(...astArgs: types.AstNode[]): types.AstNode {
   types.assertVariableArgumentCount(astArgs.length, 1, 2);
   types.assertNumberNode(astArgs[0]);
   if (astArgs.length === 2) {
@@ -183,7 +183,7 @@ function numberPrototypeToFixed(...astArgs: types.AstNode[]): types.AstNode {
   return types.createStringNode(result);
 }
 
-function numberPrototypeToPrecision(...astArgs: types.AstNode[]): types.AstNode {
+export function numberPrototypeToPrecision(...astArgs: types.AstNode[]): types.AstNode {
   types.assertVariableArgumentCount(astArgs.length, 1, 2);
   types.assertNumberNode(astArgs[0]);
   if (astArgs.length === 2) {
@@ -196,7 +196,7 @@ function numberPrototypeToPrecision(...astArgs: types.AstNode[]): types.AstNode 
   return types.createStringNode(result);
 }
 
-function numberPrototypeToString(...astArgs: types.AstNode[]): types.AstNode {
+export function numberPrototypeToString(...astArgs: types.AstNode[]): types.AstNode {
   types.assertVariableArgumentCount(astArgs.length, 1, 2);
   types.assertNumberNode(astArgs[0]);
   if (astArgs.length === 2) {

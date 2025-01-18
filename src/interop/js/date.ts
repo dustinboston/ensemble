@@ -2,51 +2,51 @@ import * as types from '@/types.ts';
 
 export const dateFunctions: Array<[string, types.Closure]> = [
   ['Date', newDate],
-  ['Date.now', now],
-  ['Date.parse', parse],
-  ['Date.UTC', utc],
-  ['Date.prototype.getDate', getDate],
-  ['Date.prototype.getDay', getDay],
-  ['Date.prototype.getFullYear', getFullYear],
-  ['Date.prototype.getHours', getHours],
-  ['Date.prototype.getMilliseconds', getMilliseconds],
-  ['Date.prototype.getMinutes', getMinutes],
-  ['Date.prototype.getMonth', getMonth],
-  ['Date.prototype.getSeconds', getSeconds],
-  ['Date.prototype.getTime', getTime],
-  ['Date.prototype.getTimezoneOffset', getTimezoneOffset],
-  ['Date.prototype.getUTCDate', getUTCDate],
-  ['Date.prototype.getUTCDay', getUTCDay],
-  ['Date.prototype.getUTCFullYear', getUTCFullYear],
-  ['Date.prototype.getUTCHours', getUTCHours],
-  ['Date.prototype.getUTCMilliseconds', getUTCMilliseconds],
-  ['Date.prototype.getUTCMinutes', getUTCMinutes],
-  ['Date.prototype.getUTCMonth', getUTCMonth],
-  ['Date.prototype.getUTCSeconds', getUTCSeconds],
-  ['Date.prototype.setDate', setDate],
-  ['Date.prototype.setFullYear', setFullYear],
-  ['Date.prototype.setHours', setHours],
-  ['Date.prototype.setMilliseconds', setMilliseconds],
-  ['Date.prototype.setMinutes', setMinutes],
-  ['Date.prototype.setMonth', setMonth],
-  ['Date.prototype.setSeconds', setSeconds],
-  ['Date.prototype.setTime', setTime],
-  ['Date.prototype.setUTCDate', setUTCDate],
-  ['Date.prototype.setUTCFullYear', setUTCFullYear],
-  ['Date.prototype.setUTCHours', setUTCHours],
-  ['Date.prototype.setUTCMilliseconds', setUTCMilliseconds],
-  ['Date.prototype.setUTCMinutes', setUTCMinutes],
-  ['Date.prototype.setUTCMonth', setUTCMonth],
-  ['Date.prototype.setUTCSeconds', setUTCSeconds],
-  ['Date.prototype.toDateString', toDateString],
-  ['Date.prototype.toISOString', toISOString],
-  ['Date.prototype.toJSON', toJSON],
-  ['Date.prototype.toLocaleDateString', toLocaleDateString],
-  ['Date.prototype.toLocaleString', toLocaleString],
-  ['Date.prototype.toLocaleTimeString', toLocaleTimeString],
-  ['Date.prototype.toString', toString],
-  ['Date.prototype.toTimeString', toTimeString],
-  ['Date.prototype.toUTCString', toUTCString],
+  ['Date.now', dateNow],
+  ['Date.parse', dateParse],
+  ['Date.UTC', dateUtc],
+  ['Date.prototype.getDate', dateGetDate],
+  ['Date.prototype.getDay', dateGetDay],
+  ['Date.prototype.getFullYear', dateGetFullYear],
+  ['Date.prototype.getHours', dateGetHours],
+  ['Date.prototype.getMilliseconds', dateGetMilliseconds],
+  ['Date.prototype.getMinutes', dateGetMinutes],
+  ['Date.prototype.getMonth', dateGetMonth],
+  ['Date.prototype.getSeconds', dateGetSeconds],
+  ['Date.prototype.getTime', dateGetTime],
+  ['Date.prototype.getTimezoneOffset', dateGetTimezoneOffset],
+  ['Date.prototype.getUTCDate', dateGetUTCDate],
+  ['Date.prototype.getUTCDay', dateGetUTCDay],
+  ['Date.prototype.getUTCFullYear', dateGetUTCFullYear],
+  ['Date.prototype.getUTCHours', dateGetUTCHours],
+  ['Date.prototype.getUTCMilliseconds', dateGetUTCMilliseconds],
+  ['Date.prototype.getUTCMinutes', dateGetUTCMinutes],
+  ['Date.prototype.getUTCMonth', dateGetUTCMonth],
+  ['Date.prototype.getUTCSeconds', dateGetUTCSeconds],
+  ['Date.prototype.setDate', dateSetDate],
+  ['Date.prototype.setFullYear', dateSetFullYear],
+  ['Date.prototype.setHours', dateSetHours],
+  ['Date.prototype.setMilliseconds', dateSetMilliseconds],
+  ['Date.prototype.setMinutes', dateSetMinutes],
+  ['Date.prototype.setMonth', dateSetMonth],
+  ['Date.prototype.setSeconds', dateSetSeconds],
+  ['Date.prototype.setTime', dateSetTime],
+  ['Date.prototype.setUTCDate', dateSetUTCDate],
+  ['Date.prototype.setUTCFullYear', dateSetUTCFullYear],
+  ['Date.prototype.setUTCHours', dateSetUTCHours],
+  ['Date.prototype.setUTCMilliseconds', dateSetUTCMilliseconds],
+  ['Date.prototype.setUTCMinutes', dateSetUTCMinutes],
+  ['Date.prototype.setUTCMonth', dateSetUTCMonth],
+  ['Date.prototype.setUTCSeconds', dateSetUTCSeconds],
+  ['Date.prototype.toDateString', dateToDateString],
+  ['Date.prototype.toISOString', dateToISOString],
+  ['Date.prototype.toJSON', dateToJSON],
+  ['Date.prototype.toLocaleDateString', dateToLocaleDateString],
+  ['Date.prototype.toLocaleString', dateToLocaleString],
+  ['Date.prototype.toLocaleTimeString', dateToLocaleTimeString],
+  ['Date.prototype.toString', dateToString],
+  ['Date.prototype.toTimeString', dateToTimeString],
+  ['Date.prototype.toUTCString', dateToUTCString],
 ];
 
 type DateType = [
@@ -65,11 +65,11 @@ export function newDate(...args: types.AstNode[]): types.AstNode {
   return types.createNumberNode(date.getTime());
 }
 
-export function now(..._args: types.AstNode[]): types.AstNode {
+export function dateNow(..._args: types.AstNode[]): types.AstNode {
   return types.createNumberNode(Date.now());
 }
 
-export function parse(...args: types.AstNode[]): types.AstNode {
+export function dateParse(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertStringNode(args[0]);
   const date = Date.parse(args[0].value);
@@ -86,139 +86,140 @@ type UtcType = [
   ms?: number,
 ];
 
-export function utc(...args: types.AstNode[]): types.AstNode {
+export function dateUtc(...args: types.AstNode[]): types.AstNode {
   const unwrapped = args.map(types.unwrap);
   const timestamp = Date.UTC(...unwrapped as UtcType);
+  if (Number.isNaN(timestamp)) return types.createNilNode();
   return types.createNumberNode(timestamp);
 }
 
-export function getDate(...args: types.AstNode[]): types.AstNode {
+export function dateGetDate(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertNumberNode(args[0]);
   const date = new Date(args[0].value);
   return types.createNumberNode(date.getDate());
 }
 
-export function getDay(...args: types.AstNode[]): types.AstNode {
+export function dateGetDay(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertNumberNode(args[0]);
   const date = new Date(args[0].value);
   return types.createNumberNode(date.getDay());
 }
 
-export function getFullYear(...args: types.AstNode[]): types.AstNode {
+export function dateGetFullYear(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertNumberNode(args[0]);
   const date = new Date(args[0].value);
   return types.createNumberNode(date.getFullYear());
 }
 
-export function getHours(...args: types.AstNode[]): types.AstNode {
+export function dateGetHours(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertNumberNode(args[0]);
   const date = new Date(args[0].value);
   return types.createNumberNode(date.getHours());
 }
 
-export function getMilliseconds(...args: types.AstNode[]): types.AstNode {
+export function dateGetMilliseconds(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertNumberNode(args[0]);
   const date = new Date(args[0].value);
   return types.createNumberNode(date.getMilliseconds());
 }
 
-export function getMinutes(...args: types.AstNode[]): types.AstNode {
+export function dateGetMinutes(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertNumberNode(args[0]);
   const date = new Date(args[0].value);
   return types.createNumberNode(date.getMinutes());
 }
 
-export function getMonth(...args: types.AstNode[]): types.AstNode {
+export function dateGetMonth(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertNumberNode(args[0]);
   const date = new Date(args[0].value);
   return types.createNumberNode(date.getMonth());
 }
 
-export function getSeconds(...args: types.AstNode[]): types.AstNode {
+export function dateGetSeconds(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertNumberNode(args[0]);
   const date = new Date(args[0].value);
   return types.createNumberNode(date.getSeconds());
 }
 
-export function getTime(...args: types.AstNode[]): types.AstNode {
+export function dateGetTime(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertNumberNode(args[0]);
   const date = new Date(args[0].value);
   return types.createNumberNode(date.getTime());
 }
 
-export function getTimezoneOffset(...args: types.AstNode[]): types.AstNode {
+export function dateGetTimezoneOffset(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertNumberNode(args[0]);
   const date = new Date(args[0].value);
   return types.createNumberNode(date.getTimezoneOffset());
 }
 
-export function getUTCDate(...args: types.AstNode[]): types.AstNode {
+export function dateGetUTCDate(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertNumberNode(args[0]);
   const date = new Date(args[0].value);
   return types.createNumberNode(date.getUTCDate());
 }
 
-export function getUTCDay(...args: types.AstNode[]): types.AstNode {
+export function dateGetUTCDay(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertNumberNode(args[0]);
   const date = new Date(args[0].value);
   return types.createNumberNode(date.getUTCDay());
 }
 
-export function getUTCFullYear(...args: types.AstNode[]): types.AstNode {
+export function dateGetUTCFullYear(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertNumberNode(args[0]);
   const date = new Date(args[0].value);
   return types.createNumberNode(date.getUTCFullYear());
 }
 
-export function getUTCHours(...args: types.AstNode[]): types.AstNode {
+export function dateGetUTCHours(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertNumberNode(args[0]);
   const date = new Date(args[0].value);
   return types.createNumberNode(date.getUTCHours());
 }
 
-export function getUTCMilliseconds(...args: types.AstNode[]): types.AstNode {
+export function dateGetUTCMilliseconds(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertNumberNode(args[0]);
   const date = new Date(args[0].value);
   return types.createNumberNode(date.getUTCMilliseconds());
 }
 
-export function getUTCMinutes(...args: types.AstNode[]): types.AstNode {
+export function dateGetUTCMinutes(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertNumberNode(args[0]);
   const date = new Date(args[0].value);
   return types.createNumberNode(date.getUTCMinutes());
 }
 
-export function getUTCMonth(...args: types.AstNode[]): types.AstNode {
+export function dateGetUTCMonth(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertNumberNode(args[0]);
   const date = new Date(args[0].value);
   return types.createNumberNode(date.getUTCMonth());
 }
 
-export function getUTCSeconds(...args: types.AstNode[]): types.AstNode {
+export function dateGetUTCSeconds(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertNumberNode(args[0]);
   const date = new Date(args[0].value);
   return types.createNumberNode(date.getUTCSeconds());
 }
 
-export function setDate(...args: types.AstNode[]): types.AstNode {
+export function dateSetDate(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 2);
   types.assertNumberNode(args[0]);
   types.assertNumberNode(args[1]);
@@ -227,7 +228,7 @@ export function setDate(...args: types.AstNode[]): types.AstNode {
   return types.createNumberNode(date.getTime());
 }
 
-export function setFullYear(...args: types.AstNode[]): types.AstNode {
+export function dateSetFullYear(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 2);
   types.assertNumberNode(args[0]);
   types.assertNumberNode(args[1]);
@@ -236,7 +237,7 @@ export function setFullYear(...args: types.AstNode[]): types.AstNode {
   return types.createNumberNode(date.getTime());
 }
 
-export function setHours(...args: types.AstNode[]): types.AstNode {
+export function dateSetHours(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 2);
   types.assertNumberNode(args[0]);
   types.assertNumberNode(args[1]);
@@ -245,7 +246,7 @@ export function setHours(...args: types.AstNode[]): types.AstNode {
   return types.createNumberNode(date.getTime());
 }
 
-export function setMilliseconds(...args: types.AstNode[]): types.AstNode {
+export function dateSetMilliseconds(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 2);
   types.assertNumberNode(args[0]);
   types.assertNumberNode(args[1]);
@@ -254,7 +255,7 @@ export function setMilliseconds(...args: types.AstNode[]): types.AstNode {
   return types.createNumberNode(date.getTime());
 }
 
-export function setMinutes(...args: types.AstNode[]): types.AstNode {
+export function dateSetMinutes(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 2);
   types.assertNumberNode(args[0]);
   types.assertNumberNode(args[1]);
@@ -263,7 +264,7 @@ export function setMinutes(...args: types.AstNode[]): types.AstNode {
   return types.createNumberNode(date.getTime());
 }
 
-export function setMonth(...args: types.AstNode[]): types.AstNode {
+export function dateSetMonth(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 2);
   types.assertNumberNode(args[0]);
   types.assertNumberNode(args[1]);
@@ -272,7 +273,7 @@ export function setMonth(...args: types.AstNode[]): types.AstNode {
   return types.createNumberNode(date.getTime());
 }
 
-export function setSeconds(...args: types.AstNode[]): types.AstNode {
+export function dateSetSeconds(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 2);
   types.assertNumberNode(args[0]);
   types.assertNumberNode(args[1]);
@@ -281,7 +282,7 @@ export function setSeconds(...args: types.AstNode[]): types.AstNode {
   return types.createNumberNode(date.getTime());
 }
 
-export function setTime(...args: types.AstNode[]): types.AstNode {
+export function dateSetTime(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 2);
   types.assertNumberNode(args[0]);
   types.assertNumberNode(args[1]);
@@ -290,7 +291,7 @@ export function setTime(...args: types.AstNode[]): types.AstNode {
   return types.createNumberNode(date.getTime());
 }
 
-export function setUTCDate(...args: types.AstNode[]): types.AstNode {
+export function dateSetUTCDate(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 2);
   types.assertNumberNode(args[0]);
   types.assertNumberNode(args[1]);
@@ -299,7 +300,7 @@ export function setUTCDate(...args: types.AstNode[]): types.AstNode {
   return types.createNumberNode(date.getTime());
 }
 
-export function setUTCFullYear(...args: types.AstNode[]): types.AstNode {
+export function dateSetUTCFullYear(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 2);
   types.assertNumberNode(args[0]);
   types.assertNumberNode(args[1]);
@@ -308,7 +309,7 @@ export function setUTCFullYear(...args: types.AstNode[]): types.AstNode {
   return types.createNumberNode(date.getTime());
 }
 
-export function setUTCHours(...args: types.AstNode[]): types.AstNode {
+export function dateSetUTCHours(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 2);
   types.assertNumberNode(args[0]);
   types.assertNumberNode(args[1]);
@@ -317,7 +318,7 @@ export function setUTCHours(...args: types.AstNode[]): types.AstNode {
   return types.createNumberNode(date.getTime());
 }
 
-export function setUTCMilliseconds(...args: types.AstNode[]): types.AstNode {
+export function dateSetUTCMilliseconds(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 2);
   types.assertNumberNode(args[0]);
   types.assertNumberNode(args[1]);
@@ -326,7 +327,7 @@ export function setUTCMilliseconds(...args: types.AstNode[]): types.AstNode {
   return types.createNumberNode(date.getTime());
 }
 
-export function setUTCMinutes(...args: types.AstNode[]): types.AstNode {
+export function dateSetUTCMinutes(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 2);
   types.assertNumberNode(args[0]);
   types.assertNumberNode(args[1]);
@@ -335,7 +336,7 @@ export function setUTCMinutes(...args: types.AstNode[]): types.AstNode {
   return types.createNumberNode(date.getTime());
 }
 
-export function setUTCMonth(...args: types.AstNode[]): types.AstNode {
+export function dateSetUTCMonth(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 2);
   types.assertNumberNode(args[0]);
   types.assertNumberNode(args[1]);
@@ -344,7 +345,7 @@ export function setUTCMonth(...args: types.AstNode[]): types.AstNode {
   return types.createNumberNode(date.getTime());
 }
 
-export function setUTCSeconds(...args: types.AstNode[]): types.AstNode {
+export function dateSetUTCSeconds(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 2);
   types.assertNumberNode(args[0]);
   types.assertNumberNode(args[1]);
@@ -353,26 +354,26 @@ export function setUTCSeconds(...args: types.AstNode[]): types.AstNode {
   return types.createNumberNode(date.getTime());
 }
 
-export function toDateString(...args: types.AstNode[]): types.AstNode {
+export function dateToDateString(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertNumberNode(args[0]);
   const date = new Date(args[0].value);
   return types.createStringNode(date.toDateString());
 }
 
-export function toISOString(...args: types.AstNode[]): types.AstNode {
+export function dateToISOString(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertNumberNode(args[0]);
   const date = new Date(args[0].value);
   return types.createStringNode(date.toISOString());
 }
 
-export function toJSON(...args: types.AstNode[]): types.AstNode {
+export function dateToJSON(...args: types.AstNode[]): types.AstNode {
   types.assertVariableArgumentCount(args.length, 1, 2);
   types.assertNumberNode(args[0]);
   if (args[1]) types.assertStringNode(args[1]);
   const date = new Date(args[0].value);
-  return types.toAst(date.toJSON()); // Should return a MapNode
+  return types.createStringNode(date.toJSON()); // Should return a MapNode
 }
 
 type LocaleDateString = [
@@ -380,7 +381,7 @@ type LocaleDateString = [
   options?: Intl.DateTimeFormatOptions,
 ];
 
-export function toLocaleDateString(...args: types.AstNode[]): types.AstNode {
+export function dateToLocaleDateString(...args: types.AstNode[]): types.AstNode {
   types.assertVariableArgumentCount(args.length, 1, 3);
   types.assertNumberNode(args[0]);
   const date = new Date(args[0].value);
@@ -388,7 +389,7 @@ export function toLocaleDateString(...args: types.AstNode[]): types.AstNode {
   return types.createStringNode(date.toLocaleDateString(...dateArgs as LocaleDateString));
 }
 
-export function toLocaleString(...args: types.AstNode[]): types.AstNode {
+export function dateToLocaleString(...args: types.AstNode[]): types.AstNode {
   types.assertVariableArgumentCount(args.length, 1, 3);
   types.assertNumberNode(args[0]);
   const date = new Date(args[0].value);
@@ -396,7 +397,7 @@ export function toLocaleString(...args: types.AstNode[]): types.AstNode {
   return types.createStringNode(date.toLocaleString(...dateArgs as LocaleDateString));
 }
 
-export function toLocaleTimeString(...args: types.AstNode[]): types.AstNode {
+export function dateToLocaleTimeString(...args: types.AstNode[]): types.AstNode {
   types.assertVariableArgumentCount(args.length, 1, 3);
   types.assertNumberNode(args[0]);
   const date = new Date(args[0].value);
@@ -404,21 +405,21 @@ export function toLocaleTimeString(...args: types.AstNode[]): types.AstNode {
   return types.createStringNode(date.toLocaleTimeString(...dateArgs as LocaleDateString));
 }
 
-export function toString(...args: types.AstNode[]): types.AstNode {
+export function dateToString(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertNumberNode(args[0]);
   const date = new Date(args[0].value);
   return types.createStringNode(date.toString());
 }
 
-export function toTimeString(...args: types.AstNode[]): types.AstNode {
+export function dateToTimeString(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertNumberNode(args[0]);
   const date = new Date(args[0].value);
   return types.createStringNode(date.toTimeString());
 }
 
-export function toUTCString(...args: types.AstNode[]): types.AstNode {
+export function dateToUTCString(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   types.assertNumberNode(args[0]);
   const date = new Date(args[0].value);
