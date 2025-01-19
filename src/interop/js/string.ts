@@ -5,47 +5,47 @@ export const stringFunctions: Array<[string, types.Closure]> = [
   ['String', core.printUnescapedString],
   ['String.fromCharCode', stringFromCharCode],
   ['String.fromCodePoint', stringFromCodePoint],
-  ['String.prototype.at', stringPrototypeAt],
-  ['String.prototype.charAt', stringPrototypeCharAt],
-  ['String.prototype.charCodeAt', stringPrototypeCharCodeAt],
-  ['String.prototype.codePointAt', stringPrototypeCodePointAt],
-  ['String.prototype.concat', stringPrototypeConcat],
-  ['String.prototype.endsWith', stringPrototypeEndsWith],
-  ['String.prototype.includes', stringPrototypeIncludes],
-  ['String.prototype.indexOf', stringPrototypeIndexOf],
-  ['String.prototype.isWellFormed', stringPrototypeIsWellFormed],
-  ['String.prototype.lastIndexOf', stringPrototypeLastIndexOf],
-  ['String.prototype.length', stringPrototypeLength],
-  ['String.prototype.localeCompare', stringPrototypeLocaleCompare],
-  ['String.prototype.match', stringPrototypeMatch],
-  ['String.prototype.matchAll', stringPrototypeMatchAll],
-  ['String.prototype.normalize', stringPrototypeNormalize],
-  ['String.prototype.padEnd', stringPrototypePadEnd],
-  ['String.prototype.padStart', stringPrototypePadStart],
-  ['String.prototype.repeat', stringPrototypeRepeat],
-  ['String.prototype.replace', stringPrototypeReplace],
-  ['String.prototype.replaceAll', stringPrototypeReplaceAll],
-  ['String.prototype.search', stringPrototypeSearch],
-  ['String.prototype.slice', stringPrototypeSlice],
-  ['String.prototype.split', stringPrototypeSplit],
-  ['String.prototype.startsWith', stringPrototypeStartsWith],
-  ['String.prototype.toLocaleLowerCase', stringPrototypeToLocaleLowerCase],
-  ['String.prototype.toLocaleUpperCase', stringPrototypeToLocaleUpperCase],
-  ['String.prototype.toLowerCase', stringPrototypeToLowerCase],
-  ['String.prototype.toUpperCase', stringPrototypeToUpperCase],
-  ['String.prototype.toWellFormed', stringPrototypeToWellFormed],
-  ['String.prototype.trim', stringPrototypeTrim],
-  ['String.prototype.trimEnd', stringPrototypeTrimEnd],
-  ['String.prototype.trimStart', stringPrototypeTrimStart],
+  ['String.prototype.at', stringAt],
+  ['String.prototype.charAt', stringAt],
+  ['String.prototype.charCodeAt', stringCodePointAt],
+  ['String.prototype.codePointAt', stringCodePointAt],
+  ['String.prototype.concat', stringConcat],
+  ['String.prototype.endsWith', stringEndsWith],
+  ['String.prototype.includes', stringIncludes],
+  ['String.prototype.indexOf', stringIndexOf],
+  ['String.prototype.isWellFormed', stringIsWellFormed],
+  ['String.prototype.lastIndexOf', stringLastIndexOf],
+  ['String.prototype.length', stringLength],
+  ['String.prototype.localeCompare', stringLocaleCompare],
+  ['String.prototype.match', stringMatch],
+  ['String.prototype.matchAll', stringMatchAll],
+  ['String.prototype.normalize', stringNormalize],
+  ['String.prototype.padEnd', stringPadEnd],
+  ['String.prototype.padStart', stringPadStart],
+  ['String.prototype.repeat', stringRepeat],
+  ['String.prototype.replace', stringReplace],
+  ['String.prototype.replaceAll', stringReplaceAll],
+  ['String.prototype.search', stringSearch],
+  ['String.prototype.slice', stringSlice],
+  ['String.prototype.split', stringSplit],
+  ['String.prototype.startsWith', stringStartsWith],
+  ['String.prototype.toLocaleLowerCase', stringToLocaleLowerCase],
+  ['String.prototype.toLocaleUpperCase', stringToLocaleUpperCase],
+  ['String.prototype.toLowerCase', stringToLowerCase],
+  ['String.prototype.toUpperCase', stringToUpperCase],
+  ['String.prototype.toWellFormed', stringToWellFormed],
+  ['String.prototype.trim', stringTrim],
+  ['String.prototype.trimEnd', stringTrimEnd],
+  ['String.prototype.trimStart', stringTrimStart],
   ['String.raw', stringRaw],
 ];
 
 export function stringFromCharCode(...astArgs: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(astArgs.length, 1);
   types.assertVectorNode(astArgs[0]);
-  types.assertSequentialValues<types.NumberNode>(astArgs[1].value, types.NumberNode);
+  types.assertSequentialValues<types.NumberNode>(astArgs[0].value, types.NumberNode);
 
-  const codeUnits = astArgs[1].value.map<number>(types.unwrapNumberNode);
+  const codeUnits = astArgs[0].value.map<number>(types.unwrapNumberNode);
   const result = String.fromCharCode(...codeUnits);
   return types.createStringNode(result);
 }
@@ -58,43 +58,30 @@ export function stringFromCodePoint(...astArgs: types.AstNode[]): types.AstNode 
   return types.createStringNode(result);
 }
 
-export function stringPrototypeAt(...astArgs: types.AstNode[]): types.AstNode {
+/**
+ * Get the character at a given index. Allows negative indices. Also used by charAt.
+ * @param {[types.StringNode, types.NumberNode]} astArgs - The string to get the character from, and index of a character in the string.
+ * @returns {types.StringNode|types.NilNode} An Ast Node that contains the character at the given index.
+ */
+export function stringAt(...astArgs: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(astArgs.length, 2);
-  types.assertAstNode(astArgs[0]);
+  types.assertStringNode(astArgs[0]);
   types.assertNumberNode(astArgs[1]);
 
-  const result = String.prototype.at.call(astArgs[0], astArgs[1].value);
-  return types.toAst(result);
+  const result = String.prototype.at.call(astArgs[0].value, astArgs[1].value);
+  return (result === undefined) ? types.createNilNode() : types.createStringNode(result);
 }
 
-export function stringPrototypeCharAt(...astArgs: types.AstNode[]): types.AstNode {
+export function stringCodePointAt(...astArgs: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(astArgs.length, 2);
-  types.assertAstNode(astArgs[0]);
+  types.assertStringNode(astArgs[0]);
   types.assertNumberNode(astArgs[1]);
 
-  const result = String.prototype.charAt.call(astArgs[0], astArgs[1].value);
-  return types.toAst(result);
+  const result = String.prototype.codePointAt.call(astArgs[0].value, astArgs[1].value);
+  return (result === undefined) ? types.createNilNode() : types.createNumberNode(result);
 }
 
-export function stringPrototypeCharCodeAt(...astArgs: types.AstNode[]): types.AstNode {
-  types.assertArgumentCount(astArgs.length, 2);
-  types.assertAstNode(astArgs[0]);
-  types.assertNumberNode(astArgs[1]);
-
-  const result = String.prototype.charCodeAt.call(astArgs[0], astArgs[1].value);
-  return types.toAst(result);
-}
-
-export function stringPrototypeCodePointAt(...astArgs: types.AstNode[]): types.AstNode {
-  types.assertArgumentCount(astArgs.length, 2);
-  types.assertAstNode(astArgs[0]);
-  types.assertNumberNode(astArgs[1]);
-
-  const result = String.prototype.codePointAt.call(astArgs[0], astArgs[1].value);
-  return types.toAst(result);
-}
-
-export function stringPrototypeConcat(...astArgs: types.AstNode[]): types.AstNode {
+export function stringConcat(...astArgs: types.AstNode[]): types.AstNode {
   types.assertMinimumArgumentCount(astArgs.length, 2);
   types.assertSequentialValues<types.StringNode>(astArgs, types.StringNode);
 
@@ -102,12 +89,12 @@ export function stringPrototypeConcat(...astArgs: types.AstNode[]): types.AstNod
   const strings = astArgs.slice(1).map(types.unwrapStringNode);
   const result = String.prototype.concat.call(context, ...strings);
 
-  return types.toAst(result);
+  return types.createStringNode(result);
 }
 
-export function stringPrototypeEndsWith(...astArgs: types.AstNode[]): types.AstNode {
+export function stringEndsWith(...astArgs: types.AstNode[]): types.AstNode {
   types.assertVariableArgumentCount(astArgs.length, 2, 3);
-  types.assertAstNode(astArgs[0]);
+  types.assertStringNode(astArgs[0]);
   types.assertStringNode(astArgs[1]);
 
   if (astArgs.length === 3) {
@@ -122,9 +109,9 @@ export function stringPrototypeEndsWith(...astArgs: types.AstNode[]): types.AstN
   return types.toAst(result);
 }
 
-export function stringPrototypeIncludes(...astArgs: types.AstNode[]): types.AstNode {
+export function stringIncludes(...astArgs: types.AstNode[]): types.AstNode {
   types.assertVariableArgumentCount(astArgs.length, 2, 3);
-  types.assertAstNode(astArgs[0]);
+  types.assertStringNode(astArgs[0]);
   types.assertStringNode(astArgs[1]);
   if (astArgs.length === 3) {
     types.assertNumberNode(astArgs[2]);
@@ -137,9 +124,9 @@ export function stringPrototypeIncludes(...astArgs: types.AstNode[]): types.AstN
   return types.toAst(result);
 }
 
-export function stringPrototypeIndexOf(...astArgs: types.AstNode[]): types.AstNode {
+export function stringIndexOf(...astArgs: types.AstNode[]): types.AstNode {
   types.assertVariableArgumentCount(astArgs.length, 2, 3);
-  types.assertAstNode(astArgs[0]);
+  types.assertStringNode(astArgs[0]);
   types.assertStringNode(astArgs[1]);
   if (astArgs.length === 3) {
     types.assertNumberNode(astArgs[2]);
@@ -152,18 +139,18 @@ export function stringPrototypeIndexOf(...astArgs: types.AstNode[]): types.AstNo
   return types.toAst(result);
 }
 
-export function stringPrototypeIsWellFormed(...astArgs: types.AstNode[]): types.AstNode {
+export function stringIsWellFormed(...astArgs: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(astArgs.length, 1);
-  types.assertAstNode(astArgs[0]);
+  types.assertStringNode(astArgs[0]);
 
   const context = astArgs[0].value;
   const result = String.prototype.isWellFormed.call(context);
   return types.toAst(result);
 }
 
-export function stringPrototypeLastIndexOf(...astArgs: types.AstNode[]): types.AstNode {
+export function stringLastIndexOf(...astArgs: types.AstNode[]): types.AstNode {
   types.assertVariableArgumentCount(astArgs.length, 2, 3);
-  types.assertAstNode(astArgs[0]);
+  types.assertStringNode(astArgs[0]);
   types.assertStringNode(astArgs[1]);
   if (astArgs.length === 3) {
     types.assertNumberNode(astArgs[2]);
@@ -176,7 +163,7 @@ export function stringPrototypeLastIndexOf(...astArgs: types.AstNode[]): types.A
   return types.toAst(result);
 }
 
-export function stringPrototypeLength(...astArgs: types.AstNode[]): types.AstNode {
+export function stringLength(...astArgs: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(astArgs.length, 1);
   types.assertAstNode(astArgs[0]);
 
@@ -185,7 +172,7 @@ export function stringPrototypeLength(...astArgs: types.AstNode[]): types.AstNod
   return types.toAst(result);
 }
 
-export function stringPrototypeLocaleCompare(...astArgs: types.AstNode[]): types.AstNode {
+export function stringLocaleCompare(...astArgs: types.AstNode[]): types.AstNode {
   types.assertVariableArgumentCount(astArgs.length, 2, 4);
   types.assertStringNode(astArgs[0]);
   types.assertStringNode(astArgs[1]);
@@ -219,7 +206,7 @@ export function stringPrototypeLocaleCompare(...astArgs: types.AstNode[]): types
   return types.toAst(result);
 }
 
-export function stringPrototypeMatch(...astArgs: types.AstNode[]): types.AstNode {
+export function stringMatch(...astArgs: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(astArgs.length, 2);
   types.assertStringNode(astArgs[0]);
   types.assertAtomNode(astArgs[1]);
@@ -231,7 +218,7 @@ export function stringPrototypeMatch(...astArgs: types.AstNode[]): types.AstNode
   return types.toAst(result);
 }
 
-export function stringPrototypeMatchAll(...astArgs: types.AstNode[]): types.AstNode {
+export function stringMatchAll(...astArgs: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(astArgs.length, 2);
   types.assertStringNode(astArgs[0]);
   types.assertAtomNode(astArgs[1]);
@@ -243,7 +230,7 @@ export function stringPrototypeMatchAll(...astArgs: types.AstNode[]): types.AstN
   return types.toAst(result);
 }
 
-export function stringPrototypeNormalize(...astArgs: types.AstNode[]): types.AstNode {
+export function stringNormalize(...astArgs: types.AstNode[]): types.AstNode {
   types.assertVariableArgumentCount(astArgs.length, 1, 2);
   types.assertAstNode(astArgs[0]);
   if (astArgs.length === 2) {
@@ -256,7 +243,7 @@ export function stringPrototypeNormalize(...astArgs: types.AstNode[]): types.Ast
   return types.toAst(result);
 }
 
-export function stringPrototypePadEnd(...astArgs: types.AstNode[]): types.AstNode {
+export function stringPadEnd(...astArgs: types.AstNode[]): types.AstNode {
   types.assertVariableArgumentCount(astArgs.length, 2, 3);
   types.assertAstNode(astArgs[0]);
   types.assertNumberNode(astArgs[1]);
@@ -271,7 +258,7 @@ export function stringPrototypePadEnd(...astArgs: types.AstNode[]): types.AstNod
   return types.toAst(result);
 }
 
-export function stringPrototypePadStart(...astArgs: types.AstNode[]): types.AstNode {
+export function stringPadStart(...astArgs: types.AstNode[]): types.AstNode {
   types.assertVariableArgumentCount(astArgs.length, 2, 3);
   types.assertAstNode(astArgs[0]);
   types.assertNumberNode(astArgs[1]);
@@ -286,7 +273,7 @@ export function stringPrototypePadStart(...astArgs: types.AstNode[]): types.AstN
   return types.toAst(result);
 }
 
-export function stringPrototypeRepeat(...astArgs: types.AstNode[]): types.AstNode {
+export function stringRepeat(...astArgs: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(astArgs.length, 2);
   types.assertStringNode(astArgs[0]);
   types.assertNumberNode(astArgs[1]);
@@ -297,7 +284,7 @@ export function stringPrototypeRepeat(...astArgs: types.AstNode[]): types.AstNod
   return types.toAst(result);
 }
 
-export function stringPrototypeReplace(
+export function stringReplace(
   ...astArgs: types.AstNode[]
 ): types.AstNode {
   types.assertArgumentCount(astArgs.length, 3);
@@ -325,7 +312,7 @@ export function stringPrototypeReplace(
   return types.toAst(result);
 }
 
-export function stringPrototypeReplaceAll(
+export function stringReplaceAll(
   ...astArgs: types.AstNode[]
 ): types.AstNode {
   types.assertArgumentCount(astArgs.length, 3);
@@ -353,7 +340,7 @@ export function stringPrototypeReplaceAll(
   return types.toAst(result);
 }
 
-export function stringPrototypeSearch(...astArgs: types.AstNode[]): types.AstNode {
+export function stringSearch(...astArgs: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(astArgs.length, 2);
   types.assertStringNode(astArgs[0]);
   types.assertAtomNode(astArgs[1]);
@@ -365,7 +352,7 @@ export function stringPrototypeSearch(...astArgs: types.AstNode[]): types.AstNod
   return types.toAst(result);
 }
 
-export function stringPrototypeSlice(...astArgs: types.AstNode[]): types.AstNode {
+export function stringSlice(...astArgs: types.AstNode[]): types.AstNode {
   types.assertVariableArgumentCount(astArgs.length, 1, 3);
   types.assertAstNode(astArgs[0]);
   if (astArgs.length > 1) {
@@ -382,7 +369,7 @@ export function stringPrototypeSlice(...astArgs: types.AstNode[]): types.AstNode
   return types.toAst(result);
 }
 
-export function stringPrototypeSplit(...astArgs: types.AstNode[]): types.AstNode {
+export function stringSplit(...astArgs: types.AstNode[]): types.AstNode {
   types.assertVariableArgumentCount(astArgs.length, 2, 3);
   types.assertStringNode(astArgs[0]);
   types.assertStringNode(astArgs[1]);
@@ -399,7 +386,7 @@ export function stringPrototypeSplit(...astArgs: types.AstNode[]): types.AstNode
   return types.toAst(result);
 }
 
-export function stringPrototypeStartsWith(...astArgs: types.AstNode[]): types.AstNode {
+export function stringStartsWith(...astArgs: types.AstNode[]): types.AstNode {
   types.assertVariableArgumentCount(astArgs.length, 2, 3);
   types.assertAstNode(astArgs[0]);
   types.assertStringNode(astArgs[1]);
@@ -415,7 +402,7 @@ export function stringPrototypeStartsWith(...astArgs: types.AstNode[]): types.As
   return types.toAst(result);
 }
 
-export function stringPrototypeToLocaleLowerCase(...astArgs: types.AstNode[]): types.AstNode {
+export function stringToLocaleLowerCase(...astArgs: types.AstNode[]): types.AstNode {
   types.assertVariableArgumentCount(astArgs.length, 1, 2); // Corrected argument count
   types.assertAstNode(astArgs[0]);
   if (astArgs.length === 2) {
@@ -431,7 +418,7 @@ export function stringPrototypeToLocaleLowerCase(...astArgs: types.AstNode[]): t
   return types.toAst(result);
 }
 
-export function stringPrototypeToLocaleUpperCase(...astArgs: types.AstNode[]): types.AstNode {
+export function stringToLocaleUpperCase(...astArgs: types.AstNode[]): types.AstNode {
   types.assertVariableArgumentCount(astArgs.length, 1, 2); // Corrected argument count
   types.assertAstNode(astArgs[0]);
 
@@ -447,7 +434,7 @@ export function stringPrototypeToLocaleUpperCase(...astArgs: types.AstNode[]): t
   return types.toAst(result);
 }
 
-export function stringPrototypeToLowerCase(...astArgs: types.AstNode[]): types.AstNode {
+export function stringToLowerCase(...astArgs: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(astArgs.length, 1);
   types.assertAstNode(astArgs[0]);
 
@@ -456,7 +443,7 @@ export function stringPrototypeToLowerCase(...astArgs: types.AstNode[]): types.A
   return types.toAst(result);
 }
 
-export function stringPrototypeToUpperCase(...astArgs: types.AstNode[]): types.AstNode {
+export function stringToUpperCase(...astArgs: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(astArgs.length, 1);
   types.assertAstNode(astArgs[0]);
 
@@ -465,7 +452,7 @@ export function stringPrototypeToUpperCase(...astArgs: types.AstNode[]): types.A
   return types.toAst(result);
 }
 
-export function stringPrototypeToWellFormed(...astArgs: types.AstNode[]): types.AstNode {
+export function stringToWellFormed(...astArgs: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(astArgs.length, 1);
   types.assertAstNode(astArgs[0]);
 
@@ -474,7 +461,7 @@ export function stringPrototypeToWellFormed(...astArgs: types.AstNode[]): types.
   return types.toAst(result);
 }
 
-export function stringPrototypeTrim(...astArgs: types.AstNode[]): types.AstNode {
+export function stringTrim(...astArgs: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(astArgs.length, 1);
   types.assertAstNode(astArgs[0]);
 
@@ -483,7 +470,7 @@ export function stringPrototypeTrim(...astArgs: types.AstNode[]): types.AstNode 
   return types.toAst(result);
 }
 
-export function stringPrototypeTrimEnd(...astArgs: types.AstNode[]): types.AstNode {
+export function stringTrimEnd(...astArgs: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(astArgs.length, 1);
   types.assertAstNode(astArgs[0]);
 
@@ -492,7 +479,7 @@ export function stringPrototypeTrimEnd(...astArgs: types.AstNode[]): types.AstNo
   return types.toAst(result);
 }
 
-export function stringPrototypeTrimStart(...astArgs: types.AstNode[]): types.AstNode {
+export function stringTrimStart(...astArgs: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(astArgs.length, 1);
   types.assertAstNode(astArgs[0]);
 

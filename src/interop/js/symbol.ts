@@ -24,7 +24,7 @@ export function symbolFor(...astArgs: types.AstNode[]): types.AstNode {
 
   const key = astArgs[0].value;
   const result = Symbol.for(key);
-  return types.toAst(result);
+  return types.createAtomNode(result);
 }
 
 export function symbolKeyFor(...astArgs: types.AstNode[]): types.AstNode {
@@ -34,5 +34,5 @@ export function symbolKeyFor(...astArgs: types.AstNode[]): types.AstNode {
 
   const sym = astArgs[0].value;
   const result = Symbol.keyFor(sym);
-  return types.toAst(result);
+  return result ? types.createStringNode(result) : types.createNilNode();
 }

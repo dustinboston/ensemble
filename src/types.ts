@@ -621,23 +621,6 @@ export function assertSymbol(value: unknown): asserts value is symbol {
   }
 }
 
-/**
- * Assert that a node is an instance of JsNode.
- * @param node - The node to check.
- * @returns undefined If the node is an instance of JsNode.
- * @throws If the node is NOT an instance of JsNode.
- * @example
- * ```typescript
- * const astNode = new JsNode(new Date());
- * assertJsNode(astNode); // undefined
- * ```
- */
-// export function assertJsNode(node: unknown): asserts node is JsNode<SupportedJsTypes> {
-//   if (!(isJsNode(node))) {
-//     throw new TypeError('Invalid JsNode');
-//   }
-// }
-
 // MARK: FACTORY FNS
 // =============================================================================
 
