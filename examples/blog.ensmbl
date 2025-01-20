@@ -1,0 +1,13 @@
+(function renderPage (_siteName pageName pageContent)
+  (!doctype
+    (html
+      (head (title pageName))
+      (body
+        (header (h1 name))
+        (div pageContent)))))
+
+(console.log 
+  ((renderPage 
+    ("Mnjn" 
+    "Hello, Mnjn!" 
+    (p "This is the introductory post to Mnjn!")))))

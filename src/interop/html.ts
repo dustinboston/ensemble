@@ -1,16 +1,126 @@
-import { htmlTags } from '../../data/html_definitions.ts';
-import * as types from '../types.ts';
+import * as types from '@/types.ts';
+
+export const htmlTags = new Set([
+  '!doctype',
+  'a',
+  'abbr',
+  'address',
+  'area',
+  'article',
+  'aside',
+  'audio',
+  'b',
+  'base',
+  'bdi',
+  'bdo',
+  'blockquote',
+  'body',
+  'br',
+  'button',
+  'canvas',
+  'caption',
+  'cite',
+  'code',
+  'col',
+  'colgroup',
+  'data',
+  'datalist',
+  'dd',
+  'del',
+  'details',
+  'dfn',
+  'dialog',
+  'div',
+  'dl',
+  'dt',
+  'em',
+  'embed',
+  'fieldset',
+  'figcaption',
+  'figure',
+  'footer',
+  'form',
+  'h1',
+  'h2',
+  'h3',
+  'h4',
+  'h5',
+  'h6',
+  'head',
+  'header',
+  'hgroup',
+  'hr',
+  'html',
+  'i',
+  'iframe',
+  'img',
+  'imgmap', // Renamed from map to avoid conflict with core map function
+  'input',
+  'kbd',
+  'label',
+  'legend',
+  'li',
+  'link',
+  'main',
+  'mark',
+  'menu',
+  'meter',
+  'nav',
+  'noscript',
+  'object',
+  'ol',
+  'optgroup',
+  'option',
+  'output',
+  'p',
+  'picture',
+  'pre',
+  'portal',
+  'progress',
+  'q',
+  'rp',
+  'rt',
+  'ruby',
+  's',
+  'samp',
+  'script',
+  'search',
+  'section',
+  'select',
+  'slot',
+  'small',
+  'source',
+  'span',
+  'strong',
+  'style',
+  'sub',
+  'summary',
+  'sup',
+  'table',
+  'tbody',
+  'td',
+  'template',
+  'textarea',
+  'tfoot',
+  'th',
+  'thead',
+  'time',
+  'title',
+  'tr',
+  'track',
+  'u',
+  'ul',
+  'var',
+  'video',
+  'wbr',
+]);
 
 export const ns = new Map<types.MapKeyNode, types.FunctionNode>();
 
 // Add all the HTML tags to the namespace
 for (const htmlTag of htmlTags) {
-  const symbol = types.createSymbolNode(htmlTag);
-  const fn = types.createFunctionNode(tag(htmlTag));
-  ns.set(symbol, fn);
+  ns.set(types.createSymbolNode(htmlTag), types.createFunctionNode(tag(htmlTag)));
 }
-
-ns.set(types.createSymbolNode('document.querySelector'), types.createFunctionNode(querySelector));
 
 /**
  * Injects the tag into the node() arguments
@@ -18,7 +128,9 @@ ns.set(types.createSymbolNode('document.querySelector'), types.createFunctionNod
  * @returns anonymous function
  */
 export function tag(tag: string) {
-  return (...args: types.AstNode[]): types.AstNode => node(types.createSymbolNode(tag), ...args);
+  return (...args: types.AstNode[]): types.AstNode => {
+    return node(types.createSymbolNode(tag), ...args);
+  };
 }
 
 /**
@@ -64,3 +176,5 @@ export function querySelector(...args: types.AstNode[]): types.AstNode {
 
   return types.createDomNode(element.tagName, attributes, []);
 }
+
+ns.set(types.createSymbolNode('document.querySelector'), types.createFunctionNode(querySelector));
