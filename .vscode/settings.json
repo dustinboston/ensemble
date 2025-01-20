@@ -1,7 +1,13 @@
 {
-  "[json]": { "editor.defaultFormatter": "denoland.vscode-deno" },
-  "[jsonc]": { "editor.defaultFormatter": "denoland.vscode-deno" },
-  "[typescript]": { "editor.defaultFormatter": "denoland.vscode-deno" },
+  "[json]": {
+    "editor.defaultFormatter": "denoland.vscode-deno"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "denoland.vscode-deno"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "denoland.vscode-deno"
+  },
   "deno.config": "./deno.jsonc",
   "deno.enable": true,
   "deno.lint": true,
@@ -11,45 +17,9 @@
   },
   "editor.defaultFormatter": "denoland.vscode-deno",
   "editor.formatOnSave": true,
-  "editor.rulers": [160],
-  "editor.tabSize": 2,
-  "editor.useTabStops": false,
-  "[python]": {
-    "editor.defaultFormatter": "ms-python.black-formatter"
-  },
-  "cSpell.words": [
-    "apos",
-    "Berners",
-    "Binet",
-    "Binet's",
-    "creationflags",
-    "defmacro",
-    "dissoc",
-    "Eich",
-    "ensmbl",
-    "imgmap",
-    "INPUTRC",
-    "killpg",
-    "macroexpand",
-    "preexec",
-    "quasiquote",
-    "quasiquoteexpand",
-    "readir",
-    "readln",
-    "setsid",
-    "TIOCSWINSZ",
-    "vals"
+  "editor.rulers": [
+    80
   ],
-  "[clojure]": {
-    "editor.defaultFormatter": "pedrorgirardi.vscode-cljfmt"
-  },
-  "IDX.aI.enableInlineCompletion": true,
-  "IDX.aI.enableCodebaseIndexing": true
-  // "editor.detectIndentation": false,
-  // "[clojure]": {
-  //   "editor.defaultFormatter": "betterthantomorrow.calva"
-  // },
-  // "calva.autoOpenInspector": false,
-  // "calva.autoOpenResultOutputDestination": false,
-  // "calva.autoSelectNReplPortFromPortFile": false
+  "editor.tabSize": 2,
+  "editor.useTabStops": false
 }

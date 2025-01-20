@@ -1,16 +1,5 @@
 {
   "recommendations": [
-    "pedrorgirardi.vscode-cljfmt",
-    "streetsidesoftware.code-spell-checker",
-    "denoland.vscode-deno",
-    "github.copilot",
-    "github.copilot-chat",
-    "github.copilot-workspace",
-    "github.vscode-pull-request-github",
-    "ms-python.vscode-pylance",
-    "ms-python.python",
-    "ms-python.debugpy",
-    "ms-python.black-formatter",
-    "ms-python.isort"
+    "denoland.vscode-deno"
   ]
 }

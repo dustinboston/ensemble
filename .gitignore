@@ -1,7 +1,1 @@
-coverage
-docs
-old
-tmp
-.clj-kondo/.cache/v1/lock
-.clj-kondo/.cache/v1/clj/user.transit.json
-.lsp/.cache/db.transit.json
+node_modules
