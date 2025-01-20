@@ -1,16 +1,20 @@
-# Ensemble
+# Ensemble: Novel Synthesis of Eich, McCarthy, Berners-Lee, Lie, etc
 
-> ENSEMBLE: Novel Synthesis of Eich, McCarthy, Berners-Lee, Lie, etc.
-
-ENSEMBLE is a _web_ programming language that combines JavaScript, HTML, and CSS with a Lisp-like syntax.
+Ensemble is a _web_ programming language that combines JavaScript, HTML, and CSS with a Lisp-like syntax.
 
 ## Syntax
 
-```clojure
+```ensemble
 (var fibonacci (function (n)
   (if (<= n 1) n 
     (+ (fibonacci (- n 1)) 
        (fibonacci (- n 2))))));
+```
+
+## Examples
+
+```bash
+./deno run -A ./src/ensemble_cli.ts ./examples/fibonacci.ensmbl
 ```
 
 ## Supported APIs

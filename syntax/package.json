@@ -1,0 +1,40 @@
+{
+  "name": "ensemble-syntax",
+  "displayName": "Ensemble Syntax",
+  "description": "Ensemble syntax highlighting.",
+  "version": "0.0.2",
+  "engines": {
+    "vscode": "^1.96.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "ensemble",
+        "aliases": [
+          "Ensemble",
+          "ensemble"
+        ],
+        "extensions": [
+          ".ensmbl"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "ensemble",
+        "scopeName": "source.ensemble",
+        "path": "./syntaxes/ensemble.tmLanguage.json"
+      }
+    ]
+  },
+  "license": "GPL-3.0-or-later",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dustinboston/ensemble.git",
+    "directory": "syntax"
+  }
+}
