@@ -3,7 +3,7 @@
  * functions that can be called from code.
  */
 
-import * as types from './types.ts';
+import * as types from '@/types.ts';
 
 /**
  * Environment class that maintains a mapping of keys to AST nodes,
@@ -59,6 +59,24 @@ export class Env {
       const keyString = types.convertMapKeyToString(bind);
       this.value.set(keyString, exprs[i]);
     }
+  }
+
+  serialize() {
+    const serialized: types.MapNode = types.createMapNode();
+    let outer: types.MapNode = types.createMapNode();
+
+    if (this.outer) {
+      outer = this.outer.serialize();
+    }
+
+    const entries = this.value.entries();
+    for (const [key, value] of entries) {
+      serialized.value.set(key, value);
+    }
+
+    serialized.value.set('__outer__', outer);
+
+    return serialized;
   }
 
   /**

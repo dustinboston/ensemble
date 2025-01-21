@@ -1,9 +1,9 @@
 // # Binet's formula
 // 
-// Binet's formula is an expression that can compute the nth Fibonacci number without computing the previous numbers in O(1) time.
-// It uses the golden ratio, an irrational number that is approximately equal to 1.6180339887. (GitHub Copilot summary)
+// Binet's formula is an expression that can compute the nth Fibonacci number 
+// without computing the previous numbers in O(1) time using the Golden Ratio.
 // 
-// See [Binet Equation on Wikipedia](https://en.wikipedia.org/wiki/Binet_equation)
+// <https://en.wikipedia.org/wiki/Binet_equation>
 // 
 // ## The equation in JavaScript
 //

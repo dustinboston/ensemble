@@ -1051,6 +1051,15 @@ export function initEnv(): env.Env {
     }),
   );
 
+  replEnv.set(
+    types.createSymbolNode('dump'),
+    types.createFunctionNode((..._args: types.AstNode[]): types.AstNode => {
+      const serialized = replEnv.serialize();
+      console.log(printer.printString(serialized, true));
+      return types.createNilNode();
+    }),
+  );
+
   rep('(def! not (fn* (a) (if a false true)))', replEnv);
   rep(
     `(defmacro! cond

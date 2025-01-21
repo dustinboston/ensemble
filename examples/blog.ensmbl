@@ -1,3 +1,4 @@
+// Log HTML to the console
 (var renderPage (function (_siteName pageName pageContent)
   (!doctype
     (html
