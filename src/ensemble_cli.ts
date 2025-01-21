@@ -1,23 +1,24 @@
 import { initEnv, rep } from '@/ensemble.ts';
+import * as env from '@/env.ts';
 import * as printer from '@/printer.ts';
 import * as readline from '@/readline.ts';
 import * as types from '@/types.ts';
+import { resolve } from '@std/path/posix/resolve';
 
 export { rep };
 
 /**
  * `readline` Exposes the readline function to read in user-code.
+ * A handler must be registered to capture user input.
  * @description If readline is already running, only the prompt will change.
- * @param args - [types.Str] display prompt.
- * @returns Types.Nil - A handler must be registered to capture user input.
- * @see stepA_mal.ts
- * @example (readline "prompt$") ;=>
+ * @param {[types.StringNode]} args - A prompt to display to the user.
+ * @returns {types.NilNode|types.StringNode} - The user input or null.
+ * @example (readline ">>> ")
  */
 export function readln(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   const cmdPrompt = args[0];
   types.assertStringNode(cmdPrompt);
-
   const input = prompt(cmdPrompt.value);
   if (input === null || input === undefined) {
     return types.createNilNode();
@@ -58,8 +59,8 @@ export function slurp(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   const filePath = args[0];
   types.assertStringNode(filePath);
-
-  const content = Deno.readTextFileSync(filePath.value);
+  const posixPath = resolve(filePath.value);
+  const content = Deno.readTextFileSync(posixPath);
   return types.createStringNode(content);
 }
 
@@ -100,18 +101,52 @@ export function serve(...args: types.AstNode[]): types.NilNode {
   return types.createNilNode();
 }
 
+/**
+ * Load a file into the REPL environment.
+ * Duplicates: `(def! load-file (fn* (f) (eval (read-string (str "(do " (slurp f) "\nnil)")))))`
+ * @param {[types.StringNode]} args - A path to a file. Will be converted to Posix.
+ * @example
+ * ```ensemble
+ * (load-file "./path/to/file.ensmbl")
+ * ```
+ */
+export function loadFileWithEnv(appEnv: env.Env) {
+  return function loadFile(...args: types.AstNode[]): types.AstNode {
+    types.assertArgumentCount(args.length, 1);
+    types.assertStringNode(args[0]);
+
+    const text = slurp(args[0]);
+    types.assertStringNode(text);
+
+    // Create a new environment for evaluating the loaded file
+    const fileEnv = new env.Env(appEnv); //New Env based on appEnv
+
+    const result = rep(`(do ${text.value})\nnil`, fileEnv);
+    return types.createStringNode(result);
+  };
+}
+
 export function initMain() {
   const replEnv = initEnv();
 
-  replEnv.set(types.createSymbolNode('readln'), types.createFunctionNode(readln));
-  replEnv.set(types.createSymbolNode('readir'), types.createFunctionNode(readir));
-  replEnv.set(types.createSymbolNode('readFile'), types.createFunctionNode(slurp));
-  replEnv.set(types.createSymbolNode('slurp'), types.createFunctionNode(slurp));
-  replEnv.set(types.createSymbolNode('spit'), types.createFunctionNode(spit));
-  replEnv.set(types.createSymbolNode('writeFile'), types.createFunctionNode(spit));
-  replEnv.set(types.createSymbolNode('serve'), types.createFunctionNode(serve));
+  const appImport = loadFileWithEnv(replEnv);
 
-  rep(`(def! load-file (fn* (f) (eval (read-string (str "(do " (slurp f) "\nnil)")))))`, replEnv);
+  const nsValues: Array<[string, types.Closure]> = [
+    ['readln', readln],
+    ['prompt', readln],
+    ['readir', readir],
+    ['readFile', slurp],
+    ['slurp', slurp],
+    ['spit', spit],
+    ['writeFile', spit],
+    ['serve', serve],
+    ['load-file', appImport],
+    ['import', appImport],
+  ];
+
+  for (const [name, value] of nsValues) {
+    replEnv.set(types.createSymbolNode(name), types.createFunctionNode(value));
+  }
 
   return replEnv;
 }
@@ -144,7 +179,7 @@ export async function main(...args: string[]) {
 
   // Run a user program and exit
   if (userScriptPath) {
-    rep(`(load-file "${userScriptPath}")`, replEnv);
+    rep(`(import "${userScriptPath}")`, replEnv);
     return;
   }
 

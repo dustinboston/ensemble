@@ -1,13 +1,18 @@
-(function renderPage (_siteName pageName pageContent)
+(var renderPage (function (_siteName pageName pageContent)
   (!doctype
     (html
-      (head (title pageName))
+      (head 
+        (title pageName)
+        (style null {
+          "body" {
+            background: "#fafafa", 
+            font-family: "sans-serif" }}))
       (body
-        (header (h1 name))
-        (div pageContent)))))
+        (header (h1 pageName))
+        (div pageContent))))))
 
 (console.log 
   ((renderPage 
-    ("Mnjn" 
+    "Mnjn" 
     "Hello, Mnjn!" 
-    (p "This is the introductory post to Mnjn!")))))
+    (p "This is the" (i "introductory") "post to Mnjn!"))))
