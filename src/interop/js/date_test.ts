@@ -1,6 +1,6 @@
-import * as dates from '@/interop/js/date.ts';
-import * as types from '@/types.ts';
 import { assertEquals, assertThrows } from '@std/assert';
+import * as dates from './interop/js/date.ts';
+import * as types from './types.ts';
 
 Deno.test('newDate - no arguments', () => {
   const now = Date.now();

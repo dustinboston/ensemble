@@ -2,7 +2,7 @@
  * @file The reader is responsible for tokenizing an input string and then
  * parsing it into meaningful chunks.
  */
-import * as types from '@/types.ts';
+import * as types from './types.ts';
 
 export const tokenRegex = /[\s,]*(~@|[[\]{}()'`~^@]|"(?:\\.|[^\\"])*"?|;.*|\/\/.*|[^\s[\]{}('"`,;)]*)/g;
 export const numberRegex = /^-?\d+(\.\d+)?$/;

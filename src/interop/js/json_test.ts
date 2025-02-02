@@ -1,6 +1,6 @@
-import { parseJson, stringifyJson } from '@/interop/js/json.ts';
-import * as types from '@/types.ts';
 import { assertEquals, assertThrows } from '@std/assert';
+import { parseJson, stringifyJson } from './interop/js/json.ts';
+import * as types from './types.ts';
 
 // parseJson
 // --------------------------------------------------------------------------------------------------------------------

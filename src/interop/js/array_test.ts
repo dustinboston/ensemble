@@ -1,7 +1,7 @@
 // deno-lint-ignore-file no-explicit-any
-import * as types from '@/types.ts';
 import { assertEquals, assertThrows } from '@std/assert';
 import * as array from './array.ts';
+import * as types from './types.ts';
 
 // MARK: toArray
 // --------------------------------------------------------------------------------------------------------------------

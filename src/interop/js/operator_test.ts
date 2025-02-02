@@ -1,6 +1,6 @@
-import * as operators from '@/interop/js/operator.ts';
-import * as types from '@/types.ts';
 import { assertEquals, assertThrows } from '@std/assert';
+import * as operators from '../../interop/js/operator.ts';
+import * as types from '../../types.ts';
 
 // and
 Deno.test('and', () => {

@@ -1,6 +1,6 @@
-import * as mapFunctions from '@/interop/js/map.ts';
-import * as types from '@/types.ts';
 import { assertEquals } from '@std/assert';
+import * as mapFunctions from './interop/js/map.ts';
+import * as types from './types.ts';
 
 // Hash-map
 Deno.test('mapNew(): should create a map from alternating args', () => {

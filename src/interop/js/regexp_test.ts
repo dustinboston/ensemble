@@ -1,6 +1,6 @@
-import * as fns from '@/interop/js/regexp.ts';
-import * as types from '@/types.ts';
 import { assert, assertEquals, assertThrows } from '@std/assert';
+import * as fns from './interop/js/regexp.ts';
+import * as types from './types.ts';
 
 const { createRegExp } = fns;
 

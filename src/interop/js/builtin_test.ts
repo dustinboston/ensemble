@@ -1,6 +1,6 @@
-import * as builtin from '@/interop/js/builtin.ts';
-import * as types from '@/types.ts';
 import { assertEquals, assertThrows } from '@std/assert';
+import * as builtin from './interop/js/builtin.ts';
+import * as types from './types.ts';
 
 Deno.test('globalDecodeURI - basic functionality', () => {
   const uri = types.createStringNode('https://example.com/test%20uri');

@@ -3,7 +3,7 @@
  * functions that can be called from code.
  */
 
-import * as types from '@/types.ts';
+import * as types from './types.ts';
 
 /**
  * Environment class that maintains a mapping of keys to AST nodes,

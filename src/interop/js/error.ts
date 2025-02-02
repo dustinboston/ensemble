@@ -1,4 +1,4 @@
-import * as types from '@/types.ts';
+import * as types from '../../types.ts';
 
 export const errorFunctions: Array<[string, types.Closure]> = [
   ['Error', newError],

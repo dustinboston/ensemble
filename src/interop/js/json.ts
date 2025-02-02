@@ -1,4 +1,4 @@
-import * as types from '@/types.ts';
+import * as types from '../../types.ts';
 
 export const jsonFunctions: Array<[string, types.Closure]> = [
   ['JSON.parse', parseJson],

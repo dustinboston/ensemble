@@ -1,6 +1,6 @@
-import { apply, bind, call, jsEval } from '@/interop/js/function.ts';
-import * as types from '@/types.ts';
 import { assertEquals, assertThrows } from '@std/assert';
+import * as types from '../../types.ts';
+import { apply, bind, call, jsEval } from './function.ts';
 
 // jsEval
 // --------------------------------------------------------------------------------------------------------------------

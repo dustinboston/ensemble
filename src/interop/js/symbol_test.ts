@@ -1,6 +1,6 @@
-import { symbolConstructor, symbolFor, symbolKeyFor } from '@/interop/js/symbol.ts';
-import * as types from '@/types.ts';
 import { assertEquals, assertThrows } from '@std/assert';
+import { symbolConstructor, symbolFor, symbolKeyFor } from './interop/js/symbol.ts';
+import * as types from './types.ts';
 
 Deno.test('symbolConstructor - no description', () => {
   const result = symbolConstructor();

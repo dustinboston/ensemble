@@ -1,5 +1,6 @@
+import { assertEquals, assertThrows } from '@std/assert';
 import {
-  newNumber,
+  newNumber, // Renamed to avoid collision
   numberEpsilon,
   numberIsFinite,
   numberIsInteger,
@@ -8,7 +9,7 @@ import {
   numberMaxSafeInteger,
   numberMaxValue,
   numberMinSafeInteger,
-  numberMinValue, // Renamed to avoid collision
+  numberMinValue,
   numberNaN as number_NaN,
   numberNegativeInfinity,
   numberParseFloat,
@@ -18,9 +19,8 @@ import {
   numberPrototypeToFixed,
   numberPrototypeToPrecision,
   numberPrototypeToString,
-} from '@/interop/js/number.ts';
-import * as types from '@/types.ts';
-import { assertEquals, assertThrows } from '@std/assert';
+} from './interop/js/number.ts';
+import * as types from './types.ts';
 
 Deno.test('newNumber', () => {
   assertEquals(newNumber(types.createNumberNode(1)), types.createNumberNode(1));

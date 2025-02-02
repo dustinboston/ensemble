@@ -1,6 +1,6 @@
-import { getCause, getMessage, getName, newError } from '@/interop/js/error.ts';
-import * as types from '@/types.ts';
 import { assertEquals, assertThrows } from '@std/assert';
+import * as types from '../../types.ts';
+import { getCause, getMessage, getName, newError } from './error.ts';
 
 Deno.test('newError - one argument', () => {
   const message = types.createStringNode('test error');

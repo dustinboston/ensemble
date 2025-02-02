@@ -1,6 +1,6 @@
-import * as bool from '@/interop/js/boolean.ts';
-import * as types from '@/types.ts';
 import { assertEquals, assertThrows } from '@std/assert';
+import * as bool from './interop/js/boolean.ts';
+import * as types from './types.ts';
 
 Deno.test('toBoolean - truthy values', () => {
   const values = [

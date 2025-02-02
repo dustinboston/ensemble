@@ -1,6 +1,6 @@
-import * as stringFns from '@/interop/js/string.ts';
-import * as types from '@/types.ts';
 import { assertEquals, assertThrows } from '@std/assert';
+import * as stringFns from './interop/js/string.ts';
+import * as types from './types.ts';
 
 Deno.test('stringFromCharCode - valid vector of numbers', () => {
   const astArgs = [types.createVectorNode([

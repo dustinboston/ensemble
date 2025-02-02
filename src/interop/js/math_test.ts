@@ -1,6 +1,6 @@
-import * as mathFunctions from '@/interop/js/math.ts';
-import * as types from '@/types.ts';
 import { assertEquals, assertThrows } from '@std/assert';
+import * as mathFunctions from './interop/js/math.ts';
+import * as types from './types.ts';
 
 // Test cases for Math functions
 // You'll need to adapt the `createNumberNode` parts based on your actual type system

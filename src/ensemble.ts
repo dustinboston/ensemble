@@ -3,13 +3,13 @@
  * language. Additionally, it adds the core functions: meta, with-meta, the
  * reader macro (^), time-ms, conj, string?, number?, fn?, macro?, and seq,.
  */
-import * as core from '@/core.ts';
-import * as env from '@/env.ts';
-import * as html from '@/interop/html.ts';
-import * as js from '@/interop/js.ts';
-import * as printer from '@/printer.ts';
-import * as reader from '@/reader.ts';
-import * as types from '@/types.ts';
+import * as core from './core.ts';
+import * as env from './env.ts';
+import * as html from './interop/html.ts';
+import * as js from './interop/js.ts';
+import * as printer from './printer.ts';
+import * as reader from './reader.ts';
+import * as types from './types.ts';
 
 export type TryCatchAst = types.ListNode & {
   value: [

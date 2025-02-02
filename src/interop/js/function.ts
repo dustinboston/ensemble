@@ -1,5 +1,5 @@
-import * as core from '@/core.ts';
-import * as types from '@/types.ts';
+import * as core from '../../core.ts';
+import * as types from '../../types.ts';
 
 export const functionFunctions: Array<[string, types.Closure]> = [
   ['Function', jsEval], // Javascript Interop

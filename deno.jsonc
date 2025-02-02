@@ -6,7 +6,8 @@
   },
   "nodeModulesDir": "none",
   "tasks": {
-    "bundle": "deno run -A npm:esbuild --bundle ./src/ensemble.ts --outfile=./generated/ensemble.js --format=esm",
+    "bundle-with-deno": "deno run -A npm:esbuild --bundle ./src/ensemble_cli.ts --outfile=./generated/ensemble.js --format=esm --external:std --banner:js=\"import { loadFile } from 'std';\"",
+    "bundle-with-npx": "npx esbuild --bundle ./src/ensemble_cli.ts --outfile=./generated/ensemble.js --format=esm --external:std --banner:js=\"import { loadFile } from 'std';\"",
     "generate-coverage": "./scripts/coverage.sh",
     "generate-docs": "./scripts/docs.sh",
     "generate-interop": "deno run -A scripts/js_interop.ts > generated/js_functions.ts",
@@ -15,6 +16,8 @@
     "install-snippets": "code --install-extension ./snippets/ensemble-snippets-0.0.5.vsix",
     "package-syntax": "cd syntax && vsce package",
     "package-snippets": "cd snippets && vsce package",
+    "run-example-windows": ".\\quickjs\\qjs.exe .\\generated\\ensemble.js .\\examples\\fibonacci.ensmbl",
+    "run-example": "./quickjs/qjs.exe ./generated/ensemble.js ./examples/fibonacci.ensmbl",
     "serve-coverage": "python -m http.server -d ./coverage",
     "serve-demo": "deno run --allow-net --allow-read --allow-sys jsr:@std/http/file-server",
     "serve-docs": "python -m http.server -d ./docs",
@@ -41,7 +44,7 @@
     "semiColons": true,
     "singleQuote": true,
     "proseWrap": "always",
-    "exclude": ["./generated", "./extension", "./reference"]
+    "exclude": ["./extension", "./reference"]
   },
   "imports": {
     "@/": "./src/",

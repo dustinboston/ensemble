@@ -2,9 +2,9 @@
  * @file Provides all of the core functions for the language.
  */
 
-import * as printer from '@/printer.ts';
-import * as reader from '@/reader.ts';
-import * as types from '@/types.ts';
+import * as printer from './printer.ts';
+import * as reader from './reader.ts';
+import * as types from './types.ts';
 
 export const ns = new Map<types.MapKeyNode, types.FunctionNode>();
 
