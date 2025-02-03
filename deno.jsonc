@@ -8,6 +8,7 @@
   "tasks": {
     "bundle-with-deno": "deno run -A npm:esbuild --bundle ./src/ensemble_cli.ts --outfile=./generated/ensemble.js --format=esm --external:std --banner:js=\"import { loadFile } from 'std';\"",
     "bundle-with-npx": "npx esbuild --bundle ./src/ensemble_cli.ts --outfile=./generated/ensemble.js --format=esm --external:std --banner:js=\"import { loadFile } from 'std';\"",
+    "build-binary": "cd quickjs && make clean && make",
     "generate-coverage": "./scripts/coverage.sh",
     "generate-docs": "./scripts/docs.sh",
     "generate-interop": "deno run -A scripts/js_interop.ts > generated/js_functions.ts",
