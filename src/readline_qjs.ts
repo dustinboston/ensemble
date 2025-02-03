@@ -1,31 +1,18 @@
-// import * as fs from 'node:fs/promises';
-// import { homedir } from 'node:os';
-// import { dirname, join } from 'node:path';
-// import { exit, stdin, stdout } from 'node:process';
-// import { createInterface } from 'node:readline/promises';
-
-type NodeError = Error & { code: string };
-
-const userHomePath = '.'; // homedir();
-const historyPath = `${userHomePath}/history`; // join(userHomePath, 'history');
-const historySize = 2000;
 const defaultPrompt = 'user> ';
 
-export function prompt(promptText = defaultPrompt): void {
-  // const rl = createInterface({
-  //   prompt: promptText,
-  //   input: stdin,
-  //   output: stdout,
-  // });
-  // rl.prompt(true);
+// export function prompt(promptText = defaultPrompt): void {
+//   const rl = createInterface({
+//     prompt: promptText,
+//     input: stdin,
+//     output: stdout,
+//   });
 
-  while (true) {
-    if (std.in) break;
-  }
-  const input = std.in;
-  console.log(input);
-  console.log(promptText);
-}
+//   rl.prompt(true);
+
+//   const input = stdin;
+//   console.log(input);
+//   console.log(promptText);
+// }
 
 /**
  * Asynchronously reads lines from the standard input.
@@ -46,93 +33,15 @@ export function prompt(promptText = defaultPrompt): void {
  * }
  * ```
  */
-export async function* readline(promptText = defaultPrompt): AsyncGenerator<string> {
-  const history = await readHistory();
-  const rl = createInterface({
-    prompt: promptText,
-    input: stdin,
-    output: stdout,
-    history,
-    historySize,
-  });
+export function* readline(promptText = defaultPrompt): Generator<string> {
+  while (true) {
+    std.out.puts(promptText);
+    const input = std.in.getline()?.trim();
 
-  rl.on('SIGINT', () => {
-    rl.close();
-    exit(0);
-  });
-
-  rl.prompt(true);
-  for await (const input of rl) {
-    yield input;
-    rl.prompt(true);
-    history.unshift(input);
-    await saveHistory(input);
-  }
-}
-
-/**
- * Reads and returns the command history from a file.
- *
- * @remarks
- * This function retrieves the command history to provide context for user input. It ensures that previous commands are available for reference and reuse.
- *
- * @returns A promise that resolves to an array of command history lines.
- *
- * @example
- * ```typescript
- * const history = await readHistory();
- * console.log(history); // Outputs an array of command history lines
- * ```
- */
-async function readHistory(): Promise<string[]> {
-  await checkHistory();
-  const data = await fs.readFile(historyPath, 'utf8');
-  return data.split('\n').reverse();
-}
-
-/**
- * Saves a command to the command history file.
- *
- * @remarks
- * This function appends a given command to the history file to maintain a record of executed commands. It ensures that the command history is updated for future reference.
- *
- * @param command - The command to be saved to the history.
- * @returns A promise that resolves when the command has been successfully saved.
- *
- * @example
- * ```typescript
- * await saveHistory('ls -la');
- * console.log('Command saved to history');
- * ```
- */
-async function saveHistory(command: string): Promise<void> {
-  await checkHistory();
-  await fs.appendFile(historyPath, command + '\n', 'utf8');
-}
-
-/**
- * Ensures the command history file and directory exist.
- *
- * @remarks
- * This function checks for the existence of the command history file and its directory, creating them if necessary. It guarantees that the history file is ready for reading and writing commands.
- *
- * @returns A promise that resolves when the history file and directory are confirmed to exist.
- *
- * @example
- * ```typescript
- * await checkHistory();
- * console.log('History file and directory are ready');
- * ```
- */
-async function checkHistory(): Promise<void> {
-  try {
-    await fs.mkdir(dirname(historyPath), {
-      recursive: true,
-    });
-    await fs.access(historyPath);
-  } catch (error: unknown) {
-    if ((error as NodeError).code === 'ENOENT') {
-      await fs.writeFile(historyPath, '', 'utf8');
+    if (!input) {
+      continue;
     }
+
+    yield input;
   }
 }

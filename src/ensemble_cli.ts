@@ -4,6 +4,11 @@ import * as printer from './printer.ts';
 import * as readline from './readline_qjs.ts';
 import * as types from './types.ts';
 
+declare global {
+  const std: any;
+  const scriptArgs: string[];
+}
+
 /**
  * `readline` Exposes the readline function to read in user-code.
  * A handler must be registered to capture user input.
@@ -54,7 +59,7 @@ function slurp(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   const filePath = args[0];
   types.assertStringNode(filePath);
-  const content = loadFile(filePath.value);
+  const content = std.loadFile(filePath.value);
   return types.createStringNode(content);
 }
 
@@ -143,7 +148,7 @@ function initMain() {
   return replEnv;
 }
 
-function toPosixPath(filePath: string) {
+function toPosixPath(filePath: string = ''): string {
   return filePath.replace(/\\/g, '/');
 }
 
@@ -170,7 +175,7 @@ async function main(...args: string[]) {
 
   replEnv.set(
     types.createSymbolNode('*host-language*'),
-    types.createStringNode('ENSEMBLE'),
+    types.createStringNode('Ensemble'),
   );
 
   // Run a user program and exit
@@ -180,10 +185,10 @@ async function main(...args: string[]) {
   }
 
   // Show an interactive repl
-  // rep('(println (str "Mal [" *host-language* "]"))', replEnv);
+  rep('(println (str "Welcome to " *host-language* "! Press Ctrl/Cmd+C to exit."))', replEnv);
 
   for await (const input of readline.readline('user> ')) {
-    if (input === '') {
+    if (input === '' || input === null) {
       continue;
     }
 
@@ -192,9 +197,9 @@ async function main(...args: string[]) {
       console.log(result);
     } catch (error: unknown) {
       if (types.isErrorNode(error)) {
-        console.error(`error: ${printer.printString(error, false)}`);
+        console.log(`error: ${printer.printString(error, false)}`);
       } else if (error instanceof Error) {
-        console.error(error);
+        console.log(error);
       }
     }
   }

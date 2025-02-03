@@ -18,22 +18,30 @@ DOCS=./docs
 
 # Targets
 
-.PHONY: build
+.PHONY: build clean install generate serve test
 
 all: build
 
 # Build
-bundle:
-	$(NODE) -y esbuild --bundle $(SRC)/ensemble_cli.ts --outfile=$(GENERATED)/ensemble.js --format=esm --external:std --banner:js="import { loadFile } from 'std';"
+TS_FILES := $(shell find $(SRC) -name '*.ts')
 
-buildqjs:
-	cd quickjs && make
+$(GENERATED)/ensemble.js: $(TS_FILES)
+	$(NODE) -y esbuild --bundle $(SRC)/ensemble_cli.ts --outfile=$(GENERATED)/ensemble.js --format=esm --external:std --banner:js="import * as std from 'std';"
 
-build: bundle buildqjs
+bundle: $(GENERATED)/ensemble.js
+
+ensemble: quickjs/qjsc $(GENERATED)/ensemble.js
 	$(QJSC) -o ensemble $(GENERATED)/ensemble.js
 
+quickjs/qjsc: quickjs/Makefile
+	cd quickjs && make
+
+quickjs/qjs: quickjs/qjsc
+
+build: ensemble
+
 clean:
-	rm ensemble && cd quickjs && make clean
+	rm -f ensemble && cd quickjs && make clean
 
 # Generate
 generate: generate-coverage generate-docs # generate-interop
@@ -69,7 +77,7 @@ package-snippets:
 	cd snippets && $(VSCE) package
 
 # Run Examples
-run-example:
+run-example: ensemble
 	$(ENSEMBLE) $(EXAMPLES)/fibonacci.ensmbl
 
 # Serve
@@ -78,16 +86,12 @@ serve: serve-coverage serve-docs # serve-demo
 serve-coverage:
 	$(PYTHON) -m http.server -d ./coverage
 
-# serve-demo:
-# 	$(DENO) run --allow-net --allow-read --allow-sys jsr:@std/http/file-server
-
 serve-docs:
 	$(PYTHON) -m http.server -d $(DOCS)
 
-# Start REPL ## run -A $(SRC)/ensemble_cli.ts
-start-repl:
-	$(ENSEMBLE) 
-
+repl: ensemble
+	./ensemble
+	
 # Testing
 test: test-e2e test-fun test-reference-implementation test-unit
 

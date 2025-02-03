@@ -1,4 +1,4 @@
-import { loadFile } from 'std';
+import * as std from 'std';
 var __defProp = Object.defineProperty;
 var __export = (target, all) => {
   for (var name in all) {
@@ -4824,50 +4824,15 @@ function initEnv() {
 }
 
 // src/readline_qjs.ts
-var userHomePath = '.';
-var historyPath = `${userHomePath}/history`;
-var historySize = 2e3;
 var defaultPrompt = 'user> ';
-async function* readline(promptText = defaultPrompt) {
-  const history = await readHistory();
-  const rl = createInterface({
-    prompt: promptText,
-    input: stdin,
-    output: stdout,
-    history,
-    historySize,
-  });
-  rl.on('SIGINT', () => {
-    rl.close();
-    exit(0);
-  });
-  rl.prompt(true);
-  for await (const input of rl) {
-    yield input;
-    rl.prompt(true);
-    history.unshift(input);
-    await saveHistory(input);
-  }
-}
-async function readHistory() {
-  await checkHistory();
-  const data = await fs.readFile(historyPath, 'utf8');
-  return data.split('\n').reverse();
-}
-async function saveHistory(command) {
-  await checkHistory();
-  await fs.appendFile(historyPath, command + '\n', 'utf8');
-}
-async function checkHistory() {
-  try {
-    await fs.mkdir(dirname(historyPath), {
-      recursive: true,
-    });
-    await fs.access(historyPath);
-  } catch (error) {
-    if (error.code === 'ENOENT') {
-      await fs.writeFile(historyPath, '', 'utf8');
+function* readline(promptText = defaultPrompt) {
+  while (true) {
+    std.out.puts(promptText);
+    const input = std.in.getline()?.trim();
+    if (!input) {
+      continue;
     }
+    yield input;
   }
 }
 
@@ -4876,11 +4841,11 @@ function slurp(...args) {
   assertArgumentCount(args.length, 1);
   const filePath = args[0];
   assertStringNode(filePath);
-  const content = loadFile(filePath.value);
+  const content = std.loadFile(filePath.value);
   return createStringNode(content);
 }
 function loadFileWithEnv(appEnv) {
-  return function loadFile2(...args) {
+  return function loadFile(...args) {
     assertArgumentCount(args.length, 1);
     assertStringNode(args[0]);
     const text = slurp(args[0]);
@@ -4914,7 +4879,7 @@ function initMain() {
   }
   return replEnv;
 }
-function toPosixPath(filePath) {
+function toPosixPath(filePath = '') {
   return filePath.replace(/\\/g, '/');
 }
 async function main(...args) {
@@ -4927,14 +4892,15 @@ async function main(...args) {
   );
   replEnv.set(
     createSymbolNode('*host-language*'),
-    createStringNode('ENSEMBLE'),
+    createStringNode('Ensemble'),
   );
   if (userScriptPath) {
     rep(`(import "${userScriptPath}")`, replEnv);
     return;
   }
+  rep('(println (str "Welcome to " *host-language* "! Press Ctrl/Cmd+C to exit."))', replEnv);
   for await (const input of readline('user> ')) {
-    if (input === '') {
+    if (input === '' || input === null) {
       continue;
     }
     try {
@@ -4942,9 +4908,9 @@ async function main(...args) {
       console.log(result);
     } catch (error) {
       if (isErrorNode(error)) {
-        console.error(`error: ${printString(error, false)}`);
+        console.log(`error: ${printString(error, false)}`);
       } else if (error instanceof Error) {
-        console.error(error);
+        console.log(error);
       }
     }
   }
