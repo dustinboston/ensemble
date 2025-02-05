@@ -10,23 +10,22 @@
  * @file
  */
 
-import { assertEquals } from '@std/assert';
-import { assertSpyCalls, spy } from '@std/testing/mock';
 import { initEnv, rep } from '../src/ensemble.ts';
 import { printString } from '../src/printer.ts';
 import { BooleanNode, KeywordNode, ListNode, NilNode, NumberNode, SymbolNode, VectorNode } from '../src/types.ts';
+import { assertEquals, assertSpyCalls, spy, test } from '../tests/test_runner.js';
 
-Deno.test(`CORE: Testing is? functions`, async (t) => {
+test(`CORE: Testing is? functions`, () => {
   const sharedEnv = initEnv();
 
-  await t.step(`CORE: isSymbol with quoted symbol should be true`, () => {
+  test(`CORE: isSymbol with quoted symbol should be true`, () => {
     // true
     assertEquals(
       rep(`(symbol? 'abc)`, sharedEnv),
       printString(new BooleanNode(true), true),
     );
   });
-  await t.step(`CORE: isSymbol with string should be false`, () => {
+  test(`CORE: isSymbol with string should be false`, () => {
     // false
     assertEquals(
       rep(`(symbol? "abc")`, sharedEnv),
@@ -34,14 +33,14 @@ Deno.test(`CORE: Testing is? functions`, async (t) => {
     );
   });
 
-  await t.step(`CORE: isNil with nil should be true`, () => {
+  test(`CORE: isNil with nil should be true`, () => {
     // true
     assertEquals(
       rep(`(nil? nil)`, sharedEnv),
       printString(new BooleanNode(true), true),
     );
   });
-  await t.step(`CORE: isNil with true should be false`, () => {
+  test(`CORE: isNil with true should be false`, () => {
     // false
     assertEquals(
       rep(`(nil? true)`, sharedEnv),
@@ -49,21 +48,21 @@ Deno.test(`CORE: Testing is? functions`, async (t) => {
     );
   });
 
-  await t.step(`CORE: isTrue with true should be true`, () => {
+  test(`CORE: isTrue with true should be true`, () => {
     // true
     assertEquals(
       rep(`(true? true)`, sharedEnv),
       printString(new BooleanNode(true), true),
     );
   });
-  await t.step(`CORE: isTrue with false should be false`, () => {
+  test(`CORE: isTrue with false should be false`, () => {
     // false
     assertEquals(
       rep(`(true? false)`, sharedEnv),
       printString(new BooleanNode(false), true),
     );
   });
-  await t.step(`CORE: isTrue with isTrue should be false`, () => {
+  test(`CORE: isTrue with isTrue should be false`, () => {
     // false
     assertEquals(
       rep(`(true? true?)`, sharedEnv),
@@ -71,14 +70,14 @@ Deno.test(`CORE: Testing is? functions`, async (t) => {
     );
   });
 
-  await t.step(`CORE: isFalse with false should be true`, () => {
+  test(`CORE: isFalse with false should be true`, () => {
     // true
     assertEquals(
       rep(`(false? false)`, sharedEnv),
       printString(new BooleanNode(true), true),
     );
   });
-  await t.step(`CORE: isFalse with true should be false`, () => {
+  test(`CORE: isFalse with true should be false`, () => {
     // false
     assertEquals(
       rep(`(false? true)`, sharedEnv),
@@ -87,9 +86,9 @@ Deno.test(`CORE: Testing is? functions`, async (t) => {
   });
 });
 
-Deno.test(`CORE: Testing apply`, async (t) => {
+test(`CORE: Testing apply`, () => {
   const sharedEnv = initEnv();
-  await t.step(
+  test(
     `CORE: apply should work on a list`,
     () => {
       // 5
@@ -99,7 +98,7 @@ Deno.test(`CORE: Testing apply`, async (t) => {
       );
     },
   );
-  await t.step(
+  test(
     `CORE: apply should apply to all proceeding expressions`,
     () => {
       // 9
@@ -110,7 +109,7 @@ Deno.test(`CORE: Testing apply`, async (t) => {
     },
   );
 
-  await t.step(`CORE: should apply to nested lists`, () => {
+  test(`CORE: should apply to nested lists`, () => {
     // `;/1 2 "3" \(\)`
     // nil
 
@@ -126,7 +125,7 @@ Deno.test(`CORE: Testing apply`, async (t) => {
     consoleLogSpy.restore();
   });
 
-  await t.step(
+  test(
     `CORE: should apply to all proceeding expressions including nested lists`,
     () => {
       // TODO:
@@ -146,7 +145,7 @@ Deno.test(`CORE: Testing apply`, async (t) => {
     },
   );
 
-  await t.step(`CORE: should apply list to an empty list`, () => {
+  test(`CORE: should apply list to an empty list`, () => {
     // ()
     assertEquals(
       rep(`(apply list (list))`, sharedEnv),
@@ -154,7 +153,7 @@ Deno.test(`CORE: Testing apply`, async (t) => {
     );
   });
 
-  await t.step(`CORE: should apply isSymbol to a list`, () => {
+  test(`CORE: should apply isSymbol to a list`, () => {
     // true
     assertEquals(
       rep(`(apply symbol? (list (quote two)))`, sharedEnv),
@@ -163,9 +162,9 @@ Deno.test(`CORE: Testing apply`, async (t) => {
   });
 });
 
-Deno.test(`CORE: Testing apply with fn* special forms`, async (t) => {
+test(`CORE: Testing apply with fn* special forms`, () => {
   const sharedEnv = initEnv();
-  await t.step(
+  test(
     `CORE: should apply a function (fn*) special form to a list`,
     () => {
       // 5
@@ -175,7 +174,7 @@ Deno.test(`CORE: Testing apply with fn* special forms`, async (t) => {
       );
     },
   );
-  await t.step(
+  test(
     `CORE: should apply a function (fn*) special form to all proceeding expressions`,
     () => {
       // 9
@@ -187,19 +186,19 @@ Deno.test(`CORE: Testing apply with fn* special forms`, async (t) => {
   );
 });
 
-Deno.test(`CORE: Testing map function`, async (t) => {
+test(`CORE: Testing map function`, () => {
   const sharedEnv = initEnv();
   rep(`(def! nums (list 1 2 3))`, sharedEnv);
   rep(`(def! double (fn* (a) (* 2 a)))`, sharedEnv);
 
-  await t.step(`CORE: double function should double a number`, () => {
+  test(`CORE: double function should double a number`, () => {
     // 6
     assertEquals(
       rep(`(double 3)`, sharedEnv),
       printString(new NumberNode(6), true),
     );
   });
-  await t.step(`CORE: should double all numbers in a list`, () => {
+  test(`CORE: should double all numbers in a list`, () => {
     // (2 4 6)
     assertEquals(
       rep(`(map double nums) `, sharedEnv),
@@ -213,7 +212,7 @@ Deno.test(`CORE: Testing map function`, async (t) => {
       ),
     );
   });
-  await t.step(
+  test(
     `CORE: should map a function (fn*) special form over a list`,
     () => {
       // (false true false)
@@ -233,7 +232,7 @@ Deno.test(`CORE: Testing map function`, async (t) => {
       );
     },
   );
-  await t.step(
+  test(
     `CORE: mapping a function over an empty list should produce an empty list`,
     () => {
       // true
@@ -245,30 +244,30 @@ Deno.test(`CORE: Testing map function`, async (t) => {
   );
 });
 
-Deno.test(`CORE: Testing symbol and keyword functions`, async (t) => {
+test(`CORE: Testing symbol and keyword functions`, () => {
   const sharedEnv = initEnv();
-  await t.step(`CORE: isSymbol should return false for a keyword`, () => {
+  test(`CORE: isSymbol should return false for a keyword`, () => {
     // false
     assertEquals(
       rep(`(symbol? :abc)`, sharedEnv),
       printString(new BooleanNode(false), true),
     );
   });
-  await t.step(`CORE: isSymbol should return true for a symbol`, () => {
+  test(`CORE: isSymbol should return true for a symbol`, () => {
     // true
     assertEquals(
       rep(`(symbol? 'abc)`, sharedEnv),
       printString(new BooleanNode(true), true),
     );
   });
-  await t.step(`CORE: isSymbol should return false for a string`, () => {
+  test(`CORE: isSymbol should return false for a string`, () => {
     // false
     assertEquals(
       rep(`(symbol? "abc")`, sharedEnv),
       printString(new BooleanNode(false), true),
     );
   });
-  await t.step(
+  test(
     `CORE: isSymbol should return true for a symbol created with the symbol function`,
     () => {
       // true
@@ -278,14 +277,14 @@ Deno.test(`CORE: Testing symbol and keyword functions`, async (t) => {
       );
     },
   );
-  await t.step(`CORE: isKeyword should return true for a keyword`, () => {
+  test(`CORE: isKeyword should return true for a keyword`, () => {
     // true
     assertEquals(
       rep(`(keyword? :abc)`, sharedEnv),
       printString(new BooleanNode(true), true),
     );
   });
-  await t.step(
+  test(
     `CORE: isKeyword should return false for a quoted symbol`,
     () => {
       // false
@@ -295,14 +294,14 @@ Deno.test(`CORE: Testing symbol and keyword functions`, async (t) => {
       );
     },
   );
-  await t.step(`CORE: isKeyword should return false for a string`, () => {
+  test(`CORE: isKeyword should return false for a string`, () => {
     // false
     assertEquals(
       rep(`(keyword? "abc")`, sharedEnv),
       printString(new BooleanNode(false), true),
     );
   });
-  await t.step(
+  test(
     `CORE: isKeyword should return false for an empty string`,
     () => {
       // false
@@ -312,7 +311,7 @@ Deno.test(`CORE: Testing symbol and keyword functions`, async (t) => {
       );
     },
   );
-  await t.step(
+  test(
     `CORE: isKeyword should return true for a keyword created with the keyword function`,
     () => {
       // true
@@ -323,14 +322,14 @@ Deno.test(`CORE: Testing symbol and keyword functions`, async (t) => {
     },
   );
 
-  await t.step(`CORE: the symbol function should create a symbol`, () => {
+  test(`CORE: the symbol function should create a symbol`, () => {
     // abc
     assertEquals(
       rep(`(symbol "abc")`, sharedEnv),
       printString(new SymbolNode('abc'), true),
     );
   });
-  await t.step(`CORE: the keyword function should create a keyword`, () => {
+  test(`CORE: the keyword function should create a keyword`, () => {
     // :abc
     const result = rep(`(keyword "abc")`, sharedEnv);
     const expected = printString(new KeywordNode(':abc'), true);
@@ -338,38 +337,38 @@ Deno.test(`CORE: Testing symbol and keyword functions`, async (t) => {
   });
 });
 
-Deno.test(`CORE: Testing sequential? function`, async (t) => {
+test(`CORE: Testing sequential? function`, () => {
   const sharedEnv = initEnv();
 
-  await t.step(`CORE: isSequential should return true for a list`, () => {
+  test(`CORE: isSequential should return true for a list`, () => {
     // true
     assertEquals(
       rep(`(sequential? (list 1 2 3))`, sharedEnv),
       printString(new BooleanNode(true), true),
     );
   });
-  await t.step(`CORE: isSequential should return true for a vector`, () => {
+  test(`CORE: isSequential should return true for a vector`, () => {
     // true
     assertEquals(
       rep(`(sequential? [15])`, sharedEnv),
       printString(new BooleanNode(true), true),
     );
   });
-  await t.step(`CORE: isSequential should return true for a function`, () => {
+  test(`CORE: isSequential should return true for a function`, () => {
     // false
     assertEquals(
       rep(`(sequential? sequential?)`, sharedEnv),
       printString(new BooleanNode(false), true),
     );
   });
-  await t.step(`CORE: isSequential should return false for a nil`, () => {
+  test(`CORE: isSequential should return false for a nil`, () => {
     // false
     assertEquals(
       rep(`(sequential? nil)`, sharedEnv),
       printString(new BooleanNode(false), true),
     );
   });
-  await t.step(`CORE: isSequential should return false for a string`, () => {
+  test(`CORE: isSequential should return false for a string`, () => {
     // false
     assertEquals(
       rep(`(sequential? "abc")`, sharedEnv),
@@ -378,9 +377,9 @@ Deno.test(`CORE: Testing sequential? function`, async (t) => {
   });
 });
 
-Deno.test(`CORE: Testing apply with vectors`, async (t) => {
+test(`CORE: Testing apply with vectors`, () => {
   const sharedEnv = initEnv();
-  await t.step(
+  test(
     `CORE: apply should work with all proceeding arguments, including vectors`,
     () => {
       // 9
@@ -391,7 +390,7 @@ Deno.test(`CORE: Testing apply with vectors`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `CORE: apply should work with prn and all proceeding arguments, including vectors`,
     () => {
       const consoleLogSpy = spy(console, 'log');
@@ -409,7 +408,7 @@ Deno.test(`CORE: Testing apply with vectors`, async (t) => {
     },
   );
 
-  await t.step(`CORE: apply should work with empty vectors`, () => {
+  test(`CORE: apply should work with empty vectors`, () => {
     // ()
     assertEquals(
       rep(`(apply list [])`, sharedEnv),
@@ -418,16 +417,16 @@ Deno.test(`CORE: Testing apply with vectors`, async (t) => {
   });
 });
 
-Deno.test(`CORE: Testing apply with fn* and vectors`, async (t) => {
+test(`CORE: Testing apply with fn* and vectors`, () => {
   const sharedEnv = initEnv();
-  await t.step(`CORE: should apply fn* to vectors`, () => {
+  test(`CORE: should apply fn* to vectors`, () => {
     // 5
     assertEquals(
       rep(`(apply (fn* (a b) (+ a b)) [2 3])`, sharedEnv),
       printString(new NumberNode(5), true),
     );
   });
-  await t.step(
+  test(
     `CORE: should apply fn* to all proceeding arguments, including vectors`,
     () => {
       // 9
@@ -439,24 +438,24 @@ Deno.test(`CORE: Testing apply with fn* and vectors`, async (t) => {
   );
 });
 
-Deno.test(`CORE: Testing vector functions`, async (t) => {
+test(`CORE: Testing vector functions`, () => {
   const sharedEnv = initEnv();
 
-  await t.step(`CORE: isVector should return true for a vector`, () => {
+  test(`CORE: isVector should return true for a vector`, () => {
     // true
     assertEquals(
       rep(`(vector? [10 11])`, sharedEnv),
       printString(new BooleanNode(true), true),
     );
   });
-  await t.step(`CORE: isVector should return false for a quoted list`, () => {
+  test(`CORE: isVector should return false for a quoted list`, () => {
     // false
     assertEquals(
       rep(`(vector? '(12 13))`, sharedEnv),
       printString(new BooleanNode(false), true),
     );
   });
-  await t.step(`CORE: the vector function should create a new vector`, () => {
+  test(`CORE: the vector function should create a new vector`, () => {
     // [3 4 5]
     assertEquals(
       rep(`(vector 3 4 5)`, sharedEnv),
@@ -470,7 +469,7 @@ Deno.test(`CORE: Testing vector functions`, async (t) => {
       ),
     );
   });
-  await t.step(
+  test(
     `CORE: an empty vector should be equal to a vector created without arguments`,
     () => {
       // true
@@ -482,16 +481,16 @@ Deno.test(`CORE: Testing vector functions`, async (t) => {
   );
 });
 
-Deno.test(`CORE: Test extra function arguments as Mal List (bypassing TCO with apply)`, async (t) => {
+test(`CORE: Test extra function arguments as Mal List (bypassing TCO with apply)`, () => {
   const sharedEnv = initEnv();
-  await t.step(`CORE: variadic args should return a list`, () => {
+  test(`CORE: variadic args should return a list`, () => {
     // true
     assertEquals(
       rep(`(apply (fn* (& more) (list? more)) [1 2 3])`, sharedEnv),
       printString(new BooleanNode(true), true),
     );
   });
-  await t.step(
+  test(
     `CORE: Should return an empty list if there aren't extra args`,
     () => {
       // true
@@ -501,7 +500,7 @@ Deno.test(`CORE: Test extra function arguments as Mal List (bypassing TCO with a
       );
     },
   );
-  await t.step(
+  test(
     `CORE: should return a vector intial args, but no extra args`,
     () => {
       // true

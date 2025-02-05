@@ -1,8 +1,8 @@
-import { assertEquals, assertThrows } from '@std/assert';
-import * as stringFns from './interop/js/string.ts';
-import * as types from './types.ts';
+import { assertEquals, assertThrows, test } from '../../../tests/test_runner.ts';
+import * as types from '../../types.ts';
+import * as stringFns from './string.ts';
 
-Deno.test('stringFromCharCode - valid vector of numbers', () => {
+test('stringFromCharCode - valid vector of numbers', () => {
   const astArgs = [types.createVectorNode([
     types.createNumberNode(97),
     types.createNumberNode(98),
@@ -13,13 +13,13 @@ Deno.test('stringFromCharCode - valid vector of numbers', () => {
   assertEquals(result, types.createStringNode('abc'));
 });
 
-Deno.test('stringFromCharCode - empty vector', () => {
+test('stringFromCharCode - empty vector', () => {
   const astArgs = [types.createVectorNode([])];
   const result = stringFns.stringFromCharCode(...astArgs);
   assertEquals(result, types.createStringNode(''));
 });
 
-Deno.test('stringFromCharCode - incorrect argument count', () => {
+test('stringFromCharCode - incorrect argument count', () => {
   assertThrows(() => stringFns.stringFromCharCode(), Error, 'Wanted 1 arguments but got 0');
   assertThrows(
     () => stringFns.stringFromCharCode(types.createVectorNode([]), types.createVectorNode([])),
@@ -28,11 +28,11 @@ Deno.test('stringFromCharCode - incorrect argument count', () => {
   );
 });
 
-Deno.test('stringFromCharCode - incorrect argument type', () => {
+test('stringFromCharCode - incorrect argument type', () => {
   assertThrows(() => stringFns.stringFromCharCode(types.createNumberNode(1)), TypeError);
 });
 
-Deno.test('stringFromCharCode - non-number in vector', () => {
+test('stringFromCharCode - non-number in vector', () => {
   assertThrows(() => stringFns.stringFromCharCode(types.createVectorNode([types.createStringNode('a')])), TypeError);
   assertThrows(() =>
     stringFns.stringFromCharCode(types.createVectorNode([
@@ -42,7 +42,7 @@ Deno.test('stringFromCharCode - non-number in vector', () => {
     ])), TypeError);
 });
 
-Deno.test('stringFromCodePoint - valid code points', () => {
+test('stringFromCodePoint - valid code points', () => {
   const result = stringFns.stringFromCodePoint(
     types.createNumberNode(97),
     types.createNumberNode(98),
@@ -51,14 +51,14 @@ Deno.test('stringFromCodePoint - valid code points', () => {
   assertEquals(result, types.createStringNode('abc'));
 });
 
-Deno.test('stringFromCodePoint - non-number arguments', () => {
+test('stringFromCodePoint - non-number arguments', () => {
   assertThrows(
     () => stringFns.stringFromCodePoint(types.createStringNode('a')),
     TypeError,
   );
 });
 
-Deno.test('stringAt - valid arguments', () => {
+test('stringAt - valid arguments', () => {
   const result = stringFns.stringAt(
     types.createStringNode('abc'),
     types.createNumberNode(1),
@@ -66,7 +66,7 @@ Deno.test('stringAt - valid arguments', () => {
   assertEquals(result, types.createStringNode('b'));
 });
 
-Deno.test('stringAt - invalid arguments', () => {
+test('stringAt - invalid arguments', () => {
   assertThrows(
     () => stringFns.stringAt(types.createStringNode('abc'), types.createStringNode('a')),
     TypeError,
@@ -77,7 +77,7 @@ Deno.test('stringAt - invalid arguments', () => {
   );
 });
 
-Deno.test('stringCodePointAt - valid arguments', () => {
+test('stringCodePointAt - valid arguments', () => {
   const result = stringFns.stringCodePointAt(
     types.createStringNode('abc'),
     types.createNumberNode(1),
@@ -85,7 +85,7 @@ Deno.test('stringCodePointAt - valid arguments', () => {
   assertEquals(result, types.createNumberNode(98));
 });
 
-Deno.test('stringCodePointAt - invalid arguments', () => {
+test('stringCodePointAt - invalid arguments', () => {
   assertThrows(
     () => stringFns.stringCodePointAt(types.createStringNode('abc'), types.createStringNode('a')),
     TypeError,
@@ -96,7 +96,7 @@ Deno.test('stringCodePointAt - invalid arguments', () => {
   );
 });
 
-Deno.test('stringConcat - valid arguments', () => {
+test('stringConcat - valid arguments', () => {
   const result = stringFns.stringConcat(
     types.createStringNode('a'),
     types.createStringNode('b'),
@@ -105,7 +105,7 @@ Deno.test('stringConcat - valid arguments', () => {
   assertEquals(result, types.createStringNode('abc'));
 });
 
-Deno.test('stringConcat - invalid arguments', () => {
+test('stringConcat - invalid arguments', () => {
   assertThrows(
     () => stringFns.stringConcat(types.createStringNode('a'), types.createNumberNode(1)),
     TypeError,
@@ -116,7 +116,7 @@ Deno.test('stringConcat - invalid arguments', () => {
   );
 });
 
-Deno.test('stringEndsWith - valid arguments, with length', () => {
+test('stringEndsWith - valid arguments, with length', () => {
   const result = stringFns.stringEndsWith(
     types.createStringNode('abcabc'),
     types.createStringNode('abc'),
@@ -125,7 +125,7 @@ Deno.test('stringEndsWith - valid arguments, with length', () => {
   assertEquals(result, types.createBooleanNode(false));
 });
 
-Deno.test('stringEndsWith - valid arguments, without length', () => {
+test('stringEndsWith - valid arguments, without length', () => {
   const result = stringFns.stringEndsWith(
     types.createStringNode('abcabc'),
     types.createStringNode('abc'),
@@ -133,7 +133,7 @@ Deno.test('stringEndsWith - valid arguments, without length', () => {
   assertEquals(result, types.createBooleanNode(true));
 });
 
-Deno.test('stringEndsWith - invalid arguments', () => {
+test('stringEndsWith - invalid arguments', () => {
   assertThrows(
     () => stringFns.stringEndsWith(types.createStringNode('abc'), types.createNumberNode(0)),
     TypeError,
@@ -153,7 +153,7 @@ Deno.test('stringEndsWith - invalid arguments', () => {
   );
 });
 
-Deno.test('stringIncludes - valid arguments, with position', () => {
+test('stringIncludes - valid arguments, with position', () => {
   const result = stringFns.stringIncludes(
     types.createStringNode('abcabc'),
     types.createStringNode('abc'),
@@ -162,7 +162,7 @@ Deno.test('stringIncludes - valid arguments, with position', () => {
   assertEquals(result, types.createBooleanNode(true));
 });
 
-Deno.test('stringIncludes - valid arguments, without position', () => {
+test('stringIncludes - valid arguments, without position', () => {
   const result = stringFns.stringIncludes(
     types.createStringNode('abcabc'),
     types.createStringNode('abc'),
@@ -170,7 +170,7 @@ Deno.test('stringIncludes - valid arguments, without position', () => {
   assertEquals(result, types.createBooleanNode(true));
 });
 
-Deno.test('stringIncludes - invalid arguments', () => {
+test('stringIncludes - invalid arguments', () => {
   assertThrows(
     () => stringFns.stringIncludes(types.createStringNode('abc'), types.createNumberNode(1)),
     TypeError,
@@ -190,7 +190,7 @@ Deno.test('stringIncludes - invalid arguments', () => {
   );
 });
 
-Deno.test('stringIndexOf - valid arguments, with position', () => {
+test('stringIndexOf - valid arguments, with position', () => {
   const result = stringFns.stringIndexOf(
     types.createStringNode('abcabc'),
     types.createStringNode('abc'),
@@ -199,7 +199,7 @@ Deno.test('stringIndexOf - valid arguments, with position', () => {
   assertEquals(result, types.createNumberNode(0));
 });
 
-Deno.test('stringIndexOf - valid arguments, without position', () => {
+test('stringIndexOf - valid arguments, without position', () => {
   const result = stringFns.stringIndexOf(
     types.createStringNode('abcabc'),
     types.createStringNode('abc'),
@@ -207,7 +207,7 @@ Deno.test('stringIndexOf - valid arguments, without position', () => {
   assertEquals(result, types.createNumberNode(0));
 });
 
-Deno.test('stringIndexOf - invalid arguments', () => {
+test('stringIndexOf - invalid arguments', () => {
   assertThrows(
     () => stringFns.stringIndexOf(types.createStringNode('abc'), types.createNumberNode(1)),
     TypeError,
@@ -218,21 +218,21 @@ Deno.test('stringIndexOf - invalid arguments', () => {
   );
 });
 
-Deno.test('stringIsWellFormed - valid arguments', () => {
+test('stringIsWellFormed - valid arguments', () => {
   const result = stringFns.stringIsWellFormed(
     types.createStringNode('abc'),
   );
   assertEquals(result, types.createBooleanNode(true));
 });
 
-Deno.test('stringIsWellFormed - invalid arguments', () => {
+test('stringIsWellFormed - invalid arguments', () => {
   assertThrows(
     () => stringFns.stringIsWellFormed(types.createNumberNode(1)),
     TypeError,
   );
 });
 
-Deno.test('stringLastIndexOf - valid arguments, with position', () => {
+test('stringLastIndexOf - valid arguments, with position', () => {
   const result = stringFns.stringLastIndexOf(
     types.createStringNode('abcabc'),
     types.createStringNode('abc'),
@@ -241,7 +241,7 @@ Deno.test('stringLastIndexOf - valid arguments, with position', () => {
   assertEquals(result, types.createNumberNode(3));
 });
 
-Deno.test('stringLastIndexOf - valid arguments, without position', () => {
+test('stringLastIndexOf - valid arguments, without position', () => {
   const result = stringFns.stringLastIndexOf(
     types.createStringNode('abcabc'),
     types.createStringNode('abc'),
@@ -249,7 +249,7 @@ Deno.test('stringLastIndexOf - valid arguments, without position', () => {
   assertEquals(result, types.createNumberNode(3));
 });
 
-Deno.test('stringLastIndexOf - invalid arguments', () => {
+test('stringLastIndexOf - invalid arguments', () => {
   assertThrows(
     () => stringFns.stringLastIndexOf(types.createStringNode('abc'), types.createNumberNode(1)),
     TypeError,

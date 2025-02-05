@@ -1,9 +1,9 @@
-import { assertEquals, assertThrows } from '@std/assert';
-import * as operators from '../../interop/js/operator.ts';
+import { assertEquals, assertThrows, test } from '../../../tests/test_runner.ts';
 import * as types from '../../types.ts';
+import * as operators from './operator.ts';
 
 // and
-Deno.test('and', () => {
+test('and', () => {
   assertEquals(
     operators.and(types.createBooleanNode(true), types.createBooleanNode(true)),
     types.createBooleanNode(true),
@@ -16,32 +16,32 @@ Deno.test('and', () => {
 });
 
 // bitwiseAnd
-Deno.test('bitwiseAnd', () => {
+test('bitwiseAnd', () => {
   assertEquals(operators.bitwiseAnd(types.createNumberNode(5), types.createNumberNode(3)), types.createNumberNode(1));
   assertThrows(() => operators.bitwiseAnd(types.createStringNode('test'), types.createNumberNode(1)));
 });
 
 // bitwiseNot
 
-Deno.test('bitwiseNot', () => {
+test('bitwiseNot', () => {
   assertEquals(operators.bitwiseNot(types.createNumberNode(5)), types.createNumberNode(~5));
   assertThrows(() => operators.bitwiseNot(types.createStringNode('test')));
 });
 
 // bitwiseOr
-Deno.test('bitwiseOr', () => {
+test('bitwiseOr', () => {
   assertEquals(operators.bitwiseOr(types.createNumberNode(1), types.createNumberNode(2)), types.createNumberNode(3));
   assertThrows(() => operators.bitwiseOr(types.createStringNode('test'), types.createNumberNode(0)));
 });
 
 // bitwiseXor
-Deno.test('bitwiseXor', () => {
+test('bitwiseXor', () => {
   assertEquals(operators.bitwiseXor(types.createNumberNode(1), types.createNumberNode(3)), types.createNumberNode(2));
   assertThrows(() => operators.bitwiseXor(types.createStringNode('test'), types.createNumberNode(1)));
 });
 
 // decrement
-Deno.test('decrement', () => {
+test('decrement', () => {
   assertEquals(
     operators.decrement(types.createNumberNode(2)),
     types.createVectorNode([types.createNumberNode(1), types.createNumberNode(2)]),
@@ -54,7 +54,7 @@ Deno.test('decrement', () => {
 });
 
 // increment
-Deno.test('increment', () => {
+test('increment', () => {
   assertEquals(
     operators.increment(types.createNumberNode(1)),
     types.createVectorNode([types.createNumberNode(2), types.createNumberNode(1)]),
@@ -67,7 +67,7 @@ Deno.test('increment', () => {
 });
 
 // instanceOf
-Deno.test('instanceOf', () => {
+test('instanceOf', () => {
   const num = types.createNumberNode(1);
   const str = types.createStringNode('');
 
@@ -79,18 +79,18 @@ Deno.test('instanceOf', () => {
 });
 
 // leftShift
-Deno.test('leftShift', () => {
+test('leftShift', () => {
   assertEquals(operators.leftShift(types.createNumberNode(1), types.createNumberNode(2)), types.createNumberNode(4));
   assertThrows(() => operators.leftShift(types.createStringNode(''), types.createNumberNode(1)));
 });
 
 // not
-Deno.test('not', () => {
+test('not', () => {
   assertEquals(operators.not(types.createBooleanNode(false)), types.createBooleanNode(true));
 });
 
 // notEqualTo
-Deno.test('notEqualTo', () => {
+test('notEqualTo', () => {
   assertEquals(
     operators.notEqualTo(types.createNumberNode(1), types.createNumberNode(1)),
     types.createBooleanNode(false),
@@ -103,7 +103,7 @@ Deno.test('notEqualTo', () => {
 });
 
 // nullishCoalesce
-Deno.test('nullishCoalescing', () => {
+test('nullishCoalescing', () => {
   assertEquals(operators.nullishCoalesce(types.createNilNode(), types.createNumberNode(5)), types.createNumberNode(5));
   assertEquals(
     operators.nullishCoalesce(types.createNumberNode(1), types.createNumberNode(5)),
@@ -112,7 +112,7 @@ Deno.test('nullishCoalescing', () => {
 });
 
 // or
-Deno.test('or', () => {
+test('or', () => {
   assertEquals(
     operators.or(types.createBooleanNode(false), types.createBooleanNode(true)),
     types.createBooleanNode(true),
@@ -126,26 +126,26 @@ Deno.test('or', () => {
 });
 
 // power
-Deno.test('power', () => {
+test('power', () => {
   assertEquals(operators.power(types.createNumberNode(3), types.createNumberNode(2)), types.createNumberNode(9));
   assertThrows(() => operators.power(types.createStringNode(''), types.createNumberNode(1)));
 });
 
 // remainder
-Deno.test('remainder', () => {
+test('remainder', () => {
   assertEquals(operators.remainder(types.createNumberNode(5), types.createNumberNode(2)), types.createNumberNode(1));
   assertThrows(() => operators.remainder(types.createStringNode(''), types.createNumberNode(1)));
 });
 
 // rightShift
-Deno.test('rightShift', () => {
+test('rightShift', () => {
   assertEquals(operators.rightShift(types.createNumberNode(5), types.createNumberNode(1)), types.createNumberNode(2));
   assertThrows(() => operators.rightShift(types.createStringNode(''), types.createNumberNode(1)));
 });
 
 // typeOf
 
-Deno.test('typeOf', () => {
+test('typeOf', () => {
   const num = types.createNumberNode(1);
 
   assertEquals(operators.typeOf(num, types.createStringNode('number')), types.createBooleanNode(true));
@@ -153,7 +153,7 @@ Deno.test('typeOf', () => {
 });
 
 // unsignedRightShift
-Deno.test('unsignedRightShift', () => {
+test('unsignedRightShift', () => {
   assertEquals(
     operators.unsignedRightShift(types.createNumberNode(5), types.createNumberNode(1)),
     types.createNumberNode(2),

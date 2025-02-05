@@ -10,17 +10,17 @@
  * @file
  */
 
-import { assertEquals, assertThrows } from '@std/assert';
-import { assertSpyCalls, spy } from '@std/testing/mock';
+import { assertSpyCalls, spy } from '../tests/test_runner.js';
+import { assertEquals, assertThrows, test } from '../tests/test_runner.ts';
 
 import { initEnv, rep } from '../src/ensemble.ts';
 import { printString } from '../src/printer.ts';
 import { ErrorNode, NilNode, NumberNode, StringNode } from '../src/types.ts';
 
-Deno.test(`TRY: Testing throw`, async (t) => {
+test(`TRY: Testing throw`, () => {
   const sharedEnv = initEnv();
 
-  await t.step(`Testing throw with string error`, () => {
+  test(`Testing throw with string error`, () => {
     let threwError = false;
     try {
       rep(`(throw "err1")`, sharedEnv);
@@ -35,10 +35,10 @@ Deno.test(`TRY: Testing throw`, async (t) => {
   });
 });
 
-Deno.test(`TRY: Testing try*/catch*`, async (t) => {
+test(`TRY: Testing try*/catch*`, () => {
   const sharedEnv = initEnv();
 
-  await t.step(`Evaluating try* without error`, () => {
+  test(`Evaluating try* without error`, () => {
     // 123
     assertEquals(
       rep(`(try* 123 (catch* e 456))`, sharedEnv),
@@ -46,7 +46,7 @@ Deno.test(`TRY: Testing try*/catch*`, async (t) => {
     );
   });
 
-  await t.step(`Evaluating try* with undefined symbol`, () => {
+  test(`Evaluating try* with undefined symbol`, () => {
     const consoleLogSpy = spy(console, 'log');
 
     assertEquals(
@@ -65,7 +65,7 @@ Deno.test(`TRY: Testing try*/catch*`, async (t) => {
     consoleLogSpy.restore();
   });
 
-  await t.step(
+  test(
     `Evaluating try* with function call to undefined symbol`,
     () => {
       const consoleLogSpy = spy(console, 'log');
@@ -88,10 +88,10 @@ Deno.test(`TRY: Testing try*/catch*`, async (t) => {
   );
 });
 
-Deno.test(`TRY: Make sure error from core can be caught`, async (t) => {
+test(`TRY: Make sure error from core can be caught`, () => {
   const sharedEnv = initEnv();
 
-  await t.step(`TRY: Catching core error`, () => {
+  test(`TRY: Catching core error`, () => {
     const consoleLogSpy = spy(console, 'log');
 
     assertEquals(
@@ -110,7 +110,7 @@ Deno.test(`TRY: Make sure error from core can be caught`, async (t) => {
     consoleLogSpy.restore();
   });
 
-  await t.step(`TRY: Catching thrown exception`, () => {
+  test(`TRY: Catching thrown exception`, () => {
     const consoleLogSpy = spy(console, 'log');
 
     assertEquals(
@@ -130,10 +130,10 @@ Deno.test(`TRY: Make sure error from core can be caught`, async (t) => {
   });
 });
 
-Deno.test(`TRY: Test that exception handlers get restored correctly`, async (t) => {
+test(`TRY: Test that exception handlers get restored correctly`, () => {
   const sharedEnv = initEnv();
 
-  await t.step(`Restoring exception handlers`, () => {
+  test(`Restoring exception handlers`, () => {
     assertEquals(
       rep(
         `(try* (do (try* "t1" (catch* e "c1")) (throw "e1")) (catch* e "c2"))`,
@@ -143,7 +143,7 @@ Deno.test(`TRY: Test that exception handlers get restored correctly`, async (t) 
     );
   });
 
-  await t.step(`Testing nested try*/catch*`, () => {
+  test(`Testing nested try*/catch*`, () => {
     assertEquals(
       rep(
         `(try* (try* (throw "e1") (catch* e (throw "e2"))) (catch* e "c2"))`,
@@ -154,9 +154,9 @@ Deno.test(`TRY: Test that exception handlers get restored correctly`, async (t) 
   });
 });
 
-Deno.test(`TRY: Test that throw is a function`, async (t) => {
+test(`TRY: Test that throw is a function`, () => {
   const sharedEnv = initEnv();
-  await t.step(`Throwing inside map`, () => {
+  test(`Throwing inside map`, () => {
     assertEquals(
       rep(
         `(try* (map throw (list "my err")) (catch* exc exc))`,
@@ -167,10 +167,10 @@ Deno.test(`TRY: Test that throw is a function`, async (t) => {
   });
 });
 
-Deno.test(`TRY: Testing try* without catch*`, async (t) => {
+test(`TRY: Testing try* without catch*`, () => {
   const sharedEnv = initEnv();
 
-  await t.step(`Evaluating try* without catch*`, () => {
+  test(`Evaluating try* without catch*`, () => {
     assertThrows(
       () => {
         rep(`(try* xyz)`, sharedEnv);
@@ -181,10 +181,10 @@ Deno.test(`TRY: Testing try* without catch*`, async (t) => {
   });
 });
 
-Deno.test(`TRY: Testing throwing non-strings`, async (t) => {
+test(`TRY: Testing throwing non-strings`, () => {
   const sharedEnv = initEnv();
 
-  await t.step(`Throwing a list`, () => {
+  test(`Throwing a list`, () => {
     const consoleLogSpy = spy(console, 'log');
 
     assertEquals(

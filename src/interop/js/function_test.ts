@@ -1,25 +1,25 @@
-import { assertEquals, assertThrows } from '@std/assert';
+import { assertEquals, assertThrows, test } from '../../../tests/test_runner.ts';
 import * as types from '../../types.ts';
 import { apply, bind, call, jsEval } from './function.ts';
 
 // jsEval
 // --------------------------------------------------------------------------------------------------------------------
 
-Deno.test('jsEval - evaluates a js expression', () => {
+test('jsEval - evaluates a js expression', () => {
   const code = types.createStringNode('1 + 1');
   const result = jsEval(code);
 
   assertEquals(result, types.createNumberNode(2));
 });
 
-Deno.test('jsEval - handles errors', () => {
+test('jsEval - handles errors', () => {
   const code = types.createStringNode('invalid javascript');
   const result = jsEval(code);
 
   assertEquals(types.isErrorNode(result), true);
 });
 
-Deno.test('jsEval - invalid arguments', () => {
+test('jsEval - invalid arguments', () => {
   assertThrows(() => jsEval());
 
   const num = types.createNumberNode(0);
@@ -30,7 +30,7 @@ Deno.test('jsEval - invalid arguments', () => {
 // apply
 // --------------------------------------------------------------------------------------------------------------------
 
-Deno.test('apply - basic functionality', () => {
+test('apply - basic functionality', () => {
   const fn = types.createFunctionNode((a: types.AstNode, b: types.AstNode) =>
     types.createNumberNode(a.value + b.value)
   );
@@ -40,7 +40,7 @@ Deno.test('apply - basic functionality', () => {
   assertEquals(result, types.createNumberNode(3));
 });
 
-Deno.test('apply - invalid arguments', () => {
+test('apply - invalid arguments', () => {
   const fn = types.createFunctionNode(() => types.createNilNode());
   const num = types.createNumberNode(1);
 
@@ -53,7 +53,7 @@ Deno.test('apply - invalid arguments', () => {
 // call
 // --------------------------------------------------------------------------------------------------------------------
 
-Deno.test('call - basic functionality', () => {
+test('call - basic functionality', () => {
   const fn = types.createFunctionNode((a: types.AstNode, b: types.AstNode) =>
     types.createNumberNode(a.value + b.value)
   );
@@ -64,7 +64,7 @@ Deno.test('call - basic functionality', () => {
   assertEquals(result, types.createNumberNode(3));
 });
 
-Deno.test('call - invalid arguments', () => {
+test('call - invalid arguments', () => {
   const num = types.createNumberNode(1);
 
   assertThrows(() => call());
@@ -74,7 +74,7 @@ Deno.test('call - invalid arguments', () => {
 // bind
 // --------------------------------------------------------------------------------------------------------------------
 
-Deno.test('bind - basic functionality', () => {
+test('bind - basic functionality', () => {
   let counter = 0;
   const increment = () => {
     counter++;
@@ -88,7 +88,7 @@ Deno.test('bind - basic functionality', () => {
   assertEquals(boundFn.value(), types.createNumberNode(2)); // counter should have incremented
 });
 
-Deno.test('bind - invalid arguments', () => {
+test('bind - invalid arguments', () => {
   const fn = types.createFunctionNode(() => types.createNilNode());
   const num = types.createNumberNode(0);
 

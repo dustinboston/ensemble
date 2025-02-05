@@ -3,12 +3,12 @@
  * Imported from `step5_tco.mal` tests.
  * @file
  */
-import { assertEquals } from '@std/assert';
 import { initEnv, rep } from '../src/ensemble.ts';
+import { assertEquals, test } from '../tests/test_runner.ts';
 
 const tcoEnv = initEnv();
 
-Deno.test('TCO: Testing recursive tail-call function', () => {
+test('TCO: Testing recursive tail-call function', () => {
   rep(
     '(def! sum2 (fn* (n acc) (if (= n 0) acc (sum2 (- n 1) (+ n acc)))))',
     tcoEnv,
@@ -25,13 +25,13 @@ Deno.test('TCO: Testing recursive tail-call function', () => {
   assertEquals(rep('res2', tcoEnv), '50005000');
 });
 
-Deno.test('TCO: Test mutually recursive tail-call functions', () => {
+test('TCO: Test mutually recursive tail-call functions', () => {
   rep('(def! foo (fn* (n) (if (= n 0) 0 (bar (- n 1)))))', tcoEnv);
   rep('(def! bar (fn* (n) (if (= n 0) 0 (foo (- n 1)))))', tcoEnv);
 
   assertEquals(rep('(foo 10000)', tcoEnv), '0');
 });
 
-Deno.test('TCO: Testing that (do (do)) not broken by TCO', () => {
+test('TCO: Testing that (do (do)) not broken by TCO', () => {
   assertEquals(rep('(do (do 1 2))', tcoEnv), '2');
 });

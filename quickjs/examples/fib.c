@@ -1,6 +1,6 @@
 /*
  * QuickJS: Example of C module
- * 
+ *
  * Copyright (c) 2017-2018 Fabrice Bellard
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -35,8 +35,8 @@ static int fib(int n)
         return fib(n - 1) + fib(n - 2);
 }
 
-static JSValue js_fib(JSContext *ctx, JSValueConst this_val,
-                      int argc, JSValueConst *argv)
+static JSValue js_fib(JSContext *ctx, JSValue this_val,
+                      int argc, JSValue *argv)
 {
     int n, res;
     if (JS_ToInt32(ctx, &n, argv[0]))
@@ -61,7 +61,15 @@ static int js_fib_init(JSContext *ctx, JSModuleDef *m)
 #define JS_INIT_MODULE js_init_module_fib
 #endif
 
-JSModuleDef *JS_INIT_MODULE(JSContext *ctx, const char *module_name)
+#ifndef JS_EXTERN
+#ifdef _WIN32
+#define JS_EXTERN __declspec(dllexport)
+#else
+#define JS_EXTERN
+#endif
+#endif
+
+JS_EXTERN JSModuleDef *JS_INIT_MODULE(JSContext *ctx, const char *module_name)
 {
     JSModuleDef *m;
     m = JS_NewCModule(ctx, module_name, js_fib_init);

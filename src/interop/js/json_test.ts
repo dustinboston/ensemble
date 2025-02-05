@@ -1,11 +1,11 @@
-import { assertEquals, assertThrows } from '@std/assert';
-import { parseJson, stringifyJson } from './interop/js/json.ts';
-import * as types from './types.ts';
+import { assertEquals, assertThrows, test } from '../../../tests/test_runner.ts';
+import * as types from '../../types.ts';
+import { parseJson, stringifyJson } from './json.ts';
 
 // parseJson
 // --------------------------------------------------------------------------------------------------------------------
 
-Deno.test('parseJson - valid json string', () => {
+test('parseJson - valid json string', () => {
   const jsonString = types.createStringNode('{"a": 1, "b": "hello"}');
   const result = parseJson(jsonString);
 
@@ -15,12 +15,12 @@ Deno.test('parseJson - valid json string', () => {
   assertEquals(result.value.get('b')?.value, 'hello');
 });
 
-Deno.test('parseJson - invalid json string', () => {
+test('parseJson - invalid json string', () => {
   const jsonString = types.createStringNode('invalid json');
   assertThrows(() => parseJson(jsonString));
 });
 
-Deno.test('parseJson - invalid arguments', () => {
+test('parseJson - invalid arguments', () => {
   const num = types.createNumberNode(1);
 
   assertThrows(() => parseJson());
@@ -30,7 +30,7 @@ Deno.test('parseJson - invalid arguments', () => {
 // stringifyJson
 // --------------------------------------------------------------------------------------------------------------------
 
-Deno.test('stringifyJson - basic ast', () => {
+test('stringifyJson - basic ast', () => {
   const ast = types.createMapNode(new Map([['a', types.createNumberNode(1)]]));
   const replacer = types.createNilNode();
   const space = types.createStringNode(''); // No space
@@ -40,7 +40,7 @@ Deno.test('stringifyJson - basic ast', () => {
   assertEquals(result.value, '{"a":1}');
 });
 
-Deno.test('stringifyJson - with space number', () => {
+test('stringifyJson - with space number', () => {
   const ast = types.createMapNode(new Map([['a', types.createNumberNode(1)]]));
   const replacer = types.createNilNode();
   const space = types.createNumberNode(2);
@@ -51,7 +51,7 @@ Deno.test('stringifyJson - with space number', () => {
   assertEquals(result.value, '{\n  "a": 1\n}');
 });
 
-Deno.test('stringifyJson - with space string', () => {
+test('stringifyJson - with space string', () => {
   const ast = types.createMapNode(new Map([['a', types.createNumberNode(1)]]));
   const replacer = types.createNilNode();
   const space = types.createStringNode('----');
@@ -61,11 +61,11 @@ Deno.test('stringifyJson - with space string', () => {
   assertEquals(result.value, '{\n----"a": 1\n}');
 });
 
-Deno.test('stringifyJson - invalid arguments', () => {
+test('stringifyJson - invalid arguments', () => {
   assertThrows(() => stringifyJson());
 });
 
-// Deno.test('stringifyJson - replacer', () => {
+// test('stringifyJson - replacer', () => {
 //   const ast = types.createMapNode(
 //     new Map<string, types.AstNode>([
 //       ['a', types.createNumberNode(1)],

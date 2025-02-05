@@ -346,7 +346,7 @@ export function divide(...args: types.AstNode[]): types.AstNode {
  */
 export function timeMs(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 0);
-  return types.createNumberNode(performance.timeOrigin + performance.now());
+  return types.createNumberNode((new Date()).getTime());
 }
 
 /**

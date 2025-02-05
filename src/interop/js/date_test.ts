@@ -1,8 +1,8 @@
-import { assertEquals, assertThrows } from '@std/assert';
-import * as dates from './interop/js/date.ts';
-import * as types from './types.ts';
+import { assertEquals, assertThrows, test } from '../../../tests/test_runner.ts';
+import * as types from '../../types.ts';
+import * as dates from './date.ts';
 
-Deno.test('newDate - no arguments', () => {
+test('newDate - no arguments', () => {
   const now = Date.now();
   const result = dates.newDate();
   assertEquals(types.isNumberNode(result), true);
@@ -12,7 +12,7 @@ Deno.test('newDate - no arguments', () => {
   assertEquals(Math.abs(result.value - now) < 10, true); // Tolerance of 10ms
 });
 
-Deno.test('newDate - with arguments', () => {
+test('newDate - with arguments', () => {
   const result = dates.newDate(types.createNumberNode(2024), types.createNumberNode(0)); // Jan 2024
 
   assertEquals(types.isNumberNode(result), true);
@@ -20,7 +20,7 @@ Deno.test('newDate - with arguments', () => {
   assertEquals(new Date(result.value).getMonth(), 0);
 });
 
-Deno.test('now - returns current timestamp', () => {
+test('now - returns current timestamp', () => {
   const before = Date.now();
   const result = dates.dateNow();
   const after = Date.now();
@@ -29,37 +29,37 @@ Deno.test('now - returns current timestamp', () => {
   assertEquals(result.value >= before && result.value <= after, true);
 });
 
-Deno.test('parse - valid date string', () => {
+test('parse - valid date string', () => {
   const result = dates.dateParse(types.createStringNode('2024-01-01T00:00:00.000Z'));
   assertEquals(types.isNumberNode(result), true);
   assertEquals(result.value, new Date('2024-01-01T00:00:00.000Z').getTime());
 });
 
-Deno.test('parse - invalid date string', () => {
+test('parse - invalid date string', () => {
   const result = dates.dateParse(types.createStringNode('invalid date'));
   assertEquals(types.isNumberNode(result), true);
   assertEquals(Number.isNaN(result.value), true);
 });
 
-Deno.test('parse - invalid arguments', () => {
+test('parse - invalid arguments', () => {
   assertThrows(() => dates.dateParse());
   assertThrows(() => dates.dateParse(types.createNumberNode(1)));
 });
 
-Deno.test('utc - returns a timestamp', () => {
+test('utc - returns a timestamp', () => {
   const result = dates.dateUtc(types.createNumberNode(2024), types.createNumberNode(0), types.createNumberNode(1));
   assertEquals(types.isNumberNode(result), true);
   assertEquals(result.value, Date.UTC(2024, 0, 1));
 });
 
-Deno.test('utc - invalid arguments', () => {
+test('utc - invalid arguments', () => {
   assertEquals(dates.dateUtc(types.createStringNode('s')), types.createNilNode());
 });
 
 // ... (Tests for other Date functions would follow a similar pattern)
 
 // Example for a getter
-Deno.test('getDate - valid date', () => {
+test('getDate - valid date', () => {
   const date = new Date(2024, 0, 15);
   const timestamp = types.createNumberNode(date.getTime());
 
@@ -67,13 +67,13 @@ Deno.test('getDate - valid date', () => {
   assertEquals(result, types.createNumberNode(15));
 });
 
-Deno.test('getDate - invalid arguments', () => {
+test('getDate - invalid arguments', () => {
   assertThrows(() => dates.dateGetDate());
   assertThrows(() => dates.dateGetDate(types.createStringNode('test')));
 });
 
 // Example for a setter
-Deno.test('setDate - valid date', () => {
+test('setDate - valid date', () => {
   const date = new Date(2024, 0, 15);
   const timestamp = types.createNumberNode(date.getTime());
   const newDay = types.createNumberNode(20);
@@ -82,7 +82,7 @@ Deno.test('setDate - valid date', () => {
   assertEquals(new Date(result.value).getDate(), 20);
 });
 
-Deno.test('setDate - invalid arguments', () => {
+test('setDate - invalid arguments', () => {
   assertThrows(() => dates.dateSetDate());
   assertThrows(() => dates.dateSetDate(types.createStringNode('test')));
 });
@@ -90,7 +90,7 @@ Deno.test('setDate - invalid arguments', () => {
 // ... tests for remaining functions
 
 // toJSON
-Deno.test('toJSON - returns ISO string', () => {
+test('toJSON - returns ISO string', () => {
   const timestamp = types.createNumberNode(new Date('2024-01-01T12:00:00Z').getTime());
   const result = dates.dateToJSON(timestamp);
 

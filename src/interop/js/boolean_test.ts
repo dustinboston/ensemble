@@ -1,8 +1,8 @@
-import { assertEquals, assertThrows } from '@std/assert';
-import * as bool from './interop/js/boolean.ts';
-import * as types from './types.ts';
+import { assertEquals, assertThrows, test } from '../../../tests/test_runner.ts';
+import * as types from '../../types.ts';
+import * as bool from './boolean.ts';
 
-Deno.test('toBoolean - truthy values', () => {
+test('toBoolean - truthy values', () => {
   const values = [
     types.createNumberNode(1),
     types.createStringNode('hello'),
@@ -16,7 +16,7 @@ Deno.test('toBoolean - truthy values', () => {
   }
 });
 
-Deno.test('toBoolean - falsy values', () => {
+test('toBoolean - falsy values', () => {
   const values = [
     types.createNumberNode(0),
     types.createStringNode(''),
@@ -28,7 +28,7 @@ Deno.test('toBoolean - falsy values', () => {
   }
 });
 
-Deno.test('toBoolean - invalid arguments', () => {
+test('toBoolean - invalid arguments', () => {
   assertThrows(() => bool.toBoolean());
   assertThrows(() => bool.toBoolean(types.createNumberNode(1), types.createNumberNode(1)));
 });

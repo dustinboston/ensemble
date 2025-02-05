@@ -1,9 +1,8 @@
 import * as std from 'std';
 var __defProp = Object.defineProperty;
 var __export = (target, all) => {
-  for (var name in all) {
+  for (var name in all)
     __defProp(target, name, { get: all[name], enumerable: true });
-  }
 };
 
 // src/types.ts
@@ -137,7 +136,7 @@ __export(types_exports, {
   unwrapNumberNode: () => unwrapNumberNode,
   unwrapStringNode: () => unwrapStringNode,
   unwrapSymbolNode: () => unwrapSymbolNode,
-  unwrapVectorNode: () => unwrapVectorNode,
+  unwrapVectorNode: () => unwrapVectorNode
 });
 var AtomNode = class {
   // deno-lint-ignore no-explicit-any
@@ -160,13 +159,13 @@ var DomNode = class {
   }
 };
 var errorTypes = [
-  'Error',
-  'AggregateError',
-  'RangeError',
-  'ReferenceError',
-  'SyntaxError',
-  'TypeError',
-  'URIError',
+  "Error",
+  "AggregateError",
+  "RangeError",
+  "ReferenceError",
+  "SyntaxError",
+  "TypeError",
+  "URIError"
 ];
 var ErrorNode = class _ErrorNode {
   /**
@@ -181,7 +180,7 @@ var ErrorNode = class _ErrorNode {
       this.cause = cause;
     }
   }
-  name = createStringNode('Error');
+  name = createStringNode("Error");
   cause;
   static isErrorName(name) {
     const value = name.value;
@@ -190,7 +189,7 @@ var ErrorNode = class _ErrorNode {
   static assertErrorName(name) {
     if (!_ErrorNode.isErrorName(name)) {
       throw new TypeError(
-        "Error type must be 'Error', 'AggregateError', 'RangeError', 'ReferenceError', 'SyntaxError', 'TypeError', or 'URIError'.",
+        "Error type must be 'Error', 'AggregateError', 'RangeError', 'ReferenceError', 'SyntaxError', 'TypeError', or 'URIError'."
       );
     }
   }
@@ -206,13 +205,13 @@ var FunctionNode = class {
 var KeywordNode = class {
   constructor(_value) {
     this._value = _value;
-    this._value = _value.replaceAll(':', '');
+    this._value = _value.replaceAll(":", "");
   }
   get value() {
-    return this._value + ':';
+    return this._value + ":";
   }
   set value(keyword2) {
-    this._value = keyword2.replaceAll(':', '') + ':';
+    this._value = keyword2.replaceAll(":", "") + ":";
   }
   get bare() {
     return this._value;
@@ -259,82 +258,82 @@ var VectorNode = class {
 };
 function assertDomNode(node2) {
   if (!isDomNode(node2)) {
-    throw new TypeError('Invalid DomNode');
+    throw new TypeError("Invalid DomNode");
   }
 }
 function assertAstNode(node2) {
   if (!isAstNode(node2)) {
-    throw new TypeError('Invalid AstNode');
+    throw new TypeError("Invalid AstNode");
   }
 }
 function assertAtomNode(node2) {
   if (!isAtomNode(node2)) {
-    throw new TypeError('Invalid AtomNode');
+    throw new TypeError("Invalid AtomNode");
   }
 }
 function assertBooleanNode(node2) {
   if (!isBooleanNode(node2)) {
-    throw new TypeError('Invalid BooleanNode');
+    throw new TypeError("Invalid BooleanNode");
   }
 }
 function assertMapNode(node2) {
   if (!isMapNode(node2)) {
-    throw new TypeError('Invalid MapNode');
+    throw new TypeError("Invalid MapNode");
   }
 }
 function assertErrorNode(node2) {
   if (!isErrorNode(node2)) {
-    throw new TypeError('Invalid ErrorNode');
+    throw new TypeError("Invalid ErrorNode");
   }
 }
 function assertFunctionNode(node2) {
   if (!isFunctionNode(node2)) {
-    throw new TypeError('Invalid FunctionNode');
+    throw new TypeError("Invalid FunctionNode");
   }
 }
 function assertKeywordNode(node2) {
   if (!isKeywordNode(node2)) {
-    throw new TypeError('Invalid KeywordNode');
+    throw new TypeError("Invalid KeywordNode");
   }
 }
 function assertListNode(node2) {
   if (!isListNode(node2)) {
-    throw new TypeError('Invalid ListNode');
+    throw new TypeError("Invalid ListNode");
   }
 }
 function assertNilNode(node2) {
   if (!isNilNode(node2)) {
-    throw new TypeError('Invalid NilNode');
+    throw new TypeError("Invalid NilNode");
   }
 }
 function assertNumberNode(node2) {
   if (!isNumberNode(node2)) {
-    throw new TypeError('Invalid NumberNode');
+    throw new TypeError("Invalid NumberNode");
   }
 }
 function assertStringNode(node2) {
   if (!isStringNode(node2)) {
-    throw new TypeError('Invalid StringNode');
+    throw new TypeError("Invalid StringNode");
   }
 }
 function assertSymbolNode(node2) {
   if (!isSymbolNode(node2)) {
-    throw new TypeError('Invalid SymbolNode');
+    throw new TypeError("Invalid SymbolNode");
   }
 }
 function assertVectorNode(node2) {
   if (!isVectorNode(node2)) {
-    throw new TypeError('Invalid VectorNode');
+    throw new TypeError("Invalid VectorNode");
   }
 }
 function assertRegExp(value) {
   if (!(value instanceof RegExp)) {
-    throw new Error('Expected a RegExp object.');
+    throw new Error("Expected a RegExp object.");
   }
 }
 function assertSymbol(value) {
-  if (typeof value !== 'symbol') {
-    throw new Error('Expected a Symbol object.');
+  if (typeof value !== "symbol") {
+    throw new Error("Expected a Symbol object.");
   }
 }
 function createDomNode(value, attributes, children, metadata) {
@@ -381,16 +380,14 @@ function isDomNode(node2) {
   return node2 instanceof DomNode;
 }
 function isAstNode(node2) {
-  return isAtomNode(node2) || isBooleanNode(node2) || isDomNode(node2) || isErrorNode(node2) ||
-    isFunctionNode(node2) || // isJsNode(node) ||
-    isKeywordNode(node2) || isListNode(node2) || isMapNode(node2) || isNilNode(node2) || isNumberNode(node2) ||
-    isStringNode(node2) || isSymbolNode(node2) || isVectorNode(node2);
+  return isAtomNode(node2) || isBooleanNode(node2) || isDomNode(node2) || isErrorNode(node2) || isFunctionNode(node2) || // isJsNode(node) ||
+  isKeywordNode(node2) || isListNode(node2) || isMapNode(node2) || isNilNode(node2) || isNumberNode(node2) || isStringNode(node2) || isSymbolNode(node2) || isVectorNode(node2);
 }
 function isAtomNode(node2) {
   return node2 instanceof AtomNode;
 }
 function isBooleanNode(node2) {
-  return node2 instanceof BooleanNode && typeof node2.value === 'boolean';
+  return node2 instanceof BooleanNode && typeof node2.value === "boolean";
 }
 function isMapNode(node2) {
   return node2 instanceof MapNode && node2.value instanceof Map;
@@ -399,10 +396,10 @@ function isErrorNode(node2) {
   return node2 instanceof ErrorNode && isAstNode(node2.value);
 }
 function isFunctionNode(node2) {
-  return node2 instanceof FunctionNode && typeof node2.value === 'function';
+  return node2 instanceof FunctionNode && typeof node2.value === "function";
 }
 function isKeywordNode(node2) {
-  return node2 instanceof KeywordNode && typeof node2.value === 'string' && node2.value.endsWith(':');
+  return node2 instanceof KeywordNode && typeof node2.value === "string" && node2.value.endsWith(":");
 }
 function isListNode(node2) {
   return node2 instanceof ListNode && node2.value.every(isAstNode);
@@ -411,13 +408,13 @@ function isNilNode(node2) {
   return node2 instanceof NilNode && node2.value === null;
 }
 function isNumberNode(node2) {
-  return node2 instanceof NumberNode && typeof node2.value === 'number';
+  return node2 instanceof NumberNode && typeof node2.value === "number";
 }
 function isStringNode(node2) {
-  return node2 instanceof StringNode && typeof node2.value === 'string';
+  return node2 instanceof StringNode && typeof node2.value === "string";
 }
 function isSymbolNode(node2) {
-  return node2 instanceof SymbolNode && typeof node2.value === 'string';
+  return node2 instanceof SymbolNode && typeof node2.value === "string";
 }
 function isVectorNode(node2) {
   return node2 instanceof VectorNode && node2.value.every(isAstNode);
@@ -427,22 +424,22 @@ function isSameClass(object1, object2) {
 }
 function assertEq(a, b) {
   if (!isEqualTo(a, b)) {
-    throw new Error('Values are not equal');
+    throw new Error("Values are not equal");
   }
 }
 function assertDefined(object) {
   if (object === void 0) {
-    throw new Error('Value is undefined');
+    throw new Error("Value is undefined");
   }
 }
 function assertUndefined(object) {
   if (object !== void 0) {
-    throw new Error('Value is not undefined');
+    throw new Error("Value is not undefined");
   }
 }
 function assertNullOrUndefined(object) {
   if (object !== void 0 && object !== null) {
-    throw new Error('Value is not null or undefined');
+    throw new Error("Value is not null or undefined");
   }
 }
 function isDefined(object) {
@@ -450,7 +447,7 @@ function isDefined(object) {
 }
 function assertTrue(object) {
   if (object === false) {
-    throw new Error('Value is not true');
+    throw new Error("Value is not true");
   }
 }
 function isAstTruthy(a, useJavaScriptTruthiness = false) {
@@ -479,12 +476,12 @@ function isSequentialNode(value) {
 }
 function assertSequential(value) {
   if (!isListNode(value) && !isVectorNode(value)) {
-    throw new TypeError('Invalid sequential type');
+    throw new TypeError("Invalid sequential type");
   }
 }
 function assertMapKeyNode(value) {
   if (!(isStringNode(value) || isSymbolNode(value) || isKeywordNode(value))) {
-    throw new TypeError('Invalid dictionary key');
+    throw new TypeError("Invalid dictionary key");
   }
 }
 function isMapKeyNode(value) {
@@ -492,7 +489,7 @@ function isMapKeyNode(value) {
 }
 function assertMetadataType(value) {
   if (!isFunctionNode(value) && !isListNode(value) && !isVectorNode(value) && !isMapNode(value) && !isDomNode(value)) {
-    throw new TypeError('Invalid metadata type');
+    throw new TypeError("Invalid metadata type");
   }
 }
 function assertArgumentCount(actualCount, expectedCount, optionalMessage) {
@@ -506,29 +503,29 @@ function assertArgumentCount(actualCount, expectedCount, optionalMessage) {
 }
 function assertVariableArgumentCount(actualCount, minExpectedCount, maxExpectedCount) {
   if (actualCount < minExpectedCount || actualCount > maxExpectedCount) {
-    throw new Error('Unexpected number of arguments');
+    throw new Error("Unexpected number of arguments");
   }
 }
 function assertMinimumArgumentCount(actualCount, minExpectedCount) {
   if (actualCount < minExpectedCount) {
-    throw new Error('Unexpected minimum number of arguments');
+    throw new Error("Unexpected minimum number of arguments");
   }
 }
 function assertEvenArgumentCount(maybeEven) {
   if (maybeEven % 2 !== 0) {
-    throw new Error('Uneven number of arguments');
+    throw new Error("Uneven number of arguments");
   }
 }
 function assertSequentialValues(sequentialValues, typeClass) {
   for (const p of sequentialValues) {
     if (!(p instanceof typeClass)) {
-      throw new TypeError('All values must be of the same type');
+      throw new TypeError("All values must be of the same type");
     }
   }
 }
 function assertIsOneOf(astNode, typeClasses) {
   if (!typeClasses.some((typeClass) => astNode instanceof typeClass)) {
-    throw new TypeError('Invalid type');
+    throw new TypeError("Invalid type");
   }
 }
 function isTypedVector(sequentialValues, typeClass) {
@@ -582,7 +579,7 @@ function assertEqual(actual, expected) {
 }
 function assertGreaterThanEqual(actual, expected) {
   if (actual >= expected) {
-    throw new Error('Unexpected value');
+    throw new Error("Unexpected value");
   }
 }
 function assertSymWithValue(sym, value) {
@@ -591,22 +588,22 @@ function assertSymWithValue(sym, value) {
 function continueResult(ast, env) {
   return {
     continue: { ast, env },
-    return: void 0,
+    return: void 0
   };
 }
 function returnResult(ast) {
   return {
     continue: void 0,
-    return: ast,
+    return: ast
   };
 }
 var prepend = (acc, curr) => [
   curr,
-  ...acc,
+  ...acc
 ];
 var append = (acc, curr) => [
   ...acc,
-  curr,
+  curr
 ];
 function copy(ast) {
   if (isAtomNode(ast)) {
@@ -648,7 +645,7 @@ function copy(ast) {
   if (isDomNode(ast)) {
     return copyDomNode(ast);
   }
-  throw new Error('Unmatched object');
+  throw new Error("Unmatched object");
 }
 function copyAtomNode(a) {
   return createAtomNode(copy(a.value));
@@ -668,7 +665,7 @@ function copyDomNode(a) {
   const domNode = createDomNode(
     tagName,
     new Map(attributes),
-    children.map(copy),
+    children.map(copy)
   );
   domNode.metadata = copy(a.metadata ?? createNilNode());
   return domNode;
@@ -686,7 +683,7 @@ function copyFunctionNode(a) {
       ast: copy(cl.ast),
       env: cl.env,
       // Copy env?
-      parameters: cl.parameters.map((sym) => createSymbolNode(sym.value)),
+      parameters: cl.parameters.map((sym) => createSymbolNode(sym.value))
     };
   }
   return func;
@@ -744,7 +741,7 @@ function convertMapKeyToString(ast) {
   return ast.value;
 }
 function convertStringToMapKey(key) {
-  if (key.endsWith(':')) {
+  if (key.endsWith(":")) {
     return createKeywordNode(key);
   }
   if (key.startsWith('"')) {
@@ -754,8 +751,8 @@ function convertStringToMapKey(key) {
 }
 function getBareMapKey(key) {
   const value = isMapKeyNode(key) ? key.value : key;
-  if (value.startsWith(':') || value.endsWith(':')) {
-    return value.replaceAll(':', '');
+  if (value.startsWith(":") || value.endsWith(":")) {
+    return value.replaceAll(":", "");
   }
   if (value.startsWith('"') && value.endsWith('"')) {
     return value.slice(1, -1);
@@ -774,18 +771,17 @@ function mapFlat(map) {
   return flat;
 }
 function splitAtFirstDot(filename) {
-  const firstDotIndex = filename.indexOf('.');
+  const firstDotIndex = filename.indexOf(".");
   return [filename.slice(0, firstDotIndex), filename.slice(firstDotIndex + 1)];
 }
 function htmlEncode(unsafe) {
-  return unsafe.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;')
-    .replaceAll("'", '&apos;');
+  return unsafe.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&apos;");
 }
 function normalizeWhitespace(string_) {
-  return string_.replaceAll('\n', ' ').replaceAll(/\s{2,}/g, ' ');
+  return string_.replaceAll("\n", " ").replaceAll(/\s{2,}/g, " ");
 }
 function slash(string_) {
-  return string_.replaceAll('\\', '\\\\').replaceAll('"', '\\"').replaceAll('\n', '\\n');
+  return string_.replaceAll("\\", "\\\\").replaceAll('"', '\\"').replaceAll("\n", "\\n");
 }
 function unwrap(ast) {
   if (isAtomNode(ast)) {
@@ -824,7 +820,7 @@ function unwrap(ast) {
   if (isVectorNode(ast)) {
     return unwrapVectorNode(ast);
   }
-  throw new Error('Could not unwrap object.');
+  throw new Error("Could not unwrap object.");
 }
 function unwrapAtomNode(ast) {
   return unwrap(ast.value);
@@ -875,28 +871,28 @@ function toAst(input) {
     return input;
   }
   switch (typeof input) {
-    case 'undefined': {
+    case "undefined": {
       return createNilNode();
     }
-    case 'number': {
+    case "number": {
       return createNumberNode(input);
     }
-    case 'string': {
+    case "string": {
       if (input.startsWith('"')) {
         return createStringNode(input);
       }
-      if (input.startsWith(':')) {
+      if (input.startsWith(":")) {
         return createKeywordNode(input);
       }
       return createSymbolNode(input);
     }
-    case 'boolean': {
+    case "boolean": {
       return createBooleanNode(input);
     }
-    case 'symbol': {
+    case "symbol": {
       return createStringNode(JSON.stringify(input));
     }
-    case 'function': {
+    case "function": {
       return createFunctionNode(
         (...args) => {
           try {
@@ -904,17 +900,17 @@ function toAst(input) {
           } catch (error) {
             if (error instanceof Error) {
               return createErrorNode(
-                createStringNode(error.message),
+                createStringNode(error.message)
               );
             }
             return createErrorNode(
-              createStringNode(JSON.stringify(error)),
+              createStringNode(JSON.stringify(error))
             );
           }
-        },
+        }
       );
     }
-    case 'object': {
+    case "object": {
       if (input instanceof Error) {
         return createErrorNode(createStringNode(input.message));
       }
@@ -936,11 +932,9 @@ function toAst(input) {
       }
       const inputObject = input;
       const map = /* @__PURE__ */ new Map();
-      for (
-        const [maybeString, unknownValue] of Object.entries(
-          inputObject,
-        )
-      ) {
+      for (const [maybeString, unknownValue] of Object.entries(
+        inputObject
+      )) {
         const key = String(maybeString);
         const value = toAst(unknownValue);
         map.set(key, value);
@@ -950,7 +944,7 @@ function toAst(input) {
     default: {
       const coercedUnknown = String(input);
       return createErrorNode(
-        createStringNode(`unknown type ${coercedUnknown}`),
+        createStringNode(`unknown type ${coercedUnknown}`)
       );
     }
   }
@@ -980,70 +974,70 @@ function printString(ast, printReadably = false) {
     return printString(ast.value, printReadably);
   }
   if (isFunctionNode(ast)) {
-    return '#<fn>';
+    return "#<fn>";
   }
   if (isSequentialNode(ast)) {
     const isList = isListNode(ast);
-    const serialized = ast.value.map((value) => printString(value, printReadably)).join(' ');
+    const serialized = ast.value.map((value) => printString(value, printReadably)).join(" ");
     return isList ? `(${serialized})` : `[${serialized}]`;
   }
   if (isDomNode(ast)) {
     return printHtml(ast, printReadably);
   }
   if (isMapNode(ast)) {
-    const serialized = mapFlat(ast.value).map((value) => printString(value, printReadably)).join(' ');
+    const serialized = mapFlat(ast.value).map((value) => printString(value, printReadably)).join(" ");
     return `{${serialized}}`;
   }
   if (isNilNode(ast)) {
-    return 'nil';
+    return "nil";
   }
   throw new Error(`unmatched object ${JSON.stringify(ast)}`);
 }
 var selfClosingTags = /* @__PURE__ */ new Set([
-  'area',
-  'base',
-  'br',
-  'col',
-  'embed',
-  'hr',
-  'img',
-  'input',
-  'link',
-  'meta',
-  'param',
-  'source',
-  'track',
-  'wbr',
+  "area",
+  "base",
+  "br",
+  "col",
+  "embed",
+  "hr",
+  "img",
+  "input",
+  "link",
+  "meta",
+  "param",
+  "source",
+  "track",
+  "wbr"
 ]);
 function printHtml(ast, printReadably = false) {
   if (isDomNode(ast)) {
     const tagName = ast.value;
     const isSelfClosing = selfClosingTags.has(tagName);
-    let attributes = '';
+    let attributes = "";
     if (ast.attributes.size > 0) {
-      attributes = ' ' + Array.from(ast.attributes).map(([key, value]) => {
-        if (key === 'style') return printInlineCss(value, printReadably);
+      attributes = " " + Array.from(ast.attributes).map(([key, value]) => {
+        if (key === "style") return printInlineCss(value, printReadably);
         return `${getBareMapKey(key)}="${printHtml(value, printReadably)}"`;
-      }).join(' ');
+      }).join(" ");
     }
     if (isSelfClosing) return `<${tagName}${attributes} />`;
     const body = [];
     if (ast.children.length > 0) {
       let children = [];
-      if (tagName === 'style') {
+      if (tagName === "style") {
         children = ast.children.map((child) => printStyleTag(child, printReadably));
-      } else if (tagName === 'script') {
+      } else if (tagName === "script") {
         children = ast.children.map((child) => printJavaScript(child, printReadably));
       } else {
         children = ast.children.map((child) => printHtml(child, printReadably));
       }
-      body.push(children.join(' '));
+      body.push(children.join(" "));
     }
-    if (tagName === '!doctype') {
+    if (tagName === "!doctype") {
       return `<!doctype html>
-${body.join(' ')}`;
+${body.join(" ")}`;
     }
-    return `<${tagName}${attributes}>${body.join(' ')}</${tagName}>`;
+    return `<${tagName}${attributes}>${body.join(" ")}</${tagName}>`;
   }
   if (isStringNode(ast)) {
     return printReadably ? `"${slash(ast.value)}"` : ast.value;
@@ -1059,19 +1053,19 @@ ${body.join(' ')}`;
     return printHtml(ast.value, printReadably);
   }
   if (isFunctionNode(ast)) {
-    return '#<fn>';
+    return "#<fn>";
   }
   if (isSequentialNode(ast)) {
     const isList = isListNode(ast);
-    const serialized = ast.value.map((value) => printHtml(value, printReadably)).join(' ');
+    const serialized = ast.value.map((value) => printHtml(value, printReadably)).join(" ");
     return isList ? `(${serialized})` : `[${serialized}]`;
   }
   if (isMapNode(ast)) {
-    const serialized = mapFlat(ast.value).map((value) => printHtml(value, printReadably)).join(' ');
+    const serialized = mapFlat(ast.value).map((value) => printHtml(value, printReadably)).join(" ");
     return `{${serialized}}`;
   }
   if (isNilNode(ast)) {
-    return 'nil';
+    return "nil";
   }
   throw new Error(`unmatched object ${JSON.stringify(ast)}`);
 }
@@ -1084,10 +1078,10 @@ function printJavaScript(ast, printReadably = false) {
     const serialized = ast.value;
     const fn = serialized[0];
     const args = serialized.slice(1);
-    return `(${fn.value}(${args.map((v) => printJavaScript(v)).join(', ')}))`;
+    return `(${fn.value}(${args.map((v) => printJavaScript(v)).join(", ")}))`;
   }
   if (isVectorNode(ast)) {
-    const serialized = ast.value.map((v) => printJavaScript(v)).join(',');
+    const serialized = ast.value.map((v) => printJavaScript(v)).join(",");
     return `[${serialized}]`;
   }
   if (isFunctionNode(ast)) {
@@ -1105,13 +1099,13 @@ function printJavaScript(ast, printReadably = false) {
       const jsKey = /^[a-zA-Z_$][0-9a-zA-Z_$]*$/.test(key) ? key : `"${key}"`;
       const jsValue = printJavaScript(value, printReadably);
       return `${jsKey}: ${jsValue}`;
-    }).join(', ');
+    }).join(", ");
     return `{${serialized}}`;
   }
   if (isNilNode(ast)) {
-    return 'null';
+    return "null";
   }
-  return '/* javascript */';
+  return "/* javascript */";
 }
 function printCss(ast, printReadably = false) {
   if (isStringNode(ast)) {
@@ -1133,7 +1127,7 @@ function printCss(ast, printReadably = false) {
     return printCss(ast.value, printReadably);
   }
   if (isListNode(ast) || isVectorNode(ast)) {
-    return ast.value.map((value) => printCss(value, printReadably)).join(' ');
+    return ast.value.map((value) => printCss(value, printReadably)).join(" ");
   }
   if (isMapNode(ast)) {
     return [...ast.value].map(([key, valueAst]) => {
@@ -1143,23 +1137,21 @@ function printCss(ast, printReadably = false) {
         return `${selector} {${printCss(valueAst, printReadably)}}`;
       }
       return `${getBareMapKey(key)}: ${printCss(valueAst, printReadably)};`;
-    }).join(' ');
+    }).join(" ");
   }
   if (isBooleanNode(ast) || isAtomNode(ast) || isFunctionNode(ast) || isDomNode(ast) || isNilNode(ast)) {
-    return '';
+    return "";
   }
-  throw new Error('unmatched object');
+  throw new Error("unmatched object");
 }
 function printStyleTag(ast, printReadably = false) {
   return printCss(ast, printReadably);
 }
 function printInlineCss(ast, printReadably = false) {
-  return isMapNode(ast) ? printCssDeclarationBlock(ast, printReadably) : '{}';
+  return isMapNode(ast) ? printCssDeclarationBlock(ast, printReadably) : "{}";
 }
 function printCssDeclarationBlock(valueAst, printReadably = false) {
-  return [...valueAst.value].map(([key, value]) => `${getBareMapKey(key)}: ${printCss(value, printReadably)};`).join(
-    '',
-  );
+  return [...valueAst.value].map(([key, value]) => `${getBareMapKey(key)}: ${printCss(value, printReadably)};`).join("");
 }
 
 // src/reader.ts
@@ -1190,9 +1182,7 @@ var Reader = class {
   peek = () => this.tokens[this.pos];
 };
 function tokenize(code) {
-  const matches = [...code.matchAll(tokenRegex)].filter((match) =>
-    !match[1].startsWith(';') && !match[1].startsWith('//') && match[1] !== ''
-  ).map((match) => match[1]);
+  const matches = [...code.matchAll(tokenRegex)].filter((match) => !match[1].startsWith(";") && !match[1].startsWith("//") && match[1] !== "").map((match) => match[1]);
   return matches;
 }
 function readString(code) {
@@ -1204,54 +1194,54 @@ function readString(code) {
 function readForm(rdr) {
   const token = rdr.peek();
   if (token === void 0) {
-    throw new Error('EOF');
+    throw new Error("EOF");
   }
   function makeForm(symbol2, meta2) {
     return createListNode([
       createSymbolNode(symbol2),
       readForm(rdr),
-      ...meta2 ? [meta2] : [],
+      ...meta2 ? [meta2] : []
     ]);
   }
   switch (token) {
     case "'": {
       rdr.next();
-      return makeForm('quote');
+      return makeForm("quote");
     }
-    case '`': {
+    case "`": {
       rdr.next();
-      return makeForm('quasiquote');
+      return makeForm("quasiquote");
     }
-    case '~': {
+    case "~": {
       rdr.next();
-      return makeForm('unquote');
+      return makeForm("unquote");
     }
-    case '~@': {
+    case "~@": {
       rdr.next();
-      return makeForm('splice-unquote');
+      return makeForm("splice-unquote");
     }
-    case '^': {
+    case "^": {
       rdr.next();
       const meta2 = readForm(rdr);
-      return makeForm('with-meta', meta2);
+      return makeForm("with-meta", meta2);
     }
-    case '@': {
+    case "@": {
       rdr.next();
-      return makeForm('deref');
+      return makeForm("deref");
     }
-    case ')':
-    case ']':
-    case '}': {
+    case ")":
+    case "]":
+    case "}": {
       throw new Error(`unexpected '${token}'`);
     }
-    case '(': {
-      return readSequence(rdr, ')');
+    case "(": {
+      return readSequence(rdr, ")");
     }
-    case '[': {
-      return readSequence(rdr, ']');
+    case "[": {
+      return readSequence(rdr, "]");
     }
-    case '{': {
-      return readSequence(rdr, '}');
+    case "{": {
+      return readSequence(rdr, "}");
     }
     default: {
       return readAtom(rdr);
@@ -1261,15 +1251,15 @@ function readForm(rdr) {
 function readAtom(rdr) {
   const token = rdr.next();
   if (token === void 0) {
-    throw new Error('unexpected EOF');
+    throw new Error("unexpected EOF");
   }
-  if (token === 'nil') {
+  if (token === "nil") {
     return createNilNode();
   }
-  if (token === 'false') {
+  if (token === "false") {
     return createBooleanNode(false);
   }
-  if (token === 'true') {
+  if (token === "true") {
     return createBooleanNode(true);
   }
   if (numberRegex.test(token)) {
@@ -1279,7 +1269,7 @@ function readAtom(rdr) {
     const unescaped = createStringNode(unescapeString(token));
     return unescaped;
   }
-  if (token.startsWith(':') || token.endsWith(':')) {
+  if (token.startsWith(":") || token.endsWith(":")) {
     return createKeywordNode(token);
   }
   if (token.startsWith('"')) {
@@ -1288,7 +1278,7 @@ function readAtom(rdr) {
   return createSymbolNode(token);
 }
 function unescapeString(token) {
-  return token.slice(1, -1).replaceAll(/\\(.)/g, (_, c) => c === 'n' ? '\n' : c);
+  return token.slice(1, -1).replaceAll(/\\(.)/g, (_, c) => c === "n" ? "\n" : c);
 }
 function readSequence(rdr, end) {
   const astNodes = [];
@@ -1305,13 +1295,13 @@ function readSequence(rdr, end) {
     astNodes.push(readForm(rdr));
   }
   switch (end) {
-    case ')': {
+    case ")": {
       return createListNode(astNodes);
     }
-    case ']': {
+    case "]": {
       return createVectorNode(astNodes);
     }
-    case '}': {
+    case "}": {
       const dict = createMapNode();
       for (let i = 0; i < astNodes.length; i += 2) {
         const key = astNodes[i];
@@ -1323,7 +1313,7 @@ function readSequence(rdr, end) {
       return dict;
     }
     default: {
-      throw new Error('unknown end value');
+      throw new Error("unknown end value");
     }
   }
 }
@@ -1331,76 +1321,76 @@ function readSequence(rdr, end) {
 // src/core.ts
 var ns = /* @__PURE__ */ new Map();
 var nsValues = [
-  ['=', eq],
-  ['throw', throwError],
-  ['nil?', isNil],
-  ['true?', isTrue],
-  ['false?', isFalse],
-  ['symbol', symbol],
-  ['Symbol.new', symbol],
-  ['symbol?', isSymbolNode2],
-  ['keyword', keyword],
-  ['keyword?', isKeyword],
-  ['number?', isNumber],
-  ['macro?', isMacro],
+  ["=", eq],
+  ["throw", throwError],
+  ["nil?", isNil],
+  ["true?", isTrue],
+  ["false?", isFalse],
+  ["symbol", symbol],
+  ["Symbol.new", symbol],
+  ["symbol?", isSymbolNode2],
+  ["keyword", keyword],
+  ["keyword?", isKeyword],
+  ["number?", isNumber],
+  ["macro?", isMacro],
   // Input/Output
-  ['pr-str', printEscapedString],
-  ['str', printUnescapedString],
-  ['prn', printEscapedStringToScreen],
-  ['println', printUnescapedStringToScreen],
-  ['console.log', printUnescapedStringToScreen],
-  ['read-string', readString2],
+  ["pr-str", printEscapedString],
+  ["str", printUnescapedString],
+  ["prn", printEscapedStringToScreen],
+  ["println", printUnescapedStringToScreen],
+  ["console.log", printUnescapedStringToScreen],
+  ["read-string", readString2],
   // Strings
-  ['string?', isString],
-  ['trim', trim],
+  ["string?", isString],
+  ["trim", trim],
   // Operators
-  ['<', lt],
-  ['<=', lte],
-  ['>', gt],
-  ['>=', gte],
-  ['+', add],
-  ['-', subtract],
-  ['*', multiply],
-  ['/', divide],
-  ['time-ms', timeMs],
+  ["<", lt],
+  ["<=", lte],
+  [">", gt],
+  [">=", gte],
+  ["+", add],
+  ["-", subtract],
+  ["*", multiply],
+  ["/", divide],
+  ["time-ms", timeMs],
   // Maps
-  ['assoc', assoc],
-  ['contains?', contains],
-  ['dissoc', dissoc],
-  ['get', get],
-  ['hash-map', hashMap],
-  ['keys', keys],
-  ['map?', isMap],
-  ['vals', vals],
+  ["assoc", assoc],
+  ["contains?", contains],
+  ["dissoc", dissoc],
+  ["get", get],
+  ["hash-map", hashMap],
+  ["keys", keys],
+  ["map?", isMap],
+  ["vals", vals],
   // We treat lists similar to functions
-  ['list', list],
-  ['list?', isListNode2],
-  ['apply', apply],
-  ['fn?', isFn],
+  ["list", list],
+  ["list?", isListNode2],
+  ["apply", apply],
+  ["fn?", isFn],
   // Arrays
-  ['concat', concat],
-  ['conj', conj],
-  ['cons', cons],
-  ['count', length],
-  ['empty?', empty],
-  ['first', firstNodeInList],
-  ['last', lastNodeInList],
-  ['join', join],
-  ['map', applyToSequence],
-  ['nth', nth],
-  ['rest', rest],
-  ['seq', seq],
-  ['sequential?', isSequentialNode2],
-  ['vec', vec],
-  ['vector', vector],
-  ['vector?', isVector],
-  ['meta', meta],
-  ['with-meta', withMeta],
-  ['atom', atom],
-  ['atom?', isAtom],
-  ['deref', deref],
-  ['reset!', reset],
-  ['swap!', swap],
+  ["concat", concat],
+  ["conj", conj],
+  ["cons", cons],
+  ["count", length],
+  ["empty?", empty],
+  ["first", firstNodeInList],
+  ["last", lastNodeInList],
+  ["join", join],
+  ["map", applyToSequence],
+  ["nth", nth],
+  ["rest", rest],
+  ["seq", seq],
+  ["sequential?", isSequentialNode2],
+  ["vec", vec],
+  ["vector", vector],
+  ["vector?", isVector],
+  ["meta", meta],
+  ["with-meta", withMeta],
+  ["atom", atom],
+  ["atom?", isAtom],
+  ["deref", deref],
+  ["reset!", reset],
+  ["swap!", swap]
 ];
 for (const [sym, fn] of nsValues) {
   ns.set(createSymbolNode(sym), createFunctionNode(fn));
@@ -1410,20 +1400,20 @@ function eq(...args) {
   return isEqualTo(args[0], args[1]);
 }
 function printEscapedString(...args) {
-  const result = args.map((arg) => printString(arg, true)).join(' ');
+  const result = args.map((arg) => printString(arg, true)).join(" ");
   return createStringNode(result);
 }
 function printUnescapedString(...args) {
-  const result = args.map((arg) => printString(arg, false)).join('');
+  const result = args.map((arg) => printString(arg, false)).join("");
   return createStringNode(result);
 }
 function printEscapedStringToScreen(...args) {
-  const result = args.map((arg) => printString(arg, true)).join(' ');
+  const result = args.map((arg) => printString(arg, true)).join(" ");
   console.log(result);
   return createNilNode();
 }
 function printUnescapedStringToScreen(...args) {
-  const result = args.map((arg) => printString(arg, false)).join(' ');
+  const result = args.map((arg) => printString(arg, false)).join(" ");
   console.log(result);
   return createNilNode();
 }
@@ -1440,12 +1430,8 @@ function trim(...args) {
   return createStringNode(string_.value.trim());
 }
 function lt(...args) {
-  assertArgumentCount(
-    args.length,
-    2,
-    `
-args: ${JSON.stringify(args, null, '  ')}`,
-  );
+  assertArgumentCount(args.length, 2, `
+args: ${JSON.stringify(args, null, "  ")}`);
   const a = args[0];
   assertNumberNode(a);
   const b = args[1];
@@ -1510,7 +1496,7 @@ function divide(...args) {
 }
 function timeMs(...args) {
   assertArgumentCount(args.length, 0);
-  return createNumberNode(performance.timeOrigin + performance.now());
+  return createNumberNode((/* @__PURE__ */ new Date()).getTime());
 }
 function list(...args) {
   for (const arg of args) {
@@ -1549,7 +1535,7 @@ function nth(...args) {
       return value;
     }
   }
-  throw new Error('out of range');
+  throw new Error("out of range");
 }
 function firstNodeInList(...args) {
   assertArgumentCount(args.length, 1);
@@ -1589,7 +1575,7 @@ function length(...args) {
   } else if (isSequentialNode(args[0])) {
     return createNumberNode(args[0].value.length);
   } else {
-    throw new TypeError('Invalid argument type');
+    throw new TypeError("Invalid argument type");
   }
 }
 function atom(...args) {
@@ -1669,7 +1655,7 @@ function seq(...args) {
   }
   if (isStringNode(ast) && ast.value.length > 0) {
     return createListNode(
-      ast.value.split('').map((char) => createStringNode(char)),
+      ast.value.split("").map((char) => createStringNode(char))
     );
   }
   return createNilNode();
@@ -1694,13 +1680,13 @@ function isNil(...args) {
 function isTrue(...args) {
   assertArgumentCount(args.length, 1);
   return createBooleanNode(
-    isBooleanNode(args[0]) && args[0].value,
+    isBooleanNode(args[0]) && args[0].value
   );
 }
 function isFalse(...args) {
   assertArgumentCount(args.length, 1);
   return createBooleanNode(
-    isBooleanNode(args[0]) && !args[0].value,
+    isBooleanNode(args[0]) && !args[0].value
   );
 }
 function isString(...args) {
@@ -1737,13 +1723,13 @@ function isNumber(...args) {
 function isFn(...args) {
   assertArgumentCount(args.length, 1);
   return createBooleanNode(
-    isFunctionNode(args[0]) && !args[0].isMacro,
+    isFunctionNode(args[0]) && !args[0].isMacro
   );
 }
 function isMacro(...args) {
   assertArgumentCount(args.length, 1);
   return createBooleanNode(
-    isFunctionNode(args[0]) ? args[0].isMacro : false,
+    isFunctionNode(args[0]) ? args[0].isMacro : false
   );
 }
 function vector(...args) {
@@ -1778,7 +1764,7 @@ function assoc(...args) {
   assertMapNode(args[0]);
   const rest2 = args.slice(1);
   const dict = createMapNode(
-    new Map(args[0].value),
+    new Map(args[0].value)
   );
   const pairs = hashMap(...rest2);
   for (const [key, value] of pairs.value.entries()) {
@@ -1790,7 +1776,7 @@ function dissoc(...args) {
   assertMinimumArgumentCount(args.length, 1);
   assertMapNode(args[0]);
   const dict = createMapNode(
-    new Map(args[0].value),
+    new Map(args[0].value)
   );
   for (const dictKey of args.splice(1)) {
     assertMapKeyNode(dictKey);
@@ -1836,7 +1822,7 @@ function isSequentialNode2(...args) {
 function join(...args) {
   assertVariableArgumentCount(args.length, 1, 2);
   assertSequential(args[0]);
-  const delim = isStringNode(args[1]) ? args[1].value : ' ';
+  const delim = isStringNode(args[1]) ? args[1].value : " ";
   const joined = args[0].value.map((ast) => printString(ast, false)).join(delim);
   return createStringNode(joined);
 }
@@ -1861,14 +1847,14 @@ var Env = class {
     this.exprs = exprs;
     for (let i = 0; i < binds.length; i++) {
       const bind2 = binds[i];
-      if (bind2.value === '&') {
+      if (bind2.value === "&") {
         const nextBind = binds[i + 1];
         if (nextBind) {
           const remainingExprs = exprs.slice(i);
           const keyString2 = convertMapKeyToString(nextBind);
           this.value.set(
             keyString2,
-            createListNode(remainingExprs),
+            createListNode(remainingExprs)
           );
           break;
         }
@@ -1887,7 +1873,7 @@ var Env = class {
     for (const [key, value] of entries) {
       serialized.value.set(key, value);
     }
-    serialized.value.set('__outer__', outer);
+    serialized.value.set("__outer__", outer);
     return serialized;
   }
   /**
@@ -1947,119 +1933,119 @@ var Env = class {
 
 // src/interop/html.ts
 var htmlTags = /* @__PURE__ */ new Set([
-  '!doctype',
-  'a',
-  'abbr',
-  'address',
-  'area',
-  'article',
-  'aside',
-  'audio',
-  'b',
-  'base',
-  'bdi',
-  'bdo',
-  'blockquote',
-  'body',
-  'br',
-  'button',
-  'canvas',
-  'caption',
-  'cite',
-  'code',
-  'col',
-  'colgroup',
-  'data',
-  'datalist',
-  'dd',
-  'del',
-  'details',
-  'dfn',
-  'dialog',
-  'div',
-  'dl',
-  'dt',
-  'em',
-  'embed',
-  'fieldset',
-  'figcaption',
-  'figure',
-  'footer',
-  'form',
-  'h1',
-  'h2',
-  'h3',
-  'h4',
-  'h5',
-  'h6',
-  'head',
-  'header',
-  'hgroup',
-  'hr',
-  'html',
-  'i',
-  'iframe',
-  'img',
-  'imgmap',
+  "!doctype",
+  "a",
+  "abbr",
+  "address",
+  "area",
+  "article",
+  "aside",
+  "audio",
+  "b",
+  "base",
+  "bdi",
+  "bdo",
+  "blockquote",
+  "body",
+  "br",
+  "button",
+  "canvas",
+  "caption",
+  "cite",
+  "code",
+  "col",
+  "colgroup",
+  "data",
+  "datalist",
+  "dd",
+  "del",
+  "details",
+  "dfn",
+  "dialog",
+  "div",
+  "dl",
+  "dt",
+  "em",
+  "embed",
+  "fieldset",
+  "figcaption",
+  "figure",
+  "footer",
+  "form",
+  "h1",
+  "h2",
+  "h3",
+  "h4",
+  "h5",
+  "h6",
+  "head",
+  "header",
+  "hgroup",
+  "hr",
+  "html",
+  "i",
+  "iframe",
+  "img",
+  "imgmap",
   // Renamed from map to avoid conflict with core map function
-  'input',
-  'kbd',
-  'label',
-  'legend',
-  'li',
-  'link',
-  'main',
-  'mark',
-  'menu',
-  'meter',
-  'nav',
-  'noscript',
-  'object',
-  'ol',
-  'optgroup',
-  'option',
-  'output',
-  'p',
-  'picture',
-  'pre',
-  'portal',
-  'progress',
-  'q',
-  'rp',
-  'rt',
-  'ruby',
-  's',
-  'samp',
-  'script',
-  'search',
-  'section',
-  'select',
-  'slot',
-  'small',
-  'source',
-  'span',
-  'strong',
-  'style',
-  'sub',
-  'summary',
-  'sup',
-  'table',
-  'tbody',
-  'td',
-  'template',
-  'textarea',
-  'tfoot',
-  'th',
-  'thead',
-  'time',
-  'title',
-  'tr',
-  'track',
-  'u',
-  'ul',
-  'var',
-  'video',
-  'wbr',
+  "input",
+  "kbd",
+  "label",
+  "legend",
+  "li",
+  "link",
+  "main",
+  "mark",
+  "menu",
+  "meter",
+  "nav",
+  "noscript",
+  "object",
+  "ol",
+  "optgroup",
+  "option",
+  "output",
+  "p",
+  "picture",
+  "pre",
+  "portal",
+  "progress",
+  "q",
+  "rp",
+  "rt",
+  "ruby",
+  "s",
+  "samp",
+  "script",
+  "search",
+  "section",
+  "select",
+  "slot",
+  "small",
+  "source",
+  "span",
+  "strong",
+  "style",
+  "sub",
+  "summary",
+  "sup",
+  "table",
+  "tbody",
+  "td",
+  "template",
+  "textarea",
+  "tfoot",
+  "th",
+  "thead",
+  "time",
+  "title",
+  "tr",
+  "track",
+  "u",
+  "ul",
+  "var",
+  "video",
+  "wbr"
 ]);
 var ns2 = /* @__PURE__ */ new Map();
 for (const htmlTag of htmlTags) {
@@ -2098,14 +2084,14 @@ function querySelector(...args) {
   }, /* @__PURE__ */ new Map());
   return createDomNode(element.tagName, attributes, []);
 }
-ns2.set(createSymbolNode('document.querySelector'), createFunctionNode(querySelector));
+ns2.set(createSymbolNode("document.querySelector"), createFunctionNode(querySelector));
 
 // src/interop/js/error.ts
 var errorFunctions = [
-  ['Error', newError],
-  ['Error.prototype.message', getMessage],
-  ['Error.prototype.cause', getCause],
-  ['Error.prototype.name', getName],
+  ["Error", newError],
+  ["Error.prototype.message", getMessage],
+  ["Error.prototype.cause", getCause],
+  ["Error.prototype.name", getName]
   // Type of error
 ];
 function newError(...args) {
@@ -2115,7 +2101,7 @@ function newError(...args) {
   let name;
   if (args[1] !== void 0) {
     if (!isStringNode(args[1]) && !isNilNode(args[1])) {
-      throw new TypeError('Second argument must be a string or nil.');
+      throw new TypeError("Second argument must be a string or nil.");
     }
     if (isStringNode(args[1])) {
       ErrorNode.assertErrorName(args[1]);
@@ -2147,14 +2133,14 @@ function getName(...args) {
 
 // src/interop/js/function.ts
 var functionFunctions = [
-  ['Function', jsEval],
+  ["Function", jsEval],
   // Javascript Interop
-  ['Function.isFunction', isFn],
+  ["Function.isFunction", isFn],
   // Javascript Interop
-  ['Function.prototype.apply', apply2],
-  ['Function.prototype.bind', bind],
-  ['Function.prototype.call', call],
-  ['js-eval', jsEval],
+  ["Function.prototype.apply", apply2],
+  ["Function.prototype.bind", bind],
+  ["Function.prototype.call", call],
+  ["js-eval", jsEval]
   // Javascript Interop
 ];
 function jsEval(...args) {
@@ -2162,7 +2148,7 @@ function jsEval(...args) {
   assertStringNode(args[0]);
   try {
     const result = new Function(
-      `'use strict'; return (${args[0].value})`,
+      `'use strict'; return (${args[0].value})`
     )();
     return toAst(result);
   } catch (error) {
@@ -2195,17 +2181,17 @@ function bind(...args) {
 
 // src/interop/js/map.ts
 var mapFunctions = [
-  ['Map.isMap', mapIsMap],
+  ["Map.isMap", mapIsMap],
   // Added method
-  ['Map.new', mapNew],
-  ['Map.prototype.delete', mapDelete],
-  ['Map.prototype.entries', mapGetEntries],
-  ['Map.prototype.get', mapGet],
-  ['Map.prototype.has', mapHas],
-  ['Map.prototype.keys', mapKeys],
-  ['Map.prototype.set', mapSet],
-  ['Map.prototype.size', mapSize],
-  ['Map.prototype.values', mapValues],
+  ["Map.new", mapNew],
+  ["Map.prototype.delete", mapDelete],
+  ["Map.prototype.entries", mapGetEntries],
+  ["Map.prototype.get", mapGet],
+  ["Map.prototype.has", mapHas],
+  ["Map.prototype.keys", mapKeys],
+  ["Map.prototype.set", mapSet],
+  ["Map.prototype.size", mapSize],
+  ["Map.prototype.values", mapValues]
 ];
 function mapIsMap(...args) {
   assertArgumentCount(args.length, 1);
@@ -2235,7 +2221,7 @@ function mapGetEntries(...astArgs) {
   for (const [key, value] of entries) {
     const vector2 = createVectorNode([
       toAst(key),
-      toAst(value),
+      toAst(value)
     ]);
     vectors.value.push(vector2);
   }
@@ -2246,7 +2232,7 @@ function mapSet(...args) {
   assertMapNode(args[0]);
   const rest2 = args.slice(1);
   const dict = createMapNode(
-    new Map(args[0].value),
+    new Map(args[0].value)
   );
   const pairs = mapNew(...rest2);
   for (const [key, value] of pairs.value.entries()) {
@@ -2258,7 +2244,7 @@ function mapDelete(...args) {
   assertMinimumArgumentCount(args.length, 1);
   assertMapNode(args[0]);
   const dict = createMapNode(
-    new Map(args[0].value),
+    new Map(args[0].value)
   );
   for (const dictKey of args.splice(1)) {
     assertMapKeyNode(dictKey);
@@ -2309,55 +2295,55 @@ function mapSize(...args) {
   } else if (isSequentialNode(args[0])) {
     return createNumberNode(args[0].value.length);
   } else {
-    throw new TypeError('Invalid argument type');
+    throw new TypeError("Invalid argument type");
   }
 }
 
 // src/interop/js/math.ts
 var mathFunctions = [
-  ['Math.abs', mathAbs],
-  ['Math.acos', mathAcos],
-  ['Math.acosh', mathAcosh],
-  ['Math.asin', mathAsin],
-  ['Math.asinh', mathAsinh],
-  ['Math.atan', mathAtan],
-  ['Math.atan2', mathAtan2],
-  ['Math.atanh', mathAtanh],
-  ['Math.cbrt', mathCbrt],
-  ['Math.ceil', mathCeil],
-  ['Math.clz32', mathClz32],
-  ['Math.cos', mathCos],
-  ['Math.cosh', mathCosh],
-  ['Math.exp', mathExp],
-  ['Math.expm1', mathExpm1],
-  ['Math.floor', mathFloor],
-  ['Math.fround', mathFround],
-  ['Math.hypot', mathHypot],
-  ['Math.imul', mathImul],
-  ['Math.log', mathLog],
-  ['Math.log10', mathLog10],
-  ['Math.log1p', mathLog1p],
-  ['Math.log2', mathLog2],
-  ['Math.max', mathMax],
-  ['Math.min', mathMin],
-  ['Math.pow', mathPow],
-  ['Math.random', mathRandom],
-  ['Math.round', mathRound],
-  ['Math.sign', mathSign],
-  ['Math.sin', mathSin],
-  ['Math.sinh', mathSinh],
-  ['Math.sqrt', mathSqrt],
-  ['Math.tan', mathTan],
-  ['Math.tanh', mathTanh],
-  ['Math.trunc', mathTrunc],
-  ['Math.E', mathE],
-  ['Math.LN10', mathLn10],
-  ['Math.LN2', mathLn2],
-  ['Math.LOG10E', mathLog10e],
-  ['Math.LOG2E', mathLog23],
-  ['Math.PI', mathPi],
-  ['Math.SQRT1_2', mathSqrt12],
-  ['Math.SQRT2', mathSqrt2],
+  ["Math.abs", mathAbs],
+  ["Math.acos", mathAcos],
+  ["Math.acosh", mathAcosh],
+  ["Math.asin", mathAsin],
+  ["Math.asinh", mathAsinh],
+  ["Math.atan", mathAtan],
+  ["Math.atan2", mathAtan2],
+  ["Math.atanh", mathAtanh],
+  ["Math.cbrt", mathCbrt],
+  ["Math.ceil", mathCeil],
+  ["Math.clz32", mathClz32],
+  ["Math.cos", mathCos],
+  ["Math.cosh", mathCosh],
+  ["Math.exp", mathExp],
+  ["Math.expm1", mathExpm1],
+  ["Math.floor", mathFloor],
+  ["Math.fround", mathFround],
+  ["Math.hypot", mathHypot],
+  ["Math.imul", mathImul],
+  ["Math.log", mathLog],
+  ["Math.log10", mathLog10],
+  ["Math.log1p", mathLog1p],
+  ["Math.log2", mathLog2],
+  ["Math.max", mathMax],
+  ["Math.min", mathMin],
+  ["Math.pow", mathPow],
+  ["Math.random", mathRandom],
+  ["Math.round", mathRound],
+  ["Math.sign", mathSign],
+  ["Math.sin", mathSin],
+  ["Math.sinh", mathSinh],
+  ["Math.sqrt", mathSqrt],
+  ["Math.tan", mathTan],
+  ["Math.tanh", mathTanh],
+  ["Math.trunc", mathTrunc],
+  ["Math.E", mathE],
+  ["Math.LN10", mathLn10],
+  ["Math.LN2", mathLn2],
+  ["Math.LOG10E", mathLog10e],
+  ["Math.LOG2E", mathLog23],
+  ["Math.PI", mathPi],
+  ["Math.SQRT1_2", mathSqrt12],
+  ["Math.SQRT2", mathSqrt2]
 ];
 function mathAbs(...astArgs) {
   assertArgumentCount(astArgs.length, 1);
@@ -2666,26 +2652,26 @@ function mathSqrt2(...astArgs) {
 
 // src/interop/js/number.ts
 var numberFunctions = [
-  ['Number', newNumber],
-  ['Number.isFinite', numberIsFinite],
-  ['Number.isInteger', numberIsInteger],
-  ['Number.isNaN', numberIsNaN],
-  ['Number.isSafeInteger', numberIsSafeInteger],
-  ['Number.parseFloat', numberParseFloat],
-  ['Number.parseInt', numberParseInt],
-  ['Number.prototype.toExponential', numberPrototypeToExponential],
-  ['Number.prototype.toFixed', numberPrototypeToFixed],
-  ['Number.prototype.toPrecision', numberPrototypeToPrecision],
-  ['Number.prototype.toString', numberPrototypeToString],
+  ["Number", newNumber],
+  ["Number.isFinite", numberIsFinite],
+  ["Number.isInteger", numberIsInteger],
+  ["Number.isNaN", numberIsNaN],
+  ["Number.isSafeInteger", numberIsSafeInteger],
+  ["Number.parseFloat", numberParseFloat],
+  ["Number.parseInt", numberParseInt],
+  ["Number.prototype.toExponential", numberPrototypeToExponential],
+  ["Number.prototype.toFixed", numberPrototypeToFixed],
+  ["Number.prototype.toPrecision", numberPrototypeToPrecision],
+  ["Number.prototype.toString", numberPrototypeToString],
   // Constants
-  ['Number.EPSILON', numberEpsilon],
-  ['Number.MAX_SAFE_INTEGER', numberMaxSafeInteger],
-  ['Number.MAX_VALUE', numberMaxValue],
-  ['Number.MIN_SAFE_INTEGER', numberMinSafeInteger],
-  ['Number.MIN_VALUE', numberMinValue],
-  ['Number.NaN', numberNaN],
-  ['Number.NEGATIVE_INFINITY', numberNegativeInfinity],
-  ['Number.POSITIVE_INFINITY', numberPositiveInfinity],
+  ["Number.EPSILON", numberEpsilon],
+  ["Number.MAX_SAFE_INTEGER", numberMaxSafeInteger],
+  ["Number.MAX_VALUE", numberMaxValue],
+  ["Number.MIN_SAFE_INTEGER", numberMinSafeInteger],
+  ["Number.MIN_VALUE", numberMinValue],
+  ["Number.NaN", numberNaN],
+  ["Number.NEGATIVE_INFINITY", numberNegativeInfinity],
+  ["Number.POSITIVE_INFINITY", numberPositiveInfinity]
 ];
 function newNumber(...astArgs) {
   if (astArgs.length === 1 && isAstNode(astArgs[0])) {
@@ -2854,9 +2840,9 @@ function numberPrototypeToString(...astArgs) {
 
 // src/interop/js/regexp.ts
 var regExpFunctions = [
-  ['RegExp.new', newRegExp],
-  ['RegExp.prototype.exec', execRegExp],
-  ['RegExp.prototype.test', testRegExp],
+  ["RegExp.new", newRegExp],
+  ["RegExp.prototype.exec", execRegExp],
+  ["RegExp.prototype.test", testRegExp]
 ];
 function newRegExp(...astArgs) {
   assertVariableArgumentCount(astArgs.length, 1, 2);
@@ -2892,42 +2878,42 @@ function testRegExp(...astArgs) {
 
 // src/interop/js/string.ts
 var stringFunctions = [
-  ['String', printUnescapedString],
-  ['String.fromCharCode', stringFromCharCode],
-  ['String.fromCodePoint', stringFromCodePoint],
-  ['String.prototype.at', stringAt],
-  ['String.prototype.charAt', stringAt],
-  ['String.prototype.charCodeAt', stringCodePointAt],
-  ['String.prototype.codePointAt', stringCodePointAt],
-  ['String.prototype.concat', stringConcat],
-  ['String.prototype.endsWith', stringEndsWith],
-  ['String.prototype.includes', stringIncludes],
-  ['String.prototype.indexOf', stringIndexOf],
-  ['String.prototype.isWellFormed', stringIsWellFormed],
-  ['String.prototype.lastIndexOf', stringLastIndexOf],
-  ['String.prototype.length', stringLength],
-  ['String.prototype.localeCompare', stringLocaleCompare],
-  ['String.prototype.match', stringMatch],
-  ['String.prototype.matchAll', stringMatchAll],
-  ['String.prototype.normalize', stringNormalize],
-  ['String.prototype.padEnd', stringPadEnd],
-  ['String.prototype.padStart', stringPadStart],
-  ['String.prototype.repeat', stringRepeat],
-  ['String.prototype.replace', stringReplace],
-  ['String.prototype.replaceAll', stringReplaceAll],
-  ['String.prototype.search', stringSearch],
-  ['String.prototype.slice', stringSlice],
-  ['String.prototype.split', stringSplit],
-  ['String.prototype.startsWith', stringStartsWith],
-  ['String.prototype.toLocaleLowerCase', stringToLocaleLowerCase],
-  ['String.prototype.toLocaleUpperCase', stringToLocaleUpperCase],
-  ['String.prototype.toLowerCase', stringToLowerCase],
-  ['String.prototype.toUpperCase', stringToUpperCase],
-  ['String.prototype.toWellFormed', stringToWellFormed],
-  ['String.prototype.trim', stringTrim],
-  ['String.prototype.trimEnd', stringTrimEnd],
-  ['String.prototype.trimStart', stringTrimStart],
-  ['String.raw', stringRaw],
+  ["String", printUnescapedString],
+  ["String.fromCharCode", stringFromCharCode],
+  ["String.fromCodePoint", stringFromCodePoint],
+  ["String.prototype.at", stringAt],
+  ["String.prototype.charAt", stringAt],
+  ["String.prototype.charCodeAt", stringCodePointAt],
+  ["String.prototype.codePointAt", stringCodePointAt],
+  ["String.prototype.concat", stringConcat],
+  ["String.prototype.endsWith", stringEndsWith],
+  ["String.prototype.includes", stringIncludes],
+  ["String.prototype.indexOf", stringIndexOf],
+  ["String.prototype.isWellFormed", stringIsWellFormed],
+  ["String.prototype.lastIndexOf", stringLastIndexOf],
+  ["String.prototype.length", stringLength],
+  ["String.prototype.localeCompare", stringLocaleCompare],
+  ["String.prototype.match", stringMatch],
+  ["String.prototype.matchAll", stringMatchAll],
+  ["String.prototype.normalize", stringNormalize],
+  ["String.prototype.padEnd", stringPadEnd],
+  ["String.prototype.padStart", stringPadStart],
+  ["String.prototype.repeat", stringRepeat],
+  ["String.prototype.replace", stringReplace],
+  ["String.prototype.replaceAll", stringReplaceAll],
+  ["String.prototype.search", stringSearch],
+  ["String.prototype.slice", stringSlice],
+  ["String.prototype.split", stringSplit],
+  ["String.prototype.startsWith", stringStartsWith],
+  ["String.prototype.toLocaleLowerCase", stringToLocaleLowerCase],
+  ["String.prototype.toLocaleUpperCase", stringToLocaleUpperCase],
+  ["String.prototype.toLowerCase", stringToLowerCase],
+  ["String.prototype.toUpperCase", stringToUpperCase],
+  ["String.prototype.toWellFormed", stringToWellFormed],
+  ["String.prototype.trim", stringTrim],
+  ["String.prototype.trimEnd", stringTrimEnd],
+  ["String.prototype.trimStart", stringTrimStart],
+  ["String.raw", stringRaw]
 ];
 function stringFromCharCode(...astArgs) {
   assertArgumentCount(astArgs.length, 1);
@@ -3128,7 +3114,7 @@ function stringRepeat(...astArgs) {
 function stringReplace(...astArgs) {
   assertArgumentCount(astArgs.length, 3);
   assertStringNode(astArgs[0]);
-  let pattern = '';
+  let pattern = "";
   if (isStringNode(astArgs[1])) {
     pattern = astArgs[1].value;
   } else {
@@ -3140,7 +3126,7 @@ function stringReplace(...astArgs) {
   if (isStringNode(astArgs[2])) {
     replacer = astArgs[2].value;
   } else {
-    throw new Error('Function replacers are not implemented for String.prototype.replace');
+    throw new Error("Function replacers are not implemented for String.prototype.replace");
   }
   const context = astArgs[0].value;
   const result = context.replace(pattern, replacer);
@@ -3149,7 +3135,7 @@ function stringReplace(...astArgs) {
 function stringReplaceAll(...astArgs) {
   assertArgumentCount(astArgs.length, 3);
   assertStringNode(astArgs[0]);
-  let pattern = '';
+  let pattern = "";
   if (isStringNode(astArgs[1])) {
     pattern = astArgs[1].value;
   } else {
@@ -3161,7 +3147,7 @@ function stringReplaceAll(...astArgs) {
   if (isStringNode(astArgs[2])) {
     replacer = astArgs[2].value;
   } else {
-    throw new Error('Function replacers are not implemented for String.prototype.replaceAll');
+    throw new Error("Function replacers are not implemented for String.prototype.replaceAll");
   }
   const context = astArgs[0].value;
   const result = context.replaceAll(pattern, replacer);
@@ -3298,9 +3284,9 @@ function stringRaw(...astArgs) {
 
 // src/interop/js/symbol.ts
 var symbolFunctions = [
-  ['Symbol', symbolConstructor],
-  ['Symbol.for', symbolFor],
-  ['Symbol.keyFor', symbolKeyFor],
+  ["Symbol", symbolConstructor],
+  ["Symbol.for", symbolFor],
+  ["Symbol.keyFor", symbolKeyFor]
 ];
 function symbolConstructor(...astArgs) {
   assertVariableArgumentCount(astArgs.length, 0, 1);
@@ -3329,46 +3315,46 @@ function symbolKeyFor(...astArgs) {
 
 // src/interop/js/array.ts
 var arrayFunctions = [
-  ['Array', toArray],
-  ['Array.from', arrayFrom],
-  ['Array.isArray', arrayIsArray],
-  ['Array.of', arrayFrom],
-  ['Array.prototype.at', arrayAt],
-  ['Array.prototype.concat', arrayConcat],
-  ['Array.prototype.copyWithin', arrayCopyWithin],
-  ['Array.prototype.entries', arrayEntries],
-  ['Array.prototype.every', arrayEvery],
-  ['Array.prototype.fill', arrayFill],
-  ['Array.prototype.filter', arrayFilter],
-  ['Array.prototype.find', arrayFind],
-  ['Array.prototype.findIndex', arrayFindIndex],
-  ['Array.prototype.findLast', arrayFindLast],
-  ['Array.prototype.findLastIndex', arrayFindLastIndex],
-  ['Array.prototype.flat', arrayFlat],
-  ['Array.prototype.flatMap', arrayFlatMap],
-  ['Array.prototype.includes', arrayIncludes],
-  ['Array.prototype.indexOf', arrayIndexOf],
-  ['Array.prototype.join', arrayJoin],
-  ['Array.prototype.keys', arrayKeys],
-  ['Array.prototype.length', arrayLength],
-  ['Array.prototype.map', arrayMap],
-  ['Array.prototype.pop', arrayLast],
-  ['Array.prototype.push', arrayPush],
-  ['Array.prototype.reduce', arrayReduce],
-  ['Array.prototype.reverse', arrayToReversed],
-  ['Array.prototype.shift', arrayFirst],
-  ['Array.prototype.slice', arraySlice],
-  ['Array.prototype.some', arraySome],
-  ['Array.prototype.sort', arrayToSorted],
-  ['Array.prototype.splice', arrayToSpliced],
-  ['Array.prototype.toReversed', arrayToReversed],
-  ['Array.prototype.toSorted', arrayToSorted],
-  ['Array.prototype.toSpliced', arrayToSpliced],
-  ['Array.prototype.unshift', arrayUnshift],
+  ["Array", toArray],
+  ["Array.from", arrayFrom],
+  ["Array.isArray", arrayIsArray],
+  ["Array.of", arrayFrom],
+  ["Array.prototype.at", arrayAt],
+  ["Array.prototype.concat", arrayConcat],
+  ["Array.prototype.copyWithin", arrayCopyWithin],
+  ["Array.prototype.entries", arrayEntries],
+  ["Array.prototype.every", arrayEvery],
+  ["Array.prototype.fill", arrayFill],
+  ["Array.prototype.filter", arrayFilter],
+  ["Array.prototype.find", arrayFind],
+  ["Array.prototype.findIndex", arrayFindIndex],
+  ["Array.prototype.findLast", arrayFindLast],
+  ["Array.prototype.findLastIndex", arrayFindLastIndex],
+  ["Array.prototype.flat", arrayFlat],
+  ["Array.prototype.flatMap", arrayFlatMap],
+  ["Array.prototype.includes", arrayIncludes],
+  ["Array.prototype.indexOf", arrayIndexOf],
+  ["Array.prototype.join", arrayJoin],
+  ["Array.prototype.keys", arrayKeys],
+  ["Array.prototype.length", arrayLength],
+  ["Array.prototype.map", arrayMap],
+  ["Array.prototype.pop", arrayLast],
+  ["Array.prototype.push", arrayPush],
+  ["Array.prototype.reduce", arrayReduce],
+  ["Array.prototype.reverse", arrayToReversed],
+  ["Array.prototype.shift", arrayFirst],
+  ["Array.prototype.slice", arraySlice],
+  ["Array.prototype.some", arraySome],
+  ["Array.prototype.sort", arrayToSorted],
+  ["Array.prototype.splice", arrayToSpliced],
+  ["Array.prototype.toReversed", arrayToReversed],
+  ["Array.prototype.toSorted", arrayToSorted],
+  ["Array.prototype.toSpliced", arrayToSpliced],
+  ["Array.prototype.unshift", arrayUnshift],
   // Prepend
-  ['Array.prototype.values', arrayValues],
-  ['Array.prototype.with', arrayReplaceWith],
-  ['Array.toString', printEscapedString],
+  ["Array.prototype.values", arrayValues],
+  ["Array.prototype.with", arrayReplaceWith],
+  ["Array.toString", printEscapedString]
 ];
 function toArray(...args) {
   assertMinimumArgumentCount(args.length, 1);
@@ -3574,7 +3560,7 @@ function arrayIndexOf(...args) {
 function arrayJoin(...args) {
   assertVariableArgumentCount(args.length, 1, 2);
   assertSequential(args[0]);
-  const delim = isStringNode(args[1]) ? args[1].value : ' ';
+  const delim = isStringNode(args[1]) ? args[1].value : " ";
   const joined = args[0].value.map((ast) => printString(ast, false)).join(delim);
   return createStringNode(joined);
 }
@@ -3608,7 +3594,7 @@ function arrayLast(...args) {
 function arrayPush(...args) {
   assertMinimumArgumentCount(args.length, 2);
   if (!args.every(isAstNode)) {
-    throw new TypeError('Invalid arguments.');
+    throw new TypeError("Invalid arguments.");
   }
   assertVectorNode(args[0]);
   return createVectorNode([...args[0].value, ...args.slice(1)]);
@@ -3730,7 +3716,7 @@ function arrayReplaceWith(...args) {
 
 // src/interop/js/boolean.ts
 var booleanFunctions = [
-  ['Boolean', toBoolean],
+  ["Boolean", toBoolean]
 ];
 function toBoolean(...astArgs) {
   assertArgumentCount(astArgs.length, 1);
@@ -3740,10 +3726,10 @@ function toBoolean(...astArgs) {
 
 // src/interop/js/builtin.ts
 var builtInFunctions = [
-  ['decodeURI', globalDecodeUri],
-  ['decodeURIComponent', globalDecodeUriComponent],
-  ['encodeURI', globalEncodeUri],
-  ['encodeURIComponent', globalEncodeUriComponent],
+  ["decodeURI", globalDecodeUri],
+  ["decodeURIComponent", globalDecodeUriComponent],
+  ["encodeURI", globalEncodeUri],
+  ["encodeURIComponent", globalEncodeUriComponent]
 ];
 function globalDecodeUri(...astArgs) {
   assertArgumentCount(astArgs.length, 1);
@@ -3772,52 +3758,52 @@ function globalEncodeUriComponent(...astArgs) {
 
 // src/interop/js/date.ts
 var dateFunctions = [
-  ['Date', newDate],
-  ['Date.now', dateNow],
-  ['Date.parse', dateParse],
-  ['Date.UTC', dateUtc],
-  ['Date.prototype.getDate', dateGetDate],
-  ['Date.prototype.getDay', dateGetDay],
-  ['Date.prototype.getFullYear', dateGetFullYear],
-  ['Date.prototype.getHours', dateGetHours],
-  ['Date.prototype.getMilliseconds', dateGetMilliseconds],
-  ['Date.prototype.getMinutes', dateGetMinutes],
-  ['Date.prototype.getMonth', dateGetMonth],
-  ['Date.prototype.getSeconds', dateGetSeconds],
-  ['Date.prototype.getTime', dateGetTime],
-  ['Date.prototype.getTimezoneOffset', dateGetTimezoneOffset],
-  ['Date.prototype.getUTCDate', dateGetUTCDate],
-  ['Date.prototype.getUTCDay', dateGetUTCDay],
-  ['Date.prototype.getUTCFullYear', dateGetUTCFullYear],
-  ['Date.prototype.getUTCHours', dateGetUTCHours],
-  ['Date.prototype.getUTCMilliseconds', dateGetUTCMilliseconds],
-  ['Date.prototype.getUTCMinutes', dateGetUTCMinutes],
-  ['Date.prototype.getUTCMonth', dateGetUTCMonth],
-  ['Date.prototype.getUTCSeconds', dateGetUTCSeconds],
-  ['Date.prototype.setDate', dateSetDate],
-  ['Date.prototype.setFullYear', dateSetFullYear],
-  ['Date.prototype.setHours', dateSetHours],
-  ['Date.prototype.setMilliseconds', dateSetMilliseconds],
-  ['Date.prototype.setMinutes', dateSetMinutes],
-  ['Date.prototype.setMonth', dateSetMonth],
-  ['Date.prototype.setSeconds', dateSetSeconds],
-  ['Date.prototype.setTime', dateSetTime],
-  ['Date.prototype.setUTCDate', dateSetUTCDate],
-  ['Date.prototype.setUTCFullYear', dateSetUTCFullYear],
-  ['Date.prototype.setUTCHours', dateSetUTCHours],
-  ['Date.prototype.setUTCMilliseconds', dateSetUTCMilliseconds],
-  ['Date.prototype.setUTCMinutes', dateSetUTCMinutes],
-  ['Date.prototype.setUTCMonth', dateSetUTCMonth],
-  ['Date.prototype.setUTCSeconds', dateSetUTCSeconds],
-  ['Date.prototype.toDateString', dateToDateString],
-  ['Date.prototype.toISOString', dateToISOString],
-  ['Date.prototype.toJSON', dateToJSON],
-  ['Date.prototype.toLocaleDateString', dateToLocaleDateString],
-  ['Date.prototype.toLocaleString', dateToLocaleString],
-  ['Date.prototype.toLocaleTimeString', dateToLocaleTimeString],
-  ['Date.prototype.toString', dateToString],
-  ['Date.prototype.toTimeString', dateToTimeString],
-  ['Date.prototype.toUTCString', dateToUTCString],
+  ["Date", newDate],
+  ["Date.now", dateNow],
+  ["Date.parse", dateParse],
+  ["Date.UTC", dateUtc],
+  ["Date.prototype.getDate", dateGetDate],
+  ["Date.prototype.getDay", dateGetDay],
+  ["Date.prototype.getFullYear", dateGetFullYear],
+  ["Date.prototype.getHours", dateGetHours],
+  ["Date.prototype.getMilliseconds", dateGetMilliseconds],
+  ["Date.prototype.getMinutes", dateGetMinutes],
+  ["Date.prototype.getMonth", dateGetMonth],
+  ["Date.prototype.getSeconds", dateGetSeconds],
+  ["Date.prototype.getTime", dateGetTime],
+  ["Date.prototype.getTimezoneOffset", dateGetTimezoneOffset],
+  ["Date.prototype.getUTCDate", dateGetUTCDate],
+  ["Date.prototype.getUTCDay", dateGetUTCDay],
+  ["Date.prototype.getUTCFullYear", dateGetUTCFullYear],
+  ["Date.prototype.getUTCHours", dateGetUTCHours],
+  ["Date.prototype.getUTCMilliseconds", dateGetUTCMilliseconds],
+  ["Date.prototype.getUTCMinutes", dateGetUTCMinutes],
+  ["Date.prototype.getUTCMonth", dateGetUTCMonth],
+  ["Date.prototype.getUTCSeconds", dateGetUTCSeconds],
+  ["Date.prototype.setDate", dateSetDate],
+  ["Date.prototype.setFullYear", dateSetFullYear],
+  ["Date.prototype.setHours", dateSetHours],
+  ["Date.prototype.setMilliseconds", dateSetMilliseconds],
+  ["Date.prototype.setMinutes", dateSetMinutes],
+  ["Date.prototype.setMonth", dateSetMonth],
+  ["Date.prototype.setSeconds", dateSetSeconds],
+  ["Date.prototype.setTime", dateSetTime],
+  ["Date.prototype.setUTCDate", dateSetUTCDate],
+  ["Date.prototype.setUTCFullYear", dateSetUTCFullYear],
+  ["Date.prototype.setUTCHours", dateSetUTCHours],
+  ["Date.prototype.setUTCMilliseconds", dateSetUTCMilliseconds],
+  ["Date.prototype.setUTCMinutes", dateSetUTCMinutes],
+  ["Date.prototype.setUTCMonth", dateSetUTCMonth],
+  ["Date.prototype.setUTCSeconds", dateSetUTCSeconds],
+  ["Date.prototype.toDateString", dateToDateString],
+  ["Date.prototype.toISOString", dateToISOString],
+  ["Date.prototype.toJSON", dateToJSON],
+  ["Date.prototype.toLocaleDateString", dateToLocaleDateString],
+  ["Date.prototype.toLocaleString", dateToLocaleString],
+  ["Date.prototype.toLocaleTimeString", dateToLocaleTimeString],
+  ["Date.prototype.toString", dateToString],
+  ["Date.prototype.toTimeString", dateToTimeString],
+  ["Date.prototype.toUTCString", dateToUTCString]
 ];
 function newDate(...args) {
   const unwrapped = args.map(unwrap);
@@ -4128,25 +4114,25 @@ function dateToUTCString(...args) {
 
 // src/interop/js/operator.ts
 var operators = [
-  ['===', eq],
-  ['!==', notEqualTo],
-  ['??', nullishCoalesce],
-  ['**', power],
-  ['%', remainder],
-  ['>>', rightShift],
-  ['<<', leftShift],
-  ['>>>', unsignedRightShift],
-  ['/&', bitwiseAnd],
-  ['/|', bitwiseOr],
-  ['/^', bitwiseXor],
-  ['/~', bitwiseNot],
-  ['&&', and],
-  ['||', or],
-  ['!', not],
-  ['++', increment],
-  ['--', decrement],
-  ['typeof', typeOf],
-  ['instanceof', instanceOf],
+  ["===", eq],
+  ["!==", notEqualTo],
+  ["??", nullishCoalesce],
+  ["**", power],
+  ["%", remainder],
+  [">>", rightShift],
+  ["<<", leftShift],
+  [">>>", unsignedRightShift],
+  ["/&", bitwiseAnd],
+  ["/|", bitwiseOr],
+  ["/^", bitwiseXor],
+  ["/~", bitwiseNot],
+  ["&&", and],
+  ["||", or],
+  ["!", not],
+  ["++", increment],
+  ["--", decrement],
+  ["typeof", typeOf],
+  ["instanceof", instanceOf]
 ];
 function and(...args) {
   const useJavaScriptTruthiness = true;
@@ -4171,49 +4157,49 @@ function remainder(a, b) {
   if (isNumberNode(a) && isNumberNode(b)) {
     return createNumberNode((a.value % b.value + b.value) % b.value);
   }
-  throw new TypeError('not a number');
+  throw new TypeError("not a number");
 }
 function bitwiseAnd(a, b) {
   if (isNumberNode(a) && isNumberNode(b)) {
     return createNumberNode(a.value & b.value);
   }
-  throw new TypeError('not a number');
+  throw new TypeError("not a number");
 }
 function bitwiseOr(a, b) {
   if (isNumberNode(a) && isNumberNode(b)) {
     return createNumberNode(a.value | b.value);
   }
-  throw new TypeError('not a number');
+  throw new TypeError("not a number");
 }
 function bitwiseXor(a, b) {
   if (isNumberNode(a) && isNumberNode(b)) {
     return createNumberNode(a.value ^ b.value);
   }
-  throw new TypeError('not a number');
+  throw new TypeError("not a number");
 }
 function bitwiseNot(a) {
   if (isNumberNode(a)) {
     return createNumberNode(~a.value);
   }
-  throw new TypeError('not a number');
+  throw new TypeError("not a number");
 }
 function leftShift(a, b) {
   if (isNumberNode(a) && isNumberNode(b)) {
     return createNumberNode(a.value << b.value);
   }
-  throw new TypeError('not a number');
+  throw new TypeError("not a number");
 }
 function rightShift(a, b) {
   if (isNumberNode(a) && isNumberNode(b)) {
     return createNumberNode(a.value >> b.value);
   }
-  throw new TypeError('not a number');
+  throw new TypeError("not a number");
 }
 function unsignedRightShift(a, b) {
   if (isNumberNode(a) && isNumberNode(b)) {
     return createNumberNode(a.value >>> b.value);
   }
-  throw new TypeError('not a number');
+  throw new TypeError("not a number");
 }
 function not(a) {
   return createBooleanNode(!a.value);
@@ -4226,72 +4212,67 @@ function notEqualTo(...args) {
 function increment(...args) {
   assertVariableArgumentCount(args.length, 1, 2);
   assertNumberNode(args[0]);
-  let affix = 'postfix';
+  let affix = "postfix";
   if (args[1] !== void 0) {
     assertStringNode(args[1]);
-    if (args[1].value !== 'prefix' && args[1].value !== 'postfix') {
+    if (args[1].value !== "prefix" && args[1].value !== "postfix") {
       throw new TypeError(
-        `Invalid affix ${String(args[1].value)}. The affix must be "prefix" or "postfix"`,
+        `Invalid affix ${String(args[1].value)}. The affix must be "prefix" or "postfix"`
       );
     } else {
       affix = args[1].value;
     }
   }
-  if (affix === 'postfix') {
+  if (affix === "postfix") {
     return createVectorNode([
       createNumberNode(args[0].value + 1),
-      createNumberNode(args[0].value),
+      createNumberNode(args[0].value)
     ]);
   }
-  if (affix === 'prefix') {
+  if (affix === "prefix") {
     return createVectorNode([
       createNumberNode(args[0].value + 1),
-      createNumberNode(args[0].value + 1),
+      createNumberNode(args[0].value + 1)
     ]);
   }
-  throw new Error('Unhandled error in decrement');
+  throw new Error("Unhandled error in decrement");
 }
 function decrement(...args) {
   assertVariableArgumentCount(args.length, 1, 2);
   assertNumberNode(args[0]);
-  let affix = 'postfix';
+  let affix = "postfix";
   if (args[1] !== void 0) {
     assertStringNode(args[1]);
-    if (args[1].value !== 'prefix' && args[1].value !== 'postfix') {
+    if (args[1].value !== "prefix" && args[1].value !== "postfix") {
       throw new TypeError(
-        `Invalid affix ${String(args[1].value)}. The affix must be "prefix" or "postfix"`,
+        `Invalid affix ${String(args[1].value)}. The affix must be "prefix" or "postfix"`
       );
     } else {
       affix = args[1].value;
     }
   }
-  if (affix === 'postfix') {
+  if (affix === "postfix") {
     return createVectorNode([
       createNumberNode(args[0].value - 1),
-      createNumberNode(args[0].value),
+      createNumberNode(args[0].value)
     ]);
   }
-  if (affix === 'prefix') {
+  if (affix === "prefix") {
     return createVectorNode([
       createNumberNode(args[0].value - 1),
-      createNumberNode(args[0].value - 1),
+      createNumberNode(args[0].value - 1)
     ]);
   }
-  throw new Error('Unhandled error in decrement');
+  throw new Error("Unhandled error in decrement");
 }
 function typeOf(...args) {
   assertArgumentCount(args.length, 2);
   assertAstNode(args[0]);
   assertStringNode(args[1]);
   const obj = typeof args[0].value;
-  if (
-    obj !== 'bigint' && obj !== 'boolean' && obj !== 'function' && obj !== 'number' && obj !== 'object' &&
-    obj !== 'string' && obj !== 'symbol' && obj !== 'undefined'
-  ) {
+  if (obj !== "bigint" && obj !== "boolean" && obj !== "function" && obj !== "number" && obj !== "object" && obj !== "string" && obj !== "symbol" && obj !== "undefined") {
     throw new Error(
-      `Invalid type: "${
-        args[1].value
-      }". Type must be one of bigint, boolean, function, number, object, string, symbol, or undefined`,
+      `Invalid type: "${args[1].value}". Type must be one of bigint, boolean, function, number, object, string, symbol, or undefined`
     );
   }
   return createBooleanNode(obj === args[1].value);
@@ -4303,12 +4284,7 @@ function instanceOf(...args) {
   const value = args[0];
   const type = args[1].value;
   let instance = void 0;
-  if (
-    type === 'AstNode' || type === 'AtomNode' || type === 'BooleanNode' || type === 'ErrorNode' ||
-    type === 'FunctionNode' || type === 'KeywordNode' || type === 'ListNode' || type === 'MapNode' ||
-    type === 'NilNode' || type === 'NumberNode' || type === 'StringNode' || type === 'SymbolNode' ||
-    type === 'VectorNode'
-  ) {
+  if (type === "AstNode" || type === "AtomNode" || type === "BooleanNode" || type === "ErrorNode" || type === "FunctionNode" || type === "KeywordNode" || type === "ListNode" || type === "MapNode" || type === "NilNode" || type === "NumberNode" || type === "StringNode" || type === "SymbolNode" || type === "VectorNode") {
     instance = types_exports[args[1].value];
   } else if (Object.hasOwn(globalThis, args[1].value)) {
     instance = globalThis[args[1].value];
@@ -4324,7 +4300,7 @@ function power(base, exponent) {
   if (isNumberNode(base) && isNumberNode(exponent)) {
     return createNumberNode(base.value ** exponent.value);
   }
-  throw new TypeError('not a number');
+  throw new TypeError("not a number");
 }
 
 // src/interop/js.ts
@@ -4341,16 +4317,16 @@ var nsValues2 = [
   ...numberFunctions,
   ...regExpFunctions,
   ...stringFunctions,
-  ...symbolFunctions,
+  ...symbolFunctions
 ];
 var ns3 = /* @__PURE__ */ new Map();
 for (const [sym, fn] of nsValues2) {
   ns3.set(createSymbolNode(sym), createFunctionNode(fn));
-  if (sym.includes('.prototype.')) {
-    const withPrototypeAlias = sym.replace('.prototype.', '::');
+  if (sym.includes(".prototype.")) {
+    const withPrototypeAlias = sym.replace(".prototype.", "::");
     ns3.set(createSymbolNode(withPrototypeAlias), createFunctionNode(fn));
-  } else if (sym.includes('.prototype[')) {
-    const withPrototypeAlias = sym.replace('.prototype[', '::[');
+  } else if (sym.includes(".prototype[")) {
+    const withPrototypeAlias = sym.replace(".prototype[", "::[");
     ns3.set(createSymbolNode(withPrototypeAlias), createFunctionNode(fn));
   }
 }
@@ -4361,8 +4337,8 @@ function assertTryCatch(a) {
   assertVariableArgumentCount(a.value.length, 2, 3);
   const symbolNode = a.value[0];
   assertSymbolNode(symbolNode);
-  if (symbolNode.value !== 'try' && symbolNode.value !== 'try*') {
-    throw new Error('use `try` or `try*` in try/catch expressions');
+  if (symbolNode.value !== "try" && symbolNode.value !== "try*") {
+    throw new Error("use `try` or `try*` in try/catch expressions");
   }
   assertAstNode(a.value[1]);
   if (a.value[2]) {
@@ -4370,8 +4346,8 @@ function assertTryCatch(a) {
     assertArgumentCount(a.value[2].value.length, 3);
     assertSymbolNode(a.value[2].value[0]);
     const catchNode = a.value[2].value[0];
-    if (catchNode.value !== 'catch' && catchNode.value !== 'catch*') {
-      throw new Error('use `catch` or `catch*` in try/catch expressions');
+    if (catchNode.value !== "catch" && catchNode.value !== "catch*") {
+      throw new Error("use `catch` or `catch*` in try/catch expressions");
     }
     assertSymbolNode(a.value[2].value[1]);
     assertAstNode(a.value[2].value[2]);
@@ -4382,8 +4358,8 @@ function assertDef(a) {
   assertArgumentCount(a.value.length, 3);
   assertSymbolNode(a.value[0]);
   const symbolNode = a.value[0];
-  if (symbolNode.value !== 'def!' && symbolNode.value !== 'globalThis' && symbolNode.value !== 'var') {
-    throw new Error('use `def!`, `globalThis`, or `var` in def! expressions');
+  if (symbolNode.value !== "def!" && symbolNode.value !== "globalThis" && symbolNode.value !== "var") {
+    throw new Error("use `def!`, `globalThis`, or `var` in def! expressions");
   }
   assertMapKeyNode(a.value[1]);
   assertAstNode(a.value[2]);
@@ -4393,8 +4369,8 @@ function assertLet(a) {
   assertArgumentCount(a.value.length, 3);
   assertSymbolNode(a.value[0]);
   const symbolNode = a.value[0];
-  if (symbolNode.value !== 'let*' && symbolNode.value !== 'let' && symbolNode.value !== 'const') {
-    throw new Error('use `let*`, `let`, or `const` in let* expressions');
+  if (symbolNode.value !== "let*" && symbolNode.value !== "let" && symbolNode.value !== "const") {
+    throw new Error("use `let*`, `let`, or `const` in let* expressions");
   }
   assertSequential(a.value[1]);
   assertAstNode(a.value[2]);
@@ -4408,11 +4384,11 @@ function assertQuote(a) {
   assertListNode(a);
   assertArgumentCount(a.value.length, 2);
   assertSymbolNode(a.value[0]);
-  assertSymWithValue(a.value[0], 'quote');
+  assertSymWithValue(a.value[0], "quote");
   assertAstNode(a.value[1]);
 }
 function assertQuasiQuoteExpand(a) {
-  const symbol2 = 'quasiquoteexpand';
+  const symbol2 = "quasiquoteexpand";
   assertListNode(a);
   assertArgumentCount(a.value.length, 2);
   assertSymbolNode(a.value[0]);
@@ -4420,7 +4396,7 @@ function assertQuasiQuoteExpand(a) {
   assertAstNode(a.value[1]);
 }
 function assertQuasiQuote(a) {
-  const symbol2 = 'quasiquote';
+  const symbol2 = "quasiquote";
   assertListNode(a);
   assertArgumentCount(a.value.length, 2);
   assertSymbolNode(a.value[0]);
@@ -4428,7 +4404,7 @@ function assertQuasiQuote(a) {
   assertAstNode(a.value[1]);
 }
 function assertDefMacro(a) {
-  const symbol2 = 'defmacro!';
+  const symbol2 = "defmacro!";
   assertListNode(a);
   assertArgumentCount(a.value.length, 3);
   assertSymbolNode(a.value[0]);
@@ -4437,7 +4413,7 @@ function assertDefMacro(a) {
   assertAstNode(a.value[2]);
 }
 function assertDo(a) {
-  const symbol2 = 'do';
+  const symbol2 = "do";
   assertListNode(a);
   assertMinimumArgumentCount(a.value.length, 1);
   assertSymbolNode(a.value[0]);
@@ -4447,7 +4423,7 @@ function assertDo(a) {
   }
 }
 function assertIf(a) {
-  const symbol2 = 'if';
+  const symbol2 = "if";
   assertListNode(a);
   assertVariableArgumentCount(a.value.length, 3, 4);
   assertSymbolNode(a.value[0]);
@@ -4463,8 +4439,8 @@ function assertFn(a) {
   assertArgumentCount(a.value.length, 3);
   assertSymbolNode(a.value[0]);
   const symbolNode = a.value[0];
-  if (!['fn*', 'function', '=>'].includes(symbolNode.value)) {
-    throw new Error('use `fn*`, `function`, of `=>` in fn* expressions');
+  if (!["fn*", "function", "=>"].includes(symbolNode.value)) {
+    throw new Error("use `fn*`, `function`, of `=>` in fn* expressions");
   }
   assertSequential(a.value[1]);
   assertSequentialValues(a.value[1].value, SymbolNode);
@@ -4477,32 +4453,30 @@ function read(malCode) {
 function quasiQuote(node2) {
   const isQuotableNode = isMapNode(node2) || isSymbolNode(node2);
   if (isQuotableNode) {
-    return createListNode([createSymbolNode('quote'), node2]);
+    return createListNode([createSymbolNode("quote"), node2]);
   }
   if (!isSequentialNode(node2)) {
     return node2;
   }
-  const firstValueIsUnquote = listStartsWithSymbol(node2, 'unquote');
+  const firstValueIsUnquote = listStartsWithSymbol(node2, "unquote");
   if (firstValueIsUnquote) {
     return node2.value[1];
   }
   let result = createListNode([]);
   for (let i = node2.value.length - 1; i >= 0; i--) {
     const element = node2.value[i];
-    result = listStartsWithSymbol(element, 'splice-unquote')
-      ? createListNode([
-        createSymbolNode('concat'),
-        element.value[1],
-        result,
-      ])
-      : createListNode([
-        createSymbolNode('cons'),
-        quasiQuote(element),
-        result,
-      ]);
+    result = listStartsWithSymbol(element, "splice-unquote") ? createListNode([
+      createSymbolNode("concat"),
+      element.value[1],
+      result
+    ]) : createListNode([
+      createSymbolNode("cons"),
+      quasiQuote(element),
+      result
+    ]);
   }
   if (isVectorNode(node2)) {
-    result = createListNode([createSymbolNode('vec'), result]);
+    result = createListNode([createSymbolNode("vec"), result]);
   }
   return result;
 }
@@ -4554,7 +4528,7 @@ function evaluateAst(node2, appEnv) {
     const tagName = node2.value;
     const attributes = Array.from(node2.attributes).reduce(
       (map, [key, value]) => map.set(key, evaluate(value, appEnv)),
-      /* @__PURE__ */ new Map(),
+      /* @__PURE__ */ new Map()
     );
     const children = node2.children.map((child) => evaluate(child, appEnv));
     return createDomNode(tagName, attributes, children);
@@ -4562,7 +4536,7 @@ function evaluateAst(node2, appEnv) {
   return node2;
 }
 function evaluate(node2, appEnv) {
-  for (;;) {
+  for (; ; ) {
     if (isListNode(node2) === false) {
       return evaluateAst(node2, appEnv);
     }
@@ -4576,63 +4550,63 @@ function evaluate(node2, appEnv) {
     if (node2.value.length === 0) {
       return node2;
     }
-    const symbolValue = isSymbolNode(node2.value[0]) ? node2.value[0].value : 'goto_default_clause';
+    const symbolValue = isSymbolNode(node2.value[0]) ? node2.value[0].value : "goto_default_clause";
     let result;
     switch (symbolValue) {
       // "`var` statements and function declarations at the top level of
       // a script create properties of the global object."
       // https://developer.mozilla.org/en-US/docs/Glossary/Global_object
-      case 'var':
-      case 'def!': {
+      case "var":
+      case "def!": {
         result = evaluateDef(node2, appEnv);
         break;
       }
       // "On the other hand, let and const declarations never create
       // properties of the global object."
       // https://developer.mozilla.org/en-US/docs/Glossary/Global_object
-      case 'let':
-      case 'const':
-      case 'let*': {
+      case "let":
+      case "const":
+      case "let*": {
         result = evaluateLet(node2, appEnv);
         break;
       }
-      case 'quote': {
+      case "quote": {
         result = evaluateQuote(node2, appEnv);
         break;
       }
       // Only for testing quasiquote
-      case 'quasiquoteexpand': {
+      case "quasiquoteexpand": {
         result = evaluateQuasiQuoteExpand(node2, appEnv);
         break;
       }
-      case 'quasiquote': {
+      case "quasiquote": {
         result = evaluateQuasiQuote(node2, appEnv);
         break;
       }
-      case 'defmacro!': {
+      case "defmacro!": {
         result = evaluateDefMacro(node2, appEnv);
         break;
       }
-      case 'macroexpand': {
+      case "macroexpand": {
         result = returnResult(macroExpand(node2.value[1], appEnv));
         break;
       }
-      case 'try':
-      case 'try*': {
+      case "try":
+      case "try*": {
         result = evaluateTry(node2, appEnv);
         break;
       }
-      case 'do': {
+      case "do": {
         result = evaluateDo(node2, appEnv);
         break;
       }
-      case 'if': {
+      case "if": {
         result = evaluateIf(node2, appEnv);
         break;
       }
-      case '=>':
-      case 'function':
-      case 'fn*': {
+      case "=>":
+      case "function":
+      case "fn*": {
         result = evaluateFn(node2, appEnv);
         break;
       }
@@ -4704,7 +4678,7 @@ function evaluateTry(node2, appEnv) {
   try {
     return {
       return: evaluate(node2.value[1], appEnv),
-      continue: void 0,
+      continue: void 0
     };
   } catch (error) {
     if (!node2.value[2]) {
@@ -4747,14 +4721,14 @@ function evaluateFn(node2, appEnv) {
   const closureMeta = {
     ast: bodyExpr,
     env: outerEnv,
-    parameters,
+    parameters
   };
   const fn = createFunctionNode(
     (...args) => {
       const fnEnv = new Env(outerEnv, parameters, args);
       return evaluate(bodyExpr, fnEnv);
     },
-    closureMeta,
+    closureMeta
   );
   return returnResult(fn);
 }
@@ -4769,7 +4743,7 @@ function evaluateApply(node2, appEnv) {
       const fnEnv = new Env(
         fn.closureMeta.env,
         fn.closureMeta.parameters,
-        args,
+        args
       );
       return { continue: { ast, env: fnEnv }, return: void 0 };
     }
@@ -4796,21 +4770,21 @@ function initEnv() {
     replEnv.set(htmlSymbol, htmlFunc);
   }
   replEnv.set(
-    createSymbolNode('eval'),
+    createSymbolNode("eval"),
     createFunctionNode((...args) => {
       assertArgumentCount(args.length, 1);
       return evaluate(args[0], replEnv);
-    }),
+    })
   );
   replEnv.set(
-    createSymbolNode('dump'),
+    createSymbolNode("dump"),
     createFunctionNode((..._args) => {
       const serialized = replEnv.serialize();
       console.log(printString(serialized, true));
       return createNilNode();
-    }),
+    })
   );
-  rep('(def! not (fn* (a) (if a false true)))', replEnv);
+  rep("(def! not (fn* (a) (if a false true)))", replEnv);
   rep(
     `(defmacro! cond
       (fn* (& xs)
@@ -4818,13 +4792,13 @@ function initEnv() {
                                   (if (> (count xs) 1) (nth xs 1)
                                       (throw "odd number of forms to cond"))
                                   (cons 'cond (rest (rest xs)))))))`,
-    replEnv,
+    replEnv
   );
   return replEnv;
 }
 
 // src/readline_qjs.ts
-var defaultPrompt = 'user> ';
+var defaultPrompt = "user> ";
 function* readline(promptText = defaultPrompt) {
   while (true) {
     std.out.puts(promptText);
@@ -4851,11 +4825,8 @@ function loadFileWithEnv(appEnv) {
     const text = slurp(args[0]);
     assertStringNode(text);
     const fileEnv = new Env(appEnv);
-    const result = rep(
-      `(do ${text.value})
-nil`,
-      fileEnv,
-    );
+    const result = rep(`(do ${text.value})
+nil`, fileEnv);
     return createStringNode(result);
   };
 }
@@ -4863,10 +4834,10 @@ function initMain() {
   const replEnv = initEnv();
   const appImport = loadFileWithEnv(replEnv);
   const nsValues3 = [
-    ['readFile', slurp],
-    ['slurp', slurp],
-    ['load-file', appImport],
-    ['import', appImport],
+    ["readFile", slurp],
+    ["slurp", slurp],
+    ["load-file", appImport],
+    ["import", appImport]
     // ['readln', readln],
     // ['prompt', readln],
     // ['readir', readir],
@@ -4879,28 +4850,28 @@ function initMain() {
   }
   return replEnv;
 }
-function toPosixPath(filePath = '') {
-  return filePath.replace(/\\/g, '/');
+function toPosixPath(filePath = "") {
+  return filePath.replace(/\\/g, "/");
 }
 async function main(...args) {
   const replEnv = initMain();
   const userScriptPath = toPosixPath(args[0]);
   const hostEnvArgs = args.slice(1).map((arg) => createStringNode(arg));
   replEnv.set(
-    createSymbolNode('*ARGV*'),
-    createListNode(hostEnvArgs),
+    createSymbolNode("*ARGV*"),
+    createListNode(hostEnvArgs)
   );
   replEnv.set(
-    createSymbolNode('*host-language*'),
-    createStringNode('Ensemble'),
+    createSymbolNode("*host-language*"),
+    createStringNode("Ensemble")
   );
   if (userScriptPath) {
     rep(`(import "${userScriptPath}")`, replEnv);
     return;
   }
   rep('(println (str "Welcome to " *host-language* "! Press Ctrl/Cmd+C to exit."))', replEnv);
-  for await (const input of readline('user> ')) {
-    if (input === '' || input === null) {
+  for await (const input of readline("user> ")) {
+    if (input === "" || input === null) {
       continue;
     }
     try {

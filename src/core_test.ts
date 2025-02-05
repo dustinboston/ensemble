@@ -1,37 +1,36 @@
-import * as core from '@/core.ts';
-import { assert, assertEquals, assertInstanceOf, assertStrictEquals, assertThrows } from '@std/assert';
-import { assertSpyCall, assertSpyCalls, spy } from '@std/testing/mock';
+import { assert, assertEquals, assertInstanceOf, assertSpyCall, assertSpyCalls, assertStrictEquals, assertThrows, spy, test } from '../tests/test_runner.ts';
+import * as core from './core.ts';
 import * as types from './types.ts';
 
-Deno.test('eq(): returns true for equal nodes', () => {
+test('eq(): returns true for equal nodes', () => {
   assertEquals(
     core.eq(types.createNumberNode(1), types.createNumberNode(1)),
     types.createBooleanNode(true),
   );
 });
 
-Deno.test('eq(): returns false for unequal nodes', () => {
+test('eq(): returns false for unequal nodes', () => {
   assertEquals(
     core.eq(types.createNumberNode(1), types.createNumberNode(2)),
     types.createBooleanNode(false),
   );
 });
 
-Deno.test('printEscapedString(): returns escaped string', () => {
+test('printEscapedString(): returns escaped string', () => {
   assertEquals(
     core.printEscapedString(types.createStringNode('abc\ndef\nghi')),
     types.createStringNode('"abc\\ndef\\nghi"'),
   );
 });
 
-Deno.test('printUnescapedString(): returns unescaped string', () => {
+test('printUnescapedString(): returns unescaped string', () => {
   assertEquals(
     core.printUnescapedString(types.createStringNode('abc\ndef\nghi')),
     types.createStringNode('abc\ndef\nghi'),
   );
 });
 
-Deno.test('printEscapedStringToScreen(): logs the escaped string', () => {
+test('printEscapedStringToScreen(): logs the escaped string', () => {
   const logSpy = spy(console, 'log');
 
   try {
@@ -47,7 +46,7 @@ Deno.test('printEscapedStringToScreen(): logs the escaped string', () => {
   assertSpyCalls(logSpy, 1);
 });
 
-Deno.test('printEscapedStringToScreen(): logs the unescaped string', () => {
+test('printEscapedStringToScreen(): logs the unescaped string', () => {
   const logSpy = spy(console, 'log');
 
   try {
@@ -63,7 +62,7 @@ Deno.test('printEscapedStringToScreen(): logs the unescaped string', () => {
   assertSpyCalls(logSpy, 1);
 });
 
-Deno.test('readString(): should read string and return AST', () => {
+test('readString(): should read string and return AST', () => {
   const input = types.createStringNode('(+ 2 3)');
   const expected = types.createListNode([
     types.createSymbolNode('+'),
@@ -73,11 +72,11 @@ Deno.test('readString(): should read string and return AST', () => {
   assertEquals(core.readString(input), expected);
 });
 
-Deno.test('readString(): throws when there are zero arguments', () => {
+test('readString(): throws when there are zero arguments', () => {
   assertThrows(() => core.readString());
 });
 
-Deno.test('readString(): throws when there is more than one argument', () => {
+test('readString(): throws when there is more than one argument', () => {
   assertThrows(() =>
     core.readString(
       types.createStringNode('foo'),
@@ -86,24 +85,24 @@ Deno.test('readString(): throws when there is more than one argument', () => {
   );
 });
 
-Deno.test('readString(): should throw when argument is not a string', () => {
+test('readString(): should throw when argument is not a string', () => {
   assertThrows(() => core.readString(types.createNumberNode(42)));
 });
 
-Deno.test('trim(): should trim whitespace from the start and end of a string', () => {
+test('trim(): should trim whitespace from the start and end of a string', () => {
   assertEquals(
     core.trim(types.createStringNode('  hello  ')),
     types.createStringNode('hello'),
   );
 });
 
-Deno.test('trim(): should throw an error when no arguments are provided', () => {
+test('trim(): should throw an error when no arguments are provided', () => {
   assertThrows(() => {
     core.trim();
   });
 });
 
-Deno.test('trim(): should throw an error when more than one argument is provided', () => {
+test('trim(): should throw an error when more than one argument is provided', () => {
   assertThrows(() => {
     core.trim(
       types.createStringNode('hello'),
@@ -112,14 +111,14 @@ Deno.test('trim(): should throw an error when more than one argument is provided
   });
 });
 
-Deno.test('trim(): should throw an error when the argument is not a string', () => {
+test('trim(): should throw an error when the argument is not a string', () => {
   assertThrows(() => {
     core.trim(types.createNumberNode(123));
   });
 });
 
 // Test for '<'
-Deno.test("lt(): should return false if 'a' is greater than 'b'", () => {
+test("lt(): should return false if 'a' is greater than 'b'", () => {
   const result1 = core.lt(
     types.createNumberNode(2),
     types.createNumberNode(1),
@@ -127,7 +126,7 @@ Deno.test("lt(): should return false if 'a' is greater than 'b'", () => {
   assertEquals(result1, types.createBooleanNode(false));
 });
 
-Deno.test("lt(): should return false if 'a' is equal to 'b'", () => {
+test("lt(): should return false if 'a' is equal to 'b'", () => {
   const result1 = core.lt(
     types.createNumberNode(1),
     types.createNumberNode(1),
@@ -135,7 +134,7 @@ Deno.test("lt(): should return false if 'a' is equal to 'b'", () => {
   assertEquals(result1, types.createBooleanNode(false));
 });
 
-Deno.test("lt(): should return true if 'a' is less than 'b'", () => {
+test("lt(): should return true if 'a' is less than 'b'", () => {
   const result2 = core.lt(
     types.createNumberNode(1),
     types.createNumberNode(2),
@@ -144,7 +143,7 @@ Deno.test("lt(): should return true if 'a' is less than 'b'", () => {
 });
 
 // Test for '<='
-Deno.test("lte(): should return false if 'a' is greater than 'b'", () => {
+test("lte(): should return false if 'a' is greater than 'b'", () => {
   const result1 = core.lte(
     types.createNumberNode(2),
     types.createNumberNode(1),
@@ -152,7 +151,7 @@ Deno.test("lte(): should return false if 'a' is greater than 'b'", () => {
   assertEquals(result1, types.createBooleanNode(false));
 });
 
-Deno.test("lte(): should return true if 'a' is equal to 'b'", () => {
+test("lte(): should return true if 'a' is equal to 'b'", () => {
   const result2 = core.lte(
     types.createNumberNode(1),
     types.createNumberNode(1),
@@ -160,7 +159,7 @@ Deno.test("lte(): should return true if 'a' is equal to 'b'", () => {
   assertEquals(result2, types.createBooleanNode(true));
 });
 
-Deno.test("lte(): should return true if 'a' is less than 'b'", () => {
+test("lte(): should return true if 'a' is less than 'b'", () => {
   const result2 = core.lte(
     types.createNumberNode(1),
     types.createNumberNode(2),
@@ -169,7 +168,7 @@ Deno.test("lte(): should return true if 'a' is less than 'b'", () => {
 });
 
 // Test for '>'
-Deno.test("gt(): should return true if 'a' is greater than 'b'", () => {
+test("gt(): should return true if 'a' is greater than 'b'", () => {
   const result1 = core.gt(
     types.createNumberNode(2),
     types.createNumberNode(1),
@@ -177,7 +176,7 @@ Deno.test("gt(): should return true if 'a' is greater than 'b'", () => {
   assertEquals(result1, types.createBooleanNode(true));
 });
 
-Deno.test("gt(): should return false if 'a' is less than 'b'", () => {
+test("gt(): should return false if 'a' is less than 'b'", () => {
   const result2 = core.gt(
     types.createNumberNode(1),
     types.createNumberNode(2),
@@ -185,7 +184,7 @@ Deno.test("gt(): should return false if 'a' is less than 'b'", () => {
   assertEquals(result2, types.createBooleanNode(false));
 });
 
-Deno.test("gt(): should return false if 'a' is equal to 'b'", () => {
+test("gt(): should return false if 'a' is equal to 'b'", () => {
   const result2 = core.gt(
     types.createNumberNode(1),
     types.createNumberNode(1),
@@ -194,7 +193,7 @@ Deno.test("gt(): should return false if 'a' is equal to 'b'", () => {
 });
 
 // Test for '>='
-Deno.test("gte(): should return true if 'a' is greater than 'b'", () => {
+test("gte(): should return true if 'a' is greater than 'b'", () => {
   const result1 = core.gte(
     types.createNumberNode(2),
     types.createNumberNode(1),
@@ -202,7 +201,7 @@ Deno.test("gte(): should return true if 'a' is greater than 'b'", () => {
   assertEquals(result1, types.createBooleanNode(true));
 });
 
-Deno.test("gte(): should return true if 'a' is equal to 'b'", () => {
+test("gte(): should return true if 'a' is equal to 'b'", () => {
   const result2 = core.gte(
     types.createNumberNode(1),
     types.createNumberNode(1),
@@ -211,7 +210,7 @@ Deno.test("gte(): should return true if 'a' is equal to 'b'", () => {
 });
 
 // Test for '+'
-Deno.test('add(): should sum two numbers', () => {
+test('add(): should sum two numbers', () => {
   const result = core.add(
     types.createNumberNode(2),
     types.createNumberNode(1),
@@ -220,7 +219,7 @@ Deno.test('add(): should sum two numbers', () => {
 });
 
 // Test for '+' error case
-Deno.test('add(): should throw an error if an argument is not a number', () => {
+test('add(): should throw an error if an argument is not a number', () => {
   assertThrows(() => {
     core.add(
       types.createStringNode('not a num'),
@@ -230,7 +229,7 @@ Deno.test('add(): should throw an error if an argument is not a number', () => {
 });
 
 // Test for '-'
-Deno.test('subtract(): should find the difference between two numbers', () => {
+test('subtract(): should find the difference between two numbers', () => {
   const result = core.subtract(
     types.createNumberNode(2),
     types.createNumberNode(1),
@@ -239,7 +238,7 @@ Deno.test('subtract(): should find the difference between two numbers', () => {
 });
 
 // Test for '-' error case
-Deno.test('subtract(): should throw an error if an argument is not a number', () => {
+test('subtract(): should throw an error if an argument is not a number', () => {
   assertThrows(() => {
     core.subtract(
       types.createStringNode('not a num'),
@@ -249,7 +248,7 @@ Deno.test('subtract(): should throw an error if an argument is not a number', ()
 });
 
 // Test for '*'
-Deno.test('multiply(): should find the product of two numbers', () => {
+test('multiply(): should find the product of two numbers', () => {
   const result = core.multiply(
     types.createNumberNode(2),
     types.createNumberNode(3),
@@ -258,7 +257,7 @@ Deno.test('multiply(): should find the product of two numbers', () => {
 });
 
 // Test for '*' error case
-Deno.test('multiply(): should throw an error if an argument is not a number', () => {
+test('multiply(): should throw an error if an argument is not a number', () => {
   assertThrows(() => {
     core.multiply(
       types.createStringNode('not a num'),
@@ -268,7 +267,7 @@ Deno.test('multiply(): should throw an error if an argument is not a number', ()
 });
 
 // Test for '/'
-Deno.test('divide(): should find the quotient of two numbers', () => {
+test('divide(): should find the quotient of two numbers', () => {
   const result = core.divide(
     types.createNumberNode(4),
     types.createNumberNode(2),
@@ -277,7 +276,7 @@ Deno.test('divide(): should find the quotient of two numbers', () => {
 });
 
 // Test for '/' error case
-Deno.test('divide(): should throw an error if an argument is not a number', () => {
+test('divide(): should throw an error if an argument is not a number', () => {
   assertThrows(() => {
     core.divide(
       types.createStringNode('not a num'),
@@ -286,9 +285,9 @@ Deno.test('divide(): should throw an error if an argument is not a number', () =
   });
 });
 
-Deno.test('timeMs(): should return a unix timestamp', () => {
+test('timeMs(): should return a unix timestamp', () => {
   const result = core.timeMs() as types.NumberNode;
-  const currentTime = Date.now();
+  const currentTime = (new Date()).getTime();
 
   // Ensure it's a number
   assertEquals(typeof result.value, 'number');
@@ -297,7 +296,7 @@ Deno.test('timeMs(): should return a unix timestamp', () => {
   assert(Math.abs(currentTime - result.value) < 1000);
 });
 
-Deno.test('list(): should return a list containing the given args', () => {
+test('list(): should return a list containing the given args', () => {
   const a = types.createNumberNode(1);
   const b = types.createNumberNode(2);
   const result = core.list(a, b);
@@ -306,17 +305,17 @@ Deno.test('list(): should return a list containing the given args', () => {
 });
 
 // Test for 'isList'
-Deno.test('isListNode(): should return true if the argument is a list', () => {
+test('isListNode(): should return true if the argument is a list', () => {
   const aList = types.createListNode([types.createNumberNode(1)]);
   assertEquals(types.isListNode(aList), true);
 });
 
-Deno.test('isListNode(): should return false if the argument is not a list', () => {
+test('isListNode(): should return false if the argument is not a list', () => {
   const notList = types.createNumberNode(1);
   assertEquals(types.isListNode(notList), false);
 });
 
-Deno.test('conj(): should throw with with less than 2 arguments', () => {
+test('conj(): should throw with with less than 2 arguments', () => {
   assertThrows(
     () => core.conj(types.createListNode([types.createNumberNode(1)])),
     Error,
@@ -324,7 +323,7 @@ Deno.test('conj(): should throw with with less than 2 arguments', () => {
   );
 });
 
-Deno.test('conj(): should conjoin values in a list', () => {
+test('conj(): should conjoin values in a list', () => {
   assertEquals(
     core.conj(
       types.createListNode([
@@ -345,7 +344,7 @@ Deno.test('conj(): should conjoin values in a list', () => {
   );
 });
 
-Deno.test('conj(): should conjoin values in a vector', () => {
+test('conj(): should conjoin values in a vector', () => {
   assertEquals(
     core.conj(
       types.createVectorNode([
@@ -366,7 +365,7 @@ Deno.test('conj(): should conjoin values in a vector', () => {
   );
 });
 
-Deno.test('conj(): should throw without a List or Vector', () => {
+test('conj(): should throw without a List or Vector', () => {
   assertThrows(
     () => core.conj(types.createNumberNode(42), types.createNumberNode(1)),
     Error,
@@ -374,11 +373,11 @@ Deno.test('conj(): should throw without a List or Vector', () => {
   );
 });
 
-Deno.test('concat(): with no arguments', () => {
+test('concat(): with no arguments', () => {
   assertEquals(core.concat(), types.createListNode([]));
 });
 
-Deno.test('concat(): with one list', () => {
+test('concat(): with one list', () => {
   assertEquals(
     core.concat(
       types.createListNode([
@@ -393,7 +392,7 @@ Deno.test('concat(): with one list', () => {
   );
 });
 
-Deno.test('concat(): with two lists', () => {
+test('concat(): with two lists', () => {
   assertEquals(
     core.concat(
       types.createListNode([
@@ -414,7 +413,7 @@ Deno.test('concat(): with two lists', () => {
   );
 });
 
-Deno.test('concat(): with three lists', () => {
+test('concat(): with three lists', () => {
   assertEquals(
     core.concat(
       types.createListNode([
@@ -441,11 +440,11 @@ Deno.test('concat(): with three lists', () => {
   );
 });
 
-Deno.test('concat(): with empty lists', () => {
+test('concat(): with empty lists', () => {
   assertEquals(core.concat(types.createListNode([]), types.createListNode([])), types.createListNode([]));
 });
 
-Deno.test('concat(): with non-Seq type should throw', () => {
+test('concat(): with non-Seq type should throw', () => {
   assertThrows(
     () => core.concat(types.createNumberNode(1)),
     Error,
@@ -453,7 +452,7 @@ Deno.test('concat(): with non-Seq type should throw', () => {
   );
 });
 
-Deno.test('cons(): should construct a list by prepending the given value', () => {
+test('cons(): should construct a list by prepending the given value', () => {
   assertEquals(
     core.cons(
       types.createNumberNode(0),
@@ -472,7 +471,7 @@ Deno.test('cons(): should construct a list by prepending the given value', () =>
   );
 });
 
-Deno.test('cons(): should throw error with less than 2 arguments', () => {
+test('cons(): should throw error with less than 2 arguments', () => {
   assertThrows(
     () => core.cons(types.createNumberNode(0)),
     Error,
@@ -480,7 +479,7 @@ Deno.test('cons(): should throw error with less than 2 arguments', () => {
   );
 });
 
-Deno.test('cons(): should throw error with more than 2 arguments', () => {
+test('cons(): should throw error with more than 2 arguments', () => {
   assertThrows(
     () => core.cons(types.createNumberNode(0), types.createNumberNode(0), types.createNumberNode(0)),
     Error,
@@ -488,7 +487,7 @@ Deno.test('cons(): should throw error with more than 2 arguments', () => {
   );
 });
 
-Deno.test('cons(): should throw error if second argument is not a List', () => {
+test('cons(): should throw error if second argument is not a List', () => {
   const value = types.createNumberNode(0);
   const notList = types.createNumberNode(42);
   assertThrows(
@@ -499,7 +498,7 @@ Deno.test('cons(): should throw error if second argument is not a List', () => {
 });
 
 // Test for 'vec' when input is a list
-Deno.test('vec(): should convert a list into a vector', () => {
+test('vec(): should convert a list into a vector', () => {
   assertEquals(
     core.vec(
       types.createListNode([
@@ -517,13 +516,13 @@ Deno.test('vec(): should convert a list into a vector', () => {
 });
 
 // Test for 'vec' when input is not a list
-Deno.test('vec(): should return the original node if the argument is not a List', () => {
+test('vec(): should return the original node if the argument is not a List', () => {
   const notList = types.createNumberNode(1);
   assertEquals(core.vec(notList), notList);
 });
 
 // Test for 'vec' when there are multiple arguments
-Deno.test('vec(): should ignore additional arguments', () => {
+test('vec(): should ignore additional arguments', () => {
   assertEquals(
     core.vec(types.createListNode([types.createNumberNode(1)]), types.createNumberNode(2)),
     types.createVectorNode([types.createNumberNode(1)]),
@@ -531,11 +530,11 @@ Deno.test('vec(): should ignore additional arguments', () => {
 });
 
 // Test for 'vec' when no arguments
-Deno.test('vec(): should return undefined if no arguments are provided', () => {
+test('vec(): should return undefined if no arguments are provided', () => {
   assertEquals(core.vec(), undefined);
 });
 
-Deno.test('nth(): should return the nth element of a list', () => {
+test('nth(): should return the nth element of a list', () => {
   assertEquals(
     core.nth(
       types.createListNode([
@@ -549,7 +548,7 @@ Deno.test('nth(): should return the nth element of a list', () => {
   );
 });
 
-Deno.test('nth(): should throw error when index is out of range', () => {
+test('nth(): should throw error when index is out of range', () => {
   assertThrows(
     () => core.nth(types.createListNode([types.createSymbolNode('a')]), types.createNumberNode(1)),
     Error,
@@ -557,7 +556,7 @@ Deno.test('nth(): should throw error when index is out of range', () => {
   );
 });
 
-Deno.test('firstNodeInList(): should return the first element of a list', () => {
+test('firstNodeInList(): should return the first element of a list', () => {
   assertEquals(
     core.firstNodeInList(
       types.createListNode([
@@ -569,14 +568,14 @@ Deno.test('firstNodeInList(): should return the first element of a list', () => 
   );
 });
 
-Deno.test('firstNodeInList(): should return nil for empty list', () => {
+test('firstNodeInList(): should return nil for empty list', () => {
   assertEquals(
     core.firstNodeInList(types.createListNode([])),
     types.createNilNode(),
   );
 });
 
-Deno.test('rest(): should return a list without the first element', () => {
+test('rest(): should return a list without the first element', () => {
   assertEquals(
     core.rest(
       types.createListNode([
@@ -592,25 +591,25 @@ Deno.test('rest(): should return a list without the first element', () => {
   );
 });
 
-Deno.test('rest(): should return empty list for single-element list', () => {
+test('rest(): should return empty list for single-element list', () => {
   assertEquals(
     core.rest(types.createListNode([types.createNumberNode(1)])),
     types.createListNode([]),
   );
 });
 
-Deno.test('empty(): should return true for an empty list', () => {
+test('empty(): should return true for an empty list', () => {
   assertEquals(core.empty(types.createListNode([])), types.createBooleanNode(true));
 });
 
-Deno.test('empty(): should return false for a non-empty list', () => {
+test('empty(): should return false for a non-empty list', () => {
   assertEquals(
     core.empty(types.createListNode([types.createNumberNode(2)])),
     types.createBooleanNode(false),
   );
 });
 
-Deno.test('count(): should return the length of a list', () => {
+test('count(): should return the length of a list', () => {
   assertEquals(
     core.length(
       types.createListNode([
@@ -622,22 +621,22 @@ Deno.test('count(): should return the length of a list', () => {
   );
 });
 
-Deno.test('count(): should return 0 for an empty list', () => {
+test('count(): should return 0 for an empty list', () => {
   assertEquals(core.length(types.createListNode([])), types.createNumberNode(0));
 });
 
-Deno.test('should return 0 for a Nil value', () => {
+test('should return 0 for a Nil value', () => {
   assertEquals(core.length(types.createNilNode()), types.createNumberNode(0));
 });
 
-Deno.test('atom(): should create an Atom from a given node', () => {
+test('atom(): should create an Atom from a given node', () => {
   assertEquals(
     core.atom(types.createNumberNode(42)),
     types.createAtomNode(types.createNumberNode(42)),
   );
 });
 
-Deno.test('atom(): should throw error when no arguments are provided', () => {
+test('atom(): should throw error when no arguments are provided', () => {
   assertThrows(
     () => core.atom(),
     Error,
@@ -645,33 +644,33 @@ Deno.test('atom(): should throw error when no arguments are provided', () => {
   );
 });
 
-Deno.test('isAtom(): should return true if the node is an Atom', () => {
+test('isAtom(): should return true if the node is an Atom', () => {
   assertEquals(
     core.isAtom(types.createAtomNode(types.createNumberNode(42))),
     types.createBooleanNode(true),
   );
 });
 
-Deno.test('isAtom(): should return false if the node is not an Atom', () => {
+test('isAtom(): should return false if the node is not an Atom', () => {
   assertEquals(core.isAtom(types.createNumberNode(42)), types.createBooleanNode(false));
 });
 
-Deno.test('deref(): should return the node contained in the Atom', () => {
+test('deref(): should return the node contained in the Atom', () => {
   assertEquals(core.deref(types.createAtomNode(types.createNumberNode(42))), types.createNumberNode(42));
 });
 
-Deno.test('deref(): should throw error for non-Atom nodes', () => {
+test('deref(): should throw error for non-Atom nodes', () => {
   assertThrows(() => core.deref(types.createNumberNode(42)), Error, 'Invalid');
 });
 
-Deno.test("reset(): should update the Atom's value and return the node", () => {
+test("reset(): should update the Atom's value and return the node", () => {
   const atom = types.createAtomNode(types.createNumberNode(42));
   assertEquals(atom.value, types.createNumberNode(42));
   assertEquals(core.reset(atom, types.createNumberNode(43)), types.createNumberNode(43));
   assertEquals(atom.value, types.createNumberNode(43));
 });
 
-Deno.test('reset(): should throw error for non-Atom first argument', () => {
+test('reset(): should throw error for non-Atom first argument', () => {
   assertThrows(
     () => core.reset(types.createNumberNode(42), types.createNumberNode(43)),
     Error,
@@ -679,13 +678,13 @@ Deno.test('reset(): should throw error for non-Atom first argument', () => {
   );
 });
 
-Deno.test('should throw an error for insufficient arguments', () => {
+test('should throw an error for insufficient arguments', () => {
   assertThrows(() => {
     core.swap(types.createAtomNode(types.createStringNode('a')));
   });
 });
 
-Deno.test('swap(): should throw an error if the first argument is not an Atom', () => {
+test('swap(): should throw an error if the first argument is not an Atom', () => {
   assertThrows(() => {
     core.swap(
       types.createStringNode('not an atom'),
@@ -694,7 +693,7 @@ Deno.test('swap(): should throw an error if the first argument is not an Atom', 
   });
 });
 
-Deno.test('swap(): should throw an error if the second argument is not a Func', () => {
+test('swap(): should throw an error if the second argument is not a Func', () => {
   assertThrows(() => {
     core.swap(
       types.createAtomNode(types.createStringNode('a')),
@@ -703,7 +702,7 @@ Deno.test('swap(): should throw an error if the second argument is not a Func', 
   });
 });
 
-Deno.test("swap(): should swap the Atoms' value with the result of the function", () => {
+test("swap(): should swap the Atoms' value with the result of the function", () => {
   assertEquals(
     core.swap(
       types.createAtomNode(types.createNumberNode(6)),
@@ -715,7 +714,7 @@ Deno.test("swap(): should swap the Atoms' value with the result of the function"
   );
 });
 
-Deno.test('swap(): should handle additional parameters correctly', () => {
+test('swap(): should handle additional parameters correctly', () => {
   assertEquals(
     core.swap(
       types.createAtomNode(types.createNumberNode(5)),
@@ -732,25 +731,25 @@ Deno.test('swap(): should handle additional parameters correctly', () => {
   );
 });
 
-Deno.test('throwError(): should throw the value of an ast node', () => {
+test('throwError(): should throw the value of an ast node', () => {
   assertThrows(() => core.throwError(types.createStringNode('foo')), 'foo');
 });
 
-Deno.test('throwError(): should throw an error when no arguments are provided', () => {
+test('throwError(): should throw an error when no arguments are provided', () => {
   assertThrows(
     () => core.throwError(),
     'Unexpected number of arguments',
   );
 });
 
-Deno.test('throwError(): should throw an error when given an invalid argument type', () => {
+test('throwError(): should throw an error when given an invalid argument type', () => {
   assertThrows(
     () => core.throwError(types.createBooleanNode(false)),
     'invalid argument',
   );
 });
 
-Deno.test('apply(): should call a function with list arguments', () => {
+test('apply(): should call a function with list arguments', () => {
   assertEquals(
     core.apply(
       types.createFunctionNode(
@@ -769,7 +768,7 @@ Deno.test('apply(): should call a function with list arguments', () => {
   );
 });
 
-Deno.test('apply(): should concatenate other arguments with list', () => {
+test('apply(): should concatenate other arguments with list', () => {
   assertEquals(
     core.apply(
       types.createFunctionNode(
@@ -790,7 +789,7 @@ Deno.test('apply(): should concatenate other arguments with list', () => {
   );
 });
 
-Deno.test('apply(): should throw error for non-Seq last argument', () => {
+test('apply(): should throw error for non-Seq last argument', () => {
   assertThrows(
     () =>
       core.apply(
@@ -808,7 +807,7 @@ Deno.test('apply(): should throw error for non-Seq last argument', () => {
   );
 });
 
-Deno.test('apply(): should throw error for non-Func first argument', () => {
+test('apply(): should throw error for non-Func first argument', () => {
   assertThrows(
     () =>
       core.apply(
@@ -823,7 +822,7 @@ Deno.test('apply(): should throw error for non-Func first argument', () => {
   );
 });
 
-Deno.test('applyToSequence(): should call function against each item in a list', () => {
+test('applyToSequence(): should call function against each item in a list', () => {
   assertEquals(
     core.applyToSequence(
       types.createFunctionNode(
@@ -845,7 +844,7 @@ Deno.test('applyToSequence(): should call function against each item in a list',
   );
 });
 
-Deno.test('applyToSequence(): should throw error if not given exactly 2 arguments', () => {
+test('applyToSequence(): should throw error if not given exactly 2 arguments', () => {
   assertThrows(
     () =>
       core.applyToSequence(
@@ -860,7 +859,7 @@ Deno.test('applyToSequence(): should throw error if not given exactly 2 argument
   );
 });
 
-Deno.test('applyToSequence(): should throw error if second argument is not a List', () => {
+test('applyToSequence(): should throw error if second argument is not a List', () => {
   assertThrows(
     () =>
       core.applyToSequence(
@@ -876,7 +875,7 @@ Deno.test('applyToSequence(): should throw error if second argument is not a Lis
   );
 });
 
-Deno.test('seq should return same list if given a list', () => {
+test('seq should return same list if given a list', () => {
   const list = types.createListNode([
     types.createNumberNode(1),
     types.createNumberNode(2),
@@ -890,7 +889,7 @@ Deno.test('seq should return same list if given a list', () => {
   assertEquals(result.value, list.value);
 });
 
-Deno.test('seq(): should return a list if given a vec', () => {
+test('seq(): should return a list if given a vec', () => {
   assertEquals(
     core.seq(
       types.createVectorNode([
@@ -907,7 +906,7 @@ Deno.test('seq(): should return a list if given a vec', () => {
   );
 });
 
-Deno.test('seq(): should return a list of chars if given a string', () => {
+test('seq(): should return a list of chars if given a string', () => {
   assertEquals(
     core.seq(types.createStringNode('foo')),
     types.createListNode([
@@ -918,28 +917,28 @@ Deno.test('seq(): should return a list of chars if given a string', () => {
   );
 });
 
-Deno.test('seq(): should return nil if given nil', () => {
+test('seq(): should return nil if given nil', () => {
   assertEquals(
     core.seq(types.createNilNode()),
     types.createNilNode(),
   );
 });
 
-Deno.test('seq(): should return nil if given an empty list', () => {
+test('seq(): should return nil if given an empty list', () => {
   assertEquals(
     core.seq(types.createListNode([])),
     types.createNilNode(),
   );
 });
 
-Deno.test('seq(): should return nil if given an empty vector', () => {
+test('seq(): should return nil if given an empty vector', () => {
   assertEquals(
     core.seq(types.createVectorNode([])),
     types.createNilNode(),
   );
 });
 
-Deno.test('meta(): should return metadata of an element', () => {
+test('meta(): should return metadata of an element', () => {
   assertEquals(
     core.meta(
       types.createFunctionNode(
@@ -953,7 +952,7 @@ Deno.test('meta(): should return metadata of an element', () => {
   );
 });
 
-Deno.test('meta(): should throw error if not given exactly 1 argument', () => {
+test('meta(): should throw error if not given exactly 1 argument', () => {
   assertThrows(
     () => core.meta(),
     Error,
@@ -961,7 +960,7 @@ Deno.test('meta(): should throw error if not given exactly 1 argument', () => {
   );
 });
 
-Deno.test("meta(): should throw error if argument isn't a MetadataType", () => {
+test("meta(): should throw error if argument isn't a MetadataType", () => {
   const notMetadataType = types.createNumberNode(42);
   assertThrows(
     () => core.meta(notMetadataType),
@@ -970,7 +969,7 @@ Deno.test("meta(): should throw error if argument isn't a MetadataType", () => {
   );
 });
 
-Deno.test('withMeta(): should set metadata', () => {
+test('withMeta(): should set metadata', () => {
   const func = types.createFunctionNode((x) => x);
   const meta = types.createMapNode(new Map([['b', types.createNumberNode(1)]]));
 
@@ -980,7 +979,7 @@ Deno.test('withMeta(): should set metadata', () => {
   assertEquals(func.metadata, undefined);
 });
 
-Deno.test('withMeta(): should throw error if not given exactly 2 arguments', () => {
+test('withMeta(): should throw error if not given exactly 2 arguments', () => {
   assertThrows(
     () => core.withMeta(),
     Error,
@@ -988,7 +987,7 @@ Deno.test('withMeta(): should throw error if not given exactly 2 arguments', () 
   );
 });
 
-Deno.test("withMeta(): should throw if first argument isn't MetadataType", () => {
+test("withMeta(): should throw if first argument isn't MetadataType", () => {
   assertThrows(
     () =>
       core.withMeta(
@@ -1002,154 +1001,154 @@ Deno.test("withMeta(): should throw if first argument isn't MetadataType", () =>
   );
 });
 
-Deno.test('isNil(): should return true if argument is a NilNode', () => {
+test('isNil(): should return true if argument is a NilNode', () => {
   assertEquals(
     core.isNil(types.createNilNode()),
     types.createBooleanNode(true),
   );
 });
 
-Deno.test('isNil(): should return false if argument is not a NilNode', () => {
+test('isNil(): should return false if argument is not a NilNode', () => {
   assertEquals(
     core.isNil(types.createBooleanNode(true)),
     types.createBooleanNode(false),
   );
 });
 
-Deno.test('isTrue(): should return true for a true value', () => {
+test('isTrue(): should return true for a true value', () => {
   assertEquals(
     core.isTrue(types.createBooleanNode(true)),
     types.createBooleanNode(true),
   );
 });
 
-Deno.test('isTrue(): should return false for a false value', () => {
+test('isTrue(): should return false for a false value', () => {
   assertEquals(
     core.isTrue(types.createBooleanNode(false)),
     types.createBooleanNode(false),
   );
 });
 
-Deno.test('isFalse(): should return true for a false value', () => {
+test('isFalse(): should return true for a false value', () => {
   assertEquals(
     core.isFalse(types.createBooleanNode(false)),
     types.createBooleanNode(true),
   );
 });
 
-Deno.test('isFalse(): should return false for a true value', () => {
+test('isFalse(): should return false for a true value', () => {
   assertEquals(
     core.isFalse(types.createBooleanNode(true)),
     types.createBooleanNode(false),
   );
 });
 
-Deno.test('isString(): should return true if argument is a StringNode', () => {
+test('isString(): should return true if argument is a StringNode', () => {
   assertEquals(
     core.isString(types.createStringNode('foobar')),
     types.createBooleanNode(true),
   );
 });
 
-Deno.test('isString(): should return false if argument is not a StringNode', () => {
+test('isString(): should return false if argument is not a StringNode', () => {
   assertEquals(
     core.isString(types.createBooleanNode(true)),
     types.createBooleanNode(false),
   );
 });
 
-Deno.test('symbol(): should create symbol from a string', () => {
+test('symbol(): should create symbol from a string', () => {
   const result = core.symbol(types.createStringNode('abc'));
   assertEquals(types.isSymbolNode(result), true);
 });
 
-Deno.test('isSymbol(): should return true if argument is a SymbolNode', () => {
+test('isSymbol(): should return true if argument is a SymbolNode', () => {
   assertEquals(
     types.isSymbolNode(types.createSymbolNode('abc')),
     true,
   );
 });
 
-Deno.test('isSymbol(): should return false if argument is not a SymbolNode', () => {
+test('isSymbol(): should return false if argument is not a SymbolNode', () => {
   assertEquals(
     types.isSymbolNode(types.createStringNode('abc')),
     false,
   );
 });
 
-Deno.test('keyword(): should create keyword from a string', () => {
+test('keyword(): should create keyword from a string', () => {
   const result = core.keyword(types.createStringNode('pie'));
   assertInstanceOf(result, types.KeywordNode);
   assertEquals(result.value, 'pie:');
 });
 
-Deno.test('keyword(): should create new keyword from a symbol', () => {
+test('keyword(): should create new keyword from a symbol', () => {
   const result = core.keyword(types.createSymbolNode('cake'));
   assertInstanceOf(result, types.KeywordNode);
   assertEquals(result.value, 'cake:');
 });
 
-Deno.test('keyword(): should return an existing keyword', () => {
+test('keyword(): should return an existing keyword', () => {
   const key = types.createKeywordNode('cookies');
   const result = core.keyword(key);
   assertStrictEquals(result, key);
 });
 
-Deno.test('isKeyword(): should return true if argument is a KeywordNode', () => {
+test('isKeyword(): should return true if argument is a KeywordNode', () => {
   assertEquals(
     core.isKeyword(types.createKeywordNode('abc')),
     types.createBooleanNode(true),
   );
 });
 
-Deno.test('isKeyword(): should return false if argument is not a KeywordNode', () => {
+test('isKeyword(): should return false if argument is not a KeywordNode', () => {
   assertEquals(
     core.isKeyword(types.createSymbolNode('abc')),
     types.createBooleanNode(false),
   );
 });
 
-Deno.test('isNumber(): should return true if argument is a NumberNode', () => {
+test('isNumber(): should return true if argument is a NumberNode', () => {
   assertEquals(
     core.isNumber(types.createNumberNode(2)),
     types.createBooleanNode(true),
   );
 });
 
-Deno.test('isNumber(): should return false if argument is not a NumberNode', () => {
+test('isNumber(): should return false if argument is not a NumberNode', () => {
   assertEquals(
     core.isNumber(types.createStringNode('2')),
     types.createBooleanNode(false),
   );
 });
 
-Deno.test('isFn(): should return true if argument is a FunctionNode', () => {
+test('isFn(): should return true if argument is a FunctionNode', () => {
   const fn = types.createFunctionNode(() => types.createNilNode());
   fn.isMacro = false;
   assertEquals(core.isFn(fn), types.createBooleanNode(true));
 });
 
-Deno.test('isFn(): should return false if argument is not a FunctionNode', () => {
+test('isFn(): should return false if argument is not a FunctionNode', () => {
   assertEquals(
     core.isFn(types.createNumberNode(2)),
     types.createBooleanNode(false),
   );
 });
 
-Deno.test('isMacro(): should return true if argument is a macro', () => {
+test('isMacro(): should return true if argument is a macro', () => {
   const fn = types.createFunctionNode(() => types.createNilNode());
   fn.isMacro = true;
   assertEquals(core.isMacro(fn), types.createBooleanNode(true));
 });
 
-Deno.test('isMacro(): should return false if argument is not a macro', () => {
+test('isMacro(): should return false if argument is not a macro', () => {
   assertEquals(
     core.isMacro(types.createNumberNode(2)),
     types.createBooleanNode(false),
   );
 });
 
-Deno.test('vector(): should create a vector from args', () => {
+test('vector(): should create a vector from args', () => {
   assertEquals(
     core.vector(
       types.createNumberNode(1),
@@ -1164,7 +1163,7 @@ Deno.test('vector(): should create a vector from args', () => {
   );
 });
 
-Deno.test('isVector(): should return true if argument is a VectorNode', () => {
+test('isVector(): should return true if argument is a VectorNode', () => {
   assertEquals(
     core.isVector(
       types.createVectorNode([
@@ -1177,7 +1176,7 @@ Deno.test('isVector(): should return true if argument is a VectorNode', () => {
   );
 });
 
-Deno.test('isVector(): should return false if argument is not a VectorNode', () => {
+test('isVector(): should return false if argument is not a VectorNode', () => {
   assertEquals(
     core.isVector(types.createNumberNode(2)),
     types.createBooleanNode(false),
@@ -1185,7 +1184,7 @@ Deno.test('isVector(): should return false if argument is not a VectorNode', () 
 });
 
 // Hash-map
-Deno.test('hashMap(): should create a map from alternating args', () => {
+test('hashMap(): should create a map from alternating args', () => {
   assertEquals(
     core.hashMap(
       types.createStringNode('foo'),
@@ -1202,25 +1201,25 @@ Deno.test('hashMap(): should create a map from alternating args', () => {
   );
 });
 
-Deno.test('hashMap(): should return an empty map if no arguments are passed', () => {
+test('hashMap(): should return an empty map if no arguments are passed', () => {
   assertEquals(core.hashMap(), types.createMapNode());
 });
 
-Deno.test('isMap(): should return true if argument is a MapNode', () => {
+test('isMap(): should return true if argument is a MapNode', () => {
   assertEquals(
     core.isMap(types.createMapNode(new Map([['foo', types.createNumberNode(1)]]))),
     types.createBooleanNode(true),
   );
 });
 
-Deno.test('isMap(): should return false if argument is not a MapNode', () => {
+test('isMap(): should return false if argument is not a MapNode', () => {
   assertEquals(
     core.isMap(types.createNumberNode(2)),
     types.createBooleanNode(false),
   );
 });
 
-Deno.test('assoc(): should merge key/value pairs into a map', () => {
+test('assoc(): should merge key/value pairs into a map', () => {
   assertEquals(
     core.assoc(
       core.hashMap(
@@ -1239,7 +1238,7 @@ Deno.test('assoc(): should merge key/value pairs into a map', () => {
   );
 });
 
-Deno.test('dissoc(): should remove elements from a dict', () => {
+test('dissoc(): should remove elements from a dict', () => {
   assertEquals(
     core.dissoc(
       core.hashMap(
@@ -1254,7 +1253,7 @@ Deno.test('dissoc(): should remove elements from a dict', () => {
   );
 });
 
-Deno.test('get(): should get a value from a map using a key', () => {
+test('get(): should get a value from a map using a key', () => {
   assertEquals(
     core.get(
       core.hashMap(
@@ -1269,7 +1268,7 @@ Deno.test('get(): should get a value from a map using a key', () => {
   );
 });
 
-Deno.test('get(): should return nil if key does not exist', () => {
+test('get(): should return nil if key does not exist', () => {
   assertEquals(
     core.get(
       core.hashMap(
@@ -1284,14 +1283,14 @@ Deno.test('get(): should return nil if key does not exist', () => {
   );
 });
 
-Deno.test('get(): should return nil for invalid maps', () => {
+test('get(): should return nil for invalid maps', () => {
   assertEquals(
     core.get(types.createStringNode('sharks'), types.createKeywordNode('surfers')),
     types.createNilNode(),
   );
 });
 
-Deno.test('contains(): should return true if key exists', () => {
+test('contains(): should return true if key exists', () => {
   assertEquals(
     core.contains(
       core.hashMap(
@@ -1306,7 +1305,7 @@ Deno.test('contains(): should return true if key exists', () => {
   );
 });
 
-Deno.test('contains(): should return false if key does not exist', () => {
+test('contains(): should return false if key does not exist', () => {
   assertEquals(
     core.contains(
       core.hashMap(
@@ -1321,7 +1320,7 @@ Deno.test('contains(): should return false if key does not exist', () => {
   );
 });
 
-Deno.test('keys(): should return a list of all keys in the map', () => {
+test('keys(): should return a list of all keys in the map', () => {
   assertEquals(
     core.keys(core.hashMap(
       types.createKeywordNode('foo:'),
@@ -1336,7 +1335,7 @@ Deno.test('keys(): should return a list of all keys in the map', () => {
   );
 });
 
-Deno.test('vals(): should return a list of all values in the map', () => {
+test('vals(): should return a list of all values in the map', () => {
   assertEquals(
     core.vals(core.hashMap(
       types.createKeywordNode('foo:'),
@@ -1351,7 +1350,7 @@ Deno.test('vals(): should return a list of all values in the map', () => {
   );
 });
 
-Deno.test('isSequential(): should return true for lists', () => {
+test('isSequential(): should return true for lists', () => {
   assertEquals(
     types.isSequentialNode(
       types.createListNode([
@@ -1364,7 +1363,7 @@ Deno.test('isSequential(): should return true for lists', () => {
   );
 });
 
-Deno.test('isSequential(): should return true for vectors', () => {
+test('isSequential(): should return true for vectors', () => {
   assertEquals(
     types.isSequentialNode(
       types.createVectorNode([
@@ -1377,11 +1376,11 @@ Deno.test('isSequential(): should return true for vectors', () => {
   );
 });
 
-Deno.test('isSequential(): should return false for non-sequential nodes', () => {
+test('isSequential(): should return false for non-sequential nodes', () => {
   assertEquals(types.isSequentialNode(types.createNumberNode(42)), false);
 });
 
-Deno.test('join(): should concatenate elements with the default delimiter (spaces)', () => {
+test('join(): should concatenate elements with the default delimiter (spaces)', () => {
   assertEquals(
     core.join(
       types.createListNode([
@@ -1394,7 +1393,7 @@ Deno.test('join(): should concatenate elements with the default delimiter (space
   );
 });
 
-Deno.test('join(): should concatenate elements with the given delimiter', () => {
+test('join(): should concatenate elements with the given delimiter', () => {
   assertEquals(
     core.join(
       types.createListNode([

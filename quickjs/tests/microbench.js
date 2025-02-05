@@ -22,8 +22,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-import * as std from "std";
-import * as os from "os";
+import * as std from "qjs:std";
+import * as os from "qjs:os";
 
 function pad(str, n) {
     str += "";
@@ -61,7 +61,7 @@ function toPrec(n, prec) {
         s = s.substring(0, i) + "." + s.substring(i);
     return s;
 }
-                
+
 var ref_data;
 var log_data;
 
@@ -94,12 +94,11 @@ function log_line() {
     console.log(s);
 }
 
-var clocks_per_sec = 1000;
-var max_iterations = 10;
-var clock_threshold = 100;  /* favoring short measuring spans */
+var clocks_per_sec = 1000000;
+var max_iterations = 100;
+var clock_threshold = 2000;  /* favoring short measuring spans */
 var min_n_argument = 1;
-//var get_clock = Date.now;
-var get_clock = os.now;
+var get_clock = os.cputime ?? os.now;
 
 function log_one(text, n, ti) {
     var ref;
@@ -551,29 +550,6 @@ function float_arith(n)
     return n * 1000;
 }
 
-function bigfloat_arith(n)
-{
-    var i, j, sum, a, incr, a0;
-    global_res = 0;
-    a0 = BigFloat("0.1");
-    incr = BigFloat("1.1");
-    for(j = 0; j < n; j++) {
-        sum = 0;
-        a = a0;
-        for(i = 0; i < 1000; i++) {
-            sum += a * a;
-            a += incr;
-        }
-        global_res += sum;
-    }
-    return n * 1000;
-}
-
-function float256_arith(n)
-{
-    return BigFloatEnv.setPrec(bigfloat_arith.bind(null, n), 237, 19);
-}
-
 function bigint_arith(n, bits)
 {
     var i, j, sum, a, incr, a0, sum0;
@@ -676,6 +652,30 @@ function math_min(n)
         global_res = r;
     }
     return n * 1000;
+}
+
+function regexp_ascii(n)
+{
+    var i, j, r, s;
+    s = "the quick brown fox jumped over the lazy dog"
+    for(j = 0; j < n; j++) {
+        for(i = 0; i < 10000; i++)
+            r = /the quick brown fox/.exec(s)
+        global_res = r;
+    }
+    return n * 10000;
+}
+
+function regexp_utf16(n)
+{
+    var i, j, r, s;
+    s = "the quick brown ᶠᵒˣ jumped over the lazy ᵈᵒᵍ"
+    for(j = 0; j < n; j++) {
+        for(i = 0; i < 10000; i++)
+            r = /the quick brown ᶠᵒˣ/.exec(s)
+        global_res = r;
+    }
+    return n * 10000;
 }
 
 /* incremental string contruction as local var */
@@ -876,9 +876,23 @@ function int_to_string(n)
     var s, r, j;
     r = 0;
     for(j = 0; j < n; j++) {
-        s = (j + 1).toString();
+        s = (j % 10) + '';
+        s = (j % 100) + '';
+        s = (j) + '';
     }
-    return n;
+    return n * 3;
+}
+
+function int_toString(n)
+{
+    var s, r, j;
+    r = 0;
+    for(j = 0; j < n; j++) {
+        s = (j % 10).toString();
+        s = (j % 100).toString();
+        s = (j).toString();
+    }
+    return n * 3;
 }
 
 function float_to_string(n)
@@ -886,9 +900,59 @@ function float_to_string(n)
     var s, r, j;
     r = 0;
     for(j = 0; j < n; j++) {
-        s = (j + 0.1).toString();
+        s = (j % 10 + 0.1) + '';
+        s = (j + 0.1) + '';
+        s = (j * 12345678 + 0.1) + '';
     }
-    return n;
+    return n * 3;
+}
+
+function float_toString(n)
+{
+    var s, r, j;
+    r = 0;
+    for(j = 0; j < n; j++) {
+        s = (j % 10 + 0.1).toString();
+        s = (j + 0.1).toString();
+        s = (j * 12345678 + 0.1).toString();
+    }
+    return n * 3;
+}
+
+function float_toFixed(n)
+{
+    var s, r, j;
+    r = 0;
+    for(j = 0; j < n; j++) {
+        s = (j % 10 + 0.1).toFixed(j % 16);
+        s = (j + 0.1).toFixed(j % 16);
+        s = (j * 12345678 + 0.1).toFixed(j % 16);
+    }
+    return n * 3;
+}
+
+function float_toPrecision(n)
+{
+    var s, r, j;
+    r = 0;
+    for(j = 0; j < n; j++) {
+        s = (j % 10 + 0.1).toPrecision(j % 16 + 1);
+        s = (j + 0.1).toPrecision(j % 16 + 1);
+        s = (j * 12345678 + 0.1).toPrecision(j % 16 + 1);
+    }
+    return n * 3;
+}
+
+function float_toExponential(n)
+{
+    var s, r, j;
+    r = 0;
+    for(j = 0; j < n; j++) {
+        s = (j % 10 + 0.1).toExponential(j % 16);
+        s = (j + 0.1).toExponential(j % 16);
+        s = (j * 12345678 + 0.1).toExponential(j % 16);
+    }
+    return n * 3;
 }
 
 function string_to_int(n)
@@ -975,29 +1039,32 @@ function main(argc, argv, g)
         array_for_in,
         array_for_of,
         math_min,
+        regexp_ascii,
+        regexp_utf16,
         string_build1,
         string_build2,
         //string_build3,
         //string_build4,
         sort_bench,
         int_to_string,
+        int_toString,
         float_to_string,
+        float_toString,
+        float_toFixed,
+        float_toPrecision,
+        float_toExponential,
         string_to_int,
         string_to_float,
     ];
     var tests = [];
-    var i, j, n, f, name;
-    
+    var i, j, n, f, name, found;
+
     if (typeof BigInt == "function") {
         /* BigInt test */
         test_list.push(bigint64_arith);
         test_list.push(bigint256_arith);
     }
-    if (typeof BigFloat == "function") {
-        /* BigFloat test */
-        test_list.push(float256_arith);
-    }
-    
+
     for (i = 1; i < argc;) {
         name = argv[i++];
         if (name == "-a") {
@@ -1017,14 +1084,14 @@ function main(argc, argv, g)
             sort_bench.array_size = +argv[i++];
             continue;
         }
-        for (j = 0; j < test_list.length; j++) {
+        for (j = 0, found = false; j < test_list.length; j++) {
             f = test_list[j];
-            if (name === f.name) {
+            if (f.name.startsWith(name)) {
                 tests.push(f);
-                break;
+                found = true;
             }
         }
-        if (j == test_list.length) {
+        if (!found) {
             console.log("unknown benchmark: " + name);
             return 1;
         }
@@ -1047,11 +1114,14 @@ function main(argc, argv, g)
         log_line("total", "", total[2], total[3], total_score * 100 / total_scale);
     else
         log_line("total", "", total[2]);
-        
+
     if (tests == test_list)
         save_result("microbench-new.txt", log_data);
 }
 
-if (!scriptArgs)
+if (typeof scriptArgs === "undefined") {
     scriptArgs = [];
+    if (typeof process.argv === "object")
+        scriptArgs = process.argv.slice(1);
+}
 main(scriptArgs.length, scriptArgs, this);

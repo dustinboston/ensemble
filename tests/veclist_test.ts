@@ -9,16 +9,16 @@
  * @file
  */
 
-import { assertEquals } from '@std/assert';
+import { assertEquals, test } from '../tests/test_runner.ts';
 
 import { initEnv, rep } from '../src/ensemble.ts';
 import { printString } from '../src/printer.ts';
 import { ListNode, NilNode, NumberNode, StringNode, VectorNode } from '../src/types.ts';
 
-Deno.test(`VECLIST: Testing vec function`, async (t) => {
+test(`VECLIST: Testing vec function`, () => {
   const sharedEnv = initEnv();
 
-  await t.step(
+  test(
     `VECLIST: the vec function converts an empty list into a vector`,
     () => {
       assertEquals(
@@ -32,7 +32,7 @@ Deno.test(`VECLIST: Testing vec function`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `VECLIST: the vec function converts a list with one number into a vector`,
     () => {
       assertEquals(
@@ -51,7 +51,7 @@ Deno.test(`VECLIST: Testing vec function`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `VECLIST: the vec function converts a list with multiple numbers into a vector`,
     () => {
       assertEquals(
@@ -71,7 +71,7 @@ Deno.test(`VECLIST: Testing vec function`, async (t) => {
     },
   );
 
-  await t.step(`VECLIST: vec returns a an empty vector`, () => {
+  test(`VECLIST: vec returns a an empty vector`, () => {
     assertEquals(
       rep(
         `(vec [])`,
@@ -82,7 +82,7 @@ Deno.test(`VECLIST: Testing vec function`, async (t) => {
     );
   });
 
-  await t.step(`VECLIST: vec returns a vector with values`, () => {
+  test(`VECLIST: vec returns a vector with values`, () => {
     assertEquals(
       rep(
         `(vec [1 2])`,
@@ -100,12 +100,12 @@ Deno.test(`VECLIST: Testing vec function`, async (t) => {
   });
 });
 
-Deno.test(`VECLIST: Testing that vec does not mutate the original list`, async (t) => {
+test(`VECLIST: Testing that vec does not mutate the original list`, () => {
   const sharedEnv = initEnv();
 
   rep(`(def! a (list 1 2))`, sharedEnv);
 
-  await t.step(`VECLIST: symbols are evaluated within vecs`, () => {
+  test(`VECLIST: symbols are evaluated within vecs`, () => {
     assertEquals(
       rep(
         `(vec a)`,
@@ -122,7 +122,7 @@ Deno.test(`VECLIST: Testing that vec does not mutate the original list`, async (
     );
   });
 
-  await t.step(
+  test(
     `VECLIST: evaluating a symbol within a vec does not mutate the symbol`,
     () => {
       assertEquals(
@@ -143,10 +143,10 @@ Deno.test(`VECLIST: Testing that vec does not mutate the original list`, async (
   );
 });
 
-Deno.test(`VECLIST: Testing nth, first and rest functions with lists`, async (t) => {
+test(`VECLIST: Testing nth, first and rest functions with lists`, () => {
   const sharedEnv = initEnv();
 
-  await t.step(
+  test(
     `VECLIST: nth function returns the element at the given index in a list`,
     () => {
       // ;=>1
@@ -157,7 +157,7 @@ Deno.test(`VECLIST: Testing nth, first and rest functions with lists`, async (t)
     },
   );
 
-  await t.step(
+  test(
     `VECLIST: nth function returns the correct element for a multi-element list`,
     () => {
       // ;=>2
@@ -168,7 +168,7 @@ Deno.test(`VECLIST: Testing nth, first and rest functions with lists`, async (t)
     },
   );
 
-  await t.step(
+  test(
     `VECLIST: nth function returns nil when the element at the index is nil`,
     () => {
       // ;=>nil
@@ -179,7 +179,7 @@ Deno.test(`VECLIST: Testing nth, first and rest functions with lists`, async (t)
     },
   );
 
-  await t.step(
+  test(
     `VECLIST: redefining a variable using nth function returns the correct value`,
     () => {
       // ;=>"x"
@@ -191,7 +191,7 @@ Deno.test(`VECLIST: Testing nth, first and rest functions with lists`, async (t)
     },
   );
 
-  await t.step(
+  test(
     `VECLIST: first function returns nil when called on an empty list`,
     () => {
       // ;=>nil
@@ -202,7 +202,7 @@ Deno.test(`VECLIST: Testing nth, first and rest functions with lists`, async (t)
     },
   );
 
-  await t.step(
+  test(
     `VECLIST: first function returns the first element when the list has one element`,
     () => {
       // ;=>6
@@ -213,7 +213,7 @@ Deno.test(`VECLIST: Testing nth, first and rest functions with lists`, async (t)
     },
   );
 
-  await t.step(
+  test(
     `VECLIST: first function returns the first element when the list has multiple elements`,
     () => {
       // ;=>7
@@ -224,7 +224,7 @@ Deno.test(`VECLIST: Testing nth, first and rest functions with lists`, async (t)
     },
   );
 
-  await t.step(
+  test(
     `VECLIST: rest function returns an empty list when called on an empty list`,
     () => {
       // ;=>()
@@ -235,7 +235,7 @@ Deno.test(`VECLIST: Testing nth, first and rest functions with lists`, async (t)
     },
   );
 
-  await t.step(
+  test(
     `VECLIST: rest function returns an empty list when called on a single-element list`,
     () => {
       // ;=>()
@@ -246,7 +246,7 @@ Deno.test(`VECLIST: Testing nth, first and rest functions with lists`, async (t)
     },
   );
 
-  await t.step(
+  test(
     `VECLIST: rest function returns the remaining elements when called on a multi-element list`,
     () => {
       // ;=>(8 9)
@@ -264,10 +264,10 @@ Deno.test(`VECLIST: Testing nth, first and rest functions with lists`, async (t)
   );
 });
 
-Deno.test(`VECLIST: Testing nth, first, rest with vectors`, async (t) => {
+test(`VECLIST: Testing nth, first, rest with vectors`, () => {
   const sharedEnv = initEnv();
 
-  await t.step(
+  test(
     `VECLIST: nth function returns the element at the given index in a vector`,
     () => {
       // ;=>1
@@ -278,7 +278,7 @@ Deno.test(`VECLIST: Testing nth, first, rest with vectors`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `VECLIST: nth function returns the correct element for a multi-element vector`,
     () => {
       // ;=>2
@@ -289,7 +289,7 @@ Deno.test(`VECLIST: Testing nth, first, rest with vectors`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `VECLIST: nth function returns nil when the element at the index is nil in a vector`,
     () => {
       // ;=>nil
@@ -300,7 +300,7 @@ Deno.test(`VECLIST: Testing nth, first, rest with vectors`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `VECLIST: redefining a variable using nth function in a vector returns the correct value`,
     () => {
       rep(`(def! x "x") (def! x (nth [1 2] 2))`, sharedEnv);
@@ -313,7 +313,7 @@ Deno.test(`VECLIST: Testing nth, first, rest with vectors`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `VECLIST: first function returns nil when called on an empty vector`,
     () => {
       // ;=>nil
@@ -324,7 +324,7 @@ Deno.test(`VECLIST: Testing nth, first, rest with vectors`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `VECLIST: first function returns nil when called on nil`,
     () => {
       // ;=>nil
@@ -335,7 +335,7 @@ Deno.test(`VECLIST: Testing nth, first, rest with vectors`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `VECLIST: first function returns the first element when the vector has one element`,
     () => {
       // ;=>10
@@ -346,7 +346,7 @@ Deno.test(`VECLIST: Testing nth, first, rest with vectors`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `VECLIST: first function returns the first element when the vector has multiple elements`,
     () => {
       // ;=>10
@@ -357,7 +357,7 @@ Deno.test(`VECLIST: Testing nth, first, rest with vectors`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `VECLIST: rest function returns an empty vector when called on an empty vector`,
     () => {
       // ;=>()
@@ -368,7 +368,7 @@ Deno.test(`VECLIST: Testing nth, first, rest with vectors`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `VECLIST: rest function returns an empty vector when called on nil`,
     () => {
       // ;=>()
@@ -379,7 +379,7 @@ Deno.test(`VECLIST: Testing nth, first, rest with vectors`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `VECLIST: rest function returns an empty vector when called on a single-element vector`,
     () => {
       // ;=>()
@@ -390,7 +390,7 @@ Deno.test(`VECLIST: Testing nth, first, rest with vectors`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `VECLIST: rest function returns the remaining elements when called on a multi-element vector`,
     () => {
       // ;=>(11 12)
@@ -407,7 +407,7 @@ Deno.test(`VECLIST: Testing nth, first, rest with vectors`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `VECLIST: rest function returns the remaining elements when called on a cons cell with a vector`,
     () => {
       // ;=>(11 12)

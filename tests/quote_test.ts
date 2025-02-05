@@ -9,7 +9,6 @@
  * @file
  */
 
-import { assertEquals } from '@std/assert';
 import { initEnv, rep } from '../src/ensemble.ts';
 import { printString } from '../src/printer.ts';
 import {
@@ -22,11 +21,12 @@ import {
   SymbolNode,
   VectorNode,
 } from '../src/types.ts';
+import { assertEquals, test } from '../tests/test_runner.ts';
 
-Deno.test(`QUOTE: Testing regular quote`, async (t) => {
+test(`QUOTE: Testing regular quote`, () => {
   const sharedEnv = initEnv();
 
-  await t.step(`QUOTE: quote returns a number`, () => {
+  test(`QUOTE: quote returns a number`, () => {
     assertEquals(
       rep(
         `(quote 7)`,
@@ -37,7 +37,7 @@ Deno.test(`QUOTE: Testing regular quote`, async (t) => {
     );
   });
 
-  await t.step(`QUOTE: quote returns a list of numbers`, () => {
+  test(`QUOTE: quote returns a list of numbers`, () => {
     assertEquals(
       rep(
         `(quote (1 2 3))`,
@@ -55,7 +55,7 @@ Deno.test(`QUOTE: Testing regular quote`, async (t) => {
     );
   });
 
-  await t.step(`QUOTE: quote returns a nested list of numbers`, () => {
+  test(`QUOTE: quote returns a nested list of numbers`, () => {
     assertEquals(
       rep(
         `(quote (1 2 (3 4)))`,
@@ -77,10 +77,10 @@ Deno.test(`QUOTE: Testing regular quote`, async (t) => {
   });
 });
 
-Deno.test(`QUOTE: Testing simple quasiquote`, async (t) => {
+test(`QUOTE: Testing simple quasiquote`, () => {
   const sharedEnv = initEnv();
 
-  await t.step(`QUOTE: quasiquote returns nil`, () => {
+  test(`QUOTE: quasiquote returns nil`, () => {
     assertEquals(
       rep(
         `(quasiquote nil)`,
@@ -91,7 +91,7 @@ Deno.test(`QUOTE: Testing simple quasiquote`, async (t) => {
     );
   });
 
-  await t.step(`QUOTE: quasiquote returns 7`, () => {
+  test(`QUOTE: quasiquote returns 7`, () => {
     assertEquals(
       rep(
         `(quasiquote 7)`,
@@ -102,7 +102,7 @@ Deno.test(`QUOTE: Testing simple quasiquote`, async (t) => {
     );
   });
 
-  await t.step(`QUOTE: quasiquote returns a symbol`, () => {
+  test(`QUOTE: quasiquote returns a symbol`, () => {
     assertEquals(
       rep(
         `(quasiquote a)`,
@@ -113,7 +113,7 @@ Deno.test(`QUOTE: Testing simple quasiquote`, async (t) => {
     );
   });
 
-  await t.step(`QUOTE: returns a map`, () => {
+  test(`QUOTE: returns a map`, () => {
     assertEquals(
       rep(
         `(quasiquote {"a" b})`,
@@ -132,9 +132,9 @@ Deno.test(`QUOTE: Testing simple quasiquote`, async (t) => {
   });
 });
 
-Deno.test(`QUOTE: Testing quasiquote with lists`, async (t) => {
+test(`QUOTE: Testing quasiquote with lists`, () => {
   const sharedEnv = initEnv();
-  await t.step(`QUOTE: quasiquote returns an empty list`, () => {
+  test(`QUOTE: quasiquote returns an empty list`, () => {
     assertEquals(
       rep(
         `(quasiquote ())`,
@@ -145,7 +145,7 @@ Deno.test(`QUOTE: Testing quasiquote with lists`, async (t) => {
     );
   });
 
-  await t.step(`QUOTE: quasiquote returns a list`, () => {
+  test(`QUOTE: quasiquote returns a list`, () => {
     assertEquals(
       rep(
         `(quasiquote (1 2 3))`,
@@ -163,7 +163,7 @@ Deno.test(`QUOTE: Testing quasiquote with lists`, async (t) => {
     );
   });
 
-  await t.step(`QUOTE: quasiquote returns a nested list with symbols`, () => {
+  test(`QUOTE: quasiquote returns a nested list with symbols`, () => {
     assertEquals(
       rep(
         `(quasiquote (a))`,
@@ -179,7 +179,7 @@ Deno.test(`QUOTE: Testing quasiquote with lists`, async (t) => {
     );
   });
 
-  await t.step(`QUOTE: quasiquote return a nested list of numbers`, () => {
+  test(`QUOTE: quasiquote return a nested list of numbers`, () => {
     assertEquals(
       rep(
         `(quasiquote (1 2 (3 4)))`,
@@ -200,7 +200,7 @@ Deno.test(`QUOTE: Testing quasiquote with lists`, async (t) => {
     );
   });
 
-  await t.step(`QUOTE: quasiquote returns a nested list with nil`, () => {
+  test(`QUOTE: quasiquote returns a nested list with nil`, () => {
     assertEquals(
       rep(
         `(quasiquote (nil))`,
@@ -211,7 +211,7 @@ Deno.test(`QUOTE: Testing quasiquote with lists`, async (t) => {
     );
   });
 
-  await t.step(`QUOTE: quasiquote returns numbers and empty lists`, () => {
+  test(`QUOTE: quasiquote returns numbers and empty lists`, () => {
     assertEquals(
       rep(
         `(quasiquote (1 ()))`,
@@ -228,7 +228,7 @@ Deno.test(`QUOTE: Testing quasiquote with lists`, async (t) => {
     );
   });
 
-  await t.step(`QUOTE: quasiquote returns empty lists and numbers`, () => {
+  test(`QUOTE: quasiquote returns empty lists and numbers`, () => {
     assertEquals(
       rep(
         `(quasiquote (() 1))`,
@@ -245,7 +245,7 @@ Deno.test(`QUOTE: Testing quasiquote with lists`, async (t) => {
     );
   });
 
-  await t.step(
+  test(
     `QUOTE: quasiquote will return empty lists whereever they occur`,
     () => {
       assertEquals(
@@ -266,7 +266,7 @@ Deno.test(`QUOTE: Testing quasiquote with lists`, async (t) => {
     },
   );
 
-  await t.step(`QUOTE: quasiquote returns a nested empty list`, () => {
+  test(`QUOTE: quasiquote returns a nested empty list`, () => {
     assertEquals(
       rep(
         `(quasiquote (()))`,
@@ -283,10 +283,10 @@ Deno.test(`QUOTE: Testing quasiquote with lists`, async (t) => {
   });
 });
 
-Deno.test(`QUOTE: Testing unquote`, async (t) => {
+test(`QUOTE: Testing unquote`, () => {
   const sharedEnv = initEnv();
 
-  await t.step(
+  test(
     `QUOTE: unquote returns a number that has been quasiquoted`,
     () => {
       assertEquals(
@@ -300,7 +300,7 @@ Deno.test(`QUOTE: Testing unquote`, async (t) => {
     },
   );
 
-  await t.step(`QUOTE: define a variable to test unquoting`, () => {
+  test(`QUOTE: define a variable to test unquoting`, () => {
     assertEquals(
       rep(
         '(def! a 8)',
@@ -311,7 +311,7 @@ Deno.test(`QUOTE: Testing unquote`, async (t) => {
     );
   });
 
-  await t.step(`QUOTE: a quasiquoted symbol returns the symbol`, () => {
+  test(`QUOTE: a quasiquoted symbol returns the symbol`, () => {
     assertEquals(
       rep(
         `(quasiquote a)`,
@@ -322,7 +322,7 @@ Deno.test(`QUOTE: Testing unquote`, async (t) => {
     );
   });
 
-  await t.step(
+  test(
     `QUOTE: unquoting a symbol allows the symbol to be evaluated`,
     () => {
       assertEquals(
@@ -336,7 +336,7 @@ Deno.test(`QUOTE: Testing unquote`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `QUOTE: quasiquote prevents the symbol from being evaluated`,
     () => {
       assertEquals(
@@ -357,7 +357,7 @@ Deno.test(`QUOTE: Testing unquote`, async (t) => {
     },
   );
 
-  await t.step(`QUOTE: unquote allows the symbol to be evaluated`, () => {
+  test(`QUOTE: unquote allows the symbol to be evaluated`, () => {
     assertEquals(
       rep(
         `(quasiquote (1 (unquote a) 3))`,
@@ -375,7 +375,7 @@ Deno.test(`QUOTE: Testing unquote`, async (t) => {
     );
   });
 
-  await t.step(
+  test(
     `QUOTE: define a symbol with a quoted list for testing`,
     () => {
       assertEquals(
@@ -396,7 +396,7 @@ Deno.test(`QUOTE: Testing unquote`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `QUOTE: quasiquote prevents variables from being evaluated`,
     () => {
       assertEquals(
@@ -417,7 +417,7 @@ Deno.test(`QUOTE: Testing unquote`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `QUOTE: unquote allows variables to be evaluated in a nested list`,
     () => {
       assertEquals(
@@ -442,7 +442,7 @@ Deno.test(`QUOTE: Testing unquote`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `QUOTE: unquoting has the effect of combining nested lists`,
     () => {
       assertEquals(
@@ -463,10 +463,10 @@ Deno.test(`QUOTE: Testing unquote`, async (t) => {
   );
 });
 
-Deno.test(`QUOTE: Quasiquote and environments`, async (t) => {
+test(`QUOTE: Quasiquote and environments`, () => {
   const sharedEnv = initEnv();
 
-  await t.step(
+  test(
     `QUOTE: unquote works with a variable defined with let*`,
     () => {
       assertEquals(
@@ -481,9 +481,9 @@ Deno.test(`QUOTE: Quasiquote and environments`, async (t) => {
   );
 });
 
-Deno.test(`QUOTE: Testing splice-unquote`, async (t) => {
+test(`QUOTE: Testing splice-unquote`, () => {
   const sharedEnv = initEnv();
-  await t.step(
+  test(
     `QUOTE: define a symbol, "c", with a quoted list for testing`,
     () => {
       assertEquals(
@@ -504,7 +504,7 @@ Deno.test(`QUOTE: Testing splice-unquote`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `QUOTE: quasiquote returns a list without evaluating symbols`,
     () => {
       assertEquals(
@@ -525,7 +525,7 @@ Deno.test(`QUOTE: Testing splice-unquote`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `QUOTE: splice-unquote injects a symbol in place after evaluation`,
     () => {
       assertEquals(
@@ -548,7 +548,7 @@ Deno.test(`QUOTE: Testing splice-unquote`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `QUOTE: splice-unquotes works as the last item in a list`,
     () => {
       assertEquals(
@@ -570,7 +570,7 @@ Deno.test(`QUOTE: Testing splice-unquote`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `QUOTE: splice-unquote works at the beginning of a list`,
     () => {
       assertEquals(
@@ -592,7 +592,7 @@ Deno.test(`QUOTE: Testing splice-unquote`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `QUOTE: splice-unquote can reuse symbols`,
     () => {
       assertEquals(
@@ -617,10 +617,10 @@ Deno.test(`QUOTE: Testing splice-unquote`, async (t) => {
   );
 });
 
-Deno.test(`QUOTE: Testing symbol equality`, async (t) => {
+test(`QUOTE: Testing symbol equality`, () => {
   const sharedEnv = initEnv();
 
-  await t.step(
+  test(
     `QUOTE: two quoted lists with the same contents are equal`,
     () => {
       assertEquals(
@@ -634,7 +634,7 @@ Deno.test(`QUOTE: Testing symbol equality`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `QUOTE: two  quoted lists with different contents are not equal`,
     () => {
       assertEquals(
@@ -648,7 +648,7 @@ Deno.test(`QUOTE: Testing symbol equality`, async (t) => {
     },
   );
 
-  await t.step(`QUOTE: quote does not "stringify" symbols`, () => {
+  test(`QUOTE: quote does not "stringify" symbols`, () => {
     assertEquals(
       rep(
         `(= (quote abc) "abc")`,
@@ -659,7 +659,7 @@ Deno.test(`QUOTE: Testing symbol equality`, async (t) => {
     );
   });
 
-  await t.step(
+  test(
     `QUOTE: quote doesn "stringify" symbols at the end of a list`,
     () => {
       assertEquals(
@@ -673,7 +673,7 @@ Deno.test(`QUOTE: Testing symbol equality`, async (t) => {
     },
   );
 
-  await t.step(`QUOTE: str stringifies a quoted value`, () => {
+  test(`QUOTE: str stringifies a quoted value`, () => {
     assertEquals(
       rep(
         `(= "abc" (str (quote abc)))`,
@@ -684,7 +684,7 @@ Deno.test(`QUOTE: Testing symbol equality`, async (t) => {
     );
   });
 
-  await t.step(`QUOTE: quote does not attempt to evaluate symbols`, () => {
+  test(`QUOTE: quote does not attempt to evaluate symbols`, () => {
     assertEquals(
       rep(
         `(= (quote abc) nil)`,
@@ -695,7 +695,7 @@ Deno.test(`QUOTE: Testing symbol equality`, async (t) => {
     );
   });
 
-  await t.step(`QUOTE: nil has no effect on quoting`, () => {
+  test(`QUOTE: nil has no effect on quoting`, () => {
     assertEquals(
       rep(
         `(= nil (quote abc))`,
@@ -707,9 +707,9 @@ Deno.test(`QUOTE: Testing symbol equality`, async (t) => {
   });
 });
 
-Deno.test(`QUOTE: Test quine`, async (t) => {
+test(`QUOTE: Test quine`, () => {
   const sharedEnv = initEnv();
-  await t.step(
+  test(
     `QUOTE: You can make your brain explode by creating a quine with lots of quoting`,
     () => {
       assertEquals(
@@ -825,10 +825,10 @@ Deno.test(`QUOTE: Test quine`, async (t) => {
   );
 });
 
-Deno.test(`QUOTE: Testing quasiquote with vectors`, async (t) => {
+test(`QUOTE: Testing quasiquote with vectors`, () => {
   const sharedEnv = initEnv();
 
-  await t.step(
+  test(
     `QUOTE: quasiquote returns a vector with the same structure as the original`,
     () => {
       assertEquals(
@@ -842,7 +842,7 @@ Deno.test(`QUOTE: Testing quasiquote with vectors`, async (t) => {
     },
   );
 
-  await t.step(`QUOTE: quasiquote returns a nested vector`, () => {
+  test(`QUOTE: quasiquote returns a nested vector`, () => {
     assertEquals(
       rep(
         `(quasiquote [[]])`,
@@ -858,7 +858,7 @@ Deno.test(`QUOTE: Testing quasiquote with vectors`, async (t) => {
     );
   });
 
-  await t.step(
+  test(
     `QUOTE: quasiquote returns a list nested in a vector`,
     () => {
       assertEquals(
@@ -877,7 +877,7 @@ Deno.test(`QUOTE: Testing quasiquote with vectors`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `QUOTE: quasiquote returns a vector nested in a list`,
     () => {
       assertEquals(
@@ -896,7 +896,7 @@ Deno.test(`QUOTE: Testing quasiquote with vectors`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `QUOTE: define a symbol to test complex macro expressions`,
     () => {
       assertEquals(
@@ -910,7 +910,7 @@ Deno.test(`QUOTE: Testing quasiquote with vectors`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `QUOTE: quasiquote returns a vector without evaluating symbols`,
     () => {
       assertEquals(
@@ -931,7 +931,7 @@ Deno.test(`QUOTE: Testing quasiquote with vectors`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `QUOTE: quasiquote returns a vector with lots of nested vectors`,
     () => {
       assertEquals(
@@ -962,10 +962,10 @@ Deno.test(`QUOTE: Testing quasiquote with vectors`, async (t) => {
   );
 });
 
-Deno.test(`QUOTE: Misplaced unquote or splice-unquote`, async (t) => {
+test(`QUOTE: Misplaced unquote or splice-unquote`, () => {
   const sharedEnv = initEnv();
 
-  await t.step(`QUOTE: unquote does nothing as the last argument`, () => {
+  test(`QUOTE: unquote does nothing as the last argument`, () => {
     assertEquals(
       rep(
         '`(0 unquote)',
@@ -982,7 +982,7 @@ Deno.test(`QUOTE: Misplaced unquote or splice-unquote`, async (t) => {
     );
   });
 
-  await t.step(
+  test(
     `QUOTE: splice-unquote does nothing as the last argument`,
     () => {
       assertEquals(
@@ -1002,7 +1002,7 @@ Deno.test(`QUOTE: Misplaced unquote or splice-unquote`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `QUOTE: unquote is not evaluated within a quasi-quoted vector`,
     () => {
       assertEquals(
@@ -1022,7 +1022,7 @@ Deno.test(`QUOTE: Misplaced unquote or splice-unquote`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `QUOTE: splice-unquote is not evaluated within a quasi-quoted vector`,
     () => {
       assertEquals(
@@ -1043,9 +1043,9 @@ Deno.test(`QUOTE: Misplaced unquote or splice-unquote`, async (t) => {
   );
 });
 
-Deno.test(`QUOTE: Debugging quasiquote`, async (t) => {
+test(`QUOTE: Debugging quasiquote`, () => {
   const sharedEnv = initEnv();
-  await t.step(`QUOTE: quasiquoteexpand returns nil as-is`, () => {
+  test(`QUOTE: quasiquoteexpand returns nil as-is`, () => {
     assertEquals(
       rep(
         `(quasiquoteexpand nil)`,
@@ -1056,7 +1056,7 @@ Deno.test(`QUOTE: Debugging quasiquote`, async (t) => {
     );
   });
 
-  await t.step(`QUOTE: quasiquoteexpand returns a number as-is`, () => {
+  test(`QUOTE: quasiquoteexpand returns a number as-is`, () => {
     assertEquals(
       rep(
         `(quasiquoteexpand 7)`,
@@ -1067,7 +1067,7 @@ Deno.test(`QUOTE: Debugging quasiquote`, async (t) => {
     );
   });
 
-  await t.step(
+  test(
     `QUOTE: quasiquoteexpand expands an expression without evaluating a symbol`,
     () => {
       assertEquals(
@@ -1087,7 +1087,7 @@ Deno.test(`QUOTE: Debugging quasiquote`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `QUOTE: quasiquoteexpand expands a map without evaluating a symbol`,
     () => {
       assertEquals(
@@ -1111,7 +1111,7 @@ Deno.test(`QUOTE: Debugging quasiquote`, async (t) => {
     },
   );
 
-  await t.step(`QUOTE: quasiquoteexpand expands an empty list as-is`, () => {
+  test(`QUOTE: quasiquoteexpand expands an empty list as-is`, () => {
     assertEquals(
       rep(
         `(quasiquoteexpand ())`,
@@ -1122,7 +1122,7 @@ Deno.test(`QUOTE: Debugging quasiquote`, async (t) => {
     );
   });
 
-  await t.step(
+  test(
     `QUOTE: quasiquoteexpand expands a list of numbers to conses`,
     () => {
       assertEquals(
@@ -1151,7 +1151,7 @@ Deno.test(`QUOTE: Debugging quasiquote`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `QUOTE: quasiquoteexpand expands a list of symbols into a cons and quote`,
     () => {
       assertEquals(
@@ -1175,7 +1175,7 @@ Deno.test(`QUOTE: Debugging quasiquote`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `QUOTE: quasiquoteexpand expands a list of lists nested conses`,
     () => {
       assertEquals(
@@ -1212,7 +1212,7 @@ Deno.test(`QUOTE: Debugging quasiquote`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `QUOTE: quasiquoteexpand expands a list with nil into a cons of nil and an empty list`,
     () => {
       assertEquals(
@@ -1233,7 +1233,7 @@ Deno.test(`QUOTE: Debugging quasiquote`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `QUOTE: quasiquoteexpand expands numbers and empty lists to conses, switching the order`,
     () => {
       assertEquals(
@@ -1258,7 +1258,7 @@ Deno.test(`QUOTE: Debugging quasiquote`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `QUOTE: quasiquoteexpand expands empty lists and numbers into conses, switching the order`,
     () => {
       assertEquals(
@@ -1283,7 +1283,7 @@ Deno.test(`QUOTE: Debugging quasiquote`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `QUOTE: quasiquoteexpand expands a list of numbers and and empty lists into conses`,
     () => {
       assertEquals(
@@ -1312,7 +1312,7 @@ Deno.test(`QUOTE: Debugging quasiquote`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `QUOTE: quasiquoteexpand expands nested empty lists a cons of two empty lists`,
     () => {
       assertEquals(
@@ -1333,7 +1333,7 @@ Deno.test(`QUOTE: Debugging quasiquote`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `QUOTE: quasiquoteexpand quotes and conses many symbols and nested lists`,
     () => {
       assertEquals(
@@ -1415,7 +1415,7 @@ Deno.test(`QUOTE: Debugging quasiquote`, async (t) => {
     },
   );
 
-  await t.step(`QUOTE: unquote defeats quasiquoteexpand in battle`, () => {
+  test(`QUOTE: unquote defeats quasiquoteexpand in battle`, () => {
     assertEquals(
       rep(
         `(quasiquoteexpand (unquote 7))`,
@@ -1426,7 +1426,7 @@ Deno.test(`QUOTE: Debugging quasiquote`, async (t) => {
     );
   });
 
-  await t.step(
+  test(
     `QUOTE: quasiquoteexpand expands a symbol to a quoted symbol`,
     () => {
       assertEquals(
@@ -1446,7 +1446,7 @@ Deno.test(`QUOTE: Debugging quasiquote`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `QUOTE: quasiquoteexpand expands an unquoted symbol into the symbol`,
     () => {
       assertEquals(
@@ -1460,7 +1460,7 @@ Deno.test(`QUOTE: Debugging quasiquote`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `QUOTE: quasiquoteexpand expands a mixed list into conses and quotes`,
     () => {
       assertEquals(
@@ -1492,7 +1492,7 @@ Deno.test(`QUOTE: Debugging quasiquote`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `QUOTE: quasiquoteexpand expands into conses and unquotes symbols `,
     () => {
       assertEquals(
@@ -1521,7 +1521,7 @@ Deno.test(`QUOTE: Debugging quasiquote`, async (t) => {
     },
   );
 
-  await t.step(`QUOTE: quasiquoteexpand is still consing and quoting`, () => {
+  test(`QUOTE: quasiquoteexpand is still consing and quoting`, () => {
     assertEquals(
       rep(
         `(quasiquoteexpand (1 b 3))`,
@@ -1550,7 +1550,7 @@ Deno.test(`QUOTE: Debugging quasiquote`, async (t) => {
     );
   });
 
-  await t.step(
+  test(
     `QUOTE: unquote within quasiquoteexpand doesn't evaluate the symbols`,
     () => {
       assertEquals(
@@ -1579,7 +1579,7 @@ Deno.test(`QUOTE: Debugging quasiquote`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `QUOTE: quasiquoteexpand expands lists of unquotes into conses`,
     () => {
       assertEquals(
@@ -1604,7 +1604,7 @@ Deno.test(`QUOTE: Debugging quasiquote`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `QUOTE: quasiquoteexpand expands splice-unquote into concat expressions`,
     () => {
       assertEquals(
@@ -1642,7 +1642,7 @@ Deno.test(`QUOTE: Debugging quasiquote`, async (t) => {
     },
   );
 
-  await t.step(`QUOTE: quasiquoteexpand is still doing its thang`, () => {
+  test(`QUOTE: quasiquoteexpand is still doing its thang`, () => {
     assertEquals(
       rep(
         `(quasiquoteexpand (1 c 3))`,
@@ -1671,7 +1671,7 @@ Deno.test(`QUOTE: Debugging quasiquote`, async (t) => {
     );
   });
 
-  await t.step(
+  test(
     `QUOTE: splice-unquote within a quasiquoted list expands to concat`,
     () => {
       assertEquals(
@@ -1700,7 +1700,7 @@ Deno.test(`QUOTE: Debugging quasiquote`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `QUOTE: splice-unquote within a quasiquoted list expands to concat and does not evaluate variables`,
     () => {
       assertEquals(
@@ -1725,7 +1725,7 @@ Deno.test(`QUOTE: Debugging quasiquote`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `QUOTE: splice-unquote within a quasiquoted list expands to concat, and numbers to cons`,
     () => {
       assertEquals(
@@ -1750,7 +1750,7 @@ Deno.test(`QUOTE: Debugging quasiquote`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `QUOTE: splice-unquoting the same symbol multiple times within a quasiquoted list expands all to concat`,
     () => {
       assertEquals(
@@ -1775,7 +1775,7 @@ Deno.test(`QUOTE: Debugging quasiquote`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `QUOTE: quasiquoteexpand expands a vector literal [] into (vec ())`,
     () => {
       assertEquals(
@@ -1795,7 +1795,7 @@ Deno.test(`QUOTE: Debugging quasiquote`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `QUOTE: quasiquoteexpand expands nested vectors into nested consed vecs`,
     () => {
       assertEquals(
@@ -1822,7 +1822,7 @@ Deno.test(`QUOTE: Debugging quasiquote`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `QUOTE: quasiquoteexpand expands an empty list inside of a vector into a vec with a cons of two empty lists`,
     () => {
       assertEquals(
@@ -1846,7 +1846,7 @@ Deno.test(`QUOTE: Debugging quasiquote`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `QUOTE: quasiquoteexpand expands an empty vector inside of a list into a cons of vec and an empty list`,
     () => {
       assertEquals(
@@ -1870,7 +1870,7 @@ Deno.test(`QUOTE: Debugging quasiquote`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `QUOTE: quasiquoteexpand expands vectors to vec, conses the contents, and quotes the symbols`,
     () => {
       assertEquals(
@@ -1907,7 +1907,7 @@ Deno.test(`QUOTE: Debugging quasiquote`, async (t) => {
 
   // TODO: Actual matches the value in step7_quote.mal, but the AST won't align
   // Maybe there is a bug, but the regular mal tests pass.
-  // await t.step(`QUOTE: quasiquoteexpand can handle shenanigans`, () => {
+  // test(`QUOTE: quasiquoteexpand can handle shenanigans`, () => {
   //     assertEquals(
   //         rep(
   //             `(quasiquoteexpand [a [] b [c] d [e f] g])`,

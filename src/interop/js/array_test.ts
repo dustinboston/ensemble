@@ -1,12 +1,12 @@
 // deno-lint-ignore-file no-explicit-any
-import { assertEquals, assertThrows } from '@std/assert';
+import { assertEquals, assertThrows, test } from '../../../tests/test_runner.ts';
+import * as types from '../../types.ts';
 import * as array from './array.ts';
-import * as types from './types.ts';
 
 // MARK: toArray
 // --------------------------------------------------------------------------------------------------------------------
 
-Deno.test('toArray should create a vector from multiple arguments', () => {
+test('toArray should create a vector from multiple arguments', () => {
   const num1 = types.createNumberNode(1);
   const num2 = types.createNumberNode(2);
   const num3 = types.createNumberNode(3);
@@ -17,7 +17,7 @@ Deno.test('toArray should create a vector from multiple arguments', () => {
   assertEquals(result.value, [num1, num2, num3]);
 });
 
-Deno.test('toArray should create a vector of specified length filled with nils when given only a number', () => {
+test('toArray should create a vector of specified length filled with nils when given only a number', () => {
   const length = types.createNumberNode(3);
   const result = array.toArray(length);
   assertEquals(types.isVectorNode(result), true);
@@ -25,11 +25,11 @@ Deno.test('toArray should create a vector of specified length filled with nils w
   assertEquals(result.value.every(types.isNilNode), true);
 });
 
-Deno.test('toArray should throw an error if no arguments are provided', () => {
+test('toArray should throw an error if no arguments are provided', () => {
   assertThrows(() => array.toArray());
 });
 
-Deno.test('toArray should create a vector from a single non-number argument', () => {
+test('toArray should create a vector from a single non-number argument', () => {
   const str = types.createStringNode('hello');
   const result = array.toArray(str);
   assertEquals(types.isVectorNode(result), true);
@@ -39,7 +39,7 @@ Deno.test('toArray should create a vector from a single non-number argument', ()
 // MARK: arrayFrom
 // --------------------------------------------------------------------------------------------------------------------
 
-Deno.test('arrayFrom - one argument', () => {
+test('arrayFrom - one argument', () => {
   const vec = types.createVectorNode([types.createNumberNode(1), types.createNumberNode(2)]);
   const result = array.arrayFrom(vec);
   assertEquals(types.isVectorNode(result), true);
@@ -48,7 +48,7 @@ Deno.test('arrayFrom - one argument', () => {
   assertEquals(result.value[1].value, 2);
 });
 
-Deno.test('arrayFrom - two arguments', () => {
+test('arrayFrom - two arguments', () => {
   const vec = types.createVectorNode([types.createNumberNode(1), types.createNumberNode(2)]);
   const fn = types.createFunctionNode((x: types.AstNode) => types.createNumberNode(x.value * 2));
   const result = array.arrayFrom(vec, fn);
@@ -58,7 +58,7 @@ Deno.test('arrayFrom - two arguments', () => {
   assertEquals(result.value[1].value, 4);
 });
 
-Deno.test('arrayFrom - three arguments', () => {
+test('arrayFrom - three arguments', () => {
   const vec = types.createVectorNode([types.createNumberNode(1), types.createNumberNode(2)]);
   const fn = types.createFunctionNode((x: types.AstNode) => types.createNumberNode(x.value * 2));
   const thisArg = types.createNumberNode(5);
@@ -69,11 +69,11 @@ Deno.test('arrayFrom - three arguments', () => {
   assertEquals(result.value[1].value, 4);
 });
 
-Deno.test('arrayFrom - too few arguments', () => {
+test('arrayFrom - too few arguments', () => {
   assertThrows(() => array.arrayFrom());
 });
 
-Deno.test('arrayFrom - too many arguments', () => {
+test('arrayFrom - too many arguments', () => {
   const vec = types.createVectorNode([types.createNumberNode(1), types.createNumberNode(2)]);
   const fn = types.createFunctionNode((x: types.AstNode) => types.createNumberNode(x.value * 2));
   const thisArg = types.createNumberNode(5);
@@ -81,12 +81,12 @@ Deno.test('arrayFrom - too many arguments', () => {
   assertThrows(() => array.arrayFrom(vec, fn, thisArg, extraArg));
 });
 
-Deno.test('arrayFrom - first argument not a vector', () => {
+test('arrayFrom - first argument not a vector', () => {
   const notAVector = types.createNumberNode(1);
   assertThrows(() => array.arrayFrom(notAVector));
 });
 
-Deno.test('arrayFrom - second argument not a function', () => {
+test('arrayFrom - second argument not a function', () => {
   const vec = types.createVectorNode([types.createNumberNode(1), types.createNumberNode(2)]);
   const notAFunction = types.createNumberNode(5);
   assertThrows(() => array.arrayFrom(vec, notAFunction));
@@ -95,41 +95,41 @@ Deno.test('arrayFrom - second argument not a function', () => {
 // MARK: at
 // --------------------------------------------------------------------------------------------------------------------
 
-Deno.test('at - valid index', () => {
+test('at - valid index', () => {
   const vec = types.createVectorNode([types.createNumberNode(1), types.createNumberNode(2)]);
   const index = types.createNumberNode(0);
   const result = array.arrayAt(vec, index);
   assertEquals(result, types.createNumberNode(1));
 });
 
-Deno.test('at - negative index', () => {
+test('at - negative index', () => {
   const vec = types.createVectorNode([types.createNumberNode(1), types.createNumberNode(2)]);
   const index = types.createNumberNode(-1);
   const result = array.arrayAt(vec, index);
   assertEquals(result, types.createNumberNode(2));
 });
 
-Deno.test('at - out of range index', () => {
+test('at - out of range index', () => {
   const vec = types.createVectorNode([types.createNumberNode(1), types.createNumberNode(2)]);
   const index = types.createNumberNode(2);
   const result = array.arrayAt(vec, index);
   assertEquals(types.isNilNode(result), true);
 });
 
-Deno.test('at - incorrect argument count', () => {
+test('at - incorrect argument count', () => {
   assertThrows(() => array.arrayAt());
   assertThrows(() => array.arrayAt(types.createVectorNode([])));
   assertThrows(() => array.arrayAt(types.createVectorNode([]), types.createNumberNode(0), types.createNumberNode(1)));
 });
 
-Deno.test('at - first argument not a vector', () => {
+test('at - first argument not a vector', () => {
   const notAVector = types.createNumberNode(1);
   const index = types.createNumberNode(0);
 
   assertThrows(() => array.arrayAt(notAVector, index));
 });
 
-Deno.test('at - second argument not a number', () => {
+test('at - second argument not a number', () => {
   const vec = types.createVectorNode([]);
   const notANumber = types.createStringNode('hello');
 
@@ -139,19 +139,19 @@ Deno.test('at - second argument not a number', () => {
 // MARK: isArray
 // --------------------------------------------------------------------------------------------------------------------
 
-Deno.test('isArray - is a vector', () => {
+test('isArray - is a vector', () => {
   const vec = types.createVectorNode([]);
   const result = array.arrayIsArray(vec);
   assertEquals(result, types.createBooleanNode(true));
 });
 
-Deno.test('isArray - is not a vector', () => {
+test('isArray - is not a vector', () => {
   const notAVector = types.createNumberNode(1);
   const result = array.arrayIsArray(notAVector);
   assertEquals(result, types.createBooleanNode(false));
 });
 
-Deno.test('isArray - incorrect argument count', () => {
+test('isArray - incorrect argument count', () => {
   assertThrows(() => array.arrayIsArray());
   assertThrows(() => array.arrayIsArray(types.createVectorNode([]), types.createNumberNode(1)));
 });
@@ -159,7 +159,7 @@ Deno.test('isArray - incorrect argument count', () => {
 // MARK: concat
 // --------------------------------------------------------------------------------------------------------------------
 
-Deno.test('concat - one vector', () => {
+test('concat - one vector', () => {
   const vec1 = types.createVectorNode([types.createNumberNode(1), types.createNumberNode(2)]);
   const result = array.arrayConcat(vec1);
   assertEquals(types.isVectorNode(result), true);
@@ -168,7 +168,7 @@ Deno.test('concat - one vector', () => {
   assertEquals(result.value[1].value, 2);
 });
 
-Deno.test('concat - multiple vectors', () => {
+test('concat - multiple vectors', () => {
   const vec1 = types.createVectorNode([types.createNumberNode(1), types.createNumberNode(2)]);
   const vec2 = types.createVectorNode([types.createNumberNode(3), types.createNumberNode(4)]);
   const result = array.arrayConcat(vec1, vec2);
@@ -180,16 +180,16 @@ Deno.test('concat - multiple vectors', () => {
   assertEquals(result.value[3].value, 4);
 });
 
-Deno.test('concat - no arguments', () => {
+test('concat - no arguments', () => {
   assertThrows(() => array.arrayConcat());
 });
 
-Deno.test('concat - non-vector argument', () => {
+test('concat - non-vector argument', () => {
   const notAVector = types.createNumberNode(1);
   assertThrows(() => array.arrayConcat(notAVector));
 });
 
-Deno.test('concat - mixed arguments', () => {
+test('concat - mixed arguments', () => {
   const vec1 = types.createVectorNode([types.createNumberNode(1)]);
   const notAVector = types.createNumberNode(2);
   assertThrows(() => array.arrayConcat(vec1, notAVector));
@@ -198,7 +198,7 @@ Deno.test('concat - mixed arguments', () => {
 // MARK: copyWithin
 // --------------------------------------------------------------------------------------------------------------------
 
-Deno.test('copyWithin - two arguments', () => {
+test('copyWithin - two arguments', () => {
   const vec = types.createVectorNode([types.createNumberNode(1), types.createNumberNode(2), types.createNumberNode(3)]);
   const target = types.createNumberNode(0);
   const start = types.createNumberNode(1);
@@ -206,7 +206,7 @@ Deno.test('copyWithin - two arguments', () => {
   assertEquals(result.value.map((n: { value: any }) => n.value), [2, 3, 3]);
 });
 
-Deno.test('copyWithin - three arguments', () => {
+test('copyWithin - three arguments', () => {
   const vec = types.createVectorNode([types.createNumberNode(1), types.createNumberNode(2), types.createNumberNode(3)]);
   const target = types.createNumberNode(0);
   const start = types.createNumberNode(1);
@@ -215,7 +215,7 @@ Deno.test('copyWithin - three arguments', () => {
   assertEquals(result.value.map((n: { value: any }) => n.value), [2, 2, 3]);
 });
 
-Deno.test('copyWithin - invalid number of arguments', () => {
+test('copyWithin - invalid number of arguments', () => {
   assertThrows(() => array.arrayCopyWithin());
   assertThrows(() => array.arrayCopyWithin(types.createVectorNode([])));
   assertThrows(() => array.arrayCopyWithin(types.createVectorNode([]), types.createNumberNode(0)));
@@ -227,7 +227,7 @@ Deno.test('copyWithin - invalid number of arguments', () => {
   assertThrows(() => array.arrayCopyWithin(vec, target, start, end, extra));
 });
 
-Deno.test('copyWithin - invalid argument types', () => {
+test('copyWithin - invalid argument types', () => {
   const vec = types.createVectorNode([]);
   const num = types.createNumberNode(0);
   const str = types.createStringNode('');
@@ -240,14 +240,14 @@ Deno.test('copyWithin - invalid argument types', () => {
 // MARK: entries
 // --------------------------------------------------------------------------------------------------------------------
 
-Deno.test('entries - empty vector', () => {
+test('entries - empty vector', () => {
   const vec = types.createVectorNode([]);
   const result = array.arrayEntries(vec);
   assertEquals(types.isVectorNode(result), true);
   assertEquals(result.value, []);
 });
 
-Deno.test('entries - non-empty vector', () => {
+test('entries - non-empty vector', () => {
   const vec = types.createVectorNode([types.createNumberNode(1), types.createStringNode('a')]);
   const result = array.arrayEntries(vec);
 
@@ -263,26 +263,26 @@ Deno.test('entries - non-empty vector', () => {
   assertEquals(result.value[1].value[1].value, 'a');
 });
 
-Deno.test('entries - incorrect argument count', () => {
+test('entries - incorrect argument count', () => {
   assertThrows(() => array.arrayEntries());
   assertThrows(() => array.arrayEntries(types.createVectorNode([]), types.createNumberNode(1)));
 });
 
-Deno.test('entries - invalid argument type', () => {
+test('entries - invalid argument type', () => {
   assertThrows(() => array.arrayEntries(types.createNumberNode(1)));
 });
 
 // MARK: every
 // --------------------------------------------------------------------------------------------------------------------
 
-Deno.test('every - all true', () => {
+test('every - all true', () => {
   const vec = types.createVectorNode([types.createNumberNode(1), types.createNumberNode(2)]);
   const fn = types.createFunctionNode(() => types.createBooleanNode(true));
   const result = array.arrayEvery(vec, fn);
   assertEquals(result, types.createBooleanNode(true));
 });
 
-Deno.test('every - some false', () => {
+test('every - some false', () => {
   const vec = types.createVectorNode([types.createNumberNode(1), types.createNumberNode(2)]);
   const fn = types.createFunctionNode((_index: types.AstNode, v: types.AstNode, _vector: types.AstNode) =>
     types.createBooleanNode(v.value !== 2)
@@ -291,7 +291,7 @@ Deno.test('every - some false', () => {
   assertEquals(result, types.createBooleanNode(false));
 });
 
-Deno.test('every - invalid arguments', () => {
+test('every - invalid arguments', () => {
   const vec = types.createVectorNode([]);
   const num = types.createNumberNode(0);
   const str = types.createStringNode('');
@@ -307,7 +307,7 @@ Deno.test('every - invalid arguments', () => {
 // MARK: fill
 // --------------------------------------------------------------------------------------------------------------------
 
-Deno.test('fill - two arguments', () => {
+test('fill - two arguments', () => {
   const vector = types.createVectorNode([types.createNumberNode(1), types.createNumberNode(2)]);
   const value = types.createNumberNode(0);
   const result = array.arrayFill(vector, value);
@@ -317,7 +317,7 @@ Deno.test('fill - two arguments', () => {
   assertEquals(result.value[1].value, 0);
 });
 
-Deno.test('fill - three arguments', () => {
+test('fill - three arguments', () => {
   const vec = types.createVectorNode([types.createNumberNode(1), types.createNumberNode(2), types.createNumberNode(3)]);
   const value = types.createNumberNode(0);
   const start = types.createNumberNode(1);
@@ -329,7 +329,7 @@ Deno.test('fill - three arguments', () => {
   assertEquals(result.value[2].value, 0);
 });
 
-Deno.test('fill - four arguments', () => {
+test('fill - four arguments', () => {
   const vec = types.createVectorNode([
     types.createNumberNode(1),
     types.createNumberNode(2),
@@ -348,7 +348,7 @@ Deno.test('fill - four arguments', () => {
   assertEquals(result.value[3].value, 0);
 });
 
-Deno.test('fill - invalid number of arguments', () => {
+test('fill - invalid number of arguments', () => {
   assertThrows(() => array.arrayFill());
   assertThrows(() => array.arrayFill(types.createVectorNode([])));
   const vec = types.createVectorNode([]);
@@ -357,7 +357,7 @@ Deno.test('fill - invalid number of arguments', () => {
   assertThrows(() => array.arrayFill(vec, val, val, val, val));
 });
 
-Deno.test('fill - invalid argument types', () => {
+test('fill - invalid argument types', () => {
   const vec = types.createVectorNode([]);
   const num = types.createNumberNode(0);
   const str = types.createStringNode('');
@@ -369,7 +369,7 @@ Deno.test('fill - invalid argument types', () => {
 // MARK: filter
 // --------------------------------------------------------------------------------------------------------------------
 
-Deno.test('filter - some match', () => {
+test('filter - some match', () => {
   const vec = types.createVectorNode([types.createNumberNode(1), types.createNumberNode(2)]);
   const fn = types.createFunctionNode((item: types.AstNode) => types.createBooleanNode(item.value > 1));
   const result = array.arrayFilter(fn, vec);
@@ -379,7 +379,7 @@ Deno.test('filter - some match', () => {
   assertEquals(result.value[0].value, 2);
 });
 
-Deno.test('filter - none match', () => {
+test('filter - none match', () => {
   const vec = types.createVectorNode([types.createNumberNode(1), types.createNumberNode(2)]);
   const fn = types.createFunctionNode(() => types.createBooleanNode(false));
   const result = array.arrayFilter(fn, vec);
@@ -388,7 +388,7 @@ Deno.test('filter - none match', () => {
   assertEquals(result.value.length, 0);
 });
 
-Deno.test('filter - invalid arguments', () => {
+test('filter - invalid arguments', () => {
   const vec = types.createVectorNode([]);
   const num = types.createNumberNode(0);
   assertThrows(() => array.arrayFilter());
@@ -399,21 +399,21 @@ Deno.test('filter - invalid arguments', () => {
 // MARK: find
 // --------------------------------------------------------------------------------------------------------------------
 
-Deno.test('find - element found', () => {
+test('find - element found', () => {
   const vec = types.createVectorNode([types.createNumberNode(1), types.createNumberNode(2)]);
   const fn = types.createFunctionNode((v: types.AstNode) => types.createBooleanNode(v.value === 2));
   const result = array.arrayFind(vec, fn);
   assertEquals(result, types.createNumberNode(2));
 });
 
-Deno.test('find - element not found', () => {
+test('find - element not found', () => {
   const vec = types.createVectorNode([types.createNumberNode(1), types.createNumberNode(2)]);
   const fn = types.createFunctionNode(() => types.createBooleanNode(false));
   const result = array.arrayFind(vec, fn);
   assertEquals(types.isNilNode(result), true);
 });
 
-Deno.test('find - invalid arguments', () => {
+test('find - invalid arguments', () => {
   const vec = types.createVectorNode([]);
   const num = types.createNumberNode(0);
   assertThrows(() => array.arrayFind());
@@ -425,21 +425,21 @@ Deno.test('find - invalid arguments', () => {
 // MARK: findIndex
 // --------------------------------------------------------------------------------------------------------------------
 
-Deno.test('findIndex - element found', () => {
+test('findIndex - element found', () => {
   const vec = types.createVectorNode([types.createNumberNode(1), types.createNumberNode(2)]);
   const fn = types.createFunctionNode((v: types.AstNode) => types.createBooleanNode(v.value === 2));
   const result = array.arrayFindIndex(vec, fn);
   assertEquals(result, types.createNumberNode(1));
 });
 
-Deno.test('findIndex - element not found', () => {
+test('findIndex - element not found', () => {
   const vec = types.createVectorNode([types.createNumberNode(1), types.createNumberNode(2)]);
   const fn = types.createFunctionNode(() => types.createBooleanNode(false));
   const result = array.arrayFindIndex(vec, fn);
   assertEquals(result, types.createNumberNode(-1));
 });
 
-Deno.test('findIndex - invalid arguments', () => {
+test('findIndex - invalid arguments', () => {
   const vec = types.createVectorNode([]);
   const num = types.createNumberNode(0);
   assertThrows(() => array.arrayFindIndex());
@@ -451,21 +451,21 @@ Deno.test('findIndex - invalid arguments', () => {
 // MARK: findLast
 // --------------------------------------------------------------------------------------------------------------------
 
-Deno.test('findLast - element found', () => {
+test('findLast - element found', () => {
   const vec = types.createVectorNode([types.createNumberNode(1), types.createNumberNode(2)]);
   const fn = types.createFunctionNode((v: types.AstNode) => types.createBooleanNode(v.value === 2));
   const result = array.arrayFindLast(vec, fn);
   assertEquals(result, types.createNumberNode(2));
 });
 
-Deno.test('findLast - element not found', () => {
+test('findLast - element not found', () => {
   const vec = types.createVectorNode([types.createNumberNode(1), types.createNumberNode(2)]);
   const fn = types.createFunctionNode(() => types.createBooleanNode(false));
   const result = array.arrayFindLast(vec, fn);
   assertEquals(types.isNilNode(result), true);
 });
 
-Deno.test('findLast - invalid arguments', () => {
+test('findLast - invalid arguments', () => {
   const vec = types.createVectorNode([]);
   const num = types.createNumberNode(0);
   assertThrows(() => array.arrayFindLast());
@@ -477,21 +477,21 @@ Deno.test('findLast - invalid arguments', () => {
 // MARK: findLastIndex
 // --------------------------------------------------------------------------------------------------------------------
 
-Deno.test('findLastIndex - element found', () => {
+test('findLastIndex - element found', () => {
   const vec = types.createVectorNode([types.createNumberNode(1), types.createNumberNode(2)]);
   const fn = types.createFunctionNode((v: types.AstNode) => types.createBooleanNode(v.value === 2));
   const result = array.arrayFindLastIndex(vec, fn);
   assertEquals(result, types.createNumberNode(1));
 });
 
-Deno.test('findLastIndex - element not found', () => {
+test('findLastIndex - element not found', () => {
   const vec = types.createVectorNode([types.createNumberNode(1), types.createNumberNode(2)]);
   const fn = types.createFunctionNode(() => types.createBooleanNode(false));
   const result = array.arrayFindLastIndex(vec, fn);
   assertEquals(result, types.createNumberNode(-1));
 });
 
-Deno.test('findLastIndex - invalid arguments', () => {
+test('findLastIndex - invalid arguments', () => {
   const vec = types.createVectorNode([]);
   const num = types.createNumberNode(0);
   assertThrows(() => array.arrayFindLastIndex());
@@ -503,7 +503,7 @@ Deno.test('findLastIndex - invalid arguments', () => {
 // MARK: flat
 // --------------------------------------------------------------------------------------------------------------------
 
-Deno.test('arrayFlat - basic functionality', () => {
+test('arrayFlat - basic functionality', () => {
   const vec = types.createVectorNode([
     types.createNumberNode(1),
     types.createVectorNode([types.createNumberNode(2), types.createNumberNode(3)]),
@@ -512,7 +512,7 @@ Deno.test('arrayFlat - basic functionality', () => {
   assertEquals(result.value.map((n: { value: any }) => n.value), [1, 2, 3]);
 });
 
-Deno.test('arrayFlat - deeply nested vectors', () => {
+test('arrayFlat - deeply nested vectors', () => {
   const vec = types.createVectorNode([
     types.createNumberNode(1),
     types.createVectorNode([
@@ -524,19 +524,19 @@ Deno.test('arrayFlat - deeply nested vectors', () => {
   assertEquals(result.value.map((n: { value: any }) => n.value), [1, 2, 3, 4]);
 });
 
-Deno.test('arrayFlat - empty vector', () => {
+test('arrayFlat - empty vector', () => {
   const vec = types.createVectorNode([]);
   const result = array.arrayFlat(vec);
   assertEquals(result.value, []);
 });
 
-Deno.test('arrayFlat - vector with non-nested elements', () => {
+test('arrayFlat - vector with non-nested elements', () => {
   const vec = types.createVectorNode([types.createNumberNode(1), types.createNumberNode(2)]);
   const result = array.arrayFlat(vec);
   assertEquals(result.value.map((n: { value: any }) => n.value), [1, 2]);
 });
 
-Deno.test('arrayFlat - invalid arguments', () => {
+test('arrayFlat - invalid arguments', () => {
   const num = types.createNumberNode(0);
 
   assertThrows(() => array.arrayFlat());
@@ -546,7 +546,7 @@ Deno.test('arrayFlat - invalid arguments', () => {
 // MARK: flatMap
 // --------------------------------------------------------------------------------------------------------------------
 
-Deno.test('arrayFlatMap - basic functionality', () => {
+test('arrayFlatMap - basic functionality', () => {
   const vec = types.createVectorNode([types.createNumberNode(1), types.createNumberNode(2)]);
   const fn = types.createFunctionNode((v: types.AstNode) => types.createVectorNode([v, v]));
 
@@ -554,7 +554,7 @@ Deno.test('arrayFlatMap - basic functionality', () => {
   assertEquals(result.value.map((n: { value: any }) => n.value), [1, 1, 2, 2]);
 });
 
-Deno.test('arrayFlatMap - nested result', () => {
+test('arrayFlatMap - nested result', () => {
   const vec = types.createVectorNode([types.createNumberNode(1), types.createNumberNode(2)]);
   // Callback returns a nested vector for each element
   const fn = types.createFunctionNode((v: types.AstNode) => types.createVectorNode([v, types.createVectorNode([v])]));
@@ -563,7 +563,7 @@ Deno.test('arrayFlatMap - nested result', () => {
   assertEquals(result.value.map((n: { value: any }) => n.value), [1, 1, 2, 2]);
 });
 
-Deno.test('arrayFlatMap - empty vector', () => {
+test('arrayFlatMap - empty vector', () => {
   const vec = types.createVectorNode([]);
   const fn = types.createFunctionNode(() => types.createVectorNode([]));
 
@@ -571,7 +571,7 @@ Deno.test('arrayFlatMap - empty vector', () => {
   assertEquals(result.value, []);
 });
 
-Deno.test('arrayFlatMap - invalid arguments', () => {
+test('arrayFlatMap - invalid arguments', () => {
   const vec = types.createVectorNode([]);
   const num = types.createNumberNode(0);
 
@@ -584,14 +584,14 @@ Deno.test('arrayFlatMap - invalid arguments', () => {
 // MARK: includes
 // --------------------------------------------------------------------------------------------------------------------
 
-Deno.test('includes - vector includes element', () => {
+test('includes - vector includes element', () => {
   const vec = types.createVectorNode([types.createNumberNode(1), types.createNumberNode(2)]);
   const element = types.createNumberNode(2);
   const result = array.arrayIncludes(vec, element);
   assertEquals(result, types.createBooleanNode(true));
 });
 
-Deno.test('includes - vector does not include element', () => {
+test('includes - vector does not include element', () => {
   const vec = types.createVectorNode([types.createNumberNode(1), types.createNumberNode(2)]);
   const element = types.createNumberNode(3);
   const result = array.arrayIncludes(vec, element);
@@ -599,7 +599,7 @@ Deno.test('includes - vector does not include element', () => {
   assertEquals(result.value, false);
 });
 
-Deno.test('includes - invalid arguments', () => {
+test('includes - invalid arguments', () => {
   const vec = types.createVectorNode([]);
   const num = types.createNumberNode(1);
   const str = types.createStringNode('');
@@ -613,7 +613,7 @@ Deno.test('includes - invalid arguments', () => {
 // MARK: indexOf
 // --------------------------------------------------------------------------------------------------------------------
 
-Deno.test('indexOf - element found', () => {
+test('indexOf - element found', () => {
   const vec = types.createVectorNode([types.createNumberNode(1), types.createNumberNode(2)]);
   const value = types.createNumberNode(2);
 
@@ -621,7 +621,7 @@ Deno.test('indexOf - element found', () => {
   assertEquals(result, types.createNumberNode(1));
 });
 
-Deno.test('indexOf - element not found', () => {
+test('indexOf - element not found', () => {
   const vec = types.createVectorNode([types.createNumberNode(1), types.createNumberNode(2)]);
   const value = types.createNumberNode(3);
 
@@ -629,7 +629,7 @@ Deno.test('indexOf - element not found', () => {
   assertEquals(result, types.createNumberNode(-1));
 });
 
-Deno.test('indexOf - invalid arguments', () => {
+test('indexOf - invalid arguments', () => {
   const vec = types.createVectorNode([]);
   const num = types.createNumberNode(0);
   const str = types.createStringNode('');
@@ -643,7 +643,7 @@ Deno.test('indexOf - invalid arguments', () => {
 // MARK: join
 // --------------------------------------------------------------------------------------------------------------------
 
-Deno.test('join - basic functionality', () => {
+test('join - basic functionality', () => {
   const vec = types.createVectorNode([types.createNumberNode(1), types.createNumberNode(2)]);
   const separator = types.createStringNode(',');
 
@@ -651,14 +651,14 @@ Deno.test('join - basic functionality', () => {
   assertEquals(result, types.createStringNode('1,2'));
 });
 
-Deno.test('join - no arguments', () => {
+test('join - no arguments', () => {
   assertThrows(() => array.arrayJoin());
 });
 
 // MARK: keys
 // --------------------------------------------------------------------------------------------------------------------
 
-Deno.test('keys - basic functionality', () => {
+test('keys - basic functionality', () => {
   const vec = types.createVectorNode([types.createNumberNode(1), types.createNumberNode(2)]);
   const result = array.arrayKeys(vec);
 
@@ -667,7 +667,7 @@ Deno.test('keys - basic functionality', () => {
   assertEquals(result.value[1], types.createNumberNode(1));
 });
 
-Deno.test('keys - invalid arguments', () => {
+test('keys - invalid arguments', () => {
   const num = types.createNumberNode(0);
   assertThrows(() => array.arrayKeys());
   assertThrows(() => array.arrayKeys(num));
@@ -676,19 +676,19 @@ Deno.test('keys - invalid arguments', () => {
 // MARK: arrayLast
 // --------------------------------------------------------------------------------------------------------------------
 
-Deno.test('arrayLast - retrieves last element', () => {
+test('arrayLast - retrieves last element', () => {
   const vec = types.createVectorNode([types.createNumberNode(1), types.createNumberNode(2)]);
   const result = array.arrayLast(vec);
   assertEquals(result, types.createNumberNode(2));
 });
 
-Deno.test('arrayLast - empty vector', () => {
+test('arrayLast - empty vector', () => {
   const vec = types.createVectorNode([]);
   const result = array.arrayLast(vec);
   assertEquals(types.isNilNode(result), true);
 });
 
-Deno.test('arrayLast - invalid arguments', () => {
+test('arrayLast - invalid arguments', () => {
   const num = types.createNumberNode(0);
   assertThrows(() => array.arrayLast());
   assertThrows(() => array.arrayLast(num));
@@ -697,7 +697,7 @@ Deno.test('arrayLast - invalid arguments', () => {
 // MARK: arrayMap
 // --------------------------------------------------------------------------------------------------------------------
 
-Deno.test('arrayMap - basic functionality', () => {
+test('arrayMap - basic functionality', () => {
   const vec = types.createVectorNode([types.createNumberNode(1), types.createNumberNode(2)]);
   const fn = types.createFunctionNode((x: types.AstNode) => types.createNumberNode(x.value * 2));
   const result = array.arrayMap(vec, fn);
@@ -707,7 +707,7 @@ Deno.test('arrayMap - basic functionality', () => {
   assertEquals(result.value[1], types.createNumberNode(4));
 });
 
-Deno.test('arrayMap - with thisArg', () => {
+test('arrayMap - with thisArg', () => {
   const vec = types.createVectorNode([types.createNumberNode(1), types.createNumberNode(2)]);
   const thisArg = types.createNumberNode(5); // Not actually used in this example, but demonstrating usage
   const fn = types.createFunctionNode((_x: types.AstNode, _index: types.AstNode, _thisArg: types.AstNode) =>
@@ -721,7 +721,7 @@ Deno.test('arrayMap - with thisArg', () => {
   assertEquals(result.value[1], types.createNumberNode(2));
 });
 
-Deno.test('arrayMap - invalid arguments', () => {
+test('arrayMap - invalid arguments', () => {
   const vec = types.createVectorNode([]);
   const num = types.createNumberNode(0);
 
@@ -734,14 +734,14 @@ Deno.test('arrayMap - invalid arguments', () => {
 // MARK: arrayPush
 // --------------------------------------------------------------------------------------------------------------------
 
-Deno.test('arrayPush - basic functionality', () => {
+test('arrayPush - basic functionality', () => {
   const vec = types.createVectorNode([types.createNumberNode(1)]);
   const value = types.createNumberNode(2);
   const result = array.arrayPush(vec, value);
   assertEquals(result.value.map((n: { value: any }) => n.value), [1, 2]);
 });
 
-Deno.test('arrayPush - multiple values', () => {
+test('arrayPush - multiple values', () => {
   const vec = types.createVectorNode([types.createNumberNode(1)]);
   const val1 = types.createNumberNode(2);
   const val2 = types.createNumberNode(3);
@@ -751,7 +751,7 @@ Deno.test('arrayPush - multiple values', () => {
   assertEquals(result.value.map((n: { value: any }) => n.value), [1, 2, 3]);
 });
 
-Deno.test('arrayPush - invalid arguments', () => {
+test('arrayPush - invalid arguments', () => {
   const num = types.createNumberNode(1);
 
   assertThrows(() => array.arrayPush());
@@ -761,13 +761,13 @@ Deno.test('arrayPush - invalid arguments', () => {
 // MARK: arrayLength
 // --------------------------------------------------------------------------------------------------------------------
 
-Deno.test('arrayLength - basic functionality', () => {
+test('arrayLength - basic functionality', () => {
   const vec = types.createVectorNode([types.createNumberNode(1), types.createNumberNode(2)]);
   const result = array.arrayLength(vec);
   assertEquals(result, types.createNumberNode(2));
 });
 
-Deno.test('arrayLength - invalid arguments', () => {
+test('arrayLength - invalid arguments', () => {
   const num = types.createNumberNode(0);
   assertThrows(() => array.arrayLength());
   assertThrows(() => array.arrayLength(num));
@@ -776,7 +776,7 @@ Deno.test('arrayLength - invalid arguments', () => {
 // MARK: arrayReduce
 // --------------------------------------------------------------------------------------------------------------------
 
-Deno.test('arrayReduce - basic functionality', () => {
+test('arrayReduce - basic functionality', () => {
   const fn = types.createFunctionNode((acc: types.AstNode, x: types.AstNode) =>
     types.createNumberNode(acc.value + x.value)
   );
@@ -787,7 +787,7 @@ Deno.test('arrayReduce - basic functionality', () => {
   assertEquals(result.value, 3);
 });
 
-Deno.test('arrayReduce - invalid arguments', () => {
+test('arrayReduce - invalid arguments', () => {
   const fn = types.createFunctionNode((acc: types.AstNode, x: types.AstNode) =>
     types.createNumberNode(acc.value + x.value)
   );
@@ -804,13 +804,13 @@ Deno.test('arrayReduce - invalid arguments', () => {
 // MARK: arrayToReversed
 // --------------------------------------------------------------------------------------------------------------------
 
-Deno.test('arrayToReversed - basic functionality', () => {
+test('arrayToReversed - basic functionality', () => {
   const vec = types.createVectorNode([types.createNumberNode(1), types.createNumberNode(2)]);
   const result = array.arrayToReversed(vec);
   assertEquals(result.value.map((n: { value: any }) => n.value), [2, 1]);
 });
 
-Deno.test('arrayToReversed - invalid arguments', () => {
+test('arrayToReversed - invalid arguments', () => {
   const num = types.createNumberNode(0);
   assertThrows(() => array.arrayToReversed());
   assertThrows(() => array.arrayToReversed(num));
@@ -819,20 +819,20 @@ Deno.test('arrayToReversed - invalid arguments', () => {
 // MARK: arrayFirst
 // --------------------------------------------------------------------------------------------------------------------
 
-Deno.test('arrayFirst - basic functionality', () => {
+test('arrayFirst - basic functionality', () => {
   const vec = types.createVectorNode([types.createNumberNode(1), types.createNumberNode(2)]);
   const result = array.arrayFirst(vec);
 
   assertEquals(result, types.createNumberNode(1));
 });
 
-Deno.test('arrayFirst - empty vector', () => {
+test('arrayFirst - empty vector', () => {
   const vec = types.createVectorNode([]);
   const result = array.arrayFirst(vec);
   assertEquals(types.isNilNode(result), true);
 });
 
-Deno.test('arrayFirst - invalid arguments', () => {
+test('arrayFirst - invalid arguments', () => {
   const num = types.createNumberNode(1);
 
   assertThrows(() => array.arrayFirst());
@@ -842,13 +842,13 @@ Deno.test('arrayFirst - invalid arguments', () => {
 // MARK: arraySlice
 // --------------------------------------------------------------------------------------------------------------------
 
-Deno.test('arraySlice - one argument', () => {
+test('arraySlice - one argument', () => {
   const vec = types.createVectorNode([types.createNumberNode(1), types.createNumberNode(2)]);
   const result = array.arraySlice(vec);
   assertEquals(result.value.map((n: { value: any }) => n.value), [1, 2]);
 });
 
-Deno.test('arraySlice - two arguments', () => {
+test('arraySlice - two arguments', () => {
   const vec = types.createVectorNode([types.createNumberNode(1), types.createNumberNode(2)]);
   const start = types.createNumberNode(1);
 
@@ -856,7 +856,7 @@ Deno.test('arraySlice - two arguments', () => {
   assertEquals(result.value.map((n: { value: any }) => n.value), [2]);
 });
 
-Deno.test('arraySlice - three arguments', () => {
+test('arraySlice - three arguments', () => {
   const vec = types.createVectorNode([types.createNumberNode(1), types.createNumberNode(2), types.createNumberNode(3)]);
   const start = types.createNumberNode(1);
   const end = types.createNumberNode(2);
@@ -865,7 +865,7 @@ Deno.test('arraySlice - three arguments', () => {
   assertEquals(result.value.map((n: { value: any }) => n.value), [2]);
 });
 
-Deno.test('arraySlice - invalid arguments', () => {
+test('arraySlice - invalid arguments', () => {
   const num = types.createNumberNode(1);
   const vec = types.createVectorNode([]);
   const str = types.createStringNode('');
@@ -879,14 +879,14 @@ Deno.test('arraySlice - invalid arguments', () => {
 // MARK: arraySome
 // --------------------------------------------------------------------------------------------------------------------
 
-Deno.test('arraySome - some true', () => {
+test('arraySome - some true', () => {
   const vec = types.createVectorNode([types.createNumberNode(1), types.createNumberNode(2)]);
   const fn = types.createFunctionNode((v: types.AstNode) => types.createBooleanNode(v.value === 2));
   const result = array.arraySome(vec, fn);
   assertEquals(result, types.createBooleanNode(true));
 });
 
-Deno.test('arraySome - all false', () => {
+test('arraySome - all false', () => {
   const vec = types.createVectorNode([types.createNumberNode(1), types.createNumberNode(2)]);
   const fn = types.createFunctionNode(() => types.createBooleanNode(false));
 
@@ -894,7 +894,7 @@ Deno.test('arraySome - all false', () => {
   assertEquals(result, types.createBooleanNode(false));
 });
 
-Deno.test('arraySome - invalid arguments', () => {
+test('arraySome - invalid arguments', () => {
   const vec = types.createVectorNode([]);
   const num = types.createNumberNode(1);
 
@@ -907,7 +907,7 @@ Deno.test('arraySome - invalid arguments', () => {
 // MARK: arrayToSorted
 // --------------------------------------------------------------------------------------------------------------------
 
-Deno.test('arrayToSorted - basic functionality', () => {
+test('arrayToSorted - basic functionality', () => {
   const vec = types.createVectorNode([types.createNumberNode(2), types.createNumberNode(1)]);
   const fn = types.createFunctionNode((a: types.AstNode, b: types.AstNode) =>
     types.createNumberNode(a.value - b.value)
@@ -917,7 +917,7 @@ Deno.test('arrayToSorted - basic functionality', () => {
   assertEquals(result.value.map((n: { value: any }) => n.value), [1, 2]);
 });
 
-Deno.test('arrayToSorted - invalid arguments', () => {
+test('arrayToSorted - invalid arguments', () => {
   const vec = types.createVectorNode([]);
   const num = types.createNumberNode(0);
 
@@ -930,7 +930,7 @@ Deno.test('arrayToSorted - invalid arguments', () => {
 // MARK: arrayToSpliced
 // --------------------------------------------------------------------------------------------------------------------
 
-Deno.test('arrayToSpliced - two arguments', () => {
+test('arrayToSpliced - two arguments', () => {
   const vec = types.createVectorNode([types.createNumberNode(1), types.createNumberNode(2)]);
   const start = types.createNumberNode(1);
   const result = array.arrayToSpliced(vec, start);
@@ -939,7 +939,7 @@ Deno.test('arrayToSpliced - two arguments', () => {
   assertEquals(result.value[0].value, 1);
 });
 
-Deno.test('arrayToSpliced - three arguments', () => {
+test('arrayToSpliced - three arguments', () => {
   const vec = types.createVectorNode([types.createNumberNode(1), types.createNumberNode(2)]);
   const start = types.createNumberNode(1);
   const deleteCount = types.createNumberNode(1);
@@ -948,7 +948,7 @@ Deno.test('arrayToSpliced - three arguments', () => {
   assertEquals(result.value.map((n: { value: any }) => n.value), [1]);
 });
 
-Deno.test('arrayToSpliced - four arguments', () => {
+test('arrayToSpliced - four arguments', () => {
   const vec = types.createVectorNode([types.createNumberNode(1), types.createNumberNode(2)]);
   const start = types.createNumberNode(1);
   const deleteCount = types.createNumberNode(1);
@@ -959,7 +959,7 @@ Deno.test('arrayToSpliced - four arguments', () => {
   assertEquals(result.value.map((n: { value: any }) => n.value), [1, 3]);
 });
 
-Deno.test('arrayToSpliced - invalid arguments', () => {
+test('arrayToSpliced - invalid arguments', () => {
   const vec = types.createVectorNode([]);
   const num = types.createNumberNode(1);
   const str = types.createStringNode('');
@@ -973,7 +973,7 @@ Deno.test('arrayToSpliced - invalid arguments', () => {
 // MARK: arrayUnshift
 // --------------------------------------------------------------------------------------------------------------------
 
-Deno.test('arrayUnshift - basic functionality', () => {
+test('arrayUnshift - basic functionality', () => {
   const value = types.createNumberNode(0);
   const vec = types.createVectorNode([types.createNumberNode(1), types.createNumberNode(2)]);
   const result = array.arrayUnshift(value, vec);
@@ -981,7 +981,7 @@ Deno.test('arrayUnshift - basic functionality', () => {
   assertEquals(result.value.map((n) => n.value), [0, 1, 2]);
 });
 
-Deno.test('arrayUnshift - invalid arguments', () => {
+test('arrayUnshift - invalid arguments', () => {
   const num = types.createNumberNode(0);
 
   assertThrows(() => array.arrayUnshift());
@@ -992,13 +992,13 @@ Deno.test('arrayUnshift - invalid arguments', () => {
 // MARK: arrayValues
 // --------------------------------------------------------------------------------------------------------------------
 
-Deno.test('arrayValues - basic functionality', () => {
+test('arrayValues - basic functionality', () => {
   const vec = types.createVectorNode([types.createNumberNode(1), types.createNumberNode(2)]);
   const result = array.arrayValues(vec);
   assertEquals(result.value.map((n: { value: any }) => n.value), [1, 2]);
 });
 
-Deno.test('arrayValues - invalid arguments', () => {
+test('arrayValues - invalid arguments', () => {
   const num = types.createNumberNode(0);
 
   assertThrows(() => array.arrayValues());
@@ -1008,7 +1008,7 @@ Deno.test('arrayValues - invalid arguments', () => {
 // MARK: arrayReplaceWith
 // --------------------------------------------------------------------------------------------------------------------
 
-Deno.test('arrayReplaceWith - replaces with specified value', () => {
+test('arrayReplaceWith - replaces with specified value', () => {
   const vec = types.createVectorNode([types.createNumberNode(1), types.createNumberNode(2), types.createNumberNode(3)]);
   const index = types.createNumberNode(1);
   const value = types.createNumberNode(5);
@@ -1017,7 +1017,7 @@ Deno.test('arrayReplaceWith - replaces with specified value', () => {
   assertEquals(result.value.map((n: { value: any }) => n.value), [1, 5, 3]);
 });
 
-Deno.test('arrayReplaceWith - invalid arguments', () => {
+test('arrayReplaceWith - invalid arguments', () => {
   const vec = types.createVectorNode([types.createNumberNode(1)]);
   const num = types.createNumberNode(0);
   const str = types.createStringNode('');

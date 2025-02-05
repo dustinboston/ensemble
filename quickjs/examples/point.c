@@ -1,6 +1,6 @@
 /*
  * QuickJS: Example of C module with a class
- * 
+ *
  * Copyright (c) 2019 Fabrice Bellard
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -43,13 +43,13 @@ static void js_point_finalizer(JSRuntime *rt, JSValue val)
 }
 
 static JSValue js_point_ctor(JSContext *ctx,
-                             JSValueConst new_target,
-                             int argc, JSValueConst *argv)
+                             JSValue new_target,
+                             int argc, JSValue *argv)
 {
     JSPointData *s;
     JSValue obj = JS_UNDEFINED;
     JSValue proto;
-    
+
     s = js_mallocz(ctx, sizeof(*s));
     if (!s)
         return JS_EXCEPTION;
@@ -74,7 +74,7 @@ static JSValue js_point_ctor(JSContext *ctx,
     return JS_EXCEPTION;
 }
 
-static JSValue js_point_get_xy(JSContext *ctx, JSValueConst this_val, int magic)
+static JSValue js_point_get_xy(JSContext *ctx, JSValue this_val, int magic)
 {
     JSPointData *s = JS_GetOpaque2(ctx, this_val, js_point_class_id);
     if (!s)
@@ -85,7 +85,7 @@ static JSValue js_point_get_xy(JSContext *ctx, JSValueConst this_val, int magic)
         return JS_NewInt32(ctx, s->y);
 }
 
-static JSValue js_point_set_xy(JSContext *ctx, JSValueConst this_val, JSValue val, int magic)
+static JSValue js_point_set_xy(JSContext *ctx, JSValue this_val, JSValue val, int magic)
 {
     JSPointData *s = JS_GetOpaque2(ctx, this_val, js_point_class_id);
     int v;
@@ -100,8 +100,8 @@ static JSValue js_point_set_xy(JSContext *ctx, JSValueConst this_val, JSValue va
     return JS_UNDEFINED;
 }
 
-static JSValue js_point_norm(JSContext *ctx, JSValueConst this_val,
-                             int argc, JSValueConst *argv)
+static JSValue js_point_norm(JSContext *ctx, JSValue this_val,
+                             int argc, JSValue *argv)
 {
     JSPointData *s = JS_GetOpaque2(ctx, this_val, js_point_class_id);
     if (!s)
@@ -112,7 +112,7 @@ static JSValue js_point_norm(JSContext *ctx, JSValueConst this_val,
 static JSClassDef js_point_class = {
     "Point",
     .finalizer = js_point_finalizer,
-}; 
+};
 
 static const JSCFunctionListEntry js_point_proto_funcs[] = {
     JS_CGETSET_MAGIC_DEF("x", js_point_get_xy, js_point_set_xy, 0),
@@ -123,24 +123,33 @@ static const JSCFunctionListEntry js_point_proto_funcs[] = {
 static int js_point_init(JSContext *ctx, JSModuleDef *m)
 {
     JSValue point_proto, point_class;
-    
+    JSRuntime *rt = JS_GetRuntime(ctx);
+
     /* create the Point class */
-    JS_NewClassID(&js_point_class_id);
-    JS_NewClass(JS_GetRuntime(ctx), js_point_class_id, &js_point_class);
+    JS_NewClassID(rt, &js_point_class_id);
+    JS_NewClass(rt, js_point_class_id, &js_point_class);
 
     point_proto = JS_NewObject(ctx);
     JS_SetPropertyFunctionList(ctx, point_proto, js_point_proto_funcs, countof(js_point_proto_funcs));
-    
+
     point_class = JS_NewCFunction2(ctx, js_point_ctor, "Point", 2, JS_CFUNC_constructor, 0);
     /* set proto.constructor and ctor.prototype */
     JS_SetConstructor(ctx, point_class, point_proto);
     JS_SetClassProto(ctx, js_point_class_id, point_proto);
-                      
+
     JS_SetModuleExport(ctx, m, "Point", point_class);
     return 0;
 }
 
-JSModuleDef *js_init_module(JSContext *ctx, const char *module_name)
+#ifndef JS_EXTERN
+#ifdef _WIN32
+#define JS_EXTERN __declspec(dllexport)
+#else
+#define JS_EXTERN
+#endif
+#endif
+
+JS_EXTERN JSModuleDef *js_init_module(JSContext *ctx, const char *module_name)
 {
     JSModuleDef *m;
     m = JS_NewCModule(ctx, module_name, js_point_init);

@@ -1,8 +1,8 @@
-import { assertEquals, assertThrows } from '@std/assert';
+import { assertEquals, assertThrows, test } from '../../../tests/test_runner.ts';
 import * as types from '../../types.ts';
 import { getCause, getMessage, getName, newError } from './error.ts';
 
-Deno.test('newError - one argument', () => {
+test('newError - one argument', () => {
   const message = types.createStringNode('test error');
   const result = newError(message);
 
@@ -13,7 +13,7 @@ Deno.test('newError - one argument', () => {
   assertEquals(types.isNilNode(getCause(result)), true); // No cause
 });
 
-Deno.test('newError - two arguments', () => {
+test('newError - two arguments', () => {
   const message = types.createStringNode('test error');
   const name = types.createStringNode('TypeError');
   const result = newError(message, name);
@@ -24,7 +24,7 @@ Deno.test('newError - two arguments', () => {
   assertEquals(types.isNilNode(getCause(result)), true); // No cause
 });
 
-Deno.test('newError - three arguments', () => {
+test('newError - three arguments', () => {
   const message = types.createStringNode('test error');
   const name = types.createStringNode('TypeError');
   const cause = types.createStringNode('Something went wrong');
@@ -37,7 +37,7 @@ Deno.test('newError - three arguments', () => {
   assertEquals(getCause(result), cause);
 });
 
-Deno.test('newError - invalid arguments', () => {
+test('newError - invalid arguments', () => {
   const num = types.createNumberNode(1);
   const message = types.createStringNode('test error');
 
@@ -46,7 +46,7 @@ Deno.test('newError - invalid arguments', () => {
   assertThrows(() => newError(message, num));
 });
 
-Deno.test('getMessage - basic functionality', () => {
+test('getMessage - basic functionality', () => {
   const message = types.createStringNode('test error');
   const error = newError(message);
 
@@ -54,14 +54,14 @@ Deno.test('getMessage - basic functionality', () => {
   assertEquals(result, message);
 });
 
-Deno.test('getMessage - invalid arguments', () => {
+test('getMessage - invalid arguments', () => {
   assertThrows(() => getMessage());
   const num = types.createNumberNode(1);
 
   assertThrows(() => getMessage(num));
 });
 
-Deno.test('getCause - with cause', () => {
+test('getCause - with cause', () => {
   const message = types.createStringNode('test error');
   const cause = types.createNumberNode(1);
   const error = newError(message, types.createNilNode(), cause);
@@ -70,7 +70,7 @@ Deno.test('getCause - with cause', () => {
   assertEquals(result, cause);
 });
 
-Deno.test('getCause - without cause', () => {
+test('getCause - without cause', () => {
   const message = types.createStringNode('test error');
   const error = newError(message);
 
@@ -78,12 +78,12 @@ Deno.test('getCause - without cause', () => {
   assertEquals(types.isNilNode(result), true);
 });
 
-Deno.test('getCause - invalid arguments', () => {
+test('getCause - invalid arguments', () => {
   assertThrows(() => getCause());
   assertThrows(() => getCause(types.createNumberNode(1)));
 });
 
-Deno.test('getName - basic functionality', () => {
+test('getName - basic functionality', () => {
   const message = types.createStringNode('test error');
   const name = types.createStringNode('TypeError');
   const error = newError(message, name);
@@ -92,7 +92,7 @@ Deno.test('getName - basic functionality', () => {
   assertEquals(result, name);
 });
 
-Deno.test('getName - default name', () => {
+test('getName - default name', () => {
   const message = types.createStringNode('test error');
 
   const error = newError(message);
@@ -100,7 +100,7 @@ Deno.test('getName - default name', () => {
   assertEquals(result.value, 'Error');
 });
 
-Deno.test('getName - invalid arguments', () => {
+test('getName - invalid arguments', () => {
   assertThrows(() => getName());
   assertThrows(() => getName(types.createNumberNode(1)));
 });

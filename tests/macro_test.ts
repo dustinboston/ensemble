@@ -8,15 +8,15 @@
  * @file
  */
 
-import { assertEquals } from '@std/assert';
 import { initEnv, rep } from '../src/ensemble.ts';
 import { printString } from '../src/printer.ts';
 import { BooleanNode, ListNode, NilNode, NumberNode, StringNode, SymbolNode, VectorNode } from '../src/types.ts';
+import { assertEquals, test } from '../tests/test_runner.ts';
 
-Deno.test(`MACRO: Testing ' (quote) reader macro`, async (t) => {
+test(`MACRO: Testing ' (quote) reader macro`, () => {
   const sharedEnv = initEnv();
 
-  await t.step(`MACRO: the quote macro works with numbers`, () => {
+  test(`MACRO: the quote macro works with numbers`, () => {
     assertEquals(
       rep(
         `'7`,
@@ -27,7 +27,7 @@ Deno.test(`MACRO: Testing ' (quote) reader macro`, async (t) => {
     );
   });
 
-  await t.step(`MACRO: the quote macro works with lists`, () => {
+  test(`MACRO: the quote macro works with lists`, () => {
     assertEquals(
       rep(
         `'(1 2 3)`,
@@ -45,7 +45,7 @@ Deno.test(`MACRO: Testing ' (quote) reader macro`, async (t) => {
     );
   });
 
-  await t.step(`MACRO: the quote macro works with nested lists`, () => {
+  test(`MACRO: the quote macro works with nested lists`, () => {
     assertEquals(
       rep(
         `'(1 2 (3 4))`,
@@ -67,10 +67,10 @@ Deno.test(`MACRO: Testing ' (quote) reader macro`, async (t) => {
   });
 });
 
-Deno.test('MACRO: Testing ` (quasiquote) reader macro', async (t) => {
+test('MACRO: Testing ` (quasiquote) reader macro', () => {
   const sharedEnv = initEnv();
 
-  await t.step(`MACRO: the quasiquote macro returns numbers`, () => {
+  test(`MACRO: the quasiquote macro returns numbers`, () => {
     assertEquals(
       rep(
         '`7',
@@ -81,7 +81,7 @@ Deno.test('MACRO: Testing ` (quasiquote) reader macro', async (t) => {
     );
   });
 
-  await t.step(`MACRO: the quasiquote macro returns lists`, () => {
+  test(`MACRO: the quasiquote macro returns lists`, () => {
     assertEquals(
       rep(
         '`(1 2 3)',
@@ -99,7 +99,7 @@ Deno.test('MACRO: Testing ` (quasiquote) reader macro', async (t) => {
     );
   });
 
-  await t.step(`MACRO: the quasiquote macro returns nested lists`, () => {
+  test(`MACRO: the quasiquote macro returns nested lists`, () => {
     assertEquals(
       rep(
         '`(1 2 (3 4))',
@@ -120,7 +120,7 @@ Deno.test('MACRO: Testing ` (quasiquote) reader macro', async (t) => {
     );
   });
 
-  await t.step(`MACRO: the quasiquote macro returns a list of nil`, () => {
+  test(`MACRO: the quasiquote macro returns a list of nil`, () => {
     assertEquals(
       rep(
         '`(nil)',
@@ -137,10 +137,10 @@ Deno.test('MACRO: Testing ` (quasiquote) reader macro', async (t) => {
   });
 });
 
-Deno.test(`MACRO: Testing ~ (unquote) reader macro`, async (t) => {
+test(`MACRO: Testing ~ (unquote) reader macro`, () => {
   const sharedEnv = initEnv();
 
-  await t.step(
+  test(
     `MACRO: the unquote macro can be used with the quasiquote macro`,
     () => {
       assertEquals(
@@ -154,7 +154,7 @@ Deno.test(`MACRO: Testing ~ (unquote) reader macro`, async (t) => {
     },
   );
 
-  await t.step(`MACRO: defining a variable to test the unquote macro`, () => {
+  test(`MACRO: defining a variable to test the unquote macro`, () => {
     assertEquals(
       rep(
         `(def! a 8)`,
@@ -165,7 +165,7 @@ Deno.test(`MACRO: Testing ~ (unquote) reader macro`, async (t) => {
     );
   });
 
-  await t.step(
+  test(
     `MACRO: the unquote macro will unquote symbols in the a list`,
     () => {
       assertEquals(
@@ -186,7 +186,7 @@ Deno.test(`MACRO: Testing ~ (unquote) reader macro`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `MACRO: define another variable to test the unquote macro`,
     () => {
       assertEquals(
@@ -207,7 +207,7 @@ Deno.test(`MACRO: Testing ~ (unquote) reader macro`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `MACRO: the quasiquote macro returns an unevaluated list`,
     () => {
       assertEquals(
@@ -228,7 +228,7 @@ Deno.test(`MACRO: Testing ~ (unquote) reader macro`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `MACRO: the unquote macro unquotes a value in a list and evaluates it`,
     () => {
       assertEquals(
@@ -254,10 +254,10 @@ Deno.test(`MACRO: Testing ~ (unquote) reader macro`, async (t) => {
   );
 });
 
-Deno.test(`MACRO: Testing ~@ (splice-unquote) reader macro`, async (t) => {
+test(`MACRO: Testing ~@ (splice-unquote) reader macro`, () => {
   const sharedEnv = initEnv();
 
-  await t.step(`MACRO: define a variable for testing splice-unquote`, () => {
+  test(`MACRO: define a variable for testing splice-unquote`, () => {
     assertEquals(
       rep(
         `(def! c '(1 "b" "d"))`,
@@ -275,7 +275,7 @@ Deno.test(`MACRO: Testing ~@ (splice-unquote) reader macro`, async (t) => {
     );
   });
 
-  await t.step(
+  test(
     `MACRO: quasiquote macro returns a list with "c" unevaluated`,
     () => {
       assertEquals(
@@ -296,7 +296,7 @@ Deno.test(`MACRO: Testing ~@ (splice-unquote) reader macro`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `MACRO: the splice-unquote macro unquotes a value and injects it in-place`,
     () => {
       assertEquals(
@@ -320,12 +320,12 @@ Deno.test(`MACRO: Testing ~@ (splice-unquote) reader macro`, async (t) => {
   );
 });
 
-Deno.test(`MACRO: Testing unquote with vectors`, async (t) => {
+test(`MACRO: Testing unquote with vectors`, () => {
   const sharedEnv = initEnv();
 
   rep(`(def! a 8)`, sharedEnv);
 
-  await t.step(
+  test(
     `MACRO: the unquote macro works insdide of a vector`,
     () => {
       assertEquals(
@@ -343,7 +343,7 @@ Deno.test(`MACRO: Testing unquote with vectors`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `MACRO: the unquote macro works inside of a list inside of a vector`,
     () => {
       assertEquals(
@@ -364,7 +364,7 @@ Deno.test(`MACRO: Testing unquote with vectors`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `MACRO: the unquote macro works inside of a vector inside of quasiquoted list`,
     () => {
       assertEquals(
@@ -385,7 +385,7 @@ Deno.test(`MACRO: Testing unquote with vectors`, async (t) => {
     },
   );
 
-  await t.step(`MACRO: unquote works in a quasi-quoted vector`, () => {
+  test(`MACRO: unquote works in a quasi-quoted vector`, () => {
     assertEquals(
       rep(
         '`[a ~a a]',
@@ -403,7 +403,7 @@ Deno.test(`MACRO: Testing unquote with vectors`, async (t) => {
     );
   });
 
-  await t.step(
+  test(
     `MACRO: unquote works in a vector inside of a quasi-quoted list`,
     () => {
       assertEquals(
@@ -426,7 +426,7 @@ Deno.test(`MACRO: Testing unquote with vectors`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `MACRO: unquote in a list inside of a quasi-quoted vector`,
     () => {
       assertEquals(
@@ -450,9 +450,9 @@ Deno.test(`MACRO: Testing unquote with vectors`, async (t) => {
   );
 });
 
-Deno.test(`MACRO: Testing splice-unquote with vectors`, async (t) => {
+test(`MACRO: Testing splice-unquote with vectors`, () => {
   const sharedEnv = initEnv();
-  await t.step(
+  test(
     `MACRO: define a symbol to test complex splice-unquote expressions`,
     () => {
       assertEquals(
@@ -473,7 +473,7 @@ Deno.test(`MACRO: Testing splice-unquote with vectors`, async (t) => {
     },
   );
 
-  await t.step(`MACRO: you can splice-unquote inside of a vector`, () => {
+  test(`MACRO: you can splice-unquote inside of a vector`, () => {
     assertEquals(
       rep(
         '`[~@c]',
@@ -491,7 +491,7 @@ Deno.test(`MACRO: Testing splice-unquote with vectors`, async (t) => {
     );
   });
 
-  await t.step(
+  test(
     `MACRO: you can splice-unquote inside of a list inside of a vector with evaluation`,
     () => {
       assertEquals(
@@ -514,7 +514,7 @@ Deno.test(`MACRO: Testing splice-unquote with vectors`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `MACRO: you can splice-unquote inside of a vector inside of a list with evaluation`,
     () => {
       assertEquals(
@@ -537,7 +537,7 @@ Deno.test(`MACRO: Testing splice-unquote with vectors`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `MACRO: splice-unquote a symbol in a vec with multiple values`,
     () => {
       assertEquals(
@@ -560,7 +560,7 @@ Deno.test(`MACRO: Testing splice-unquote with vectors`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `MACRO: splice-unquote a symbol in a vec with multiple values inside of a list`,
     () => {
       assertEquals(
@@ -585,7 +585,7 @@ Deno.test(`MACRO: Testing splice-unquote with vectors`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `MACRO: splice-unquote a symbol in a list with multiple values inside of a vec`,
     () => {
       assertEquals(
@@ -616,10 +616,10 @@ Deno.test(`MACRO: Testing splice-unquote with vectors`, async (t) => {
 
 // TODO:
 
-Deno.test(`MACRO: Testing trivial macros`, async (t) => {
+test(`MACRO: Testing trivial macros`, () => {
   const sharedEnv = initEnv();
 
-  await t.step(`MACRO: Define and call a macro that returns 1`, () => {
+  test(`MACRO: Define and call a macro that returns 1`, () => {
     // (defmacro! one (fn* () 1))
     // (one)
     // ;=>1
@@ -630,7 +630,7 @@ Deno.test(`MACRO: Testing trivial macros`, async (t) => {
     );
   });
 
-  await t.step(`MACRO: Define and call a macro that returns 2`, () => {
+  test(`MACRO: Define and call a macro that returns 2`, () => {
     // (defmacro! two (fn* () 2))
     // (two)
     // ;=>2
@@ -642,18 +642,18 @@ Deno.test(`MACRO: Testing trivial macros`, async (t) => {
   });
 });
 
-Deno.test(`MACRO: Testing unless macro`, async (t) => {
+test(`MACRO: Testing unless macro`, () => {
   const sharedEnv = initEnv();
   rep('(defmacro! unless (fn* (pred a b) `(if ~pred ~b ~a)))', sharedEnv);
 
-  await t.step(`MACRO: 'unless' macro with false predicate`, () => {
+  test(`MACRO: 'unless' macro with false predicate`, () => {
     // ;=>7
     assertEquals(
       rep(`(unless false 7 8)`, sharedEnv),
       printString(new NumberNode(7), true),
     );
   });
-  await t.step(`MACRO: 'unless' macro with true predicate`, () => {
+  test(`MACRO: 'unless' macro with true predicate`, () => {
     // ;=>8
     assertEquals(
       rep(`(unless true 7 8)`, sharedEnv),
@@ -662,20 +662,20 @@ Deno.test(`MACRO: Testing unless macro`, async (t) => {
   });
 });
 
-Deno.test(`MACRO: Testing unless2 macro`, async (t) => {
+test(`MACRO: Testing unless2 macro`, () => {
   const sharedEnv = initEnv();
   rep(
     `(defmacro! unless2 (fn* (pred a b) (list 'if (list 'not pred) a b)))`,
     sharedEnv,
   );
-  await t.step(`MACRO: 'unless2' macro with false predicate`, () => {
+  test(`MACRO: 'unless2' macro with false predicate`, () => {
     // ;=>7
     assertEquals(
       rep(`(unless2 false 7 8)`, sharedEnv),
       printString(new NumberNode(7), true),
     );
   });
-  await t.step(`MACRO: 'unless2' macro with true predicate`, () => {
+  test(`MACRO: 'unless2' macro with true predicate`, () => {
     // ;=>8
     assertEquals(
       rep(`(unless2 true 7 8)`, sharedEnv),
@@ -684,18 +684,18 @@ Deno.test(`MACRO: Testing unless2 macro`, async (t) => {
   });
 });
 
-Deno.test(`MACRO: Testing macroexpand`, async (t) => {
+test(`MACRO: Testing macroexpand`, () => {
   const sharedEnv = initEnv();
   rep(`(defmacro! one (fn* () 1))`, sharedEnv);
 
-  await t.step(`MACRO: Macroexpand a trivial macro`, () => {
+  test(`MACRO: Macroexpand a trivial macro`, () => {
     // ;=>1
     assertEquals(
       rep(`(macroexpand (one))`, sharedEnv),
       printString(new NumberNode(1), true),
     );
   });
-  await t.step(`MACRO: Macroexpand 'unless' macro`, () => {
+  test(`MACRO: Macroexpand 'unless' macro`, () => {
     rep('(defmacro! unless (fn* (pred a b) `(if ~pred ~b ~a)))', sharedEnv);
     // ;=>(if PRED B A)
     assertEquals(
@@ -711,7 +711,7 @@ Deno.test(`MACRO: Testing macroexpand`, async (t) => {
       ),
     );
   });
-  await t.step(`MACRO: Macroexpand 'unless2' macro`, () => {
+  test(`MACRO: Macroexpand 'unless2' macro`, () => {
     // ;=>(if (not PRED) A B)
     rep(
       `(defmacro! unless2 (fn* (pred a b) (list 'if (list 'not pred) a b)))`,
@@ -733,7 +733,7 @@ Deno.test(`MACRO: Testing macroexpand`, async (t) => {
       ),
     );
   });
-  await t.step(`MACRO: Macroexpand 'unless2' with specific values`, () => {
+  test(`MACRO: Macroexpand 'unless2' with specific values`, () => {
     // ;=>(if (not 2) 3 4)
     assertEquals(
       rep(`(macroexpand (unless2 2 3 4))`, sharedEnv),
@@ -753,17 +753,17 @@ Deno.test(`MACRO: Testing macroexpand`, async (t) => {
   });
 });
 
-Deno.test(`MACRO: Testing evaluation of macro result`, async (t) => {
+test(`MACRO: Testing evaluation of macro result`, () => {
   const sharedEnv = initEnv();
   rep(`(defmacro! identity (fn* (x) x))`, sharedEnv);
-  await t.step(`MACRO: Evaluate macro result with let* binding`, () => {
+  test(`MACRO: Evaluate macro result with let* binding`, () => {
     // ;=>a
     assertEquals(
       rep(`(let* (a 123) (macroexpand (identity a)))`, sharedEnv),
       printString(new SymbolNode('a'), true),
     );
   });
-  await t.step(`MACRO: Evaluate macro result directly`, () => {
+  test(`MACRO: Evaluate macro result directly`, () => {
     // ;=>123
     assertEquals(
       rep(`(let* (a 123) (identity a))`, sharedEnv),
@@ -772,9 +772,9 @@ Deno.test(`MACRO: Testing evaluation of macro result`, async (t) => {
   });
 });
 
-Deno.test(`MACRO: Test that macros do not break empty list`, async (t) => {
+test(`MACRO: Test that macros do not break empty list`, () => {
   const sharedEnv = initEnv();
-  await t.step(`MACRO: Ensure empty list is not affected by macros`, () => {
+  test(`MACRO: Ensure empty list is not affected by macros`, () => {
     // ;=>()
     assertEquals(
       rep(`()`, sharedEnv),
@@ -783,9 +783,9 @@ Deno.test(`MACRO: Test that macros do not break empty list`, async (t) => {
   });
 });
 
-Deno.test(`MACRO: Test that macros do not break quasiquote`, async (t) => {
+test(`MACRO: Test that macros do not break quasiquote`, () => {
   const sharedEnv = initEnv();
-  await t.step(`MACRO: Ensure quasiquote works with macros`, () => {
+  test(`MACRO: Ensure quasiquote works with macros`, () => {
     // ;=>(1)
     assertEquals(
       rep('`(1)', sharedEnv),
@@ -799,9 +799,9 @@ Deno.test(`MACRO: Test that macros do not break quasiquote`, async (t) => {
   });
 });
 
-Deno.test(`MACRO: Testing "not" macro function`, async (t) => {
+test(`MACRO: Testing "not" macro function`, () => {
   const sharedEnv = initEnv();
-  await t.step(`MACRO: Test 'not' macro with true condition`, () => {
+  test(`MACRO: Test 'not' macro with true condition`, () => {
     assertEquals(
       // ;=>false
       rep(`(not (= 1 1))`, sharedEnv),
@@ -809,7 +809,7 @@ Deno.test(`MACRO: Testing "not" macro function`, async (t) => {
     );
   });
   // This should fail if it is a macro
-  await t.step(`MACRO: Test 'not' macro with false condition`, () => {
+  test(`MACRO: Test 'not' macro with false condition`, () => {
     // ;=>true
     assertEquals(
       rep(`(not (= 1 2))`, sharedEnv),
@@ -818,10 +818,10 @@ Deno.test(`MACRO: Testing "not" macro function`, async (t) => {
   });
 });
 
-Deno.test(`MACRO: Testing cond macro`, async (t) => {
+test(`MACRO: Testing cond macro`, () => {
   const sharedEnv = initEnv();
 
-  await t.step(`MACRO: Macroexpand an empty cond`, () => {
+  test(`MACRO: Macroexpand an empty cond`, () => {
     // ;=>nil
     assertEquals(
       rep(`(macroexpand (cond))`, sharedEnv),
@@ -829,7 +829,7 @@ Deno.test(`MACRO: Testing cond macro`, async (t) => {
     );
   });
 
-  await t.step(`MACRO: Evaluate an empty cond`, () => {
+  test(`MACRO: Evaluate an empty cond`, () => {
     // ;=>nil
     assertEquals(
       rep(`(cond)`, sharedEnv),
@@ -837,7 +837,7 @@ Deno.test(`MACRO: Testing cond macro`, async (t) => {
     );
   });
 
-  await t.step(`MACRO: Macroexpand cond with one pair`, () => {
+  test(`MACRO: Macroexpand cond with one pair`, () => {
     // ;=>(if X Y (cond))
     assertEquals(
       rep(`(macroexpand (cond X Y))`, sharedEnv),
@@ -855,7 +855,7 @@ Deno.test(`MACRO: Testing cond macro`, async (t) => {
     );
   });
 
-  await t.step(`MACRO: Evaluate cond with one true condition`, () => {
+  test(`MACRO: Evaluate cond with one true condition`, () => {
     // ;=>7
     assertEquals(
       rep(`(cond true 7)`, sharedEnv),
@@ -863,7 +863,7 @@ Deno.test(`MACRO: Testing cond macro`, async (t) => {
     );
   });
 
-  await t.step(`MACRO: Evaluate cond with one false condition`, () => {
+  test(`MACRO: Evaluate cond with one false condition`, () => {
     // ;=>nil
     assertEquals(
       rep(`(cond false 7)`, sharedEnv),
@@ -871,7 +871,7 @@ Deno.test(`MACRO: Testing cond macro`, async (t) => {
     );
   });
 
-  await t.step(`MACRO: Macroexpand cond with two pairs`, () => {
+  test(`MACRO: Macroexpand cond with two pairs`, () => {
     // ;=>(if X Y (cond Z T))
     assertEquals(
       rep(`(macroexpand (cond X Y Z T))`, sharedEnv),
@@ -891,7 +891,7 @@ Deno.test(`MACRO: Testing cond macro`, async (t) => {
     );
   });
 
-  await t.step(`MACRO: Evaluate cond with two true conditions`, () => {
+  test(`MACRO: Evaluate cond with two true conditions`, () => {
     // ;=>7
     assertEquals(
       rep(`(cond true 7 true 8)`, sharedEnv),
@@ -899,7 +899,7 @@ Deno.test(`MACRO: Testing cond macro`, async (t) => {
     );
   });
 
-  await t.step(
+  test(
     `MACRO: Evaluate cond with first false and second true condition`,
     () => {
       // ;=>8
@@ -910,7 +910,7 @@ Deno.test(`MACRO: Testing cond macro`, async (t) => {
     },
   );
 
-  await t.step(`MACRO: Evaluate cond with all false conditions`, () => {
+  test(`MACRO: Evaluate cond with all false conditions`, () => {
     // ;=>nil
     assertEquals(
       rep(`(cond false 7 false 8)`, sharedEnv),
@@ -918,7 +918,7 @@ Deno.test(`MACRO: Testing cond macro`, async (t) => {
     );
   });
 
-  await t.step(`MACRO: Evaluate cond with "else" clause`, () => {
+  test(`MACRO: Evaluate cond with "else" clause`, () => {
     // ;=>9
     assertEquals(
       rep(`(cond false 7 false 8 "else" 9)`, sharedEnv),
@@ -926,7 +926,7 @@ Deno.test(`MACRO: Testing cond macro`, async (t) => {
     );
   });
 
-  await t.step(
+  test(
     `MACRO: Evaluate cond with true condition before "else"`,
     () => {
       // ;=>8
@@ -937,7 +937,7 @@ Deno.test(`MACRO: Testing cond macro`, async (t) => {
     },
   );
 
-  await t.step(
+  test(
     `MACRO: Evaluate cond with all false conditions and no "else"`,
     () => {
       // ;=>nil
@@ -949,10 +949,10 @@ Deno.test(`MACRO: Testing cond macro`, async (t) => {
   );
 });
 
-Deno.test(`MACRO: Testing EVAL in let*`, async (t) => {
+test(`MACRO: Testing EVAL in let*`, () => {
   const sharedEnv = initEnv();
 
-  await t.step(`MACRO: Evaluate cond inside let* binding`, () => {
+  test(`MACRO: Evaluate cond inside let* binding`, () => {
     // ;=>"yes"
     assertEquals(
       rep(`(let* (x (cond false "no" true "yes")) x)`, sharedEnv),
@@ -961,10 +961,10 @@ Deno.test(`MACRO: Testing EVAL in let*`, async (t) => {
   });
 });
 
-Deno.test(`MACRO: Testing EVAL in vector let*`, async (t) => {
+test(`MACRO: Testing EVAL in vector let*`, () => {
   const sharedEnv = initEnv();
 
-  await t.step(`MACRO: Evaluate cond inside vector let* binding`, () => {
+  test(`MACRO: Evaluate cond inside vector let* binding`, () => {
     // ;=>"yes"
     assertEquals(
       rep(`(let* [x (cond false "no" true "yes")] x)`, sharedEnv),
@@ -973,20 +973,20 @@ Deno.test(`MACRO: Testing EVAL in vector let*`, async (t) => {
   });
 });
 
-Deno.test(`MACRO: Test that macros use closures`, async (t) => {
+test(`MACRO: Test that macros use closures`, () => {
   const sharedEnv = initEnv();
 
   rep(`(def! x 2)`, sharedEnv);
   rep(`(defmacro! a (fn* [] x))`, sharedEnv);
 
-  await t.step(`MACRO: Macro uses outer x`, () => {
+  test(`MACRO: Macro uses outer x`, () => {
     // ;=>2
     assertEquals(
       rep(`(a)`, sharedEnv),
       printString(new NumberNode(2), true),
     );
   });
-  await t.step(`MACRO: Macro uses outer x despite inner x binding`, () => {
+  test(`MACRO: Macro uses outer x despite inner x binding`, () => {
     // ;=>2
     assertEquals(
       rep(`(let* (x 3) (a))`, sharedEnv),

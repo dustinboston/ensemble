@@ -1,10 +1,10 @@
-import { assertEquals, assertThrows } from '@std/assert';
-import { assertSpyCall, assertSpyCalls, returnsNext, stub } from '@std/testing/mock';
+import { assertSpyCall, assertSpyCalls, returnsNext, stub } from '../tests/test_runner.js';
+import { assertEquals, assertThrows } from '../tests/test_runner.ts';
 
 import { readir, readln, slurp, spit } from './ensemble_cli.ts';
 import * as types from './types.ts';
 
-Deno.test('readir(): should list directory contents', async () => {
+test('readir(): should list directory contents', async () => {
   const temporaryDir = await Deno.makeTempDir();
   await Deno.mkdir(`${temporaryDir}/subdir`);
   await Deno.writeTextFile(`${temporaryDir}/file.txt`, 'hello');
@@ -35,7 +35,7 @@ Deno.test('readir(): should list directory contents', async () => {
   assertEquals(result, expected);
 });
 
-Deno.test('readir(): should throw error if argument is not a string', () => {
+test('readir(): should throw error if argument is not a string', () => {
   assertThrows(
     () => readir(types.createNumberNode(123) as unknown as types.StringNode),
     TypeError,
@@ -43,7 +43,7 @@ Deno.test('readir(): should throw error if argument is not a string', () => {
   );
 });
 
-Deno.test('slurp(): should read a file', () => {
+test('slurp(): should read a file', () => {
   const temporaryDir = Deno.makeTempDirSync();
   const filePath = `${temporaryDir}/file.txt`;
   Deno.writeTextFileSync(filePath, 'content');
@@ -52,7 +52,7 @@ Deno.test('slurp(): should read a file', () => {
   assertEquals(result, types.createStringNode('content'));
 });
 
-Deno.test('slurp(): should throw error if file does not exist', () => {
+test('slurp(): should throw error if file does not exist', () => {
   assertThrows(
     () => slurp(types.createStringNode('mocks/nonexistent')),
     Error,
@@ -60,7 +60,7 @@ Deno.test('slurp(): should throw error if file does not exist', () => {
   );
 });
 
-Deno.test('spit(): should write to a file', async () => {
+test('spit(): should write to a file', async () => {
   const temporaryDir = await Deno.makeTempDir();
   const filePath = `${temporaryDir}/file.txt`;
   const content = 'newContent';
@@ -74,7 +74,7 @@ Deno.test('spit(): should write to a file', async () => {
   assertEquals(result, content);
 });
 
-Deno.test('spit(): should throw error if path is not a string', () => {
+test('spit(): should throw error if path is not a string', () => {
   assertThrows(
     () =>
       spit(
@@ -86,7 +86,7 @@ Deno.test('spit(): should throw error if path is not a string', () => {
   );
 });
 
-Deno.test('readln(): should read line and return string', () => {
+test('readln(): should read line and return string', () => {
   const input = types.createStringNode('%');
   const expected = types.createStringNode('"foobar"');
   const promptStub = stub(globalThis, 'prompt', returnsNext(['"foobar"']));
@@ -105,7 +105,7 @@ Deno.test('readln(): should read line and return string', () => {
   assertSpyCalls(promptStub, 1);
 });
 
-Deno.test('readln(): should return nil/undef when readline returns null', () => {
+test('readln(): should return nil/undef when readline returns null', () => {
   const input = types.createStringNode('%');
   const expected = types.createNilNode();
   const promptStub = stub(globalThis, 'prompt', returnsNext([null]));
@@ -124,11 +124,11 @@ Deno.test('readln(): should return nil/undef when readline returns null', () => 
   assertSpyCalls(promptStub, 1);
 });
 
-Deno.test('readln(): should throw when argument count is less than one', () => {
+test('readln(): should throw when argument count is less than one', () => {
   assertThrows(() => readln());
 });
 
-Deno.test('readln(): should throw when argument count is more than one', () => {
+test('readln(): should throw when argument count is more than one', () => {
   assertThrows(() =>
     readln(
       types.createStringNode('foo'),
@@ -137,6 +137,6 @@ Deno.test('readln(): should throw when argument count is more than one', () => {
   );
 });
 
-Deno.test('readln(): should throw when argument is not a string', () => {
+test('readln(): should throw when argument is not a string', () => {
   assertThrows(() => readln(types.createNumberNode(42)));
 });

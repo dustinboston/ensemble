@@ -8,45 +8,45 @@
  *
  * @file
  */
-import { initMain, rep } from '@/ensemble_cli.ts';
-import { printString } from '@/printer.ts';
-import { AtomNode, BooleanNode, ListNode, MapNode, NilNode, NumberNode, StringNode, SymbolNode } from '@/types.ts';
-import { assertEquals } from '@std/assert';
+import { initMain, rep } from '../src/ensemble_cli.ts';
+import { printString } from '../src/printer.ts';
+import { AtomNode, BooleanNode, ListNode, MapNode, NilNode, NumberNode, StringNode, SymbolNode } from '../src/types.ts';
+import { assertEquals, test } from '../tests/test_runner.ts';
 
-Deno.test('FILE: Execute the program in a sub process', () => {
+test('FILE: Execute the program in a sub process', () => {
   assertEquals(
     rep('(+ 1 2)', initMain()),
     printString(new NumberNode(3), true),
   );
 });
 
-Deno.test('FILE: Testing read-string with list containing integers and nil', () => {
+test('FILE: Testing read-string with list containing integers and nil', () => {
   assertEquals(
     rep('(read-string "(1 2 (3 4) nil)")', initMain()),
     '(1 2 (3 4) nil)',
-    printString(
-      new ListNode([
-        new NumberNode(1),
-        new NumberNode(2),
-        new ListNode([
-          new NumberNode(3),
-          new NumberNode(4),
-        ]),
-        new ListNode([]),
-      ]),
-      true,
-    ),
+    // printString(
+    //   new ListNode([
+    //     new NumberNode(1),
+    //     new NumberNode(2),
+    //     new ListNode([
+    //       new NumberNode(3),
+    //       new NumberNode(4),
+    //     ]),
+    //     new ListNode([]),
+    //   ]),
+    //   true,
+    // ),
   );
 });
 
-Deno.test('FILE: Testing read-string with nil', () => {
+test('FILE: Testing read-string with nil', () => {
   assertEquals(
     rep('(= nil (read-string "nil"))', initMain()),
     printString(new BooleanNode(true)),
   );
 });
 
-Deno.test('FILE: Testing read-string with addition expression', () => {
+test('FILE: Testing read-string with addition expression', () => {
   assertEquals(
     rep('(read-string "(+ 2 3)")', initMain()),
     printString(
@@ -60,21 +60,21 @@ Deno.test('FILE: Testing read-string with addition expression', () => {
   );
 });
 
-Deno.test('FILE: Testing read-string with newline character', () => {
+test('FILE: Testing read-string with newline character', () => {
   assertEquals(
     rep(`(read-string "\\"\\n\\"")`, initMain()),
     printString(new StringNode('\n'), true),
   );
 });
 
-Deno.test('FILE: Testing read-string with comment', () => {
+test('FILE: Testing read-string with comment', () => {
   assertEquals(
     rep('(read-string "7 ;; comment")', initMain()),
     printString(new NumberNode(7), true),
   );
 });
 
-Deno.test('FILE: Testing read-string with comment only', () => {
+test('FILE: Testing read-string with comment only', () => {
   // No fatal error, returns empty string
   assertEquals(
     rep('(read-string ";; comment")', initMain()),
@@ -82,14 +82,14 @@ Deno.test('FILE: Testing read-string with comment only', () => {
   );
 });
 
-Deno.test('FILE: Testing eval with addition expression', () => {
+test('FILE: Testing eval with addition expression', () => {
   assertEquals(
     rep('(eval (read-string "(+ 2 3)"))', initMain()),
     printString(new NumberNode(5), true),
   );
 });
 
-Deno.test('FILE: Testing slurp with file content', async (t) => {
+test('FILE: Testing slurp with file content', () => {
   const sharedEnv = initMain();
 
   assertEquals(
@@ -97,7 +97,7 @@ Deno.test('FILE: Testing slurp with file content', async (t) => {
     printString(new StringNode('A line of text\n'), true),
   );
 
-  await t.step('FILE: Testing slurp with file content loaded twice', () => {
+  test('FILE: Testing slurp with file content loaded twice', () => {
     assertEquals(
       rep('(slurp "./tests/fixtures/test.txt")', initMain()),
       printString(new StringNode('A line of text\n'), true),
@@ -105,21 +105,21 @@ Deno.test('FILE: Testing slurp with file content', async (t) => {
   });
 });
 
-Deno.test('FILE: Testing load-file and function definitions', async (t) => {
+test('FILE: Testing load-file and function definitions', () => {
   const sharedEnv = initMain();
   assertEquals(
     rep('(load-file "./tests/fixtures/inc.mal")', sharedEnv),
     printString(new NilNode(), true),
   );
 
-  await t.step('FILE: Testing inc1 function from loaded file', () => {
+  test('FILE: Testing inc1 function from loaded file', () => {
     assertEquals(
       rep('(inc1 7)', sharedEnv),
       printString(new NumberNode(8), true),
     );
   });
 
-  await t.step('FILE: Testing inc3 function from loaded file', () => {
+  test('FILE: Testing inc3 function from loaded file', () => {
     assertEquals(
       rep('(inc3 9)', sharedEnv),
       printString(new NumberNode(12), true),
@@ -127,7 +127,7 @@ Deno.test('FILE: Testing load-file and function definitions', async (t) => {
   });
 });
 
-Deno.test('FILE: Testing atom creation and operations', async (t) => {
+test('FILE: Testing atom creation and operations', () => {
   const sharedEnv = initMain();
 
   assertEquals(
@@ -140,77 +140,77 @@ Deno.test('FILE: Testing atom creation and operations', async (t) => {
     printString(new AtomNode(new NumberNode(2)), true),
   );
 
-  await t.step('FILE: Testing atom? predicate', () => {
+  test('FILE: Testing atom? predicate', () => {
     assertEquals(
       rep('(atom? a)', sharedEnv),
       printString(new BooleanNode(true), true),
     );
   });
 
-  await t.step('FILE: Testing atom? predicate with non-atom', () => {
+  test('FILE: Testing atom? predicate with non-atom', () => {
     assertEquals(
       rep('(atom? 1)', sharedEnv),
       printString(new BooleanNode(false), true),
     );
   });
 
-  await t.step('FILE: Testing deref on atom', () => {
+  test('FILE: Testing deref on atom', () => {
     assertEquals(
       rep('(deref a)', sharedEnv),
       printString(new NumberNode(2), true),
     );
   });
 
-  await t.step('FILE: Testing reset! on atom', () => {
+  test('FILE: Testing reset! on atom', () => {
     assertEquals(
       rep('(reset! a 3)', sharedEnv),
       printString(new NumberNode(3), true),
     );
   });
 
-  await t.step('FILE: Testing deref after reset! on atom', () => {
+  test('FILE: Testing deref after reset! on atom', () => {
     assertEquals(
       rep('(deref a)', sharedEnv),
       printString(new NumberNode(3), true),
     );
   });
 
-  await t.step('FILE: Testing swap! with function on atom', () => {
+  test('FILE: Testing swap! with function on atom', () => {
     assertEquals(
       rep('(swap! a inc3)', sharedEnv),
       printString(new NumberNode(6), true),
     );
   });
 
-  await t.step('FILE: Testing swap! with identity function on atom', () => {
+  test('FILE: Testing swap! with identity function on atom', () => {
     assertEquals(
       rep('(swap! a (fn* (a) a))', sharedEnv),
       printString(new NumberNode(6), true),
     );
   });
 
-  await t.step('FILE: Testing swap! with * function on atom', () => {
+  test('FILE: Testing swap! with * function on atom', () => {
     assertEquals(
       rep('(swap! a (fn* (a) (* 2 a)))', sharedEnv),
       printString(new NumberNode(12), true),
     );
   });
 
-  await t.step('FILE: Testing swap! with fn* and extra args on atom', () => {
+  test('FILE: Testing swap! with fn* and extra args on atom', () => {
     assertEquals(
       rep('(swap! a (fn* (a b) (* a b)) 10)', sharedEnv),
       printString(new NumberNode(120), true),
     );
   });
 
-  await t.step('FILE: Testing swap! with addition function on atom', () => {
+  test('FILE: Testing swap! with addition function on atom', () => {
     assertEquals(
       rep('(swap! a + 3)', sharedEnv),
       printString(new NumberNode(123), true),
     );
   });
 
-  await t.step('FILE: Testing swap!/closure interaction', () => {
+  test('FILE: Testing swap!/closure interaction', () => {
     rep('(def! inc-it (fn* (a) (+ 1 a)))', sharedEnv);
     rep('(def! atm (atom 7))', sharedEnv);
     rep('(def! f (fn* () (swap! atm inc-it)))', sharedEnv);
@@ -221,7 +221,7 @@ Deno.test('FILE: Testing atom creation and operations', async (t) => {
     );
   });
 
-  await t.step('FILE: Testing whether closures retain atoms', () => {
+  test('FILE: Testing whether closures retain atoms', () => {
     rep('(def! g (let* (atm (atom 0)) (fn* () (deref atm))))', sharedEnv);
     rep('(def! atm (atom 1))', sharedEnv);
 
@@ -231,7 +231,7 @@ Deno.test('FILE: Testing atom creation and operations', async (t) => {
     );
   });
 
-  await t.step('FILE: Testing deref using @ reader macro', () => {
+  test('FILE: Testing deref using @ reader macro', () => {
     rep('(def! atm (atom 9))', sharedEnv);
     assertEquals(
       rep('@atm', sharedEnv),
@@ -239,7 +239,7 @@ Deno.test('FILE: Testing atom creation and operations', async (t) => {
     );
   });
 
-  await t.step('FILE: Testing vector params not broken by TCO', () => {
+  test('FILE: Testing vector params not broken by TCO', () => {
     rep('(def! g (fn* [] 78))', sharedEnv);
     assertEquals(
       rep('(g)', sharedEnv),
@@ -247,7 +247,7 @@ Deno.test('FILE: Testing atom creation and operations', async (t) => {
     );
   });
 
-  await t.step('FILE: Testing vector params with argument', () => {
+  test('FILE: Testing vector params with argument', () => {
     rep('(def! g (fn* [a] (+ a 78)))', sharedEnv);
     assertEquals(
       rep('(g 3)', sharedEnv),
@@ -256,7 +256,7 @@ Deno.test('FILE: Testing atom creation and operations', async (t) => {
   });
 });
 
-Deno.test('FILE: Testing large computations', async (t) => {
+test('FILE: Testing large computations', () => {
   const sharedEnv = initMain();
 
   assertEquals(
@@ -264,7 +264,7 @@ Deno.test('FILE: Testing large computations', async (t) => {
     printString(new NilNode(), true),
   );
 
-  await t.step(
+  test(
     'FILE: Testing sumdown function from computations file',
     () => {
       assertEquals(
@@ -274,7 +274,7 @@ Deno.test('FILE: Testing large computations', async (t) => {
     },
   );
 
-  await t.step(
+  test(
     'FILE: Testing fibonacci function from computations file',
     () => {
       assertEquals(
@@ -285,7 +285,7 @@ Deno.test('FILE: Testing large computations', async (t) => {
   );
 });
 
-Deno.test('FILE: Testing *ARGV* existence and emptiness', () => {
+test('FILE: Testing *ARGV* existence and emptiness', () => {
   const sharedEnv = initMain();
 
   sharedEnv.set(
@@ -309,7 +309,7 @@ Deno.test('FILE: Testing *ARGV* existence and emptiness', () => {
   );
 });
 
-Deno.test('FILE: Testing eval setting aa in root scope and access in nested scope', () => {
+test('FILE: Testing eval setting aa in root scope and access in nested scope', () => {
   assertEquals(
     rep(
       '(let* (b 12) (do (eval (read-string "(def! aa 7)")) aa ))',
@@ -319,7 +319,7 @@ Deno.test('FILE: Testing eval setting aa in root scope and access in nested scop
   );
 });
 
-Deno.test('FILE: Testing comments in file', async (t) => {
+test('FILE: Testing comments in file', () => {
   const sharedEnv = initMain();
 
   assertEquals(
@@ -330,14 +330,14 @@ Deno.test('FILE: Testing comments in file', async (t) => {
     printString(new NilNode(), true),
   );
 
-  await t.step('FILE: Testing comments in inc4', () => {
+  test('FILE: Testing comments in inc4', () => {
     assertEquals(
       rep('(inc4 7)', sharedEnv),
       printString(new NumberNode(11), true),
     );
   });
 
-  await t.step('FILE: Testing comments in inc5', () => {
+  test('FILE: Testing comments in inc5', () => {
     assertEquals(
       rep('(inc5 7)', sharedEnv),
       printString(new NumberNode(12), true),
@@ -345,7 +345,7 @@ Deno.test('FILE: Testing comments in file', async (t) => {
   });
 });
 
-Deno.test('FILE: Testing map literal across multiple lines in a file', async (t) => {
+test('FILE: Testing map literal across multiple lines in a file', () => {
   const sharedEnv = initMain();
 
   assertEquals(
@@ -353,7 +353,7 @@ Deno.test('FILE: Testing map literal across multiple lines in a file', async (t)
     printString(new NilNode(), true),
   );
 
-  await t.step('FILE: multi-line map is read correctly', () => {
+  test('FILE: multi-line map is read correctly', () => {
     assertEquals(
       rep('mymap', sharedEnv),
       printString(
@@ -368,7 +368,7 @@ Deno.test('FILE: Testing map literal across multiple lines in a file', async (t)
   });
 });
 
-Deno.test('FILE: Checking eval does not use local environments', async (t) => {
+test('FILE: Checking eval does not use local environments', () => {
   const sharedEnv = initMain();
 
   assertEquals(
@@ -376,7 +376,7 @@ Deno.test('FILE: Checking eval does not use local environments', async (t) => {
     printString(new NumberNode(1), true),
   );
 
-  await t.step(
+  test(
     'FILE: A variable defined within eval should not overwrite a global with the same name',
     () => {
       assertEquals(
@@ -387,77 +387,77 @@ Deno.test('FILE: Checking eval does not use local environments', async (t) => {
   );
 });
 
-Deno.test('FILE: Read commented out exclamation mark', () => {
+test('FILE: Read commented out exclamation mark', () => {
   assertEquals(
     rep('(read-string "1;!")', initMain()),
     printString(new NumberNode(1), true),
   );
 });
 
-Deno.test('FILE: Read commented out double quote', () => {
+test('FILE: Read commented out double quote', () => {
   assertEquals(
     rep(`(read-string "1;\\"")`, initMain()),
     printString(new NumberNode(1), true),
   );
 });
 
-Deno.test('FILE: Read commented out exclamation pound sign', () => {
+test('FILE: Read commented out exclamation pound sign', () => {
   assertEquals(
     rep('(read-string "1;#")', initMain()),
     printString(new NumberNode(1), true),
   );
 });
 
-Deno.test('FILE: Read commented out exclamation dollar sign', () => {
+test('FILE: Read commented out exclamation dollar sign', () => {
   assertEquals(
     rep('(read-string "1;$")', initMain()),
     printString(new NumberNode(1), true),
   );
 });
 
-Deno.test('FILE: Read commented out exclamation percent sign', () => {
+test('FILE: Read commented out exclamation percent sign', () => {
   assertEquals(
     rep('(read-string "1;%")', initMain()),
     printString(new NumberNode(1), true),
   );
 });
 
-Deno.test('FILE: Read commented out single quote', () => {
+test('FILE: Read commented out single quote', () => {
   assertEquals(
     rep(`(read-string "1;'")`, initMain()),
     printString(new NumberNode(1), true),
   );
 });
 
-Deno.test('FILE: Read commented out backslash', () => {
+test('FILE: Read commented out backslash', () => {
   assertEquals(
     rep(`(read-string "1;\\\\")`, initMain()),
     printString(new NumberNode(1), true),
   );
 });
 
-Deno.test('FILE: Read commented out double backslash', () => {
+test('FILE: Read commented out double backslash', () => {
   assertEquals(
     rep('(read-string "1;\\\\\\\\")', initMain()),
     printString(new NumberNode(1), true),
   );
 });
 
-Deno.test('FILE: Read commented out triple backslash', () => {
+test('FILE: Read commented out triple backslash', () => {
   assertEquals(
     rep('(read-string "1;\\\\\\\\\\\\")', initMain()),
     printString(new NumberNode(1), true),
   );
 });
 
-Deno.test('FILE: Read commented out backtick', () => {
+test('FILE: Read commented out backtick', () => {
   assertEquals(
     rep('(read-string "1;`")', initMain()),
     printString(new NumberNode(1), true),
   );
 });
 
-Deno.test('FILE: Read the commented out kitchen sink of characters', () => {
+test('FILE: Read the commented out kitchen sink of characters', () => {
   assertEquals(
     rep('(read-string "1; &()*+,-./:;<=>?@[]^_{|}~")', initMain()),
     printString(new NumberNode(1), true),

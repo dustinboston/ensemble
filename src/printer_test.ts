@@ -4,7 +4,7 @@
  * @file
  */
 
-import { assertEquals, assertThrows } from '@std/assert';
+import { assertEquals, assertThrows, test } from '../tests/test_runner.ts';
 import { printString } from './printer.ts';
 import {
   AstNode,
@@ -23,56 +23,56 @@ import {
   createVectorNode,
 } from './types.ts';
 
-Deno.test('printString(): should print strings without quotes if printReadably is false', () => {
+test('printString(): should print strings without quotes if printReadably is false', () => {
   assertEquals(
     printString(createStringNode('hello'), false),
     'hello',
   );
 });
 
-Deno.test('printString(): should print strings with quotes if printReadably is true', () => {
+test('printString(): should print strings with quotes if printReadably is true', () => {
   assertEquals(
     printString(createStringNode('hello'), true),
     '"hello"',
   );
 });
 
-Deno.test('printString(): should print symbols without quotes', () => {
+test('printString(): should print symbols without quotes', () => {
   assertEquals(
     printString(createSymbolNode('sym')),
     'sym',
   );
 });
 
-Deno.test('printString(): should print keywords', () => {
+test('printString(): should print keywords', () => {
   assertEquals(
     printString(createKeywordNode('key:')),
     'key:',
   );
 });
 
-Deno.test('printString(): should print booleans without quotes', () => {
+test('printString(): should print booleans without quotes', () => {
   assertEquals(
     printString(createBooleanNode(true)),
     'true',
   );
 });
 
-Deno.test('printString(): should print numbers without quotes', () => {
+test('printString(): should print numbers without quotes', () => {
   assertEquals(
     printString(createNumberNode(123)),
     '123',
   );
 });
 
-Deno.test('printString(): should correctly print atom type', () => {
+test('printString(): should correctly print atom type', () => {
   assertEquals(
     printString(createAtomNode(createStringNode('hello'))),
     '(atom hello)',
   );
 });
 
-Deno.test('printString(): should correctly print error type', () => {
+test('printString(): should correctly print error type', () => {
   assertEquals(
     printString(
       createErrorNode(
@@ -83,11 +83,11 @@ Deno.test('printString(): should correctly print error type', () => {
   );
 });
 
-Deno.test('printString(): should correctly print function type', () => {
+test('printString(): should correctly print function type', () => {
   assertEquals(printString(createFunctionNode(() => createNilNode())), '#<fn>');
 });
 
-Deno.test('printString(): should correctly print list type', () => {
+test('printString(): should correctly print list type', () => {
   assertEquals(
     printString(
       createListNode([
@@ -99,7 +99,7 @@ Deno.test('printString(): should correctly print list type', () => {
   );
 });
 
-Deno.test('printString(): should correctly print vector type', () => {
+test('printString(): should correctly print vector type', () => {
   assertEquals(
     printString(
       createVectorNode([
@@ -111,7 +111,7 @@ Deno.test('printString(): should correctly print vector type', () => {
   );
 });
 
-Deno.test('printString(): should correctly print MapNodes', () => {
+test('printString(): should correctly print MapNodes', () => {
   assertEquals(
     printString(
       createMapNode(
@@ -125,19 +125,19 @@ Deno.test('printString(): should correctly print MapNodes', () => {
   );
 });
 
-Deno.test('printString(): should correctly print DomNodes', () => {
+test('printString(): should correctly print DomNodes', () => {
   const domNode = createDomNode('a', new Map([['href', createStringNode('https://example.com')]]));
   assertEquals(printString(domNode), '<a href="https://example.com"></a>');
 });
 
-Deno.test('printString(): should correctly print nil type', () => {
+test('printString(): should correctly print nil type', () => {
   assertEquals(
     printString(createNilNode()),
     'nil',
   );
 });
 
-Deno.test('printString(): should throw an error for unmatched types', () => {
+test('printString(): should throw an error for unmatched types', () => {
   const invalid = new Set();
 
   assertThrows(() => {

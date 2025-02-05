@@ -4,6 +4,8 @@ import * as printer from './printer.ts';
 import * as readline from './readline_qjs.ts';
 import * as types from './types.ts';
 
+export { rep };
+
 declare global {
   const std: any;
   const scriptArgs: string[];
@@ -55,7 +57,7 @@ declare global {
  * @throws An error when file doesn't exist or reading a directory.
  * @example (slurp "../tests/test.txt") ;=>"A line of text\n"
  */
-function slurp(...args: types.AstNode[]): types.AstNode {
+export function slurp(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
   const filePath = args[0];
   types.assertStringNode(filePath);
@@ -107,7 +109,7 @@ function slurp(...args: types.AstNode[]): types.AstNode {
  * (load-file "./path/to/file.ensmbl")
  * ```
  */
-function loadFileWithEnv(appEnv: env.Env) {
+export function loadFileWithEnv(appEnv: env.Env) {
   return function loadFile(...args: types.AstNode[]): types.AstNode {
     types.assertArgumentCount(args.length, 1);
     types.assertStringNode(args[0]);
@@ -123,7 +125,7 @@ function loadFileWithEnv(appEnv: env.Env) {
   };
 }
 
-function initMain() {
+export function initMain() {
   const replEnv = initEnv();
 
   const appImport = loadFileWithEnv(replEnv);
@@ -148,7 +150,7 @@ function initMain() {
   return replEnv;
 }
 
-function toPosixPath(filePath: string = ''): string {
+export function toPosixPath(filePath: string = ''): string {
   return filePath.replace(/\\/g, '/');
 }
 
@@ -160,7 +162,7 @@ function toPosixPath(filePath: string = ''): string {
  * @param args - [filepath: string, ...argv: any[]].
  * @example `deno run ./step0_repl.ts`
  */
-async function main(...args: string[]) {
+export async function main(...args: string[]) {
   const replEnv = initMain();
   // Process the arguments
   const userScriptPath: string | undefined = toPosixPath(args[0]);

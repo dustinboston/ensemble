@@ -11,6 +11,14 @@ import * as printer from './printer.ts';
 import * as reader from './reader.ts';
 import * as types from './types.ts';
 
+export * as core from './core.ts';
+export * as env from './env.ts';
+export * as html from './interop/html.ts';
+export * as js from './interop/js.ts';
+export * as printer from './printer.ts';
+export * as reader from './reader.ts';
+export * as types from './types.ts';
+
 export type TryCatchAst = types.ListNode & {
   value: [
     types.SymWithValue<'try*' | 'try'>,
