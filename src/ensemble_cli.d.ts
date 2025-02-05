@@ -4,8 +4,10 @@ import * as types from './types.ts';
 export { rep };
 declare global {
     const std: any;
+    const os: any;
     const scriptArgs: string[];
 }
+export declare function writeToFile(text: string, filePath: string): void;
 /**
  * `readline` Exposes the readline function to read in user-code.
  * A handler must be registered to capture user input.
@@ -14,6 +16,7 @@ declare global {
  * @returns {types.NilNode|types.StringNode} - The user input or null.
  * @example (readline ">>> ")
  */
+export declare function readln(...args: types.AstNode[]): types.AstNode;
 /**
  * Lists the contents of directory.
  * @param args - [types.Str]
@@ -21,6 +24,7 @@ declare global {
  * @returns A Dict with details about each item in the directory.
  * @example (readdir "./path/to/file.txt")
  */
+export declare function readir(...args: types.AstNode[]): types.AstNode;
 /**
  * `slurp` Read a file and return the contents as a string.
  * @param args - [types.Str].
@@ -38,6 +42,28 @@ export declare function slurp(...args: types.AstNode[]): types.AstNode;
  * @throws An error when the operation fails.
  * @example (spit "../tests/test.txt")
  */
+export declare function spit(...args: types.AstNode[]): types.AstNode;
+export declare function displayPrompt(promptText?: string): void;
+/**
+ * Asynchronously reads lines from the standard input.
+ *
+ * @remarks
+ * This function provides an asynchronous generator for reading user input line by line.
+ * It maintains a history of inputs and handles interruptions gracefully.
+ *
+ * Why not use Deno's built-in `prompt` function? The node readline module provides much
+ * more functionality, including history management, line editing, and more.
+ *
+ * @returns An asynchronous generator yielding user input lines.
+ *
+ * @example
+ * ```typescript
+ * for await (const line of readline()) {
+ *   console.log(`Received: ${line}`);
+ * }
+ * ```
+ */
+export declare function readline(promptText?: string): Generator<string>;
 /**
  * Serve the HTML shell for a SPA.
  * @param args

@@ -1,4 +1,5 @@
 export declare function test(name: string, fn: () => void): void;
+export declare function ignoreTest(name: string, fn: () => void): void;
 export declare function assert(value: unknown, message?: string): void;
 export declare function assertEquals(a: unknown, b: unknown): void;
 export declare const assertStrictEquals: typeof assertEquals;
@@ -11,6 +12,7 @@ export declare function spy(object: any, method: string): {
 };
 export declare function assertSpyCall(spy: any, callIndex: number, options: {
     args: any[];
+    returned: any;
 }): void;
 export declare function assertSpyCalls(spy: any, calls: number): void;
 export declare function returnsNext<T>(values: T[]): () => T | undefined;

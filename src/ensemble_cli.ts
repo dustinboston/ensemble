@@ -1,14 +1,27 @@
 import { initEnv, rep } from './ensemble.ts';
 import * as env from './env.ts';
 import * as printer from './printer.ts';
-import * as readline from './readline_qjs.ts';
 import * as types from './types.ts';
 
 export { rep };
 
 declare global {
   const std: any;
+  const os: any;
   const scriptArgs: string[];
+}
+
+const defaultPrompt = 'user> ';
+
+export function writeToFile(text: string, filePath: string) {
+  let file = null;
+  try {
+    file = std.open(filePath, "w"); // Open file for writing ("w" mode)    
+    file.puts(text); // Write content to the file
+  } catch (e) {
+    if (file !== null) file.close(); // Always close the file
+    throw new Error(`Error writing to file: ${e}`);
+  }  
 }
 
 /**
@@ -19,16 +32,16 @@ declare global {
  * @returns {types.NilNode|types.StringNode} - The user input or null.
  * @example (readline ">>> ")
  */
-// function readln(...args: types.AstNode[]): types.AstNode {
-//   types.assertArgumentCount(args.length, 1);
-//   const cmdPrompt = args[0];
-//   types.assertStringNode(cmdPrompt);
-//   const input = prompt(cmdPrompt.value);
-//   if (input === null || input === undefined) {
-//     return types.createNilNode();
-//   }
-//   return types.createStringNode(input);
-// }
+export function readln(...args: types.AstNode[]): types.AstNode {
+  types.assertArgumentCount(args.length, 1);
+  const cmdPrompt = args[0];
+  types.assertStringNode(cmdPrompt);
+  const input = displayPrompt(cmdPrompt.value);
+  if (input === null || input === undefined) {
+    return types.createNilNode();
+  }
+  return types.createStringNode(input);
+}
 
 /**
  * Lists the contents of directory.
@@ -37,18 +50,27 @@ declare global {
  * @returns A Dict with details about each item in the directory.
  * @example (readdir "./path/to/file.txt")
  */
-// function readir(...args: types.AstNode[]): types.AstNode {
-//   types.assertArgumentCount(args.length, 1);
-//   types.assertStringNode(args[0]);
-//   const files: types.MapNode[] = [];
-//   for (const entry of Deno.readDirSync(args[0].value)) {
-//     const map = types.toAst(entry);
-//     if (types.isMapNode(map)) {
-//       files.push(map);
-//     }
-//   }
-//   return types.createVectorNode(files);
-// }
+export function readir(...args: types.AstNode[]): types.AstNode {
+  types.assertArgumentCount(args.length, 1);
+  types.assertStringNode(args[0]);
+
+  const files: types.StringNode[] = [];
+  const [entries, errorCode] = os.readdir(args[0].value) as string[];
+
+  if (+errorCode > 0) {
+    throw new Error(`Error reading directory: ${errorCode}`);
+  }
+
+  for (const entry of entries) { // Last entry is the error code
+    if (entry === '.' || entry === '..') {
+      continue;
+    }
+
+    files.push(types.createStringNode(entry));
+  }
+
+  return types.createVectorNode(files);
+}
 
 /**
  * `slurp` Read a file and return the contents as a string.
@@ -59,10 +81,17 @@ declare global {
  */
 export function slurp(...args: types.AstNode[]): types.AstNode {
   types.assertArgumentCount(args.length, 1);
+
   const filePath = args[0];
   types.assertStringNode(filePath);
+
   const content = std.loadFile(filePath.value);
-  return types.createStringNode(content);
+  
+  if (content === null) {
+    throw new Error(`No such file or directory. xxx`);
+  }
+
+  return types.createStringNode(content);    
 }
 
 /**
@@ -74,17 +103,56 @@ export function slurp(...args: types.AstNode[]): types.AstNode {
  * @throws An error when the operation fails.
  * @example (spit "../tests/test.txt")
  */
-// function spit(...args: types.AstNode[]): types.AstNode {
-//   types.assertArgumentCount(args.length, 2);
-//   const filePath = args[0];
-//   types.assertStringNode(filePath);
-//   const content = args[1];
-//   types.assertStringNode(content);
-//   // const encoder = new TextEncoder();
-//   // const data = encoder.encode(content.value);
-//   // Deno.writeFileSync(filePath.value, data);
-//   return types.createNilNode();
-// }
+export function spit(...args: types.AstNode[]): types.AstNode {
+  types.assertArgumentCount(args.length, 2);
+  const filePath = args[0];
+  types.assertStringNode(filePath);
+  const content = args[1];
+  types.assertStringNode(content);
+  writeToFile(content.value, filePath.value);
+  return types.createNilNode();
+}
+
+export function displayPrompt(promptText = defaultPrompt): void {
+  std.out.puts(promptText);
+  const input = std.in.getline()?.trim();
+
+  console.log(input);
+  console.log(promptText);
+}
+
+/**
+ * Asynchronously reads lines from the standard input.
+ *
+ * @remarks
+ * This function provides an asynchronous generator for reading user input line by line.
+ * It maintains a history of inputs and handles interruptions gracefully.
+ *
+ * Why not use Deno's built-in `prompt` function? The node readline module provides much
+ * more functionality, including history management, line editing, and more.
+ *
+ * @returns An asynchronous generator yielding user input lines.
+ *
+ * @example
+ * ```typescript
+ * for await (const line of readline()) {
+ *   console.log(`Received: ${line}`);
+ * }
+ * ```
+ */
+export function* readline(promptText = defaultPrompt): Generator<string> {
+  while (true) {
+    std.out.puts(promptText);
+    const input = std.in.getline()?.trim();
+
+    if (!input) {
+      continue;
+    }
+
+    yield input;
+  }
+}
+
 
 /**
  * Serve the HTML shell for a SPA.
@@ -135,11 +203,11 @@ export function initMain() {
     ['slurp', slurp],
     ['load-file', appImport],
     ['import', appImport],
-    // ['readln', readln],
-    // ['prompt', readln],
-    // ['readir', readir],
-    // ['spit', spit],
-    // ['writeFile', spit],
+    ['readln', readln],
+    ['prompt', readln],
+    ['readir', readir],
+    ['spit', spit],
+    ['writeFile', spit],
     // ['serve', serve],
   ];
 
@@ -189,7 +257,7 @@ export async function main(...args: string[]) {
   // Show an interactive repl
   rep('(println (str "Welcome to " *host-language* "! Press Ctrl/Cmd+C to exit."))', replEnv);
 
-  for await (const input of readline.readline('user> ')) {
+  for await (const input of readline('user> ')) {
     if (input === '' || input === null) {
       continue;
     }
@@ -207,4 +275,4 @@ export async function main(...args: string[]) {
   }
 }
 
-main(...scriptArgs.slice(1));
+

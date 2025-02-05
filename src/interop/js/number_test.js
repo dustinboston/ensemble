@@ -30,8 +30,14 @@ test('numberIsSafeInteger', () => {
     assertThrows(() => numberIsSafeInteger());
 });
 test('numberParseFloat', () => {
-    assertEquals(numberParseFloat(types.createStringNode('3.14')), types.createNumberNode(3.14));
-    assertEquals(numberParseFloat(types.createStringNode('test')), types.createNumberNode(NaN));
+    const result = numberParseFloat(types.createStringNode('3.14'));
+    assertEquals(result, types.createNumberNode(3.14));
+});
+test('numberParseFloat: invalid arg', () => {
+    const nanNum = numberParseFloat(types.createStringNode('test'));
+    assertEquals(isNaN(nanNum.value), true);
+});
+test('numberParseFloat: missing arg', () => {
     assertThrows(() => numberParseFloat());
 });
 test('numberParseInt', () => {
@@ -60,7 +66,8 @@ test('numberMinValue', () => {
     assertThrows(() => numberMinValue(types.createNumberNode(1)));
 });
 test('numberNaN', () => {
-    assertEquals(number_NaN(), types.createNumberNode(Number.NaN));
+    const nanNum = number_NaN();
+    assertEquals(Number.isNaN(nanNum), true);
     assertThrows(() => number_NaN(types.createNumberNode(1)));
 });
 test('numberNegativeInfinity', () => {

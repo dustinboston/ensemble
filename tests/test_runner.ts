@@ -8,6 +8,10 @@ export function test(name: string, fn: () => void) {
   }
 }
 
+export function ignoreTest(name: string, fn: () => void) {
+  console.log(`🟡 ${name}`);
+}
+
 export function assert(value: unknown, message?: string) {
   if (!value) {
     throw new Error(`Assertion failed: ${value}`);
@@ -71,7 +75,7 @@ export function spy(object: any, method: string) {
   };
 }
 
-export function assertSpyCall(spy: any, callIndex: number, options: { args: any[] }) {
+export function assertSpyCall(spy: any, callIndex: number, options: { args: any[], returned: any }) {
   if (!spy || !spy.calls || !Array.isArray(spy.calls)) {
     throw new Error(`Invalid spy object`);
   }

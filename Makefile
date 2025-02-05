@@ -115,5 +115,5 @@ test-fun:
 test-unit:
 	@for file in $(shell find $(SRC) -name '*_test.js'); do \
 		echo "Running $$file"; \
-		$(QJS) $$file; \
+		$(QJS) --std $$file; \
 	done

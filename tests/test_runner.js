@@ -8,6 +8,9 @@ export function test(name, fn) {
         console.log(error);
     }
 }
+export function ignoreTest(name, fn) {
+    console.log(`🟡 ${name}`);
+}
 export function assert(value, message) {
     if (!value) {
         throw new Error(`Assertion failed: ${value}`);
