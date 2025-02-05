@@ -1,5 +1,8 @@
 # TODO
 
+- [ ] Convert code to JavaScript (with type definition files)
+- [x] Convert unit tests to test runner
+- [ ] Convert functional tests to test runner
 - [x] Document core supported objects
 - [ ] Document core supported JS APIs
 - [ ] Ensure that global methods are properly accounted for in Number (isNaN, is Finite) and URL (encodeURI,
