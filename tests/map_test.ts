@@ -8,7 +8,7 @@
  * @file
  */
 
-import { initEnv, rep } from '../src/ensemble.ts';
+import { initEnv, rep } from '../src/lib.ts';
 import { printString } from '../src/printer.ts';
 import { BooleanNode, KeywordNode, ListNode, MapNode, NilNode, NumberNode, StringNode } from '../src/types.ts';
 import { assertEquals, test } from '../tests/test_runner.ts';

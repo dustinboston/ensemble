@@ -1,105 +1,82 @@
+# Builds the Ensemble interpreter JavaScript using ESBuild and the standalone 
+# executable using QuickJS-NG. QuickJS-NG is a fork of the QuickJS JavaScript 
+# engine that is actively maintained.
+
 # Variables
 DENO=deno
 ENSEMBLE=ensemble
 PYTHON=python
-NODE=npx
-QJS=./quickjs/build/qjs
-QJSC=./quickjs/build/qjsc
+NODE=npx -y
+QUICKJS_BUILD=./quickjs/build
+QJS=$(QUICKJS_BUILD)/qjs
+QJSC=$(QUICKJS_BUILD)/qjsc
 VSCE=vsce
 
 # Directories
 SRC=./src
-GENERATED=./generated
+BUILD=./build
+BUILD_SRC=$(BUILD)/src
+BUILD_TESTS=$(BUILD)/tests
 EXAMPLES=./examples
 SCRIPTS=./scripts
 TESTS=./tests
 REFERENCE=./reference
 DOCS=./docs
 
-# Targets
+TS_FILES := $(shell find $(SRC) -name '*.ts')
 
-.PHONY: build clean install generate serve test
+# Targets
+.PHONY: clean build test install package run-example repl
 
 all: build
 
-# Build
-TS_FILES := $(shell find $(SRC) -name '*.ts')
+# Compile the ensemble interpreter into a standalone binary
+$(BUILD)/ensemble: $(QJSC) $(BUILD)/ensemble.js
+	$(QJSC) -o $(BUILD)/ensemble $(BUILD)/ensemble.js
 
-$(GENERATED)/ensemble.js: $(TS_FILES)
-	$(NODE) -y esbuild --bundle $(SRC)/ensemble_cli.ts --outfile=$(GENERATED)/ensemble.js --format=esm --external:std --banner:js="import * as std from 'std';"
-
-$(GENERATED)/ensemble_lib.js: $(TS_FILES)
-	$(NODE) -y esbuild --bundle $(SRC)/ensemble.ts --outfile=$(GENERATED)/ensemble_lib.js --format=esm --external:std --banner:js="import * as std from 'std';"	
-
-bundle: $(GENERATED)/ensemble.js
-
-ensemble: quickjs/qjsc $(GENERATED)/ensemble.js $(GENERATED)/ensemble_lib.js
-	$(QJSC) -o ensemble $(GENERATED)/ensemble.js
-
-quickjs/qjsc: quickjs/Makefile
+# Ensure that the quickjs binaries are built
+$(QJSC): quickjs/Makefile
 	cd quickjs && make
 
-quickjs/qjs: quickjs/qjsc
+$(QJS): $(QJSC)
 
-buildjs:
+# Convert Typescript to JavaScript and bundle into a single file
+# --banner:js="import * as std from 'std'; import * as os from 'os';"
+$(BUILD)/ensemble.js: $(TS_FILES)
+	$(NODE) esbuild --bundle $(SRC)/cli.ts --outfile=$(BUILD)/ensemble.js --format=esm --external:std --external:os
+
+# Compile all of the Typescript files to JavaScript
+$(BUILD)/cli.js: $(TS_FILES)
 	tsc --build
 
-build: ensemble
+# Build the Ensemble CLI JavaScript file and standalone binary
+# $(SRC)/ensemble_cli.js 
+build: $(BUILD)/cli.js $(BUILD)/ensemble.js $(BUILD)/ensemble
 
-cleanjs:
+# Clean the build directory, build Typescript files, and the quickjs binaries
+clean:
+	rm -rf $(BUILD)
 	tsc --build --clean
+	@if [ -d quickjs ]; then cd quickjs && make clean; fi
 
-clean: cleanjs
-	rm -f ensemble && cd quickjs && make clean
-
-# Generate
-generate: generate-coverage generate-docs # generate-interop
-
-generate-coverage:
-	$(SCRIPTS)/coverage.sh
-
-generate-docs:
-	$(SCRIPTS)/docs.sh
-
-# generate-interop:
-# 	$(DENO) run -A $(SCRIPTS)/js_interop.ts > $(GENERATED)/js_functions.ts
-
-# Install
-install: package install-extension-dependencies install-syntax install-snippets
-
-install-extension-dependencies:
+# Install syntax and snippets extensions
+install: package
 	npm install -g $(VSCE)
-
-install-syntax:
 	code --install-extension ./syntax/ensemble-syntax-0.0.5.vsix
-
-install-snippets:
 	code --install-extension ./snippets/ensemble-snippets-0.0.5.vsix
 
-# Package
-package: package-syntax package-snippets
-
-package-syntax:
+# Package syntax and snippets extensions
+package:
 	cd syntax && $(VSCE) package
-
-package-snippets:
 	cd snippets && $(VSCE) package
 
-# Run Examples
+# Run the example fibonacci program
 run-example: ensemble
 	$(ENSEMBLE) $(EXAMPLES)/fibonacci.ensmbl
 
-# Serve
-serve: serve-coverage serve-docs # serve-demo
-
-serve-coverage:
-	$(PYTHON) -m http.server -d ./coverage
-
-serve-docs:
-	$(PYTHON) -m http.server -d $(DOCS)
-
-repl: ensemble
-	./ensemble
+# Run the Ensemble REPL
+repl: $(QJS)
+	$(QJS) $(BUILD)/ensemble.js
 	
 # Testing
 test: test-e2e test-fun test-unit
@@ -107,13 +84,33 @@ test: test-e2e test-fun test-unit
 test-e2e:
 	$(PYTHON) $(SCRIPTS)/runtest.py --deferrable --optional $(TESTS)/stepA_mal.mal -- $(SCRIPTS)/run
 
-test-fun:
-	@for file in $(wildcard $(TESTS)/**/*_test.js); do \
+test-fun: $(BUILD_SRC)/cli.js
+	@for file in $(wildcard $(BUILD_TESTS)/**/*_test.js); do \
 		$(QJS) $$file; \
 	done
 
-test-unit:
-	@for file in $(shell find $(SRC) -name '*_test.js'); do \
+test-unit: $(BUILD_SRC)/io.js
+	@for file in $(shell find $(BUILD_SRC) -name '*_test.js'); do \
 		echo "Running $$file"; \
 		$(QJS) --std $$file; \
 	done
+
+# Run functional tests in parallel
+# Find all JavaScript test files in the $(TESTS) directory
+# -name '*_test.js'    → Looks for files ending with '_test.js'
+# -print0              → Prints file names separated by null characters (safer for handling spaces)
+# | xargs -0           → Reads null-separated filenames
+# -P 4                 → Runs up to 4 tests in parallel
+# -I {}                → Replaces '{}' with the filename in the command
+# test-fun: $(SRC)/ensemble_cli.js
+# 	find $(TESTS) -name '*_test.js' -print0 | xargs -0 -P 4 -I {} sh -c 'echo "Running {}"; $(QJS) {}'
+
+# Run unit tests in parallel
+# Find all JavaScript unit test files in the $(SRC) directory
+# -name '*_test.js'    → Selects test files matching the pattern
+# -print0              → Uses null character as separator (prevents issues with spaces in filenames)
+# | xargs -0           → Reads null-separated input from find
+# -P 4                 → Runs up to 4 test scripts in parallel
+# -I {}                → Substitutes '{}' with each filename
+# test-unit: $(SRC)/ensemble_cli.js
+# 	find $(SRC) -name '*_test.js' -print0 | xargs -0 -P 4 -I {} sh -c 'echo "Running {}"; $(QJS) --std {}'

@@ -13,7 +13,7 @@
 import { assertSpyCalls, spy } from '../tests/test_runner.js';
 import { assertEquals, assertThrows, test } from '../tests/test_runner.ts';
 
-import { initEnv, rep } from '../src/ensemble.ts';
+import { initEnv, rep } from '../src/lib.ts';
 import { printString } from '../src/printer.ts';
 import { ErrorNode, NilNode, NumberNode, StringNode } from '../src/types.ts';
 

@@ -11,7 +11,7 @@
 
 import { assertEquals, test } from '../tests/test_runner.ts';
 
-import { initEnv, rep } from '../src/ensemble.ts';
+import { initEnv, rep } from '../src/lib.ts';
 import { printString } from '../src/printer.ts';
 import { ListNode, NilNode, NumberNode, StringNode, VectorNode } from '../src/types.ts';
 

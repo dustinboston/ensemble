@@ -1,5 +1,6 @@
 import { assertEquals, assertExists, assertInstanceOf, assertThrows, test } from '../tests/test_runner.ts';
 import { add } from './core.ts';
+import { Env } from './env.ts';
 import {
   evaluate,
   evaluateApply,
@@ -18,8 +19,7 @@ import {
   isMacroCall,
   macroExpand,
   quasiQuote,
-} from './ensemble.ts';
-import { Env } from './env.ts';
+} from './lib.ts';
 import {
   assertDefined,
   assertFunctionNode,

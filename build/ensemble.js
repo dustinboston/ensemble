@@ -1,4 +1,3 @@
-import * as std from 'std';
 var __defProp = Object.defineProperty;
 var __export = (target, all) => {
   for (var name in all)
@@ -958,6 +957,110 @@ function toErrorNode(caughtError) {
   return createErrorNode(createStringNode(String(caughtError)));
 }
 
+// src/env.ts
+var Env = class {
+  // Stores key-value pair mappings.
+  value = /* @__PURE__ */ new Map();
+  outer;
+  binds = [];
+  exprs = [];
+  /**
+   * Creates an instance of the Env class.
+   * @param outerEnv - The outer environment.
+   * @param binds - Array of symbols to be bound.
+   * @param exprs - Array of AST nodes to be bound to symbols.
+   * @example new Env();
+   */
+  constructor(outerEnv = void 0, binds = [], exprs = []) {
+    this.outer = outerEnv;
+    this.binds = binds;
+    this.exprs = exprs;
+    for (let i = 0; i < binds.length; i++) {
+      const bind2 = binds[i];
+      if (bind2.value === "&") {
+        const nextBind = binds[i + 1];
+        if (nextBind) {
+          const remainingExprs = exprs.slice(i);
+          const keyString2 = convertMapKeyToString(nextBind);
+          this.value.set(
+            keyString2,
+            createListNode(remainingExprs)
+          );
+          break;
+        }
+      }
+      const keyString = convertMapKeyToString(bind2);
+      this.value.set(keyString, exprs[i]);
+    }
+  }
+  serialize() {
+    const serialized = createMapNode();
+    let outer = createMapNode();
+    if (this.outer) {
+      outer = this.outer.serialize();
+    }
+    const entries = this.value.entries();
+    for (const [key, value] of entries) {
+      serialized.value.set(key, value);
+    }
+    serialized.value.set("__outer__", outer);
+    return serialized;
+  }
+  /**
+   * Set a key-value pair in the environment.
+   * @param key - The key to be added.
+   * @param value - The AST node to be associated with the key.
+   * @returns The AST node that was added.
+   * @example myEnv.set(makeStr('foo'), makeNum(42));
+   */
+  set(key, value) {
+    const keyString = convertMapKeyToString(key);
+    this.value.set(keyString, value);
+    return value;
+  }
+  /**
+   * Find the environment where a key is defined.
+   * @description
+   * This uses a polymorphic `this` type to facilitate method chaining
+   * and to enable subclasses to return instances of their own type when this
+   * method is called. It utilizes the `outer` property which can reference an
+   * `Env` instance or any of its subclasses, hence promoting flexibility in
+   * terms of where this method can find the specified key.
+   * @param key - The key to search for.
+   * @returns The environment where the key is defined, or undefined.
+   * @example myEnv.findEnv(makeSym('foobar'));
+   */
+  findEnv(key) {
+    const keyString = convertMapKeyToString(key);
+    if (this.value.has(keyString)) {
+      return this;
+    }
+    if (!isDefined(this.outer)) {
+      return void 0;
+    }
+    return this.outer.findEnv(key);
+  }
+  /**
+   * Get the value associated with a given key from the
+   * symbolTable. Uses the key's value property to search, finds the
+   * matching key in the value Map, and returns its value.
+   * @param key - A types.DictKeys types.Ast item.
+   * @returns Associated value as types.Ast.
+   * @throws When the key was not found in any environments.
+   * @example myEnv.get(makeKey('foo'));
+   */
+  get(key) {
+    const foundEnv = this.findEnv(key);
+    if (foundEnv === void 0) {
+      throw new Error(`'${key.value}' not found`);
+    }
+    const keyString = convertMapKeyToString(key);
+    const dictValue = foundEnv.value.get(keyString);
+    assertDefined(dictValue);
+    return dictValue;
+  }
+};
+
 // src/printer.ts
 function printString(ast, printReadably = false) {
   if (isStringNode(ast)) {
@@ -1826,110 +1929,6 @@ function join(...args) {
   const joined = args[0].value.map((ast) => printString(ast, false)).join(delim);
   return createStringNode(joined);
 }
-
-// src/env.ts
-var Env = class {
-  // Stores key-value pair mappings.
-  value = /* @__PURE__ */ new Map();
-  outer;
-  binds = [];
-  exprs = [];
-  /**
-   * Creates an instance of the Env class.
-   * @param outerEnv - The outer environment.
-   * @param binds - Array of symbols to be bound.
-   * @param exprs - Array of AST nodes to be bound to symbols.
-   * @example new Env();
-   */
-  constructor(outerEnv = void 0, binds = [], exprs = []) {
-    this.outer = outerEnv;
-    this.binds = binds;
-    this.exprs = exprs;
-    for (let i = 0; i < binds.length; i++) {
-      const bind2 = binds[i];
-      if (bind2.value === "&") {
-        const nextBind = binds[i + 1];
-        if (nextBind) {
-          const remainingExprs = exprs.slice(i);
-          const keyString2 = convertMapKeyToString(nextBind);
-          this.value.set(
-            keyString2,
-            createListNode(remainingExprs)
-          );
-          break;
-        }
-      }
-      const keyString = convertMapKeyToString(bind2);
-      this.value.set(keyString, exprs[i]);
-    }
-  }
-  serialize() {
-    const serialized = createMapNode();
-    let outer = createMapNode();
-    if (this.outer) {
-      outer = this.outer.serialize();
-    }
-    const entries = this.value.entries();
-    for (const [key, value] of entries) {
-      serialized.value.set(key, value);
-    }
-    serialized.value.set("__outer__", outer);
-    return serialized;
-  }
-  /**
-   * Set a key-value pair in the environment.
-   * @param key - The key to be added.
-   * @param value - The AST node to be associated with the key.
-   * @returns The AST node that was added.
-   * @example myEnv.set(makeStr('foo'), makeNum(42));
-   */
-  set(key, value) {
-    const keyString = convertMapKeyToString(key);
-    this.value.set(keyString, value);
-    return value;
-  }
-  /**
-   * Find the environment where a key is defined.
-   * @description
-   * This uses a polymorphic `this` type to facilitate method chaining
-   * and to enable subclasses to return instances of their own type when this
-   * method is called. It utilizes the `outer` property which can reference an
-   * `Env` instance or any of its subclasses, hence promoting flexibility in
-   * terms of where this method can find the specified key.
-   * @param key - The key to search for.
-   * @returns The environment where the key is defined, or undefined.
-   * @example myEnv.findEnv(makeSym('foobar'));
-   */
-  findEnv(key) {
-    const keyString = convertMapKeyToString(key);
-    if (this.value.has(keyString)) {
-      return this;
-    }
-    if (!isDefined(this.outer)) {
-      return void 0;
-    }
-    return this.outer.findEnv(key);
-  }
-  /**
-   * Get the value associated with a given key from the
-   * symbolTable. Uses the key's value property to search, finds the
-   * matching key in the value Map, and returns its value.
-   * @param key - A types.DictKeys types.Ast item.
-   * @returns Associated value as types.Ast.
-   * @throws When the key was not found in any environments.
-   * @example myEnv.get(makeKey('foo'));
-   */
-  get(key) {
-    const foundEnv = this.findEnv(key);
-    if (foundEnv === void 0) {
-      throw new Error(`'${key.value}' not found`);
-    }
-    const keyString = convertMapKeyToString(key);
-    const dictValue = foundEnv.value.get(keyString);
-    assertDefined(dictValue);
-    return dictValue;
-  }
-};
 
 // src/interop/html.ts
 var htmlTags = /* @__PURE__ */ new Set([
@@ -4331,7 +4330,7 @@ for (const [sym, fn] of nsValues2) {
   }
 }
 
-// src/ensemble.ts
+// src/lib.ts
 function assertTryCatch(a) {
   assertListNode(a);
   assertVariableArgumentCount(a.value.length, 2, 3);
@@ -4797,8 +4796,69 @@ function initEnv() {
   return replEnv;
 }
 
-// src/readline_qjs.ts
+// src/io.ts
 var defaultPrompt = "user> ";
+function writeToFile(text, filePath) {
+  let file = null;
+  try {
+    file = std.open(filePath, "w");
+    file.puts(text);
+  } catch (e) {
+    if (file !== null) file.close();
+    throw new Error(`Error writing to file: ${e}`);
+  }
+}
+function readln(...args) {
+  assertArgumentCount(args.length, 1);
+  const cmdPrompt = args[0];
+  assertStringNode(cmdPrompt);
+  const input = displayPrompt(cmdPrompt.value);
+  if (input === null || input === void 0) {
+    return createNilNode();
+  }
+  return createStringNode(input);
+}
+function readir(...args) {
+  assertArgumentCount(args.length, 1);
+  assertStringNode(args[0]);
+  const files = [];
+  const [entries, errorCode] = os.readdir(args[0].value);
+  if (+errorCode > 0) {
+    throw new Error(`Error reading directory: ${errorCode}`);
+  }
+  for (const entry of entries) {
+    if (entry === "." || entry === "..") {
+      continue;
+    }
+    files.push(createStringNode(entry));
+  }
+  return createVectorNode(files);
+}
+function slurp(...args) {
+  assertArgumentCount(args.length, 1);
+  const filePath = args[0];
+  assertStringNode(filePath);
+  const content = std.loadFile(filePath.value);
+  if (content === null) {
+    throw new Error(`No such file or directory. xxx`);
+  }
+  return createStringNode(content);
+}
+function spit(...args) {
+  assertArgumentCount(args.length, 2);
+  const filePath = args[0];
+  assertStringNode(filePath);
+  const content = args[1];
+  assertStringNode(content);
+  writeToFile(content.value, filePath.value);
+  return createNilNode();
+}
+function displayPrompt(promptText = defaultPrompt) {
+  std.out.puts(promptText);
+  const input = std.in.getline()?.trim();
+  console.log(input);
+  console.log(promptText);
+}
 function* readline(promptText = defaultPrompt) {
   while (true) {
     std.out.puts(promptText);
@@ -4808,15 +4868,6 @@ function* readline(promptText = defaultPrompt) {
     }
     yield input;
   }
-}
-
-// src/ensemble_cli.ts
-function slurp(...args) {
-  assertArgumentCount(args.length, 1);
-  const filePath = args[0];
-  assertStringNode(filePath);
-  const content = std.loadFile(filePath.value);
-  return createStringNode(content);
 }
 function loadFileWithEnv(appEnv) {
   return function loadFile(...args) {
@@ -4837,12 +4888,12 @@ function initMain() {
     ["readFile", slurp],
     ["slurp", slurp],
     ["load-file", appImport],
-    ["import", appImport]
-    // ['readln', readln],
-    // ['prompt', readln],
-    // ['readir', readir],
-    // ['spit', spit],
-    // ['writeFile', spit],
+    ["import", appImport],
+    ["readln", readln],
+    ["prompt", readln],
+    ["readir", readir],
+    ["spit", spit],
+    ["writeFile", spit]
     // ['serve', serve],
   ];
   for (const [name, value] of nsValues3) {
@@ -4886,4 +4937,6 @@ async function main(...args) {
     }
   }
 }
-main(...scriptArgs.slice(1));
+
+// src/cli.ts
+main(...scriptArgs);

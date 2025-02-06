@@ -1,5 +1,5 @@
-import { initEnv, rep } from './ensemble.ts';
 import * as env from './env.ts';
+import { initEnv, rep } from './lib.ts';
 import * as printer from './printer.ts';
 import * as types from './types.ts';
 

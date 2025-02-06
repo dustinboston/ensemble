@@ -3,7 +3,7 @@
  * Imported from `step2_eval.mal` tests.
  * @file
  */
-import { initEnv, rep } from '../src/ensemble.ts';
+import { initEnv, rep } from '../src/lib.ts';
 import { assertEquals, assertThrows, test } from '../tests/test_runner.ts';
 
 test('EVAL: Should add', () => {

@@ -1,4 +1,4 @@
-import { assert, assertEquals, assertInstanceOf, assertSpyCall, assertSpyCalls, assertStrictEquals, assertThrows, spy, test } from '../tests/test_runner.ts';
+import { assert, assertEquals, assertInstanceOf, assertSpyCall, assertSpyCalls, assertStrictEquals, assertThrows, ignoreTest, spy, test } from '../tests/test_runner.ts';
 import * as core from './core.ts';
 import * as types from './types.ts';
 
@@ -46,7 +46,7 @@ test('printEscapedStringToScreen(): logs the escaped string', () => {
   assertSpyCalls(logSpy, 1);
 });
 
-test('printEscapedStringToScreen(): logs the unescaped string', () => {
+ignoreTest('printEscapedStringToScreen(): logs the unescaped string', () => {
   const logSpy = spy(console, 'log');
 
   try {

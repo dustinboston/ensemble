@@ -75,7 +75,7 @@ export function spy(object: any, method: string) {
   };
 }
 
-export function assertSpyCall(spy: any, callIndex: number, options: { args: any[], returned: any }) {
+export function assertSpyCall(spy: any, callIndex: number, options: { args?: any[], returned?: any }) {
   if (!spy || !spy.calls || !Array.isArray(spy.calls)) {
     throw new Error(`Invalid spy object`);
   }

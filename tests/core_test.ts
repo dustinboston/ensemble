@@ -10,7 +10,7 @@
  * @file
  */
 
-import { initEnv, rep } from '../src/ensemble.ts';
+import { initEnv, rep } from '../src/lib.ts';
 import { printString } from '../src/printer.ts';
 import { BooleanNode, KeywordNode, ListNode, NilNode, NumberNode, SymbolNode, VectorNode } from '../src/types.ts';
 import { assertEquals, assertSpyCalls, spy, test } from '../tests/test_runner.js';

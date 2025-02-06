@@ -3,7 +3,7 @@
  * Imported from `step5_tco.mal` tests.
  * @file
  */
-import { initEnv, rep } from '../src/ensemble.ts';
+import { initEnv, rep } from '../src/lib.ts';
 import { assertEquals, test } from '../tests/test_runner.ts';
 
 const tcoEnv = initEnv();
