@@ -1,0 +1,2 @@
+// Log every function in the environment to the console.
+(dump)

@@ -1,0 +1,18 @@
+// Log HTML to the console
+(var renderPage (function (siteName pageName pageContent) 
+  (!doctype 
+    (html 
+      (head 
+        (title siteName)
+        (style {} { 
+            "body" { 
+              font-family: "sans-serif" }})) 
+      (body 
+        (header (h1 pageName))
+        (div pageContent))))))
+
+(console.log 
+  (renderPage 
+    "Mnjn"
+    "Hello, Mnjn!"
+    (p "This is the" (i "introductory") "post to Mnjn!")))

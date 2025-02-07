@@ -1,6 +1,0 @@
-#!/bin/bash
-
-ENSEMBLE_MAIN="ensemble"
-
-exec deno run --allow-env --allow-write --allow-read --allow-sys ./src/ensemble_cli.ts "${@}"
-

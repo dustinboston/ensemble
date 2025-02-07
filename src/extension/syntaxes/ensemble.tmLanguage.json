@@ -1,0 +1,32 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "Ensemble",
+	"patterns": [
+		{
+			"include": "#keywords"
+		},
+		{
+			"include": "#strings"
+		}
+	],
+	"repository": {
+		"keywords": {
+			"patterns": [{
+				"name": "keyword.control.ensemble",
+				"match": "\\b(try|catch|var|globalThis|const|let|defmacro!|do|if|function|=>|quote|quasiquoteexpand|quasiquote|unquote|splice-unquote|doctype|html|head|title|style|body|script|console.log|p|header|h1|div|title|head|i)\\b"
+			}]
+		},
+		"strings": {
+			"name": "string.quoted.double.ensemble",
+			"begin": "\"",
+			"end": "\"",
+			"patterns": [
+				{
+					"name": "constant.character.escape.ensemble",
+					"match": "\\\\."
+				}
+			]
+		}
+	},
+	"scopeName": "source.ensemble"
+}
