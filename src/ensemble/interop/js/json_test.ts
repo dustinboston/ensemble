@@ -1,65 +1,65 @@
-import { assertEquals, assertThrows, test } from '../../tests/test_runner.ts';
-import * as types from '../../types.ts';
-import { parseJson, stringifyJson } from './json.ts';
+import { assertEquals, assertThrows, test } from "../../tests/test_runner.ts";
+import * as types from "../../types.ts";
+import { parseJson, stringifyJson } from "./json.ts";
 
 // parseJson
 // --------------------------------------------------------------------------------------------------------------------
 
-test('parseJson - valid json string', () => {
-  const jsonString = types.createStringNode('{"a": 1, "b": "hello"}');
-  const result = parseJson(jsonString);
+test("parseJson - valid json string", () => {
+	const jsonString = types.createStringNode('{"a": 1, "b": "hello"}');
+	const result = parseJson(jsonString);
 
-  assertEquals(types.isMapNode(result), true);
-  assertEquals(result.value.size, 2);
-  assertEquals(result.value.get('a')?.value, 1); // Accessing with string key
-  assertEquals(result.value.get('b')?.value, 'hello');
+	assertEquals(types.isMapNode(result), true);
+	assertEquals(result.value.size, 2);
+	assertEquals(result.value.get("a")?.value, 1); // Accessing with string key
+	assertEquals(result.value.get("b")?.value, "hello");
 });
 
-test('parseJson - invalid json string', () => {
-  const jsonString = types.createStringNode('invalid json');
-  assertThrows(() => parseJson(jsonString));
+test("parseJson - invalid json string", () => {
+	const jsonString = types.createStringNode("invalid json");
+	assertThrows(() => parseJson(jsonString));
 });
 
-test('parseJson - invalid arguments', () => {
-  const num = types.createNumberNode(1);
+test("parseJson - invalid arguments", () => {
+	const num = types.createNumberNode(1);
 
-  assertThrows(() => parseJson());
-  assertThrows(() => parseJson(num));
+	assertThrows(() => parseJson());
+	assertThrows(() => parseJson(num));
 });
 
 // stringifyJson
 // --------------------------------------------------------------------------------------------------------------------
 
-test('stringifyJson - basic ast', () => {
-  const ast = types.createMapNode(new Map([['a', types.createNumberNode(1)]]));
-  const replacer = types.createNilNode();
-  const space = types.createStringNode(''); // No space
-  const result = stringifyJson(ast, replacer, space);
-  assertEquals(types.isStringNode(result), true);
-  assertEquals(result.value, '{"a":1}');
+test("stringifyJson - basic ast", () => {
+	const ast = types.createMapNode(new Map([["a", types.createNumberNode(1)]]));
+	const replacer = types.createNilNode();
+	const space = types.createStringNode(""); // No space
+	const result = stringifyJson(ast, replacer, space);
+	assertEquals(types.isStringNode(result), true);
+	assertEquals(result.value, '{"a":1}');
 });
 
-test('stringifyJson - with space number', () => {
-  const ast = types.createMapNode(new Map([['a', types.createNumberNode(1)]]));
-  const replacer = types.createNilNode();
-  const space = types.createNumberNode(2);
-  const result = stringifyJson(ast, replacer, space);
-  assertEquals(types.isStringNode(result), true);
-  assertEquals(result.value, '{\n  "a": 1\n}');
+test("stringifyJson - with space number", () => {
+	const ast = types.createMapNode(new Map([["a", types.createNumberNode(1)]]));
+	const replacer = types.createNilNode();
+	const space = types.createNumberNode(2);
+	const result = stringifyJson(ast, replacer, space);
+	assertEquals(types.isStringNode(result), true);
+	assertEquals(result.value, '{\n  "a": 1\n}');
 });
 
-test('stringifyJson - with space string', () => {
-  const ast = types.createMapNode(new Map([['a', types.createNumberNode(1)]]));
-  const replacer = types.createNilNode();
-  const space = types.createStringNode('----');
+test("stringifyJson - with space string", () => {
+	const ast = types.createMapNode(new Map([["a", types.createNumberNode(1)]]));
+	const replacer = types.createNilNode();
+	const space = types.createStringNode("----");
 
-  const result = stringifyJson(ast, replacer, space);
-  assertEquals(types.isStringNode(result), true);
-  assertEquals(result.value, '{\n----"a": 1\n}');
+	const result = stringifyJson(ast, replacer, space);
+	assertEquals(types.isStringNode(result), true);
+	assertEquals(result.value, '{\n----"a": 1\n}');
 });
 
-test('stringifyJson - invalid arguments', () => {
-  assertThrows(() => stringifyJson());
+test("stringifyJson - invalid arguments", () => {
+	assertThrows(() => stringifyJson());
 });
 
 // test('stringifyJson - replacer', () => {

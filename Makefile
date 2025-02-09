@@ -129,3 +129,5 @@ test-unit-fun: $(ENSEMBLE_BUILD_DIR)/%_test.js
 # repl: $(ENSEMBLE_BUNDLE_FILE) $(QJS_BINARY_FILE)
 # 	$(QJS_BINARY_FILE) --std --module "$(ENSEMBLE_BUNDLE_FILE)"
 
+format:
+	npx @biomejs/biome format --write

@@ -1,26 +1,26 @@
 /// <reference path="./qjs.d.ts" />
 
-import * as os from 'qjs:os';
-import * as std from 'qjs:std';
+import * as os from "qjs:os";
+import * as std from "qjs:std";
 
-import * as env from './env.ts';
-import { initEnv, rep } from './lib.ts';
-import * as printer from './printer.ts';
-import * as types from './types.ts';
+import * as env from "./env.ts";
+import { initEnv, rep } from "./lib.ts";
+import * as printer from "./printer.ts";
+import * as types from "./types.ts";
 
 export { rep };
 
-const defaultPrompt = 'user> ';
+const defaultPrompt = "user> ";
 
 export function writeToFile(text: string, filePath: string) {
-  let file: any = null;
-  try {
-    file = std.open(filePath, "w"); // Open file for writing ("w" mode)    
-    if (file !== null) file.puts(text); // Write content to the file
-  } catch (e) {
-    if (file !== null) file.close(); // Always close the file
-    throw new Error(`Error writing to file: ${e}`);
-  }  
+	let file: any = null;
+	try {
+		file = std.open(filePath, "w"); // Open file for writing ("w" mode)
+		if (file !== null) file.puts(text); // Write content to the file
+	} catch (e) {
+		if (file !== null) file.close(); // Always close the file
+		throw new Error(`Error writing to file: ${e}`);
+	}
 }
 
 /**
@@ -32,14 +32,14 @@ export function writeToFile(text: string, filePath: string) {
  * @example (readline ">>> ")
  */
 export function readln(...args: types.AstNode[]): types.AstNode {
-  types.assertArgumentCount(args.length, 1);
-  const cmdPrompt = args[0];
-  types.assertStringNode(cmdPrompt);
-  const input = displayPrompt(cmdPrompt.value);
-  if (input === null || input === undefined) {
-    return types.createNilNode();
-  }
-  return types.createStringNode(input);
+	types.assertArgumentCount(args.length, 1);
+	const cmdPrompt = args[0];
+	types.assertStringNode(cmdPrompt);
+	const input = displayPrompt(cmdPrompt.value);
+	if (input === null || input === undefined) {
+		return types.createNilNode();
+	}
+	return types.createStringNode(input);
 }
 
 /**
@@ -50,25 +50,26 @@ export function readln(...args: types.AstNode[]): types.AstNode {
  * @example (readdir "./path/to/file.txt")
  */
 export function readir(...args: types.AstNode[]): types.AstNode {
-  types.assertArgumentCount(args.length, 1);
-  types.assertStringNode(args[0]);
+	types.assertArgumentCount(args.length, 1);
+	types.assertStringNode(args[0]);
 
-  const files: types.StringNode[] = [];
-  const [entries, errorCode] = os.readdir(args[0].value) as string[];
+	const files: types.StringNode[] = [];
+	const [entries, errorCode] = os.readdir(args[0].value) as string[];
 
-  if (+errorCode > 0) {
-    throw new Error(`Error reading directory: ${errorCode}`);
-  }
+	if (+errorCode > 0) {
+		throw new Error(`Error reading directory: ${errorCode}`);
+	}
 
-  for (const entry of entries) { // Last entry is the error code
-    if (entry === '.' || entry === '..') {
-      continue;
-    }
+	for (const entry of entries) {
+		// Last entry is the error code
+		if (entry === "." || entry === "..") {
+			continue;
+		}
 
-    files.push(types.createStringNode(entry));
-  }
+		files.push(types.createStringNode(entry));
+	}
 
-  return types.createVectorNode(files);
+	return types.createVectorNode(files);
 }
 
 /**
@@ -79,18 +80,18 @@ export function readir(...args: types.AstNode[]): types.AstNode {
  * @example (slurp "../tests/test.txt") ;=>"A line of text\n"
  */
 export function slurp(...args: types.AstNode[]): types.AstNode {
-  types.assertArgumentCount(args.length, 1);
+	types.assertArgumentCount(args.length, 1);
 
-  const filePath = args[0];
-  types.assertStringNode(filePath);
+	const filePath = args[0];
+	types.assertStringNode(filePath);
 
-  const content = std.loadFile(filePath.value);
-  
-  if (content === null) {
-    throw new Error(`No such file or directory. xxx`);
-  }
+	const content = std.loadFile(filePath.value);
 
-  return types.createStringNode(content);    
+	if (content === null) {
+		throw new Error(`No such file or directory. xxx`);
+	}
+
+	return types.createStringNode(content);
 }
 
 /**
@@ -103,21 +104,21 @@ export function slurp(...args: types.AstNode[]): types.AstNode {
  * @example (spit "../tests/test.txt")
  */
 export function spit(...args: types.AstNode[]): types.AstNode {
-  types.assertArgumentCount(args.length, 2);
-  const filePath = args[0];
-  types.assertStringNode(filePath);
-  const content = args[1];
-  types.assertStringNode(content);
-  writeToFile(content.value, filePath.value);
-  return types.createNilNode();
+	types.assertArgumentCount(args.length, 2);
+	const filePath = args[0];
+	types.assertStringNode(filePath);
+	const content = args[1];
+	types.assertStringNode(content);
+	writeToFile(content.value, filePath.value);
+	return types.createNilNode();
 }
 
 export function displayPrompt(promptText = defaultPrompt): void {
-  std.out.puts(promptText);
-  const input = std.in.getline()?.trim();
+	std.out.puts(promptText);
+	const input = std.in.getline()?.trim();
 
-  console.log(input);
-  console.log(promptText);
+	console.log(input);
+	console.log(promptText);
 }
 
 /**
@@ -140,18 +141,17 @@ export function displayPrompt(promptText = defaultPrompt): void {
  * ```
  */
 export function* readline(promptText = defaultPrompt): Generator<string> {
-  while (true) {
-    std.out.puts(promptText);
-    const input = std.in.getline()?.trim();
+	while (true) {
+		std.out.puts(promptText);
+		const input = std.in.getline()?.trim();
 
-    if (!input) {
-      continue;
-    }
+		if (!input) {
+			continue;
+		}
 
-    yield input;
-  }
+		yield input;
+	}
 }
-
 
 /**
  * Serve the HTML shell for a SPA.
@@ -177,48 +177,48 @@ export function* readline(promptText = defaultPrompt): Generator<string> {
  * ```
  */
 export function loadFileWithEnv(appEnv: env.Env) {
-  return function loadFile(...args: types.AstNode[]): types.AstNode {
-    types.assertArgumentCount(args.length, 1);
-    types.assertStringNode(args[0]);
+	return function loadFile(...args: types.AstNode[]): types.AstNode {
+		types.assertArgumentCount(args.length, 1);
+		types.assertStringNode(args[0]);
 
-    const text = slurp(args[0]);
-    types.assertStringNode(text);
+		const text = slurp(args[0]);
+		types.assertStringNode(text);
 
-    // Create a new environment for evaluating the loaded file
-    const fileEnv = new env.Env(appEnv); //New Env based on appEnv
+		// Create a new environment for evaluating the loaded file
+		const fileEnv = new env.Env(appEnv); //New Env based on appEnv
 
-    const result = rep(`(do ${text.value})\nnil`, fileEnv);
-    return types.createStringNode(result);
-  };
+		const result = rep(`(do ${text.value})\nnil`, fileEnv);
+		return types.createStringNode(result);
+	};
 }
 
 export function initMain() {
-  const replEnv = initEnv();
+	const replEnv = initEnv();
 
-  const appImport = loadFileWithEnv(replEnv);
+	const appImport = loadFileWithEnv(replEnv);
 
-  const nsValues: Array<[string, types.Closure]> = [
-    ['readFile', slurp],
-    ['slurp', slurp],
-    ['load-file', appImport],
-    ['import', appImport],
-    ['readln', readln],
-    ['prompt', readln],
-    ['readir', readir],
-    ['spit', spit],
-    ['writeFile', spit],
-    // ['serve', serve],
-  ];
+	const nsValues: Array<[string, types.Closure]> = [
+		["readFile", slurp],
+		["slurp", slurp],
+		["load-file", appImport],
+		["import", appImport],
+		["readln", readln],
+		["prompt", readln],
+		["readir", readir],
+		["spit", spit],
+		["writeFile", spit],
+		// ['serve', serve],
+	];
 
-  for (const [name, value] of nsValues) {
-    replEnv.set(types.createSymbolNode(name), types.createFunctionNode(value));
-  }
+	for (const [name, value] of nsValues) {
+		replEnv.set(types.createSymbolNode(name), types.createFunctionNode(value));
+	}
 
-  return replEnv;
+	return replEnv;
 }
 
-export function toPosixPath(filePath: string = ''): string {
-  return filePath.replace(/\\/g, '/');
+export function toPosixPath(filePath: string = ""): string {
+	return filePath.replace(/\\/g, "/");
 }
 
 /**
@@ -230,48 +230,49 @@ export function toPosixPath(filePath: string = ''): string {
  * @example `deno run ./step0_repl.ts`
  */
 export async function main(...args: string[]) {
-  const replEnv = initMain();
-  // Process the arguments
-  const userScriptPath: string | undefined = toPosixPath(args[0]);
-  const hostEnvArgs: types.StringNode[] = args
-    .slice(1)
-    .map((arg) => types.createStringNode(arg));
+	const replEnv = initMain();
+	// Process the arguments
+	const userScriptPath: string | undefined = toPosixPath(args[0]);
+	const hostEnvArgs: types.StringNode[] = args
+		.slice(1)
+		.map((arg) => types.createStringNode(arg));
 
-  replEnv.set(
-    types.createSymbolNode('*ARGV*'),
-    types.createListNode(hostEnvArgs),
-  );
+	replEnv.set(
+		types.createSymbolNode("*ARGV*"),
+		types.createListNode(hostEnvArgs),
+	);
 
-  replEnv.set(
-    types.createSymbolNode('*host-language*'),
-    types.createStringNode('Ensemble'),
-  );
+	replEnv.set(
+		types.createSymbolNode("*host-language*"),
+		types.createStringNode("Ensemble"),
+	);
 
-  // Run a user program and exit
-  if (userScriptPath) {
-    rep(`(import "${userScriptPath}")`, replEnv);
-    return;
-  }
+	// Run a user program and exit
+	if (userScriptPath) {
+		rep(`(import "${userScriptPath}")`, replEnv);
+		return;
+	}
 
-  // Show an interactive repl
-  rep('(println (str "Welcome to " *host-language* "! Press Ctrl/Cmd+C to exit."))', replEnv);
+	// Show an interactive repl
+	rep(
+		'(println (str "Welcome to " *host-language* "! Press Ctrl/Cmd+C to exit."))',
+		replEnv,
+	);
 
-  for await (const input of readline('user> ')) {
-    if (input === '' || input === null) {
-      continue;
-    }
+	for await (const input of readline("user> ")) {
+		if (input === "" || input === null) {
+			continue;
+		}
 
-    try {
-      const result = rep(input, replEnv);
-      console.log(result);
-    } catch (error: unknown) {
-      if (types.isErrorNode(error)) {
-        console.log(`error: ${printer.printString(error, false)}`);
-      } else if (error instanceof Error) {
-        console.log(error);
-      }
-    }
-  }
+		try {
+			const result = rep(input, replEnv);
+			console.log(result);
+		} catch (error: unknown) {
+			if (types.isErrorNode(error)) {
+				console.log(`error: ${printer.printString(error, false)}`);
+			} else if (error instanceof Error) {
+				console.log(error);
+			}
+		}
+	}
 }
-
-

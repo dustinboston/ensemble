@@ -2,94 +2,94 @@
  * @file Provides all of the core functions for the language.
  */
 
-import * as printer from './printer.ts';
-import * as reader from './reader.ts';
-import * as types from './types.ts';
+import * as printer from "./printer.ts";
+import * as reader from "./reader.ts";
+import * as types from "./types.ts";
 
 export const ns = new Map<types.MapKeyNode, types.FunctionNode>();
 
 const nsValues: Array<[string, types.Closure]> = [
-  ['=', eq],
-  ['throw', throwError],
-  ['nil?', isNil],
-  ['true?', isTrue],
-  ['false?', isFalse],
-  ['symbol', symbol],
-  ['Symbol.new', symbol],
-  ['symbol?', isSymbolNode],
-  ['keyword', keyword],
-  ['keyword?', isKeyword],
-  ['number?', isNumber],
-  ['macro?', isMacro],
+	["=", eq],
+	["throw", throwError],
+	["nil?", isNil],
+	["true?", isTrue],
+	["false?", isFalse],
+	["symbol", symbol],
+	["Symbol.new", symbol],
+	["symbol?", isSymbolNode],
+	["keyword", keyword],
+	["keyword?", isKeyword],
+	["number?", isNumber],
+	["macro?", isMacro],
 
-  // Input/Output
-  ['pr-str', printEscapedString],
-  ['str', printUnescapedString],
-  ['prn', printEscapedStringToScreen],
-  ['println', printUnescapedStringToScreen],
-  ['console.log', printUnescapedStringToScreen],
-  ['read-string', readString],
+	// Input/Output
+	["pr-str", printEscapedString],
+	["str", printUnescapedString],
+	["prn", printEscapedStringToScreen],
+	["println", printUnescapedStringToScreen],
+	["console.log", printUnescapedStringToScreen],
+	["read-string", readString],
 
-  // Strings
-  ['string?', isString],
-  ['trim', trim],
+	// Strings
+	["string?", isString],
+	["trim", trim],
 
-  // Operators
-  ['<', lt],
-  ['<=', lte],
-  ['>', gt],
-  ['>=', gte],
-  ['+', add],
-  ['-', subtract],
-  ['*', multiply],
-  ['/', divide],
-  ['time-ms', timeMs],
+	// Operators
+	["<", lt],
+	["<=", lte],
+	[">", gt],
+	[">=", gte],
+	["+", add],
+	["-", subtract],
+	["*", multiply],
+	["/", divide],
+	["time-ms", timeMs],
 
-  // Maps
-  ['assoc', assoc],
-  ['contains?', contains],
-  ['dissoc', dissoc],
-  ['get', get],
-  ['hash-map', hashMap],
-  ['keys', keys],
-  ['map?', isMap],
-  ['vals', vals],
+	// Maps
+	["assoc", assoc],
+	["contains?", contains],
+	["dissoc", dissoc],
+	["get", get],
+	["hash-map", hashMap],
+	["keys", keys],
+	["map?", isMap],
+	["vals", vals],
 
-  // We treat lists similar to functions
-  ['list', list],
-  ['list?', isListNode],
-  ['apply', apply],
-  ['fn?', isFn],
+	// We treat lists similar to functions
+	["list", list],
+	["list?", isListNode],
+	["apply", apply],
+	["fn?", isFn],
 
-  // Arrays
-  ['concat', concat],
-  ['conj', conj],
-  ['cons', cons],
-  ['count', length],
-  ['empty?', empty],
-  ['first', firstNodeInList],
-  ['last', lastNodeInList],
-  ['join', join],
-  ['map', applyToSequence],
-  ['nth', nth],
-  ['rest', rest],
-  ['seq', seq],
-  ['sequential?', isSequentialNode],
-  ['vec', vec],
-  ['vector', vector],
-  ['vector?', isVector],
+	// Arrays
+	["concat", concat],
+	["conj", conj],
+	["cons", cons],
+	["count", length],
+	["empty?", empty],
+	["first", firstNodeInList],
+	["last", lastNodeInList],
+	["join", join],
+	["map", applyToSequence],
+	["nth", nth],
+	["rest", rest],
+	["seq", seq],
+	["sequential?", isSequentialNode],
+	["vec", vec],
+	["vector", vector],
+	["vector?", isVector],
 
-  ['meta', meta],
-  ['with-meta', withMeta],
-  ['atom', atom],
-  ['atom?', isAtom],
-  ['deref', deref],
-  ['reset!', reset],
-  ['swap!', swap],
+	["meta", meta],
+	["with-meta", withMeta],
+	["atom", atom],
+	["atom?", isAtom],
+	["deref", deref],
+	["reset!", reset],
+	["swap!", swap],
 ];
 
 for (const [sym, fn] of nsValues) {
-  ns.set(types.createSymbolNode(sym), types.createFunctionNode(fn));
+	ns.set(types.createSymbolNode(sym), types.createFunctionNode(fn));
 }
 
 /**
@@ -109,8 +109,8 @@ for (const [sym, fn] of nsValues) {
  * ```
  */
 export function eq(...args: types.AstNode[]): types.AstNode {
-  types.assertArgumentCount(args.length, 2);
-  return types.isEqualTo(args[0], args[1]);
+	types.assertArgumentCount(args.length, 2);
+	return types.isEqualTo(args[0], args[1]);
 }
 
 /**
@@ -128,8 +128,8 @@ export function eq(...args: types.AstNode[]): types.AstNode {
  * (pr-str "abc\ndef\nghi") ;=> "\"abc\\ndef\\nghi\""
  */
 export function printEscapedString(...args: types.AstNode[]): types.AstNode {
-  const result = args.map((arg) => printer.printString(arg, true)).join(' ');
-  return types.createStringNode(result);
+	const result = args.map((arg) => printer.printString(arg, true)).join(" ");
+	return types.createStringNode(result);
 }
 
 /**
@@ -141,8 +141,8 @@ export function printEscapedString(...args: types.AstNode[]): types.AstNode {
  * @example (str "abc\ndef\nghi") ;=> "abc\ndef\nghi"
  */
 export function printUnescapedString(...args: types.AstNode[]): types.AstNode {
-  const result = args.map((arg) => printer.printString(arg, false)).join('');
-  return types.createStringNode(result);
+	const result = args.map((arg) => printer.printString(arg, false)).join("");
+	return types.createStringNode(result);
 }
 
 /**
@@ -160,11 +160,11 @@ export function printUnescapedString(...args: types.AstNode[]): types.AstNode {
  * ```
  */
 export function printEscapedStringToScreen(
-  ...args: types.AstNode[]
+	...args: types.AstNode[]
 ): types.AstNode {
-  const result = args.map((arg) => printer.printString(arg, true)).join(' ');
-  console.log(result);
-  return types.createNilNode();
+	const result = args.map((arg) => printer.printString(arg, true)).join(" ");
+	console.log(result);
+	return types.createNilNode();
 }
 
 /**
@@ -185,11 +185,11 @@ export function printEscapedStringToScreen(
  * @returns types.Nil
  */
 export function printUnescapedStringToScreen(
-  ...args: types.AstNode[]
+	...args: types.AstNode[]
 ): types.AstNode {
-  const result = args.map((arg) => printer.printString(arg, false)).join(' ');
-  console.log(result);
-  return types.createNilNode();
+	const result = args.map((arg) => printer.printString(arg, false)).join(" ");
+	console.log(result);
+	return types.createNilNode();
 }
 
 /**
@@ -199,10 +199,10 @@ export function printUnescapedStringToScreen(
  * @example (read-string "(+ 2 3)") ;=>(+ 2 3)
  */
 export function readString(...args: types.AstNode[]): types.AstNode {
-  types.assertArgumentCount(args.length, 1);
-  const code = args[0];
-  types.assertStringNode(code);
-  return reader.readString(code.value);
+	types.assertArgumentCount(args.length, 1);
+	const code = args[0];
+	types.assertStringNode(code);
+	return reader.readString(code.value);
 }
 
 /**
@@ -212,10 +212,10 @@ export function readString(...args: types.AstNode[]): types.AstNode {
  * @example (trim "  space  ") ;=>"space"
  */
 export function trim(...args: types.AstNode[]): types.AstNode {
-  types.assertArgumentCount(args.length, 1);
-  const string_ = args[0];
-  types.assertStringNode(string_);
-  return types.createStringNode(string_.value.trim());
+	types.assertArgumentCount(args.length, 1);
+	const string_ = args[0];
+	types.assertStringNode(string_);
+	return types.createStringNode(string_.value.trim());
 }
 
 /**
@@ -225,12 +225,16 @@ export function trim(...args: types.AstNode[]): types.AstNode {
  * @example (< (2 1)) ;=>true
  */
 export function lt(...args: types.AstNode[]): types.AstNode {
-  types.assertArgumentCount(args.length, 2, `\nargs: ${JSON.stringify(args, null, '  ')}`);
-  const a = args[0];
-  types.assertNumberNode(a);
-  const b = args[1];
-  types.assertNumberNode(b);
-  return types.createBooleanNode(a.value < b.value);
+	types.assertArgumentCount(
+		args.length,
+		2,
+		`\nargs: ${JSON.stringify(args, null, "  ")}`,
+	);
+	const a = args[0];
+	types.assertNumberNode(a);
+	const b = args[1];
+	types.assertNumberNode(b);
+	return types.createBooleanNode(a.value < b.value);
 }
 
 /**
@@ -240,12 +244,12 @@ export function lt(...args: types.AstNode[]): types.AstNode {
  * @example (<= (2 1)) ;=>false
  */
 export function lte(...args: types.AstNode[]): types.AstNode {
-  types.assertArgumentCount(args.length, 2);
-  const a = args[0];
-  types.assertNumberNode(a);
-  const b = args[1];
-  types.assertNumberNode(b);
-  return types.createBooleanNode(a.value <= b.value);
+	types.assertArgumentCount(args.length, 2);
+	const a = args[0];
+	types.assertNumberNode(a);
+	const b = args[1];
+	types.assertNumberNode(b);
+	return types.createBooleanNode(a.value <= b.value);
 }
 
 /**
@@ -255,12 +259,12 @@ export function lte(...args: types.AstNode[]): types.AstNode {
  * @example (> (2 1)) ;=>true
  */
 export function gt(...args: types.AstNode[]): types.AstNode {
-  types.assertArgumentCount(args.length, 2);
-  const a = args[0];
-  types.assertNumberNode(a);
-  const b = args[1];
-  types.assertNumberNode(b);
-  return types.createBooleanNode(a.value > b.value);
+	types.assertArgumentCount(args.length, 2);
+	const a = args[0];
+	types.assertNumberNode(a);
+	const b = args[1];
+	types.assertNumberNode(b);
+	return types.createBooleanNode(a.value > b.value);
 }
 
 /**
@@ -270,12 +274,12 @@ export function gt(...args: types.AstNode[]): types.AstNode {
  * @example (>= (2 1)) ;=>true
  */
 export function gte(...args: types.AstNode[]): types.AstNode {
-  types.assertArgumentCount(args.length, 2);
-  const a = args[0];
-  types.assertNumberNode(a);
-  const b = args[1];
-  types.assertNumberNode(b);
-  return types.createBooleanNode(a.value >= b.value);
+	types.assertArgumentCount(args.length, 2);
+	const a = args[0];
+	types.assertNumberNode(a);
+	const b = args[1];
+	types.assertNumberNode(b);
+	return types.createBooleanNode(a.value >= b.value);
 }
 
 /**
@@ -285,12 +289,12 @@ export function gte(...args: types.AstNode[]): types.AstNode {
  * @example (+ 2 1) ;=>3
  */
 export function add(...args: types.AstNode[]): types.AstNode {
-  types.assertArgumentCount(args.length, 2);
-  const a = args[0];
-  types.assertNumberNode(a);
-  const b = args[1];
-  types.assertNumberNode(b);
-  return types.createNumberNode(a.value + b.value);
+	types.assertArgumentCount(args.length, 2);
+	const a = args[0];
+	types.assertNumberNode(a);
+	const b = args[1];
+	types.assertNumberNode(b);
+	return types.createNumberNode(a.value + b.value);
 }
 
 /**
@@ -300,12 +304,12 @@ export function add(...args: types.AstNode[]): types.AstNode {
  * @example (- 2 1) ;=>1
  */
 export function subtract(...args: types.AstNode[]): types.AstNode {
-  types.assertArgumentCount(args.length, 2);
-  const a = args[0];
-  types.assertNumberNode(a);
-  const b = args[1];
-  types.assertNumberNode(b);
-  return types.createNumberNode(a.value - b.value);
+	types.assertArgumentCount(args.length, 2);
+	const a = args[0];
+	types.assertNumberNode(a);
+	const b = args[1];
+	types.assertNumberNode(b);
+	return types.createNumberNode(a.value - b.value);
 }
 
 /**
@@ -315,12 +319,12 @@ export function subtract(...args: types.AstNode[]): types.AstNode {
  * @example (* 2 1) ;=>2
  */
 export function multiply(...args: types.AstNode[]): types.AstNode {
-  types.assertArgumentCount(args.length, 2);
-  const a = args[0];
-  types.assertNumberNode(a);
-  const b = args[1];
-  types.assertNumberNode(b);
-  return types.createNumberNode(a.value * b.value);
+	types.assertArgumentCount(args.length, 2);
+	const a = args[0];
+	types.assertNumberNode(a);
+	const b = args[1];
+	types.assertNumberNode(b);
+	return types.createNumberNode(a.value * b.value);
 }
 
 /**
@@ -330,12 +334,12 @@ export function multiply(...args: types.AstNode[]): types.AstNode {
  * @example (/ 2 1) ;=>1
  */
 export function divide(...args: types.AstNode[]): types.AstNode {
-  types.assertArgumentCount(args.length, 2);
-  const a = args[0];
-  types.assertNumberNode(a);
-  const b = args[1];
-  types.assertNumberNode(b);
-  return types.createNumberNode(a.value / b.value);
+	types.assertArgumentCount(args.length, 2);
+	const a = args[0];
+	types.assertNumberNode(a);
+	const b = args[1];
+	types.assertNumberNode(b);
+	return types.createNumberNode(a.value / b.value);
 }
 
 /**
@@ -345,8 +349,8 @@ export function divide(...args: types.AstNode[]): types.AstNode {
  * @example (time-ms) ;=> 1689952214357
  */
 export function timeMs(...args: types.AstNode[]): types.AstNode {
-  types.assertArgumentCount(args.length, 0);
-  return types.createNumberNode((new Date()).getTime());
+	types.assertArgumentCount(args.length, 0);
+	return types.createNumberNode(new Date().getTime());
 }
 
 /**
@@ -356,11 +360,11 @@ export function timeMs(...args: types.AstNode[]): types.AstNode {
  * @example (list 2 1) ;=>(2 1)
  */
 export function list(...args: types.AstNode[]): types.AstNode {
-  for (const arg of args) {
-    types.assertAstNode(arg);
-  }
+	for (const arg of args) {
+		types.assertAstNode(arg);
+	}
 
-  return types.createListNode(args);
+	return types.createListNode(args);
 }
 
 /**
@@ -370,8 +374,8 @@ export function list(...args: types.AstNode[]): types.AstNode {
  * @example (list? (2 1)) ;=>true
  */
 export function isListNode(...args: types.AstNode[]): types.BooleanNode {
-  types.assertArgumentCount(args.length, 1);
-  return types.createBooleanNode(types.isListNode(args[0]));
+	types.assertArgumentCount(args.length, 1);
+	return types.createBooleanNode(types.isListNode(args[0]));
 }
 
 /**
@@ -381,9 +385,9 @@ export function isListNode(...args: types.AstNode[]): types.BooleanNode {
  * @example (cons foo (1 2 3)) ;=> (foo 1 2 3)
  */
 export function cons(...args: types.AstNode[]): types.ListNode {
-  types.assertArgumentCount(args.length, 2);
-  types.assertSequential(args[1]);
-  return new types.ListNode([args[0], ...args[1].value]);
+	types.assertArgumentCount(args.length, 2);
+	types.assertSequential(args[1]);
+	return new types.ListNode([args[0], ...args[1].value]);
 }
 
 /**
@@ -397,14 +401,14 @@ export function cons(...args: types.AstNode[]): types.ListNode {
  * (concat (list 1 2 3) (list 4 5 6)) ;=> (1 2 3 4 5 6)
  */
 export function concat(...args: types.AstNode[]): types.AstNode {
-  const resultList = [];
+	const resultList = [];
 
-  for (const arg of args) {
-    types.assertSequential(arg);
-    resultList.push(...arg.value);
-  }
+	for (const arg of args) {
+		types.assertSequential(arg);
+		resultList.push(...arg.value);
+	}
 
-  return types.createListNode(resultList);
+	return types.createListNode(resultList);
 }
 
 /**
@@ -415,7 +419,9 @@ export function concat(...args: types.AstNode[]): types.AstNode {
  * @example (vec (1 2 3)) ;=> [1 2 3]
  */
 export function vec(...args: types.AstNode[]): types.AstNode {
-  return types.isListNode(args[0]) ? types.createVectorNode(args[0].value) : args[0];
+	return types.isListNode(args[0])
+		? types.createVectorNode(args[0].value)
+		: args[0];
 }
 
 /**
@@ -426,21 +432,18 @@ export function vec(...args: types.AstNode[]): types.AstNode {
  * @example (nth (a b c) 0) ;=> a
  */
 export function nth(...args: types.AstNode[]): types.AstNode {
-  types.assertArgumentCount(args.length, 2);
-  if (
-    types.isSequentialNode(args[0]) &&
-    types.isNumberNode(args[1])
-  ) {
-    const index = args[1].value;
-    const list = args[0];
-    const length = args[0].value.length;
-    if (length > 0 && index < length) {
-      const value: types.AstNode = list.value[index];
-      return value;
-    }
-  }
+	types.assertArgumentCount(args.length, 2);
+	if (types.isSequentialNode(args[0]) && types.isNumberNode(args[1])) {
+		const index = args[1].value;
+		const list = args[0];
+		const length = args[0].value.length;
+		if (length > 0 && index < length) {
+			const value: types.AstNode = list.value[index];
+			return value;
+		}
+	}
 
-  throw new Error('out of range');
+	throw new Error("out of range");
 }
 
 /**
@@ -451,21 +454,21 @@ export function nth(...args: types.AstNode[]): types.AstNode {
  * @example (first (+ 2 4) ;=> +
  */
 export function firstNodeInList(...args: types.AstNode[]): types.AstNode {
-  types.assertArgumentCount(args.length, 1);
-  if (types.isSequentialNode(args[0]) && args[0].value.length > 0) {
-    return args[0].value[0];
-  }
+	types.assertArgumentCount(args.length, 1);
+	if (types.isSequentialNode(args[0]) && args[0].value.length > 0) {
+		return args[0].value[0];
+	}
 
-  return types.createNilNode();
+	return types.createNilNode();
 }
 
 export function lastNodeInList(...args: types.AstNode[]): types.AstNode {
-  types.assertArgumentCount(args.length, 1);
-  if (types.isSequentialNode(args[0]) && args[0].value.length > 0) {
-    return args[0].value[args[0].value.length - 1];
-  }
+	types.assertArgumentCount(args.length, 1);
+	if (types.isSequentialNode(args[0]) && args[0].value.length > 0) {
+		return args[0].value[args[0].value.length - 1];
+	}
 
-  return types.createNilNode();
+	return types.createNilNode();
 }
 
 /**
@@ -483,12 +486,12 @@ export function lastNodeInList(...args: types.AstNode[]): types.AstNode {
  * ```
  */
 export function rest(...args: types.AstNode[]): types.AstNode {
-  types.assertArgumentCount(args.length, 1);
-  if (types.isSequentialNode(args[0])) {
-    return types.createListNode(args[0].value.slice(1));
-  }
+	types.assertArgumentCount(args.length, 1);
+	if (types.isSequentialNode(args[0])) {
+		return types.createListNode(args[0].value.slice(1));
+	}
 
-  return types.createListNode([]);
+	return types.createListNode([]);
 }
 
 /**
@@ -498,12 +501,12 @@ export function rest(...args: types.AstNode[]): types.AstNode {
  * @example (empty? ()) ;=>true
  */
 export function empty(...args: types.AstNode[]): types.AstNode {
-  types.assertArgumentCount(args.length, 1);
+	types.assertArgumentCount(args.length, 1);
 
-  const list = args[0];
-  types.assertSequential(list);
+	const list = args[0];
+	types.assertSequential(list);
 
-  return types.createBooleanNode(list.value.length === 0);
+	return types.createBooleanNode(list.value.length === 0);
 }
 
 /**
@@ -513,20 +516,20 @@ export function empty(...args: types.AstNode[]): types.AstNode {
  * @example (count (1 2 3)) ;=> 3
  */
 export function length(...args: types.AstNode[]): types.AstNode {
-  types.assertArgumentCount(args.length, 1);
+	types.assertArgumentCount(args.length, 1);
 
-  const value = args[0];
-  if (types.isNilNode(value)) {
-    return types.createNumberNode(0);
-  }
+	const value = args[0];
+	if (types.isNilNode(value)) {
+		return types.createNumberNode(0);
+	}
 
-  if (types.isMapNode(args[0])) {
-    return types.createNumberNode(args[0].value.size);
-  } else if (types.isSequentialNode(args[0])) {
-    return types.createNumberNode(args[0].value.length);
-  } else {
-    throw new TypeError('Invalid argument type');
-  }
+	if (types.isMapNode(args[0])) {
+		return types.createNumberNode(args[0].value.size);
+	} else if (types.isSequentialNode(args[0])) {
+		return types.createNumberNode(args[0].value.length);
+	} else {
+		throw new TypeError("Invalid argument type");
+	}
 }
 
 /**
@@ -536,9 +539,9 @@ export function length(...args: types.AstNode[]): types.AstNode {
  * @example (def! a (atom 2)) ;=>(atom 2)
  */
 export function atom(...args: types.AstNode[]): types.AstNode {
-  types.assertArgumentCount(args.length, 1);
-  const value = args[0];
-  return types.createAtomNode(value);
+	types.assertArgumentCount(args.length, 1);
+	const value = args[0];
+	return types.createAtomNode(value);
 }
 
 /**
@@ -548,9 +551,9 @@ export function atom(...args: types.AstNode[]): types.AstNode {
  * @example (atom? a) ;=> true
  */
 export function isAtom(...args: types.AstNode[]): types.AstNode {
-  types.assertArgumentCount(args.length, 1);
-  const node = args[0];
-  return types.createBooleanNode(types.isAtomNode(node));
+	types.assertArgumentCount(args.length, 1);
+	const node = args[0];
+	return types.createBooleanNode(types.isAtomNode(node));
 }
 
 /**
@@ -560,16 +563,16 @@ export function isAtom(...args: types.AstNode[]): types.AstNode {
  * @example (deref a) ;=> 2
  */
 export function deref(...args: types.AstNode[]): types.AstNode {
-  types.assertArgumentCount(args.length, 1);
-  const atom = args[0];
-  types.assertAtomNode(atom);
+	types.assertArgumentCount(args.length, 1);
+	const atom = args[0];
+	types.assertAtomNode(atom);
 
-  // TODO: Coerce JS values into AstNodes?
-  // if (atom.value instanceof types.AstNode === false) {
-  // 	return types.toAst(atom.value);
-  // }
+	// TODO: Coerce JS values into AstNodes?
+	// if (atom.value instanceof types.AstNode === false) {
+	// 	return types.toAst(atom.value);
+	// }
 
-  return atom.value;
+	return atom.value;
 }
 
 /**
@@ -579,13 +582,13 @@ export function deref(...args: types.AstNode[]): types.AstNode {
  * @example (reset! a 3) ;=>3
  */
 export function reset(...args: types.AstNode[]): types.AstNode {
-  types.assertArgumentCount(args.length, 2);
-  const atom = args[0];
-  const node = args[1];
-  types.assertAtomNode(atom);
+	types.assertArgumentCount(args.length, 2);
+	const atom = args[0];
+	const node = args[1];
+	types.assertAtomNode(atom);
 
-  atom.value = node;
-  return node;
+	atom.value = node;
+	return node;
 }
 
 /**
@@ -600,28 +603,28 @@ export function reset(...args: types.AstNode[]): types.AstNode {
  * @example (swap! a (fn* (a) (* 2 a))) ;=>12
  */
 export function swap(...args: types.AstNode[]): types.AstNode {
-  types.assertMinimumArgumentCount(args.length, 2);
+	types.assertMinimumArgumentCount(args.length, 2);
 
-  const atom = args[0];
-  types.assertAtomNode(atom);
+	const atom = args[0];
+	types.assertAtomNode(atom);
 
-  const fn = args[1];
-  types.assertFunctionNode(fn);
+	const fn = args[1];
+	types.assertFunctionNode(fn);
 
-  const rest = args.slice(2);
+	const rest = args.slice(2);
 
-  // TODO: Coerce JS values into AstNodes?
-  // let value: types.AstNode;
-  // if (atom.value instanceof types.AstNode) {
-  // 	value = atom.value;
-  // } else {
-  // 	value = types.toAst(atom.value);
-  // }
-  // atom.value = fn.value(value, ...rest);
-  // return value;
+	// TODO: Coerce JS values into AstNodes?
+	// let value: types.AstNode;
+	// if (atom.value instanceof types.AstNode) {
+	// 	value = atom.value;
+	// } else {
+	// 	value = types.toAst(atom.value);
+	// }
+	// atom.value = fn.value(value, ...rest);
+	// return value;
 
-  atom.value = fn.value(atom.value, ...rest);
-  return atom.value;
+	atom.value = fn.value(atom.value, ...rest);
+	return atom.value;
 }
 
 /**
@@ -631,10 +634,10 @@ export function swap(...args: types.AstNode[]): types.AstNode {
  * @example (throw "foo") ;/"foo"
  */
 export function throwError(...args: types.AstNode[]): types.AstNode {
-  types.assertArgumentCount(args.length, 1);
-  types.assertAstNode(args[0]);
-  // eslint-disable-next-line @typescript-eslint/no-throw-literal
-  throw types.createErrorNode(args[0]);
+	types.assertArgumentCount(args.length, 1);
+	types.assertAstNode(args[0]);
+	// eslint-disable-next-line @typescript-eslint/no-throw-literal
+	throw types.createErrorNode(args[0]);
 }
 
 /**
@@ -645,14 +648,14 @@ export function throwError(...args: types.AstNode[]): types.AstNode {
  * @example (apply + (list 2 3)) ;=> 5
  */
 export function apply(...args: types.AstNode[]): types.AstNode {
-  const count = args.length;
-  types.assertMinimumArgumentCount(count, 2);
-  types.assertFunctionNode(args[0]);
+	const count = args.length;
+	types.assertMinimumArgumentCount(count, 2);
+	types.assertFunctionNode(args[0]);
 
-  const lastList = args[count - 1];
-  types.assertSequential(lastList);
+	const lastList = args[count - 1];
+	types.assertSequential(lastList);
 
-  return args[0].value(...args.slice(1, -1), ...lastList.value);
+	return args[0].value(...args.slice(1, -1), ...lastList.value);
 }
 
 /**
@@ -662,15 +665,15 @@ export function apply(...args: types.AstNode[]): types.AstNode {
  * @example (map double (1 2 3)) ;=> (2 4 6)
  */
 export function applyToSequence(...args: types.AstNode[]): types.AstNode {
-  const count = args.length;
-  types.assertArgumentCount(count, 2);
-  types.assertFunctionNode(args[0]);
-  types.assertSequential(args[1]);
+	const count = args.length;
+	types.assertArgumentCount(count, 2);
+	types.assertFunctionNode(args[0]);
+	types.assertSequential(args[1]);
 
-  const fn = args[0];
-  const list = args[1];
-  const result = list.value.map((item) => fn.value(item));
-  return types.createListNode(result);
+	const fn = args[0];
+	const list = args[1];
+	const result = list.value.map((item) => fn.value(item));
+	return types.createListNode(result);
 }
 
 /**
@@ -696,16 +699,16 @@ export function applyToSequence(...args: types.AstNode[]): types.AstNode {
  * //=> (5, 4, 1, 2, 3)
  */
 export function conj(...args: types.AstNode[]): types.AstNode {
-  types.assertMinimumArgumentCount(args.length, 2);
-  types.assertSequential(args[0]);
-  const [seq, ...rest] = args;
+	types.assertMinimumArgumentCount(args.length, 2);
+	types.assertSequential(args[0]);
+	const [seq, ...rest] = args;
 
-  if (types.isListNode(seq)) {
-    return types.createListNode([...rest.reverse(), ...seq.value]);
-  }
+	if (types.isListNode(seq)) {
+		return types.createListNode([...rest.reverse(), ...seq.value]);
+	}
 
-  // Explicitly state that seq is a Vec here, to preserve type information
-  return types.createVectorNode([...args[0].value, ...rest]);
+	// Explicitly state that seq is a Vec here, to preserve type information
+	return types.createVectorNode([...args[0].value, ...rest]);
 }
 
 /**
@@ -721,23 +724,23 @@ export function conj(...args: types.AstNode[]): types.AstNode {
  * @example (seq []) ;=> nil
  */
 export function seq(...args: types.AstNode[]): types.AstNode {
-  types.assertArgumentCount(args.length, 1);
-  const ast = args[0];
-  if (types.isListNode(ast) && ast.value.length > 0) {
-    return ast;
-  }
+	types.assertArgumentCount(args.length, 1);
+	const ast = args[0];
+	if (types.isListNode(ast) && ast.value.length > 0) {
+		return ast;
+	}
 
-  if (types.isVectorNode(ast) && ast.value.length > 0) {
-    return types.createListNode([...ast.value]);
-  }
+	if (types.isVectorNode(ast) && ast.value.length > 0) {
+		return types.createListNode([...ast.value]);
+	}
 
-  if (types.isStringNode(ast) && ast.value.length > 0) {
-    return types.createListNode(
-      ast.value.split('').map((char) => types.createStringNode(char)),
-    );
-  }
+	if (types.isStringNode(ast) && ast.value.length > 0) {
+		return types.createListNode(
+			ast.value.split("").map((char) => types.createStringNode(char)),
+		);
+	}
 
-  return types.createNilNode();
+	return types.createNilNode();
 }
 
 /**
@@ -748,9 +751,9 @@ export function seq(...args: types.AstNode[]): types.AstNode {
  * @example (meta (with-meta (fn* (a) a) {"b" 1})) ;=> {"b" 1}
  */
 export function meta(...args: types.AstNode[]): types.AstNode {
-  types.assertArgumentCount(args.length, 1);
-  types.assertMetadataType(args[0]);
-  return args[0].metadata ?? types.createNilNode();
+	types.assertArgumentCount(args.length, 1);
+	types.assertMetadataType(args[0]);
+	return args[0].metadata ?? types.createNilNode();
 }
 
 /**
@@ -761,13 +764,13 @@ export function meta(...args: types.AstNode[]): types.AstNode {
  * @example (with-meta (fn* (a) a) {"b" 1})
  */
 export function withMeta(...args: types.AstNode[]): types.AstNode {
-  types.assertArgumentCount(args.length, 2);
-  types.assertMetadataType(args[0]);
-  types.assertAstNode(args[1]);
+	types.assertArgumentCount(args.length, 2);
+	types.assertMetadataType(args[0]);
+	types.assertAstNode(args[1]);
 
-  const copy = types.copy(args[0]) as types.MetadataTypes;
-  copy.metadata = args[1];
-  return copy;
+	const copy = types.copy(args[0]) as types.MetadataTypes;
+	copy.metadata = args[1];
+	return copy;
 }
 
 /**
@@ -777,8 +780,8 @@ export function withMeta(...args: types.AstNode[]): types.AstNode {
  * @example (nil? nil) ;=> true
  */
 export function isNil(...args: types.AstNode[]): types.AstNode {
-  types.assertArgumentCount(args.length, 1);
-  return types.createBooleanNode(types.isNilNode(args[0]));
+	types.assertArgumentCount(args.length, 1);
+	return types.createBooleanNode(types.isNilNode(args[0]));
 }
 
 /**
@@ -788,10 +791,8 @@ export function isNil(...args: types.AstNode[]): types.AstNode {
  * @example (true? true) ;=> true
  */
 export function isTrue(...args: types.AstNode[]): types.AstNode {
-  types.assertArgumentCount(args.length, 1);
-  return types.createBooleanNode(
-    types.isBooleanNode(args[0]) && args[0].value,
-  );
+	types.assertArgumentCount(args.length, 1);
+	return types.createBooleanNode(types.isBooleanNode(args[0]) && args[0].value);
 }
 
 /**
@@ -801,10 +802,10 @@ export function isTrue(...args: types.AstNode[]): types.AstNode {
  * @example (false? false) ;=> true
  */
 export function isFalse(...args: types.AstNode[]): types.AstNode {
-  types.assertArgumentCount(args.length, 1);
-  return types.createBooleanNode(
-    types.isBooleanNode(args[0]) && !args[0].value,
-  );
+	types.assertArgumentCount(args.length, 1);
+	return types.createBooleanNode(
+		types.isBooleanNode(args[0]) && !args[0].value,
+	);
 }
 
 /**
@@ -814,8 +815,8 @@ export function isFalse(...args: types.AstNode[]): types.AstNode {
  * @example (string? "foobar") ;=> true
  */
 export function isString(...args: types.AstNode[]): types.AstNode {
-  types.assertArgumentCount(args.length, 1);
-  return types.createBooleanNode(types.isStringNode(args[0]));
+	types.assertArgumentCount(args.length, 1);
+	return types.createBooleanNode(types.isStringNode(args[0]));
 }
 
 /**
@@ -825,9 +826,9 @@ export function isString(...args: types.AstNode[]): types.AstNode {
  * @example (symbol 'abc) ;=> true
  */
 export function symbol(...args: types.AstNode[]): types.AstNode {
-  types.assertArgumentCount(args.length, 1);
-  types.assertStringNode(args[0]);
-  return types.createSymbolNode(args[0].value);
+	types.assertArgumentCount(args.length, 1);
+	types.assertStringNode(args[0]);
+	return types.createSymbolNode(args[0].value);
 }
 
 /**
@@ -840,8 +841,8 @@ export function symbol(...args: types.AstNode[]): types.AstNode {
  * @example (symbol? (symbol "abc")) ;=> true
  */
 export function isSymbolNode(...args: types.AstNode[]): types.AstNode {
-  types.assertArgumentCount(args.length, 1);
-  return types.createBooleanNode(types.isSymbolNode(args[0]));
+	types.assertArgumentCount(args.length, 1);
+	return types.createBooleanNode(types.isSymbolNode(args[0]));
 }
 
 /**
@@ -851,16 +852,16 @@ export function isSymbolNode(...args: types.AstNode[]): types.AstNode {
  * @example (keyword "pie") ;=> :pie
  */
 export function keyword(...args: types.AstNode[]): types.AstNode {
-  types.assertArgumentCount(args.length, 1);
-  types.assertMapKeyNode(args[0]);
+	types.assertArgumentCount(args.length, 1);
+	types.assertMapKeyNode(args[0]);
 
-  const key = args[0];
-  if (types.isKeywordNode(key)) {
-    return key;
-  }
+	const key = args[0];
+	if (types.isKeywordNode(key)) {
+		return key;
+	}
 
-  const string_ = args[0];
-  return types.createKeywordNode(`:${string_.value}`);
+	const string_ = args[0];
+	return types.createKeywordNode(`:${string_.value}`);
 }
 
 /**
@@ -873,8 +874,8 @@ export function keyword(...args: types.AstNode[]): types.AstNode {
  * @example (keyword? (keyword "abc")) ;=> true
  */
 export function isKeyword(...args: types.AstNode[]): types.AstNode {
-  types.assertArgumentCount(args.length, 1);
-  return types.createBooleanNode(types.isKeywordNode(args[0]));
+	types.assertArgumentCount(args.length, 1);
+	return types.createBooleanNode(types.isKeywordNode(args[0]));
 }
 
 /**
@@ -884,8 +885,8 @@ export function isKeyword(...args: types.AstNode[]): types.AstNode {
  * @example (number? 2) ;=> true
  */
 export function isNumber(...args: types.AstNode[]): types.AstNode {
-  types.assertArgumentCount(args.length, 1);
-  return types.createBooleanNode(types.isNumberNode(args[0]));
+	types.assertArgumentCount(args.length, 1);
+	return types.createBooleanNode(types.isNumberNode(args[0]));
 }
 
 /**
@@ -895,10 +896,10 @@ export function isNumber(...args: types.AstNode[]): types.AstNode {
  * @example (fn? (fn* )) ;=> true
  */
 export function isFn(...args: types.AstNode[]): types.AstNode {
-  types.assertArgumentCount(args.length, 1);
-  return types.createBooleanNode(
-    types.isFunctionNode(args[0]) && !args[0].isMacro,
-  );
+	types.assertArgumentCount(args.length, 1);
+	return types.createBooleanNode(
+		types.isFunctionNode(args[0]) && !args[0].isMacro,
+	);
 }
 
 /**
@@ -908,10 +909,10 @@ export function isFn(...args: types.AstNode[]): types.AstNode {
  * @example (macro? ) ;=> true
  */
 export function isMacro(...args: types.AstNode[]): types.AstNode {
-  types.assertArgumentCount(args.length, 1);
-  return types.createBooleanNode(
-    types.isFunctionNode(args[0]) ? args[0].isMacro : false,
-  );
+	types.assertArgumentCount(args.length, 1);
+	return types.createBooleanNode(
+		types.isFunctionNode(args[0]) ? args[0].isMacro : false,
+	);
 }
 
 /**
@@ -921,7 +922,7 @@ export function isMacro(...args: types.AstNode[]): types.AstNode {
  * @example (vector 1 2 3 4) ;=> [1 2 3 4]
  */
 export function vector(...args: types.AstNode[]): types.AstNode {
-  return types.createVectorNode(args);
+	return types.createVectorNode(args);
 }
 
 /**
@@ -931,8 +932,8 @@ export function vector(...args: types.AstNode[]): types.AstNode {
  * @example (vector? [1 2 3]) ;=> true
  */
 export function isVector(...args: types.AstNode[]): types.BooleanNode {
-  types.assertArgumentCount(args.length, 1);
-  return types.createBooleanNode(types.isVectorNode(args[0]));
+	types.assertArgumentCount(args.length, 1);
+	return types.createBooleanNode(types.isVectorNode(args[0]));
 }
 
 /**
@@ -942,26 +943,26 @@ export function isVector(...args: types.AstNode[]): types.BooleanNode {
  * @example (hash-map "foo" 1 "bar" 2) ;=> {"foo" 1 "bar" 2}
  */
 export function hashMap(...args: types.AstNode[]): types.MapNode {
-  if (args.length === 0) {
-    return types.createMapNode();
-  }
+	if (args.length === 0) {
+		return types.createMapNode();
+	}
 
-  // Create a MapNode from another MapNode
-  if (args.length === 1 && types.isMapNode(args[0])) {
-    return types.createMapNode(new Map(args[0].value));
-  }
+	// Create a MapNode from another MapNode
+	if (args.length === 1 && types.isMapNode(args[0])) {
+		return types.createMapNode(new Map(args[0].value));
+	}
 
-  // Create a new MapNode from key/value pairs.
-  types.assertEvenArgumentCount(args.length);
+	// Create a new MapNode from key/value pairs.
+	types.assertEvenArgumentCount(args.length);
 
-  const dict = types.createMapNode();
-  for (let i = 0; i < args.length; i += 2) {
-    const key = args[i];
-    types.assertMapKeyNode(key);
-    types.setMapElement(dict.value, key, args[i + 1]);
-  }
+	const dict = types.createMapNode();
+	for (let i = 0; i < args.length; i += 2) {
+		const key = args[i];
+		types.assertMapKeyNode(key);
+		types.setMapElement(dict.value, key, args[i + 1]);
+	}
 
-  return dict;
+	return dict;
 }
 
 /**
@@ -971,8 +972,8 @@ export function hashMap(...args: types.AstNode[]): types.MapNode {
  * @example (map? {:foo 1 :bar 2}) ;=> true
  */
 export function isMap(...args: types.AstNode[]): types.AstNode {
-  types.assertArgumentCount(args.length, 1);
-  return types.createBooleanNode(types.isMapNode(args[0]));
+	types.assertArgumentCount(args.length, 1);
+	return types.createBooleanNode(types.isMapNode(args[0]));
 }
 
 /**
@@ -982,20 +983,20 @@ export function isMap(...args: types.AstNode[]): types.AstNode {
  * @example (assoc {} 'foo 1 'bar 2) ;=> {'foo 1 'bar 2}
  */
 export function assoc(...args: types.AstNode[]): types.AstNode {
-  types.assertMinimumArgumentCount(args.length, 1);
-  types.assertMapNode(args[0]);
-  const rest = args.slice(1);
+	types.assertMinimumArgumentCount(args.length, 1);
+	types.assertMapNode(args[0]);
+	const rest = args.slice(1);
 
-  // Clone the map from the incoming types.Dict
-  const dict = types.createMapNode(
-    new Map<string, types.AstNode>(args[0].value),
-  );
-  const pairs = hashMap(...rest);
-  for (const [key, value] of pairs.value.entries()) {
-    dict.value.set(key, value);
-  }
+	// Clone the map from the incoming types.Dict
+	const dict = types.createMapNode(
+		new Map<string, types.AstNode>(args[0].value),
+	);
+	const pairs = hashMap(...rest);
+	for (const [key, value] of pairs.value.entries()) {
+		dict.value.set(key, value);
+	}
 
-  return dict;
+	return dict;
 }
 
 /**
@@ -1005,18 +1006,18 @@ export function assoc(...args: types.AstNode[]): types.AstNode {
  * @example ({:foo 1 :bar 2}, :foo) ;=> {:bar 2}
  */
 export function dissoc(...args: types.AstNode[]): types.AstNode {
-  types.assertMinimumArgumentCount(args.length, 1);
-  types.assertMapNode(args[0]);
+	types.assertMinimumArgumentCount(args.length, 1);
+	types.assertMapNode(args[0]);
 
-  const dict = types.createMapNode(
-    new Map<string, types.AstNode>(args[0].value),
-  );
-  for (const dictKey of args.splice(1)) {
-    types.assertMapKeyNode(dictKey);
-    types.deleteMapElement(dict.value, dictKey);
-  }
+	const dict = types.createMapNode(
+		new Map<string, types.AstNode>(args[0].value),
+	);
+	for (const dictKey of args.splice(1)) {
+		types.assertMapKeyNode(dictKey);
+		types.deleteMapElement(dict.value, dictKey);
+	}
 
-  return dict;
+	return dict;
 }
 
 /**
@@ -1026,22 +1027,22 @@ export function dissoc(...args: types.AstNode[]): types.AstNode {
  * @example (get {:foo 1 :bar 2} :bar) ;=> 2
  */
 export function get(...args: types.AstNode[]): types.AstNode {
-  types.assertArgumentCount(args.length, 2);
+	types.assertArgumentCount(args.length, 2);
 
-  const mapNode = args[0];
-  if (!(types.isMapNode(mapNode))) {
-    return types.createNilNode();
-  }
+	const mapNode = args[0];
+	if (!types.isMapNode(mapNode)) {
+		return types.createNilNode();
+	}
 
-  const key = args[1];
-  types.assertMapKeyNode(key);
+	const key = args[1];
+	types.assertMapKeyNode(key);
 
-  const value = types.getMapElement(mapNode.value, key);
-  if (value !== undefined) {
-    return value;
-  }
+	const value = types.getMapElement(mapNode.value, key);
+	if (value !== undefined) {
+		return value;
+	}
 
-  return types.createNilNode();
+	return types.createNilNode();
 }
 
 /**
@@ -1051,13 +1052,13 @@ export function get(...args: types.AstNode[]): types.AstNode {
  * @example (contains? {:foo 1 :bar 2} :bar) ;=> true
  */
 export function contains(...args: types.AstNode[]): types.AstNode {
-  types.assertArgumentCount(args.length, 2);
-  const dict = args[0];
-  const key = args[1];
-  types.assertMapNode(dict);
-  types.assertMapKeyNode(key);
+	types.assertArgumentCount(args.length, 2);
+	const dict = args[0];
+	const key = args[1];
+	types.assertMapNode(dict);
+	types.assertMapKeyNode(key);
 
-  return types.createBooleanNode(types.hasMapElement(dict.value, key));
+	return types.createBooleanNode(types.hasMapElement(dict.value, key));
 }
 
 /**
@@ -1067,9 +1068,9 @@ export function contains(...args: types.AstNode[]): types.AstNode {
  * @example (keys {:foo 1 :bar 2}) ;=> (:foo :bar)
  */
 export function keys(...args: types.AstNode[]): types.AstNode {
-  types.assertArgumentCount(args.length, 1);
-  types.assertMapNode(args[0]);
-  return types.getMapKeys(args[0].value);
+	types.assertArgumentCount(args.length, 1);
+	types.assertMapNode(args[0]);
+	return types.getMapKeys(args[0].value);
 }
 
 /**
@@ -1079,9 +1080,9 @@ export function keys(...args: types.AstNode[]): types.AstNode {
  * @example (vals {:foo 1 :bar 2}) ;=> (1 2)
  */
 export function vals(...args: types.AstNode[]): types.AstNode {
-  types.assertArgumentCount(args.length, 1);
-  types.assertMapNode(args[0]);
-  return types.createListNode([...args[0].value.values()]);
+	types.assertArgumentCount(args.length, 1);
+	types.assertMapNode(args[0]);
+	return types.createListNode([...args[0].value.values()]);
 }
 
 /**
@@ -1092,7 +1093,7 @@ export function vals(...args: types.AstNode[]): types.AstNode {
  * @example (sequential? [1 2 3])
  */
 export function isSequentialNode(...args: types.AstNode[]): types.AstNode {
-  return types.createBooleanNode(types.isSequentialNode(args[0]));
+	return types.createBooleanNode(types.isSequentialNode(args[0]));
 }
 
 /**
@@ -1104,13 +1105,13 @@ export function isSequentialNode(...args: types.AstNode[]): types.AstNode {
  * @example (join [1 2 3] '#') ;=> 1#2#3
  */
 export function join(...args: types.AstNode[]): types.AstNode {
-  types.assertVariableArgumentCount(args.length, 1, 2);
-  types.assertSequential(args[0]);
-  const delim = types.isStringNode(args[1]) ? args[1].value : ' ';
-  const joined = args[0].value
-    .map((ast) => printer.printString(ast, false))
-    .join(delim);
-  return types.createStringNode(joined);
+	types.assertVariableArgumentCount(args.length, 1, 2);
+	types.assertSequential(args[0]);
+	const delim = types.isStringNode(args[1]) ? args[1].value : " ";
+	const joined = args[0].value
+		.map((ast) => printer.printString(ast, false))
+		.join(delim);
+	return types.createStringNode(joined);
 }
 
 /**
@@ -1122,27 +1123,27 @@ export function join(...args: types.AstNode[]): types.AstNode {
  * args[n] - Default clause (statement)
  */
 export function switchCase(...args: types.AstNode[]): types.AstNode {
-  types.assertMinimumArgumentCount(args.length, 2);
-  const [expr, ...clauses] = args;
+	types.assertMinimumArgumentCount(args.length, 2);
+	const [expr, ...clauses] = args;
 
-  const defaultClause = clauses.pop();
-  types.assertDefined(defaultClause);
-  types.assertFunctionNode(defaultClause);
+	const defaultClause = clauses.pop();
+	types.assertDefined(defaultClause);
+	types.assertFunctionNode(defaultClause);
 
-  const length = clauses.length;
-  for (let i = 0; i < length; i++) {
-    const clause = clauses[i];
-    types.assertListNode(clause);
-    types.assertArgumentCount(clause.value.length, 2);
-    types.assertFunctionNode(clause.value[1]);
+	const length = clauses.length;
+	for (let i = 0; i < length; i++) {
+		const clause = clauses[i];
+		types.assertListNode(clause);
+		types.assertArgumentCount(clause.value.length, 2);
+		types.assertFunctionNode(clause.value[1]);
 
-    const result = types.isEqualTo(expr, clause.value[0]);
-    if (result.value) {
-      return clause.value[1].value();
-    }
-  }
+		const result = types.isEqualTo(expr, clause.value[0]);
+		if (result.value) {
+			return clause.value[1].value();
+		}
+	}
 
-  return defaultClause.value();
+	return defaultClause.value();
 }
 
 // function getProp(node: types.MapNode, keyPath: types.StringNode): types.AstNode {

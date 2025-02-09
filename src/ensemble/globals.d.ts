@@ -1,5 +1,5 @@
 declare global {
-  const scriptArgs: string[];
+	const scriptArgs: string[];
 }
 
-export { };
+export {};
