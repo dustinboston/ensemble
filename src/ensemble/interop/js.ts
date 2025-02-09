@@ -1,17 +1,17 @@
-import * as types from '../types';
-import { arrayFunctions } from './js/array';
-import { booleanFunctions } from './js/boolean';
-import { builtInFunctions } from './js/builtin';
-import { dateFunctions } from './js/date';
-import { errorFunctions } from './js/error';
-import { functionFunctions } from './js/function';
-import { mapFunctions } from './js/map';
-import { mathFunctions } from './js/math';
-import { numberFunctions } from './js/number';
-import { operators } from './js/operator';
-import { regExpFunctions } from './js/regexp';
-import { stringFunctions } from './js/string';
-import { symbolFunctions } from './js/symbol';
+import * as types from '../types.ts';
+import { arrayFunctions } from './js/array.ts';
+import { booleanFunctions } from './js/boolean.ts';
+import { builtInFunctions } from './js/builtin.ts';
+import { dateFunctions } from './js/date.ts';
+import { errorFunctions } from './js/error.ts';
+import { functionFunctions } from './js/function.ts';
+import { mapFunctions } from './js/map.ts';
+import { mathFunctions } from './js/math.ts';
+import { numberFunctions } from './js/number.ts';
+import { operators } from './js/operator.ts';
+import { regExpFunctions } from './js/regexp.ts';
+import { stringFunctions } from './js/string.ts';
+import { symbolFunctions } from './js/symbol.ts';
 
 const nsValues: Array<[string, types.Closure]> = [
   ...arrayFunctions,

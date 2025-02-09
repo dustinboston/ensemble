@@ -9,8 +9,8 @@
  * @file
  */
 
-import { initEnv, rep } from '../src/lib';
-import { printString } from '../src/printer';
+import { initEnv, rep } from '../lib.ts';
+import { printString } from '../printer.ts';
 import {
   BooleanNode,
   ListNode,
@@ -20,8 +20,8 @@ import {
   StringNode,
   SymbolNode,
   VectorNode,
-} from '../types';
-import { assertEquals, test } from './test_runner';
+} from '../types.ts';
+import { assertEquals, test } from './test_runner.ts';
 
 test(`QUOTE: Testing regular quote`, () => {
   const sharedEnv = initEnv();

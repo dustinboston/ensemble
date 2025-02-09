@@ -10,12 +10,11 @@
  * @file
  */
 
-import { assertEquals, assertThrows, test } from './test_runner';
-import { assertSpyCalls, spy } from './test_runner.js';
+import { assertEquals, assertSpyCalls, assertThrows, spy, test } from './test_runner.ts';
 
-import { initEnv, rep } from '../src/lib';
-import { printString } from '../src/printer';
-import { ErrorNode, NilNode, NumberNode, StringNode } from '../types';
+import { initEnv, rep } from '../lib.ts';
+import { printString } from '../printer.ts';
+import { ErrorNode, NilNode, NumberNode, StringNode } from '../types.ts';
 
 test(`TRY: Testing throw`, () => {
   const sharedEnv = initEnv();

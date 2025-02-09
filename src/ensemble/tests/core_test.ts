@@ -10,10 +10,10 @@
  * @file
  */
 
-import { initEnv, rep } from '../src/lib';
-import { printString } from '../src/printer';
-import { BooleanNode, KeywordNode, ListNode, NilNode, NumberNode, SymbolNode, VectorNode } from '../types';
-import { assertEquals, assertSpyCalls, spy, test } from './test_runner.js';
+import { initEnv, rep } from '../lib.ts';
+import { printString } from '../printer.ts';
+import { BooleanNode, KeywordNode, ListNode, NilNode, NumberNode, SymbolNode, VectorNode } from '../types.ts';
+import { assertEquals, assertSpyCalls, spy, test } from './test_runner.ts';
 
 test(`CORE: Testing is? functions`, () => {
   const sharedEnv = initEnv();

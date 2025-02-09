@@ -1,4 +1,4 @@
-import * as types from '../../types';
+import * as types from '../../types.ts';
 
 export const builtInFunctions: Array<[string, types.Closure]> = [
   ['decodeURI', globalDecodeUri],

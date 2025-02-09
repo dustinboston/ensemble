@@ -1,6 +1,6 @@
-import { assertEquals, assertThrows, test } from '../../../../tests/test_runner';
-import * as types from '../../types';
-import * as operators from './operator';
+import { assertEquals, assertThrows, test } from '../../tests/test_runner.ts';
+import * as types from '../../types.ts';
+import * as operators from './operator.ts';
 
 // and
 test('and', () => {

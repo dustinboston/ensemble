@@ -1,6 +1,6 @@
-import { assertEquals, assertThrows, test } from '../../../../tests/test_runner';
-import * as types from '../../types';
-import * as builtin from './builtin';
+import { assertEquals, assertThrows, test } from '../../tests/test_runner.ts';
+import * as types from '../../types.ts';
+import * as builtin from './builtin.ts';
 
 test('globalDecodeURI - basic functionality', () => {
   const uri = types.createStringNode('https://example.com/test%20uri');

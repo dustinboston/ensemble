@@ -1,7 +1,7 @@
 // deno-lint-ignore-file no-explicit-any
-import { assertEquals, assertThrows, test } from '../../../../tests/test_runner';
-import * as types from '../../types';
-import * as array from './array';
+import { assertEquals, assertThrows, test } from '../../tests/test_runner.ts';
+import * as types from '../../types.ts';
+import * as array from './array.ts';
 
 // MARK: toArray
 // --------------------------------------------------------------------------------------------------------------------

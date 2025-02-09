@@ -1,6 +1,6 @@
-import { assertEquals, assertThrows, test } from '../../../../tests/test_runner';
-import * as types from '../../types';
-import { getCause, getMessage, getName, newError } from './error';
+import { assertEquals, assertThrows, test } from '../../tests/test_runner.ts';
+import * as types from '../../types.ts';
+import { getCause, getMessage, getName, newError } from './error.ts';
 
 test('newError - one argument', () => {
   const message = types.createStringNode('test error');

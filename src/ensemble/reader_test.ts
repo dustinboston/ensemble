@@ -4,9 +4,9 @@
  * @file
  */
 
-import { assertEquals, assertThrows, test } from '../tests/test_runner.ts';
 import { printString } from './printer.ts';
 import { readAtom, Reader, readForm, readSequence, readString, tokenize, unescapeString } from './reader.ts';
+import { assertEquals, assertThrows, test } from './tests/test_runner.ts';
 import {
   assertDefined,
   createBooleanNode,

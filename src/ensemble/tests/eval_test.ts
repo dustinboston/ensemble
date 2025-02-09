@@ -3,8 +3,8 @@
  * Imported from `step2_eval.mal` tests.
  * @file
  */
-import { initEnv, rep } from '../src/lib';
-import { assertEquals, assertThrows, test } from './test_runner';
+import { initEnv, rep } from '../lib.ts';
+import { assertEquals, assertThrows, test } from './test_runner.ts';
 
 test('EVAL: Should add', () => {
   const env = initEnv();

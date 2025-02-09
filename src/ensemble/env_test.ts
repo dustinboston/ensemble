@@ -1,12 +1,12 @@
-import { assertEquals, assertThrows, test } from '../tests/test_runner.ts';
 import { Env } from './env.ts';
+import { assertEquals, assertThrows, test } from './tests/test_runner.ts';
 import {
-  AstNode,
-  createListNode,
-  createNilNode,
-  createNumberNode,
-  createStringNode,
-  createSymbolNode,
+    AstNode,
+    createListNode,
+    createNilNode,
+    createNumberNode,
+    createStringNode,
+    createSymbolNode,
 } from './types.ts';
 
 test('new Env(): should create a new environment', () => {

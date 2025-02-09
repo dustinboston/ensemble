@@ -1,5 +1,5 @@
-import { assertEquals, assertThrows, test } from '../../../../tests/test_runner';
-import * as types from '../../types';
+import { assertEquals, assertThrows, test } from '../../tests/test_runner.ts';
+import * as types from '../../types.ts';
 import {
   newNumber,
   numberNaN as number_NaN, // Renamed to avoid collision
@@ -20,7 +20,7 @@ import {
   numberPrototypeToFixed,
   numberPrototypeToPrecision,
   numberPrototypeToString,
-} from './number';
+} from './number.ts';
 
 test('newNumber', () => {
   assertEquals(newNumber(types.createNumberNode(1)), types.createNumberNode(1));

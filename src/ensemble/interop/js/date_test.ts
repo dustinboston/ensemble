@@ -1,6 +1,6 @@
-import { assertEquals, assertThrows, test } from '../../../../tests/test_runner';
-import * as types from '../../types';
-import * as dates from './date';
+import { assertEquals, assertThrows, test } from '../../tests/test_runner.ts';
+import * as types from '../../types.ts';
+import * as dates from './date.ts';
 
 test('newDate - no arguments', () => {
   const now = Date.now();

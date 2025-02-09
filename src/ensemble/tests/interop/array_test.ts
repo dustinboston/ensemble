@@ -1,5 +1,5 @@
-import { initEnv, rep } from '../../src/lib';
-import { assertEquals, test } from '../test_runner';
+import { initEnv, rep } from '../../lib.ts';
+import { assertEquals, test } from '../test_runner.ts';
 
 const replEnv = initEnv();
 

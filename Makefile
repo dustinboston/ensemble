@@ -2,9 +2,33 @@
 # executable using QuickJS-NG. QuickJS-NG is a fork of the QuickJS JavaScript 
 # engine that is actively maintained.
 #
-# NOTE: It is not possible to run the tests in parallel at the moment because
-# there were previously Deno steps that are run in a specific order. The
-# conversion to QuickJS does not address this.
+# **Note About Parallel Testing** 
+# It is not possible to run the tests in parallel at the moment because there 
+# when this code was ported from Deno to QuickJS there were tests with steps.
+# These tests were not modified during conversion and remain order-dependent.
+# 
+# **Note Regarding Compiling**
+# QuickJS-NG does NOT compile the same way that QuickJS does it.
+# See https://quickjs-ng.github.io/quickjs/cli for more information.
+#
+# **Directory Structure**
+# root
+# ├── bin
+# ├── lib
+# │   └── quickjs
+# │       └── build
+# ├── src
+# │   ├── ensemble
+# │   │   ├── build
+# │   │   └── tests
+# │   ├── examples
+# │   └── extension
+# ├── var
+# │   ├── data
+# │   ├── generated
+# │   └── reference
+# └── Makefile
+#
 
 # Variables
 PYTHON=python
@@ -19,83 +43,89 @@ ENSEMBLE_BUILD_DIR=$(ENSEMBLE_SRC_DIR)/build
 ENSEMBLE_BUNDLE_FILE=$(BIN_DIR)/ensemble.js
 ENSEMBLE_TESTS_DIR=$(ENSEMBLE_SRC_DIR)/tests
 ENSEMBLE_TS_FILES:=$(shell find $(ENSEMBLE_SRC_DIR) -name '*.ts')
+EXTENSION_DIR=./src/extension
 QJS_BINARY_FILE=$(BIN_DIR)/qjs
-QJSC_BINARY_FILE=$(BIN_DIR)/qjsc
 QUICKJS_DIR=./lib/quickjs
 QUICKJS_BUILD_DIR=$(QUICKJS_DIR)/build
-
+EXTENSION_VERSION=0.0.5
 
 # Targets
-.PHONY: clean build test install package
+.PHONY: clean build test install package repl $(BIN_DIR)
 
 all: build
 
+# # Create the bin directory (and make qjs executables executable)
+# $(BIN_DIR):
+# 	mkdir -p $(BIN_DIR)
+
+# Copy the QuickJS binary to the bin directory. Note, 
+$(QJS_BINARY_FILE): $(QUICKJS_BUILD_DIR)/qjs $(BIN_DIR)
+	@cp "$(QUICKJS_BUILD_DIR)/$(notdir $@)" $@; chmod +x $@
+
 # Compile the ensemble.js interpreter into a standalone binary
-$(ENSEMBLE_BINARY_FILE): $(QJSC_BINARY_FILE) $(ENSEMBLE_BUNDLE_FILE)
-	$(QJSC_BINARY_FILE) -o "$(ENSEMBLE_BINARY_FILE)" "$(ENSEMBLE_BUNDLE_FILE)"
+$(ENSEMBLE_BINARY_FILE): $(QJS_BINARY_FILE) $(ENSEMBLE_BUNDLE_FILE)
+	$(QJS_BINARY_FILE) --std --module --out "$(ENSEMBLE_BINARY_FILE)" --compile "$(ENSEMBLE_BUNDLE_FILE)"
 
-# Convert Ensemble Typescript to JavaScript and bundle into a single file
-# --banner:js="import * as std from 'std'; import * as os from 'os';"
+# Bundle Typescript into a single file. See "Note Regarding Compiling".
 $(ENSEMBLE_BUNDLE_FILE): $(ENSEMBLE_TS_FILES)
-	$(NODE) esbuild --bundle "$(ENSEMBLE_SRC_DIR)/cli.ts" --outfile="$(ENSEMBLE_BUNDLE_FILE)" --format=esm --external:std --external:os
+	$(NODE) esbuild "$(ENSEMBLE_SRC_DIR)/cli.ts" --outfile="$(ENSEMBLE_BUNDLE_FILE)" --bundle --format=esm --minify --platform=neutral --target=esnext --external:qjs:* --main-fields=main,module
 
-# Copy the QuickJS compiler and interpreter binaries to the bin directory
-$(QJSC_BINARY_FILE) $(QJS_BINARY_FILE): $(QUICKJS_BUILD_DIR)/qjsc $(QUICKJS_BUILD_DIR)/qjs
-	@if [ -f "$(QUICKJS_BUILD_DIR)/qjsc" ]; then cp "$(QUICKJS_BUILD_DIR)/qjsc" $(QJSC_BINARY_FILE); fi
-	@if [ -f "$(QUICKJS_BUILD_DIR)/qjs" ]; then cp "$(QUICKJS_BUILD_DIR)/qjs" $(QJS_BINARY_FILE); fi
-
-# Ensure that the quickjs compiler an interpreters are built
-$(QUICKJS_BUILD_DIR)/qjsc $(QUICKJS_BUILD_DIR)/qjs: $(QUICKJS_DIR)/Makefile
+# Ensure that the QuickJS compiler and interpreter are built
+$(QUICKJS_BUILD_DIR)/qjs: $(QUICKJS_DIR)/Makefile
 	cd "$(QUICKJS_DIR)" && make
 
 # Compile all of the Typescript files to JavaScript in the build directory
-$(ENSEMBLE_BUILD_DIR)/cli.js: $(ENSEMBLE_TS_FILES)
+$(ENSEMBLE_BUILD_DIR)/%.js: $(ENSEMBLE_TS_FILES)
 	cd "$(ENSEMBLE_SRC_DIR)" && tsc --build
 
+# # Test compilation rules
+# $(ENSEMBLE_BUILD_DIR)/%_test.js: $(ENSEMBLE_SRC_DIR)/%.ts $(ENSEMBLE_BUILD_DIR)/cli.js
+# 	$(NODE) esbuild --bundle $< --outfile $@ --format=esm --external:std --external:os
+
+# $(ENSEMBLE_BUILD_DIR)/tests/%_test.js: $(ENSEMBLE_SRC_DIR)/tests/%.ts $(ENSEMBLE_BUILD_DIR)/cli.js
+# 	$(NODE) esbuild --bundle $< --outfile $@ --format=esm --external:std --external:os
+
 # Build the Ensemble CLI JavaScript file and standalone binary
-build: $(ENSEMBLE_BUNDLE_FILE) $(ENSEMBLE_BINARY_FILE)
+build: $(QJS_BINARY_FILE) $(ENSEMBLE_BUNDLE_FILE) $(ENSEMBLE_BINARY_FILE) $(ENSEMBLE_BUILD_DIR)/%.js
+	# $(ENSEMBLE_BUILD_DIR)/%.js $(ENSEMBLE_BUILD_DIR)/tests/%_test.js
 
-# Clean the build directory, build Typescript files, and the quickjs binaries
+# Clean the Ensemble build directory and artifacts
 clean:
-	# Remove TypeScript build directory
-	@if [ -d "$(ENSEMBLE_BUILD_DIR)" ]; then rm -rf "$(ENSEMBLE_BUILD_DIR)"; fi  
+	@if [ -d "$(ENSEMBLE_BUILD_DIR)" ]; then cd "$(ENSEMBLE_SRC_DIR)" && tsc --build --clean; fi  
+	@if [ -f "$(ENSEMBLE_BUNDLE_FILE)" ]; then rm $(ENSEMBLE_BUNDLE_FILE); fi
+	@if [ -f "$(ENSEMBLE_BINARY_FILE)" ]; then rm $(ENSEMBLE_BINARY_FILE); fi
 	
-	# Remove bundled JavaScript file
-	@if [ -f "$(ENSEMBLE_BUNDLE_FILE)" ]; then rm "$(ENSEMBLE_BUNDLE_FILE)"; fi
-
-	# Remove standalone binary
-	@if [ -f "$(ENSEMBLE_BINARY_FILE)" ]; then rm "$(ENSEMBLE_BINARY_FILE)"; fi
-
-	# Clean TypeScript artifacts
-	cd "$(ENSEMBLE_SRC_DIR)" && tsc --build --clean
-
-	# Clean QuickJS build artifacts
+# Cleans up the QuickJS build directory and artifacts
+deep-clean: clean
 	@if [ -d "$(QUICKJS_DIR)" ]; then cd "$(QUICKJS_DIR)" && make clean; fi
-
-	# Remove QuickJS build directory
 	@if [ -d "$(QUICKJS_BUILD_DIR)" ]; then rm -rf "$(QUICKJS_BUILD_DIR)"; fi
+	@if [ -f "$(QJS_BINARY_FILE)" ]; then rm $(QJS_BINARY_FILE); fi
 
+# # Install syntax and snippets extensions
+# install: package
+# 	cd $(EXTENSION_DIR) && npm install
+# 	code --install-extension $(EXTENSION_DIR)/ensemble-syntax-$(EXTENSION_VERSION).vsix
 
-# Install syntax and snippets extensions
-install: package
-	npm install -g $(VSCE)
-	code --install-extension ./syntax/ensemble-syntax-0.0.5.vsix
-
-# Package syntax and snippets extensions
-package:
-	cd syntax && $(VSCE) package
+# # Package syntax and snippets extensions
+# package:
+# 	cd $(EXTENSION_DIR) && $(NODE) $(VSCE) package
 
 # Testing
-test: test-e2e test-fun test-unit
+# test-e2e test-fun 
+test: test-unit-fun test-e2e
 
 test-e2e:
 	$(PYTHON) "$(BIN_DIR)/runtest.py" --deferrable --optional "$(ENSEMBLE_TESTS_DIR)/stepA_mal.mal" -- $(BIN_DIR)/run
 
-test-fun: $(ENSEMBLE_BUILD_DIR)/cli.js
-	@find "$(ENSEMBLE_BUILD_DIR)/tests" -type f -name '*_test.js' -print0 | xargs -0 -I {} $(QJS_BINARY_FILE) {}
+# # Run functional tests in the tests directory.
+# test-fun: $(ENSEMBLE_BUILD_DIR)/tests/%_test.js
+# 	find "$(ENSEMBLE_BUILD_DIR)/tests" -type f -name '*_test.js' -print0 -exec $(QJS_BINARY_FILE) {} \;
 
-test-unit: $(ENSEMBLE_BUILD_DIR)/io.js
-	@find "$(ENSEMBLE_BUILD_DIR)" -type f -name '*_test.js' -print0 | while IFS= read -r -d '' file; do \
-		echo "Running $$file"; \
-		$(QJS_BINARY_FILE) --std "$$file"; \
-	done
+# Run both unit tests and functional tests.
+test-unit-fun: $(ENSEMBLE_BUILD_DIR)/%_test.js
+	find "$(ENSEMBLE_BUILD_DIR)" -type f -name '*_test.js' -print0 -exec $(QJS_BINARY_FILE) {} \;
+
+# # Start the repl
+# repl: $(ENSEMBLE_BUNDLE_FILE) $(QJS_BINARY_FILE)
+# 	$(QJS_BINARY_FILE) --std --module "$(ENSEMBLE_BUNDLE_FILE)"
+

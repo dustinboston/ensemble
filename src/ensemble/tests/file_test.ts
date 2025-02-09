@@ -8,10 +8,10 @@
  *
  * @file
  */
-import { initMain, rep } from '../src/io';
-import { printString } from '../src/printer';
-import { AtomNode, BooleanNode, ListNode, MapNode, NilNode, NumberNode, StringNode, SymbolNode } from '../types';
-import { assertEquals, test } from './test_runner';
+import { initMain, rep } from '../io.ts';
+import { printString } from '../printer.ts';
+import { AtomNode, BooleanNode, ListNode, MapNode, NilNode, NumberNode, StringNode, SymbolNode } from '../types.ts';
+import { assertEquals, test } from './test_runner.ts';
 
 test('FILE: Execute the program in a sub process', () => {
   assertEquals(

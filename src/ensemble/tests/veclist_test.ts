@@ -9,11 +9,11 @@
  * @file
  */
 
-import { assertEquals, test } from './test_runner';
+import { assertEquals, test } from './test_runner.ts';
 
-import { initEnv, rep } from '../src/lib';
-import { printString } from '../src/printer';
-import { ListNode, NilNode, NumberNode, StringNode, VectorNode } from '../types';
+import { initEnv, rep } from '../lib.ts';
+import { printString } from '../printer.ts';
+import { ListNode, NilNode, NumberNode, StringNode, VectorNode } from '../types.ts';
 
 test(`VECLIST: Testing vec function`, () => {
   const sharedEnv = initEnv();

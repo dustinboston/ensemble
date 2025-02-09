@@ -4,7 +4,7 @@
 
 // TODO: Move assertions functions for Ensemble *forms* into ensemble.ts
 
-import { type Env } from './env';
+import { type Env } from './env.ts';
 
 // MARK: TYPES
 // =============================================================================

@@ -1,6 +1,6 @@
-import { assertEquals, assertThrows, test } from '../../../../tests/test_runner';
-import * as types from '../../types';
-import * as bool from './boolean';
+import { assertEquals, assertThrows, test } from '../../tests/test_runner.ts';
+import * as types from '../../types.ts';
+import * as bool from './boolean.ts';
 
 test('toBoolean - truthy values', () => {
   const values = [

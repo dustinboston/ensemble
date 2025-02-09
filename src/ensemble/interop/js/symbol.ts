@@ -1,4 +1,4 @@
-import * as types from '../../types';
+import * as types from '../../types.ts';
 
 export const symbolFunctions: Array<[string, types.Closure]> = [
   ['Symbol', symbolConstructor],

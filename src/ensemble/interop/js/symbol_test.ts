@@ -1,6 +1,6 @@
-import { assertEquals, assertThrows, test } from '../../../../tests/test_runner';
-import * as types from '../../types';
-import { symbolConstructor, symbolFor, symbolKeyFor } from './symbol';
+import { assertEquals, assertThrows, test } from '../../tests/test_runner.ts';
+import * as types from '../../types.ts';
+import { symbolConstructor, symbolFor, symbolKeyFor } from './symbol.ts';
 
 test('symbolConstructor - no description', () => {
   const result = symbolConstructor();

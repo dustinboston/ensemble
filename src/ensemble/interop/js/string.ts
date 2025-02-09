@@ -1,5 +1,5 @@
-import * as core from '../../core';
-import * as types from '../../types';
+import * as core from '../../core.ts';
+import * as types from '../../types.ts';
 
 export const stringFunctions: Array<[string, types.Closure]> = [
   ['String', core.printUnescapedString],

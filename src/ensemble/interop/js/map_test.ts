@@ -1,6 +1,6 @@
-import { assertEquals, test } from '../../../../tests/test_runner';
-import * as types from '../../types';
-import * as mapFunctions from './map';
+import { assertEquals, test } from '../../tests/test_runner.ts';
+import * as types from '../../types.ts';
+import * as mapFunctions from './map.ts';
 
 // Hash-map
 test('mapNew(): should create a map from alternating args', () => {

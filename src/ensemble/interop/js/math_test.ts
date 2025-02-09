@@ -1,6 +1,6 @@
-import { assertEquals, assertThrows, test } from '../../../../tests/test_runner';
-import * as types from '../../types';
-import * as mathFunctions from './math';
+import { assertEquals, assertThrows, test } from '../../tests/test_runner.ts';
+import * as types from '../../types.ts';
+import * as mathFunctions from './math.ts';
 
 // Test cases for Math functions
 // You'll need to adapt the `createNumberNode` parts based on your actual type system

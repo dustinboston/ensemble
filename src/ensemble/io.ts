@@ -1,15 +1,14 @@
+/// <reference path="./qjs.d.ts" />
+
+import * as os from 'qjs:os';
+import * as std from 'qjs:std';
+
 import * as env from './env.ts';
 import { initEnv, rep } from './lib.ts';
 import * as printer from './printer.ts';
 import * as types from './types.ts';
 
 export { rep };
-
-declare global {
-  const std: any;
-  const os: any;
-  const scriptArgs: string[];
-}
 
 const defaultPrompt = 'user> ';
 

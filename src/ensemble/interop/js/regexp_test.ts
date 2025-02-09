@@ -1,6 +1,6 @@
-import { assert, assertEquals, assertThrows, test } from '../../../../tests/test_runner';
-import * as types from '../../types';
-import * as fns from './regexp';
+import { assert, assertEquals, assertThrows, test } from '../../tests/test_runner.ts';
+import * as types from '../../types.ts';
+import * as fns from './regexp.ts';
 
 const { createRegExp } = fns;
 

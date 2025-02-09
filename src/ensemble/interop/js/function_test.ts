@@ -1,6 +1,6 @@
-import { assertEquals, assertThrows, test } from '../../../../tests/test_runner';
-import * as types from '../../types';
-import { apply, bind, call, jsEval } from './function';
+import { assertEquals, assertThrows, test } from '../../tests/test_runner.ts';
+import * as types from '../../types.ts';
+import { apply, bind, call, jsEval } from './function.ts';
 
 // jsEval
 // --------------------------------------------------------------------------------------------------------------------

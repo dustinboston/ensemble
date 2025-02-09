@@ -4,23 +4,23 @@
  * @file
  */
 
-import { assertEquals, assertThrows, test } from '../tests/test_runner.ts';
 import { printString } from './printer.ts';
+import { assertEquals, assertThrows, test } from './tests/test_runner.ts';
 import {
-  AstNode,
-  createAtomNode,
-  createBooleanNode,
-  createDomNode,
-  createErrorNode,
-  createFunctionNode,
-  createKeywordNode,
-  createListNode,
-  createMapNode,
-  createNilNode,
-  createNumberNode,
-  createStringNode,
-  createSymbolNode,
-  createVectorNode,
+    AstNode,
+    createAtomNode,
+    createBooleanNode,
+    createDomNode,
+    createErrorNode,
+    createFunctionNode,
+    createKeywordNode,
+    createListNode,
+    createMapNode,
+    createNilNode,
+    createNumberNode,
+    createStringNode,
+    createSymbolNode,
+    createVectorNode,
 } from './types.ts';
 
 test('printString(): should print strings without quotes if printReadably is false', () => {

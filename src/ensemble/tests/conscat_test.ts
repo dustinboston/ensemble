@@ -10,11 +10,11 @@
  * @file
  */
 
-import { assertEquals, test } from './test_runner';
+import { assertEquals, test } from './test_runner.ts';
 
-import { initEnv, rep } from '../src/lib';
-import { printString } from '../src/printer';
-import { BooleanNode, ListNode, NumberNode, VectorNode } from '../types';
+import { initEnv, rep } from '../lib.ts';
+import { printString } from '../printer.ts';
+import { BooleanNode, ListNode, NumberNode, VectorNode } from '../types.ts';
 
 test(`Cons/Concat: Testing cons function`, async () => {
   const sharedEnv = initEnv();

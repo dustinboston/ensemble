@@ -1,6 +1,6 @@
-import { assertEquals, assertThrows, test } from '../../../../tests/test_runner';
-import * as types from '../../types';
-import * as stringFns from './string';
+import { assertEquals, assertThrows, test } from '../../tests/test_runner.ts';
+import * as types from '../../types.ts';
+import * as stringFns from './string.ts';
 
 test('stringFromCharCode - valid vector of numbers', () => {
   const astArgs = [types.createVectorNode([

@@ -1,6 +1,6 @@
-import { assertEquals, assertThrows, test } from '../../../../tests/test_runner';
-import * as types from '../../types';
-import { parseJson, stringifyJson } from './json';
+import { assertEquals, assertThrows, test } from '../../tests/test_runner.ts';
+import * as types from '../../types.ts';
+import { parseJson, stringifyJson } from './json.ts';
 
 // parseJson
 // --------------------------------------------------------------------------------------------------------------------
@@ -35,7 +35,6 @@ test('stringifyJson - basic ast', () => {
   const replacer = types.createNilNode();
   const space = types.createStringNode(''); // No space
   const result = stringifyJson(ast, replacer, space);
-  console.log(result);
   assertEquals(types.isStringNode(result), true);
   assertEquals(result.value, '{"a":1}');
 });
@@ -45,8 +44,6 @@ test('stringifyJson - with space number', () => {
   const replacer = types.createNilNode();
   const space = types.createNumberNode(2);
   const result = stringifyJson(ast, replacer, space);
-
-  console.log(result);
   assertEquals(types.isStringNode(result), true);
   assertEquals(result.value, '{\n  "a": 1\n}');
 });

@@ -1,5 +1,5 @@
-import { assert, assertEquals, assertInstanceOf, assertSpyCall, assertSpyCalls, assertStrictEquals, assertThrows, ignoreTest, spy, test } from '../tests/test_runner.ts';
 import * as core from './core.ts';
+import { assert, assertEquals, assertInstanceOf, assertSpyCall, assertSpyCalls, assertStrictEquals, assertThrows, ignoreTest, spy, test } from './tests/test_runner.ts';
 import * as types from './types.ts';
 
 test('eq(): returns true for equal nodes', () => {

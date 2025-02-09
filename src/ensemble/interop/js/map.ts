@@ -1,4 +1,4 @@
-import * as types from '../../types';
+import * as types from '../../types.ts';
 
 export const mapFunctions: Array<[string, types.Closure]> = [
   ['Map.isMap', mapIsMap], // Added method

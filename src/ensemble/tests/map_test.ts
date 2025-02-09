@@ -8,10 +8,10 @@
  * @file
  */
 
-import { initEnv, rep } from '../src/lib';
-import { printString } from '../src/printer';
-import { BooleanNode, KeywordNode, ListNode, MapNode, NilNode, NumberNode, StringNode } from '../types';
-import { assertEquals, test } from './test_runner';
+import { initEnv, rep } from '../lib.ts';
+import { printString } from '../printer.ts';
+import { BooleanNode, KeywordNode, ListNode, MapNode, NilNode, NumberNode, StringNode } from '../types.ts';
+import { assertEquals, test } from './test_runner.ts';
 
 test(`MAP: Testing MapNode`, () => {
   test(

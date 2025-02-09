@@ -36,5 +36,8 @@
     "type": "git",
     "url": "git+https://github.com/dustinboston/ensemble.git",
     "directory": "syntax"
+  },
+  "devDependencies": {
+    "vsce": "^2.15.0"
   }
 }

@@ -8,10 +8,10 @@
  * @file
  */
 
-import { initEnv, rep } from '../src/lib';
-import { printString } from '../src/printer';
-import { BooleanNode, ListNode, NilNode, NumberNode, StringNode, SymbolNode, VectorNode } from '../types';
-import { assertEquals, test } from './test_runner';
+import { initEnv, rep } from '../lib.ts';
+import { printString } from '../printer.ts';
+import { BooleanNode, ListNode, NilNode, NumberNode, StringNode, SymbolNode, VectorNode } from '../types.ts';
+import { assertEquals, test } from './test_runner.ts';
 
 test(`MACRO: Testing ' (quote) reader macro`, () => {
   const sharedEnv = initEnv();

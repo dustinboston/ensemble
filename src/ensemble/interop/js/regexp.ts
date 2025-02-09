@@ -1,4 +1,4 @@
-import * as types from '../../types';
+import * as types from '../../types.ts';
 
 export const regExpFunctions: Array<[string, types.Closure]> = [
   ['RegExp.new', newRegExp],
