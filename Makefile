@@ -76,7 +76,7 @@ $(QUICKJS_BUILD_DIR)/qjs: $(QUICKJS_DIR)/Makefile
 
 # Compile all of the Typescript files to JavaScript in the build directory
 $(ENSEMBLE_BUILD_DIR)/%.js: $(ENSEMBLE_TS_FILES)
-	cd "$(ENSEMBLE_SRC_DIR)" && tsc --build
+	cd "$(ENSEMBLE_SRC_DIR)" && $(NODE) tsc --build
 
 # # Test compilation rules
 # $(ENSEMBLE_BUILD_DIR)/%_test.js: $(ENSEMBLE_SRC_DIR)/%.ts $(ENSEMBLE_BUILD_DIR)/cli.js
@@ -91,7 +91,7 @@ build: $(QJS_BINARY_FILE) $(ENSEMBLE_BUNDLE_FILE) $(ENSEMBLE_BINARY_FILE) $(ENSE
 
 # Clean the Ensemble build directory and artifacts
 clean:
-	@if [ -d "$(ENSEMBLE_BUILD_DIR)" ]; then cd "$(ENSEMBLE_SRC_DIR)" && tsc --build --clean; fi  
+	@if [ -d "$(ENSEMBLE_BUILD_DIR)" ]; then cd "$(ENSEMBLE_SRC_DIR)" && $(NODE) tsc --build --clean; fi  
 	@if [ -f "$(ENSEMBLE_BUNDLE_FILE)" ]; then rm $(ENSEMBLE_BUNDLE_FILE); fi
 	@if [ -f "$(ENSEMBLE_BINARY_FILE)" ]; then rm $(ENSEMBLE_BINARY_FILE); fi
 	
