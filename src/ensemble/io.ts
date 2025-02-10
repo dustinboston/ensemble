@@ -13,7 +13,7 @@ export { rep };
 const defaultPrompt = "user> ";
 
 export function writeToFile(text: string, filePath: string) {
-	let file: any = null;
+	let file: File | null = null;
 	try {
 		file = std.open(filePath, "w"); // Open file for writing ("w" mode)
 		if (file !== null) file.puts(text); // Write content to the file
@@ -217,7 +217,7 @@ export function initMain() {
 	return replEnv;
 }
 
-export function toPosixPath(filePath: string = ""): string {
+export function toPosixPath(filePath = ""): string {
 	return filePath.replace(/\\/g, "/");
 }
 
@@ -276,3 +276,18 @@ export async function main(...args: string[]) {
 		}
 	}
 }
+
+export default {
+	displayPrompt,
+	initMain,
+	loadFileWithEnv,
+	main,
+	readir,
+	readline,
+	readln,
+	rep,
+	slurp,
+	spit,
+	toPosixPath,
+	writeToFile,
+};

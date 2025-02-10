@@ -1,16 +1,5 @@
-import * as core from "./core.ts";
-import runner, {
-	assert,
-	assertEquals,
-	assertInstanceOf,
-	assertSpyCall,
-	assertSpyCalls,
-	assertStrictEquals,
-	assertThrows,
-	skip,
-	spy,
-	test,
-} from "./tests/test_runner.ts";
+import core from "./core.ts";
+import runner from "./tests/test_runner.ts";
 import * as types from "./types.ts";
 
 runner.test("eq(): returns true for equal nodes", () => {
@@ -20,294 +9,391 @@ runner.test("eq(): returns true for equal nodes", () => {
 	);
 });
 
-test("eq(): returns false for unequal nodes", () => {
-	assertEquals(
+runner.test("eq(): returns false for unequal nodes", () => {
+	runner.assert(
 		core.eq(types.createNumberNode(1), types.createNumberNode(2)),
 		types.createBooleanNode(false),
 	);
 });
 
-test("printEscapedString(): returns escaped string", () => {
-	assertEquals(
+runner.test("printEscapedString(): returns escaped string", () => {
+	runner.assert(
 		core.printEscapedString(types.createStringNode("abc\ndef\nghi")),
 		types.createStringNode('"abc\\ndef\\nghi"'),
 	);
 });
 
-test("printUnescapedString(): returns unescaped string", () => {
-	assertEquals(
+runner.test("printUnescapedString(): returns unescaped string", () => {
+	runner.assert(
 		core.printUnescapedString(types.createStringNode("abc\ndef\nghi")),
 		types.createStringNode("abc\ndef\nghi"),
 	);
 });
 
-test("printEscapedStringToScreen(): logs the escaped string", () => {
-	const logSpy = spy(console, "log");
+runner.test("printEscapedStringToScreen(): logs the escaped string", () => {
+	const oldLog = console.log;
+	let calls = 0;
+	let args: string[] = [];
+	console.log = (...x) => {
+		args = x;
+		calls++;
+	};
 
 	try {
-		assertEquals(
+		runner.assert(
 			core.printEscapedStringToScreen(types.createStringNode("abc\ndef\nghi")),
 			types.createNilNode(),
 		);
 	} finally {
-		logSpy.restore();
+		console.log = oldLog;
 	}
 
-	assertSpyCall(logSpy, 0, { args: ['"abc\\ndef\\nghi"'] });
-	assertSpyCalls(logSpy, 1);
+	runner.assert(args, ['"abc\\ndef\\nghi"']);
+	runner.assert(calls, 1);
 });
 
-skip("printEscapedStringToScreen(): logs the unescaped string", () => {
-	const logSpy = spy(console, "log");
+runner.test("printUnescapedStringToScreen(): logs the unescaped string", () => {
+	const oldLog = console.log;
+	let calls = 0;
+	let args: string[] = [];
+	console.log = (...x) => {
+		args = x;
+		calls++;
+	};
 
 	try {
-		assertEquals(
+		runner.assert(
 			core.printUnescapedStringToScreen(
 				types.createStringNode("abc\ndef\nghi"),
 			),
 			types.createNilNode(),
 		);
 	} finally {
-		logSpy.restore();
+		console.log = oldLog;
 	}
 
-	assertSpyCall(logSpy, 0, { args: ["abc\ndef\nghi"] });
-	assertSpyCalls(logSpy, 1);
+	runner.assert(args, ['"abc\\ndef\\nghi"']);
+	runner.assert(calls, 1);
 });
 
-test("readString(): should read string and return AST", () => {
+runner.test("readString(): should read string and return AST", () => {
 	const input = types.createStringNode("(+ 2 3)");
 	const expected = types.createListNode([
 		types.createSymbolNode("+"),
 		types.createNumberNode(2),
 		types.createNumberNode(3),
 	]);
-	assertEquals(core.readString(input), expected);
+	runner.assert(core.readString(input), expected);
 });
 
-test("readString(): throws when there are zero arguments", () => {
-	assertThrows(() => core.readString());
+runner.test("readString(): throws when there are zero arguments", () => {
+	let threw = false;
+	try {
+		core.readString();
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
 });
 
-test("readString(): throws when there is more than one argument", () => {
-	assertThrows(() =>
+runner.test("readString(): throws when there is more than one argument", () => {
+	let threw = false;
+	try {
 		core.readString(
 			types.createStringNode("foo"),
 			types.createStringNode("bar"),
-		),
-	);
+		);
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
 });
 
-test("readString(): should throw when argument is not a string", () => {
-	assertThrows(() => core.readString(types.createNumberNode(42)));
+runner.test("readString(): should throw when argument is not a string", () => {
+	let threw = false;
+	try {
+		core.readString(types.createNumberNode(42));
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
 });
 
-test("trim(): should trim whitespace from the start and end of a string", () => {
-	assertEquals(
-		core.trim(types.createStringNode("  hello  ")),
-		types.createStringNode("hello"),
-	);
-});
+runner.test(
+	"trim(): should trim whitespace from the start and end of a string",
+	() => {
+		runner.assert(
+			core.trim(types.createStringNode("  hello  ")),
+			types.createStringNode("hello"),
+		);
+	},
+);
 
-test("trim(): should throw an error when no arguments are provided", () => {
-	assertThrows(() => {
-		core.trim();
-	});
-});
+runner.test(
+	"trim(): should throw an error when no arguments are provided",
+	() => {
+		let threw = false;
+		try {
+			core.trim();
+		} catch (e) {
+			threw = true;
+		}
+		runner.assert(threw, true);
+	},
+);
 
-test("trim(): should throw an error when more than one argument is provided", () => {
-	assertThrows(() => {
-		core.trim(types.createStringNode("hello"), types.createStringNode("world"));
-	});
-});
+runner.test(
+	"trim(): should throw an error when more than one argument is provided",
+	() => {
+		let threw = false;
+		try {
+			core.trim(
+				types.createStringNode("hello"),
+				types.createStringNode("world"),
+			);
+		} catch (e) {
+			threw = true;
+		}
+		runner.assert(threw, true);
+	},
+);
 
-test("trim(): should throw an error when the argument is not a string", () => {
-	assertThrows(() => {
-		core.trim(types.createNumberNode(123));
-	});
-});
+runner.test(
+	"trim(): should throw an error when the argument is not a string",
+	() => {
+		let threw = false;
+		try {
+			core.trim(types.createNumberNode(123));
+		} catch (e) {
+			threw = true;
+		}
+		runner.assert(threw, true);
+	},
+);
 
 // Test for '<'
-test("lt(): should return false if 'a' is greater than 'b'", () => {
+runner.test("lt(): should return false if 'a' is greater than 'b'", () => {
 	const result1 = core.lt(types.createNumberNode(2), types.createNumberNode(1));
-	assertEquals(result1, types.createBooleanNode(false));
+	runner.assert(result1, types.createBooleanNode(false));
 });
 
-test("lt(): should return false if 'a' is equal to 'b'", () => {
+runner.test("lt(): should return false if 'a' is equal to 'b'", () => {
 	const result1 = core.lt(types.createNumberNode(1), types.createNumberNode(1));
-	assertEquals(result1, types.createBooleanNode(false));
+	runner.assert(result1, types.createBooleanNode(false));
 });
 
-test("lt(): should return true if 'a' is less than 'b'", () => {
+runner.test("lt(): should return true if 'a' is less than 'b'", () => {
 	const result2 = core.lt(types.createNumberNode(1), types.createNumberNode(2));
-	assertEquals(result2, types.createBooleanNode(true));
+	runner.assert(result2, types.createBooleanNode(true));
 });
 
 // Test for '<='
-test("lte(): should return false if 'a' is greater than 'b'", () => {
+runner.test("lte(): should return false if 'a' is greater than 'b'", () => {
 	const result1 = core.lte(
 		types.createNumberNode(2),
 		types.createNumberNode(1),
 	);
-	assertEquals(result1, types.createBooleanNode(false));
+	runner.assert(result1, types.createBooleanNode(false));
 });
 
-test("lte(): should return true if 'a' is equal to 'b'", () => {
+runner.test("lte(): should return true if 'a' is equal to 'b'", () => {
 	const result2 = core.lte(
 		types.createNumberNode(1),
 		types.createNumberNode(1),
 	);
-	assertEquals(result2, types.createBooleanNode(true));
+	runner.assert(result2, types.createBooleanNode(true));
 });
 
-test("lte(): should return true if 'a' is less than 'b'", () => {
+runner.test("lte(): should return true if 'a' is less than 'b'", () => {
 	const result2 = core.lte(
 		types.createNumberNode(1),
 		types.createNumberNode(2),
 	);
-	assertEquals(result2, types.createBooleanNode(true));
+	runner.assert(result2, types.createBooleanNode(true));
 });
 
 // Test for '>'
-test("gt(): should return true if 'a' is greater than 'b'", () => {
+runner.test("gt(): should return true if 'a' is greater than 'b'", () => {
 	const result1 = core.gt(types.createNumberNode(2), types.createNumberNode(1));
-	assertEquals(result1, types.createBooleanNode(true));
+	runner.assert(result1, types.createBooleanNode(true));
 });
 
-test("gt(): should return false if 'a' is less than 'b'", () => {
+runner.test("gt(): should return false if 'a' is less than 'b'", () => {
 	const result2 = core.gt(types.createNumberNode(1), types.createNumberNode(2));
-	assertEquals(result2, types.createBooleanNode(false));
+	runner.assert(result2, types.createBooleanNode(false));
 });
 
-test("gt(): should return false if 'a' is equal to 'b'", () => {
+runner.test("gt(): should return false if 'a' is equal to 'b'", () => {
 	const result2 = core.gt(types.createNumberNode(1), types.createNumberNode(1));
-	assertEquals(result2, types.createBooleanNode(false));
+	runner.assert(result2, types.createBooleanNode(false));
 });
 
 // Test for '>='
-test("gte(): should return true if 'a' is greater than 'b'", () => {
+runner.test("gte(): should return true if 'a' is greater than 'b'", () => {
 	const result1 = core.gte(
 		types.createNumberNode(2),
 		types.createNumberNode(1),
 	);
-	assertEquals(result1, types.createBooleanNode(true));
+	runner.assert(result1, types.createBooleanNode(true));
 });
 
-test("gte(): should return true if 'a' is equal to 'b'", () => {
+runner.test("gte(): should return true if 'a' is equal to 'b'", () => {
 	const result2 = core.gte(
 		types.createNumberNode(1),
 		types.createNumberNode(1),
 	);
-	assertEquals(result2, types.createBooleanNode(true));
+	runner.assert(result2, types.createBooleanNode(true));
 });
 
 // Test for '+'
-test("add(): should sum two numbers", () => {
+runner.test("add(): should sum two numbers", () => {
 	const result = core.add(types.createNumberNode(2), types.createNumberNode(1));
-	assertEquals(result, types.createNumberNode(3));
+	runner.assert(result, types.createNumberNode(3));
 });
 
 // Test for '+' error case
-test("add(): should throw an error if an argument is not a number", () => {
-	assertThrows(() => {
-		core.add(types.createStringNode("not a num"), types.createNumberNode(1));
-	});
-});
+runner.test(
+	"add(): should throw an error if an argument is not a number",
+	() => {
+		let threw = false;
+		try {
+			core.add(types.createStringNode("not a num"), types.createNumberNode(1));
+		} catch (e) {
+			threw = true;
+		}
+		runner.assert(threw, true);
+	},
+);
 
 // Test for '-'
-test("subtract(): should find the difference between two numbers", () => {
-	const result = core.subtract(
-		types.createNumberNode(2),
-		types.createNumberNode(1),
-	);
-	assertEquals(result, types.createNumberNode(1));
-});
-
-// Test for '-' error case
-test("subtract(): should throw an error if an argument is not a number", () => {
-	assertThrows(() => {
-		core.subtract(
-			types.createStringNode("not a num"),
+runner.test(
+	"subtract(): should find the difference between two numbers",
+	() => {
+		const result = core.subtract(
+			types.createNumberNode(2),
 			types.createNumberNode(1),
 		);
-	});
-});
+		runner.assert(result, types.createNumberNode(1));
+	},
+);
+
+// Test for '-' error case
+runner.test(
+	"subtract(): should throw an error if an argument is not a number",
+	() => {
+		let threw = false;
+		try {
+			core.subtract(
+				types.createStringNode("not a num"),
+				types.createNumberNode(1),
+			);
+		} catch (e) {
+			threw = true;
+		}
+		runner.assert(threw, true);
+	},
+);
 
 // Test for '*'
-test("multiply(): should find the product of two numbers", () => {
+runner.test("multiply(): should find the product of two numbers", () => {
 	const result = core.multiply(
 		types.createNumberNode(2),
 		types.createNumberNode(3),
 	);
-	assertEquals(result, types.createNumberNode(6));
+	runner.assert(result, types.createNumberNode(6));
 });
 
 // Test for '*' error case
-test("multiply(): should throw an error if an argument is not a number", () => {
-	assertThrows(() => {
-		core.multiply(
-			types.createStringNode("not a num"),
-			types.createNumberNode(1),
-		);
-	});
-});
+runner.test(
+	"multiply(): should throw an error if an argument is not a number",
+	() => {
+		let threw = false;
+		try {
+			core.multiply(
+				types.createStringNode("not a num"),
+				types.createNumberNode(1),
+			);
+		} catch (e) {
+			threw = true;
+		}
+		runner.assert(threw, true);
+	},
+);
 
 // Test for '/'
-test("divide(): should find the quotient of two numbers", () => {
+runner.test("divide(): should find the quotient of two numbers", () => {
 	const result = core.divide(
 		types.createNumberNode(4),
 		types.createNumberNode(2),
 	);
-	assertEquals(result, types.createNumberNode(2));
+	runner.assert(result, types.createNumberNode(2));
 });
 
 // Test for '/' error case
-test("divide(): should throw an error if an argument is not a number", () => {
-	assertThrows(() => {
-		core.divide(types.createStringNode("not a num"), types.createNumberNode(1));
-	});
-});
+runner.test(
+	"divide(): should throw an error if an argument is not a number",
+	() => {
+		let threw = false;
+		try {
+			core.divide(
+				types.createStringNode("not a num"),
+				types.createNumberNode(1),
+			);
+		} catch (e) {
+			threw = true;
+		}
+		runner.assert(threw, true);
+	},
+);
 
-test("timeMs(): should return a unix timestamp", () => {
+runner.test("timeMs(): should return a unix timestamp", () => {
 	const result = core.timeMs() as types.NumberNode;
 	const currentTime = new Date().getTime();
 
 	// Ensure it's a number
-	assertEquals(typeof result.value, "number");
+	runner.assert(typeof result.value, "number");
 
 	// Ensure it's reasonably close to the current time
-	assert(Math.abs(currentTime - result.value) < 1000);
+	runner.assert(Math.abs(currentTime - result.value) < 1000, true);
 });
 
-test("list(): should return a list containing the given args", () => {
+runner.test("list(): should return a list containing the given args", () => {
 	const a = types.createNumberNode(1);
 	const b = types.createNumberNode(2);
 	const result = core.list(a, b);
-	assertEquals(types.isListNode(result), true);
-	assertEquals(result.value, [a, b]);
+	runner.assert(types.isListNode(result), true);
+	runner.assert(result.value, [a, b]);
 });
 
 // Test for 'isList'
-test("isListNode(): should return true if the argument is a list", () => {
-	const aList = types.createListNode([types.createNumberNode(1)]);
-	assertEquals(types.isListNode(aList), true);
+runner.test(
+	"isListNode(): should return true if the argument is a list",
+	() => {
+		const aList = types.createListNode([types.createNumberNode(1)]);
+		runner.assert(types.isListNode(aList), true);
+	},
+);
+
+runner.test(
+	"isListNode(): should return false if the argument is not a list",
+	() => {
+		const notList = types.createNumberNode(1);
+		runner.assert(types.isListNode(notList), false);
+	},
+);
+
+runner.test("conj(): should throw with with less than 2 arguments", () => {
+	let threw = false;
+	try {
+		core.conj(types.createListNode([types.createNumberNode(1)]));
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
 });
 
-test("isListNode(): should return false if the argument is not a list", () => {
-	const notList = types.createNumberNode(1);
-	assertEquals(types.isListNode(notList), false);
-});
-
-test("conj(): should throw with with less than 2 arguments", () => {
-	assertThrows(
-		() => core.conj(types.createListNode([types.createNumberNode(1)])),
-		Error,
-		"Unexpected minimum number of arguments",
-	);
-});
-
-test("conj(): should conjoin values in a list", () => {
-	assertEquals(
+runner.test("conj(): should conjoin values in a list", () => {
+	runner.assert(
 		core.conj(
 			types.createListNode([
 				types.createNumberNode(1),
@@ -327,8 +413,8 @@ test("conj(): should conjoin values in a list", () => {
 	);
 });
 
-test("conj(): should conjoin values in a vector", () => {
-	assertEquals(
+runner.test("conj(): should conjoin values in a vector", () => {
+	runner.assert(
 		core.conj(
 			types.createVectorNode([
 				types.createNumberNode(1),
@@ -348,20 +434,22 @@ test("conj(): should conjoin values in a vector", () => {
 	);
 });
 
-test("conj(): should throw without a List or Vector", () => {
-	assertThrows(
-		() => core.conj(types.createNumberNode(42), types.createNumberNode(1)),
-		Error,
-		"Invalid sequential type",
-	);
+runner.test("conj(): should throw without a List or Vector", () => {
+	let threw = false;
+	try {
+		core.conj(types.createNumberNode(42), types.createNumberNode(1));
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
 });
 
-test("concat(): with no arguments", () => {
-	assertEquals(core.concat(), types.createListNode([]));
+runner.test("concat(): with no arguments", () => {
+	runner.assert(core.concat(), types.createListNode([]));
 });
 
-test("concat(): with one list", () => {
-	assertEquals(
+runner.test("concat(): with one list", () => {
+	runner.assert(
 		core.concat(
 			types.createListNode([
 				types.createNumberNode(1),
@@ -375,8 +463,8 @@ test("concat(): with one list", () => {
 	);
 });
 
-test("concat(): with two lists", () => {
-	assertEquals(
+runner.test("concat(): with two lists", () => {
+	runner.assert(
 		core.concat(
 			types.createListNode([
 				types.createNumberNode(1),
@@ -396,8 +484,8 @@ test("concat(): with two lists", () => {
 	);
 });
 
-test("concat(): with three lists", () => {
-	assertEquals(
+runner.test("concat(): with three lists", () => {
+	runner.assert(
 		core.concat(
 			types.createListNode([
 				types.createNumberNode(1),
@@ -423,74 +511,87 @@ test("concat(): with three lists", () => {
 	);
 });
 
-test("concat(): with empty lists", () => {
-	assertEquals(
+runner.test("concat(): with empty lists", () => {
+	runner.assert(
 		core.concat(types.createListNode([]), types.createListNode([])),
 		types.createListNode([]),
 	);
 });
 
-test("concat(): with non-Seq type should throw", () => {
-	assertThrows(
-		() => core.concat(types.createNumberNode(1)),
-		Error,
-		"Invalid sequential type",
-	);
+runner.test("concat(): with non-Seq type should throw", () => {
+	let threw = false;
+	try {
+		core.concat(types.createNumberNode(1));
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
 });
 
-test("cons(): should construct a list by prepending the given value", () => {
-	assertEquals(
-		core.cons(
-			types.createNumberNode(0),
+runner.test(
+	"cons(): should construct a list by prepending the given value",
+	() => {
+		runner.assert(
+			core.cons(
+				types.createNumberNode(0),
+				types.createListNode([
+					types.createNumberNode(1),
+					types.createNumberNode(2),
+					types.createNumberNode(3),
+				]),
+			),
 			types.createListNode([
+				types.createNumberNode(0),
 				types.createNumberNode(1),
 				types.createNumberNode(2),
 				types.createNumberNode(3),
 			]),
-		),
-		types.createListNode([
+		);
+	},
+);
+
+runner.test("cons(): should throw error with less than 2 arguments", () => {
+	let threw = false;
+	try {
+		core.cons(types.createNumberNode(0));
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
+});
+
+runner.test("cons(): should throw error with more than 2 arguments", () => {
+	let threw = false;
+	try {
+		core.cons(
 			types.createNumberNode(0),
-			types.createNumberNode(1),
-			types.createNumberNode(2),
-			types.createNumberNode(3),
-		]),
-	);
+			types.createNumberNode(0),
+			types.createNumberNode(0),
+		);
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
 });
 
-test("cons(): should throw error with less than 2 arguments", () => {
-	assertThrows(
-		() => core.cons(types.createNumberNode(0)),
-		Error,
-		"Wanted 2 arguments but got 1",
-	);
-});
-
-test("cons(): should throw error with more than 2 arguments", () => {
-	assertThrows(
-		() =>
-			core.cons(
-				types.createNumberNode(0),
-				types.createNumberNode(0),
-				types.createNumberNode(0),
-			),
-		Error,
-		"Wanted 2 arguments but got 3",
-	);
-});
-
-test("cons(): should throw error if second argument is not a List", () => {
-	const value = types.createNumberNode(0);
-	const notList = types.createNumberNode(42);
-	assertThrows(
-		() => core.cons(value, notList),
-		Error,
-		"Invalid sequential type",
-	);
-});
+runner.test(
+	"cons(): should throw error if second argument is not a List",
+	() => {
+		const value = types.createNumberNode(0);
+		const notList = types.createNumberNode(42);
+		let threw = false;
+		try {
+			core.cons(value, notList);
+		} catch (e) {
+			threw = true;
+		}
+		runner.assert(threw, true);
+	},
+);
 
 // Test for 'vec' when input is a list
-test("vec(): should convert a list into a vector", () => {
-	assertEquals(
+runner.test("vec(): should convert a list into a vector", () => {
+	runner.assert(
 		core.vec(
 			types.createListNode([
 				types.createNumberNode(1),
@@ -507,14 +608,17 @@ test("vec(): should convert a list into a vector", () => {
 });
 
 // Test for 'vec' when input is not a list
-test("vec(): should return the original node if the argument is not a List", () => {
-	const notList = types.createNumberNode(1);
-	assertEquals(core.vec(notList), notList);
-});
+runner.test(
+	"vec(): should return the original node if the argument is not a List",
+	() => {
+		const notList = types.createNumberNode(1);
+		runner.assert(core.vec(notList), notList);
+	},
+);
 
 // Test for 'vec' when there are multiple arguments
-test("vec(): should ignore additional arguments", () => {
-	assertEquals(
+runner.test("vec(): should ignore additional arguments", () => {
+	runner.assert(
 		core.vec(
 			types.createListNode([types.createNumberNode(1)]),
 			types.createNumberNode(2),
@@ -524,12 +628,15 @@ test("vec(): should ignore additional arguments", () => {
 });
 
 // Test for 'vec' when no arguments
-test("vec(): should return undefined if no arguments are provided", () => {
-	assertEquals(core.vec(), undefined);
-});
+runner.test(
+	"vec(): should return undefined if no arguments are provided",
+	() => {
+		runner.assert(core.vec(), undefined);
+	},
+);
 
-test("nth(): should return the nth element of a list", () => {
-	assertEquals(
+runner.test("nth(): should return the nth element of a list", () => {
+	runner.assert(
 		core.nth(
 			types.createListNode([
 				types.createSymbolNode("a"),
@@ -542,39 +649,43 @@ test("nth(): should return the nth element of a list", () => {
 	);
 });
 
-test("nth(): should throw error when index is out of range", () => {
-	assertThrows(
-		() =>
-			core.nth(
-				types.createListNode([types.createSymbolNode("a")]),
-				types.createNumberNode(1),
+runner.test("nth(): should throw error when index is out of range", () => {
+	let threw = false;
+	try {
+		core.nth(
+			types.createListNode([types.createSymbolNode("a")]),
+			types.createNumberNode(1),
+		);
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
+});
+
+runner.test(
+	"firstNodeInList(): should return the first element of a list",
+	() => {
+		runner.assert(
+			core.firstNodeInList(
+				types.createListNode([
+					types.createSymbolNode("a"),
+					types.createSymbolNode("b"),
+				]),
 			),
-		Error,
-		"out of range",
-	);
-});
+			types.createSymbolNode("a"),
+		);
+	},
+);
 
-test("firstNodeInList(): should return the first element of a list", () => {
-	assertEquals(
-		core.firstNodeInList(
-			types.createListNode([
-				types.createSymbolNode("a"),
-				types.createSymbolNode("b"),
-			]),
-		),
-		types.createSymbolNode("a"),
-	);
-});
-
-test("firstNodeInList(): should return nil for empty list", () => {
-	assertEquals(
+runner.test("firstNodeInList(): should return nil for empty list", () => {
+	runner.assert(
 		core.firstNodeInList(types.createListNode([])),
 		types.createNilNode(),
 	);
 });
 
-test("rest(): should return a list without the first element", () => {
-	assertEquals(
+runner.test("rest(): should return a list without the first element", () => {
+	runner.assert(
 		core.rest(
 			types.createListNode([
 				types.createNumberNode(1),
@@ -589,29 +700,29 @@ test("rest(): should return a list without the first element", () => {
 	);
 });
 
-test("rest(): should return empty list for single-element list", () => {
-	assertEquals(
+runner.test("rest(): should return empty list for single-element list", () => {
+	runner.assert(
 		core.rest(types.createListNode([types.createNumberNode(1)])),
 		types.createListNode([]),
 	);
 });
 
-test("empty(): should return true for an empty list", () => {
-	assertEquals(
+runner.test("empty(): should return true for an empty list", () => {
+	runner.assert(
 		core.empty(types.createListNode([])),
 		types.createBooleanNode(true),
 	);
 });
 
-test("empty(): should return false for a non-empty list", () => {
-	assertEquals(
+runner.test("empty(): should return false for a non-empty list", () => {
+	runner.assert(
 		core.empty(types.createListNode([types.createNumberNode(2)])),
 		types.createBooleanNode(false),
 	);
 });
 
-test("count(): should return the length of a list", () => {
-	assertEquals(
+runner.test("count(): should return the length of a list", () => {
+	runner.assert(
 		core.length(
 			types.createListNode([
 				types.createNumberNode(1),
@@ -622,109 +733,147 @@ test("count(): should return the length of a list", () => {
 	);
 });
 
-test("count(): should return 0 for an empty list", () => {
-	assertEquals(
+runner.test("count(): should return 0 for an empty list", () => {
+	runner.assert(
 		core.length(types.createListNode([])),
 		types.createNumberNode(0),
 	);
 });
 
-test("should return 0 for a Nil value", () => {
-	assertEquals(core.length(types.createNilNode()), types.createNumberNode(0));
+runner.test("should return 0 for a Nil value", () => {
+	runner.assert(core.length(types.createNilNode()), types.createNumberNode(0));
 });
 
-test("atom(): should create an Atom from a given node", () => {
-	assertEquals(
+runner.test("atom(): should create an Atom from a given node", () => {
+	runner.assert(
 		core.atom(types.createNumberNode(42)),
 		types.createAtomNode(types.createNumberNode(42)),
 	);
 });
 
-test("atom(): should throw error when no arguments are provided", () => {
-	assertThrows(() => core.atom(), Error, "Wanted 1 arguments but got 0");
+runner.test("atom(): should throw error when no arguments are provided", () => {
+	let threw = false;
+	try {
+		core.atom();
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
 });
 
-test("isAtom(): should return true if the node is an Atom", () => {
-	assertEquals(
+runner.test("isAtom(): should return true if the node is an Atom", () => {
+	runner.assert(
 		core.isAtom(types.createAtomNode(types.createNumberNode(42))),
 		types.createBooleanNode(true),
 	);
 });
 
-test("isAtom(): should return false if the node is not an Atom", () => {
-	assertEquals(
+runner.test("isAtom(): should return false if the node is not an Atom", () => {
+	runner.assert(
 		core.isAtom(types.createNumberNode(42)),
 		types.createBooleanNode(false),
 	);
 });
 
-test("deref(): should return the node contained in the Atom", () => {
-	assertEquals(
+runner.test("deref(): should return the node contained in the Atom", () => {
+	runner.assert(
 		core.deref(types.createAtomNode(types.createNumberNode(42))),
 		types.createNumberNode(42),
 	);
 });
 
-test("deref(): should throw error for non-Atom nodes", () => {
-	assertThrows(() => core.deref(types.createNumberNode(42)), Error, "Invalid");
+runner.test("deref(): should throw error for non-Atom nodes", () => {
+	let threw = false;
+	try {
+		core.deref(types.createNumberNode(42));
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
 });
 
-test("reset(): should update the Atom's value and return the node", () => {
-	const atom = types.createAtomNode(types.createNumberNode(42));
-	assertEquals(atom.value, types.createNumberNode(42));
-	assertEquals(
-		core.reset(atom, types.createNumberNode(43)),
-		types.createNumberNode(43),
-	);
-	assertEquals(atom.value, types.createNumberNode(43));
+runner.test(
+	"reset(): should update the Atom's value and return the node",
+	() => {
+		const atom = types.createAtomNode(types.createNumberNode(42));
+		runner.assert(atom.value, types.createNumberNode(42));
+		runner.assert(
+			core.reset(atom, types.createNumberNode(43)),
+			types.createNumberNode(43),
+		);
+		runner.assert(atom.value, types.createNumberNode(43));
+	},
+);
+
+runner.test("reset(): should throw error for non-Atom first argument", () => {
+	let threw = false;
+	try {
+		core.reset(types.createNumberNode(42), types.createNumberNode(43));
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
 });
 
-test("reset(): should throw error for non-Atom first argument", () => {
-	assertThrows(
-		() => core.reset(types.createNumberNode(42), types.createNumberNode(43)),
-		Error,
-		"Invalid",
-	);
-});
-
-test("should throw an error for insufficient arguments", () => {
-	assertThrows(() => {
+runner.test("should throw an error for insufficient arguments", () => {
+	let threw = false;
+	try {
 		core.swap(types.createAtomNode(types.createStringNode("a")));
-	});
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
 });
 
-test("swap(): should throw an error if the first argument is not an Atom", () => {
-	assertThrows(() => {
-		core.swap(
-			types.createStringNode("not an atom"),
-			types.createFunctionNode((a) => a),
-		);
-	});
-});
+runner.test(
+	"swap(): should throw an error if the first argument is not an Atom",
+	() => {
+		let threw = false;
+		try {
+			core.swap(
+				types.createStringNode("not an atom"),
+				types.createFunctionNode((a) => a),
+			);
+		} catch (e) {
+			threw = true;
+		}
+		runner.assert(threw, true);
+	},
+);
 
-test("swap(): should throw an error if the second argument is not a Func", () => {
-	assertThrows(() => {
-		core.swap(
-			types.createAtomNode(types.createStringNode("a")),
-			types.createStringNode("not a function"),
-		);
-	});
-});
+runner.test(
+	"swap(): should throw an error if the second argument is not a Func",
+	() => {
+		let threw = false;
+		try {
+			core.swap(
+				types.createAtomNode(types.createStringNode("a")),
+				types.createStringNode("not a function"),
+			);
+		} catch (e) {
+			threw = true;
+		}
+		runner.assert(threw, true);
+	},
+);
 
-test("swap(): should swap the Atoms' value with the result of the function", () => {
-	assertEquals(
-		core.swap(
-			types.createAtomNode(types.createNumberNode(6)),
-			types.createFunctionNode((a) =>
-				types.createNumberNode((a as types.NumberNode).value * 2),
+runner.test(
+	"swap(): should swap the Atoms' value with the result of the function",
+	() => {
+		runner.assert(
+			core.swap(
+				types.createAtomNode(types.createNumberNode(6)),
+				types.createFunctionNode((a) =>
+					types.createNumberNode((a as types.NumberNode).value * 2),
+				),
 			),
-		),
-		types.createNumberNode(12),
-	);
-});
+			types.createNumberNode(12),
+		);
+	},
+);
 
-test("swap(): should handle additional parameters correctly", () => {
-	assertEquals(
+runner.test("swap(): should handle additional parameters correctly", () => {
+	runner.assert(
 		core.swap(
 			types.createAtomNode(types.createNumberNode(5)),
 			types.createFunctionNode((a, b) =>
@@ -738,23 +887,44 @@ test("swap(): should handle additional parameters correctly", () => {
 	);
 });
 
-test("throwError(): should throw the value of an ast node", () => {
-	assertThrows(() => core.throwError(types.createStringNode("foo")), "foo");
+runner.test("throwError(): should throw the value of an ast node", () => {
+	let threw = false;
+	try {
+		core.throwError(types.createStringNode("foo"));
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
 });
 
-test("throwError(): should throw an error when no arguments are provided", () => {
-	assertThrows(() => core.throwError(), "Unexpected number of arguments");
-});
+runner.test(
+	"throwError(): should throw an error when no arguments are provided",
+	() => {
+		let threw = false;
+		try {
+			core.throwError();
+		} catch (e) {
+			threw = true;
+		}
+		runner.assert(threw, true);
+	},
+);
 
-test("throwError(): should throw an error when given an invalid argument type", () => {
-	assertThrows(
-		() => core.throwError(types.createBooleanNode(false)),
-		"invalid argument",
-	);
-});
+runner.test(
+	"throwError(): should throw an error when given an invalid argument type",
+	() => {
+		let threw = false;
+		try {
+			core.throwError(types.createBooleanNode(false));
+		} catch (e) {
+			threw = true;
+		}
+		runner.assert(threw, true);
+	},
+);
 
-test("apply(): should call a function with list arguments", () => {
-	assertEquals(
+runner.test("apply(): should call a function with list arguments", () => {
+	runner.assert(
 		core.apply(
 			types.createFunctionNode((a, b) =>
 				types.createNumberNode(
@@ -770,8 +940,8 @@ test("apply(): should call a function with list arguments", () => {
 	);
 });
 
-test("apply(): should concatenate other arguments with list", () => {
-	assertEquals(
+runner.test("apply(): should concatenate other arguments with list", () => {
+	runner.assert(
 		core.apply(
 			types.createFunctionNode((a, b, c) =>
 				types.createNumberNode(
@@ -790,97 +960,110 @@ test("apply(): should concatenate other arguments with list", () => {
 	);
 });
 
-test("apply(): should throw error for non-Seq last argument", () => {
-	assertThrows(
-		() =>
-			core.apply(
-				types.createFunctionNode((a, b) =>
-					types.createNumberNode(
-						(a as types.NumberNode).value + (b as types.NumberNode).value,
-					),
+runner.test("apply(): should throw error for non-Seq last argument", () => {
+	let threw = false;
+	try {
+		core.apply(
+			types.createFunctionNode((a, b) =>
+				types.createNumberNode(
+					(a as types.NumberNode).value + (b as types.NumberNode).value,
 				),
-				types.createNumberNode(3),
 			),
-		Error,
-		"Invalid sequential type",
-	);
+			types.createNumberNode(3),
+		);
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
 });
 
-test("apply(): should throw error for non-Func first argument", () => {
-	assertThrows(
-		() =>
-			core.apply(
-				types.createNumberNode(42),
+runner.test("apply(): should throw error for non-Func first argument", () => {
+	let threw = false;
+	try {
+		core.apply(
+			types.createNumberNode(42),
+			types.createListNode([
+				types.createNumberNode(2),
+				types.createNumberNode(3),
+			]),
+		);
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
+});
+
+runner.test(
+	"applyToSequence(): should call function against each item in a list",
+	() => {
+		runner.assert(
+			core.applyToSequence(
+				types.createFunctionNode(function double(x) {
+					return types.createNumberNode((x as types.NumberNode).value * 2);
+				}),
 				types.createListNode([
+					types.createNumberNode(1),
 					types.createNumberNode(2),
 					types.createNumberNode(3),
 				]),
 			),
-		Error,
-		"Invalid",
-	);
-});
-
-test("applyToSequence(): should call function against each item in a list", () => {
-	assertEquals(
-		core.applyToSequence(
-			types.createFunctionNode(function double(x) {
-				return types.createNumberNode((x as types.NumberNode).value * 2);
-			}),
 			types.createListNode([
-				types.createNumberNode(1),
 				types.createNumberNode(2),
-				types.createNumberNode(3),
+				types.createNumberNode(4),
+				types.createNumberNode(6),
 			]),
-		),
-		types.createListNode([
-			types.createNumberNode(2),
-			types.createNumberNode(4),
-			types.createNumberNode(6),
-		]),
-	);
-});
+		);
+	},
+);
 
-test("applyToSequence(): should throw error if not given exactly 2 arguments", () => {
-	assertThrows(
-		() =>
+runner.test(
+	"applyToSequence(): should throw error if not given exactly 2 arguments",
+	() => {
+		let threw = false;
+		try {
 			core.applyToSequence(
 				types.createFunctionNode(function double(x) {
 					return types.createNumberNode((x as types.NumberNode).value * 2);
 				}),
-			),
-		Error,
-		"Wanted 2 arguments but got 1",
-	);
-});
+			);
+		} catch (e) {
+			threw = true;
+		}
+		runner.assert(threw, true);
+	},
+);
 
-test("applyToSequence(): should throw error if second argument is not a List", () => {
-	assertThrows(
-		() =>
+runner.test(
+	"applyToSequence(): should throw error if second argument is not a List",
+	() => {
+		let threw = false;
+		try {
 			core.applyToSequence(
 				types.createFunctionNode(function double(x) {
 					return types.createNumberNode((x as types.NumberNode).value * 2);
 				}),
 				types.createNumberNode(42),
-			),
-		Error,
-		"Invalid sequential type",
-	);
-});
+			);
+		} catch (e) {
+			threw = true;
+		}
+		runner.assert(threw, true);
+	},
+);
 
-test("seq should return same list if given a list", () => {
+runner.test("seq should return same list if given a list", () => {
 	const list = types.createListNode([
 		types.createNumberNode(1),
 		types.createNumberNode(2),
 		types.createNumberNode(3),
 	]);
 	const result = core.seq(list);
-	assertEquals(types.isListNode(result), true);
-	assertEquals(result.value, list.value);
+	runner.assert(types.isListNode(result), true);
+	runner.assert(result.value, list.value);
 });
 
-test("seq(): should return a list if given a vec", () => {
-	assertEquals(
+runner.test("seq(): should return a list if given a vec", () => {
+	runner.assert(
 		core.seq(
 			types.createVectorNode([
 				types.createNumberNode(1),
@@ -896,8 +1079,8 @@ test("seq(): should return a list if given a vec", () => {
 	);
 });
 
-test("seq(): should return a list of chars if given a string", () => {
-	assertEquals(
+runner.test("seq(): should return a list of chars if given a string", () => {
+	runner.assert(
 		core.seq(types.createStringNode("foo")),
 		types.createListNode([
 			types.createStringNode("f"),
@@ -907,20 +1090,20 @@ test("seq(): should return a list of chars if given a string", () => {
 	);
 });
 
-test("seq(): should return nil if given nil", () => {
-	assertEquals(core.seq(types.createNilNode()), types.createNilNode());
+runner.test("seq(): should return nil if given nil", () => {
+	runner.assert(core.seq(types.createNilNode()), types.createNilNode());
 });
 
-test("seq(): should return nil if given an empty list", () => {
-	assertEquals(core.seq(types.createListNode([])), types.createNilNode());
+runner.test("seq(): should return nil if given an empty list", () => {
+	runner.assert(core.seq(types.createListNode([])), types.createNilNode());
 });
 
-test("seq(): should return nil if given an empty vector", () => {
-	assertEquals(core.seq(types.createVectorNode([])), types.createNilNode());
+runner.test("seq(): should return nil if given an empty vector", () => {
+	runner.assert(core.seq(types.createVectorNode([])), types.createNilNode());
 });
 
-test("meta(): should return metadata of an element", () => {
-	assertEquals(
+runner.test("meta(): should return metadata of an element", () => {
+	runner.assert(
 		core.meta(
 			types.createFunctionNode(
 				(x) => x, // Function
@@ -933,188 +1116,242 @@ test("meta(): should return metadata of an element", () => {
 	);
 });
 
-test("meta(): should throw error if not given exactly 1 argument", () => {
-	assertThrows(() => core.meta(), Error, "Wanted 1 arguments but got 0");
-});
+runner.test(
+	"meta(): should throw error if not given exactly 1 argument",
+	() => {
+		let threw = false;
+		try {
+			core.meta();
+		} catch (e) {
+			threw = true;
+		}
+		runner.assert(threw, true);
+	},
+);
 
-test("meta(): should throw error if argument isn't a MetadataType", () => {
-	const notMetadataType = types.createNumberNode(42);
-	assertThrows(
-		() => core.meta(notMetadataType),
-		Error,
-		"Invalid metadata type",
-	);
-});
+runner.test(
+	"meta(): should throw error if argument isn't a MetadataType",
+	() => {
+		const notMetadataType = types.createNumberNode(42);
+		let threw = false;
+		try {
+			core.meta(notMetadataType);
+		} catch (e) {
+			threw = true;
+		}
+		runner.assert(threw, true);
+	},
+);
 
-test("withMeta(): should set metadata", () => {
+runner.test("withMeta(): should set metadata", () => {
 	const func = types.createFunctionNode((x) => x);
 	const meta = types.createMapNode(new Map([["b", types.createNumberNode(1)]]));
 
-	assertEquals(func.metadata, undefined);
+	runner.assert(func.metadata, undefined);
 	const updated = core.withMeta(func, meta) as types.FunctionNode;
-	assertEquals(updated.metadata, meta);
-	assertEquals(func.metadata, undefined);
+	runner.assert(updated.metadata, meta);
+	runner.assert(func.metadata, undefined);
 });
 
-test("withMeta(): should throw error if not given exactly 2 arguments", () => {
-	assertThrows(() => core.withMeta(), Error, "Wanted 2 arguments but got 0");
-});
+runner.test(
+	"withMeta(): should throw error if not given exactly 2 arguments",
+	() => {
+		let threw = false;
+		try {
+			core.withMeta();
+		} catch (e) {
+			threw = true;
+		}
+		runner.assert(threw, true);
+	},
+);
 
-test("withMeta(): should throw if first argument isn't MetadataType", () => {
-	assertThrows(
-		() =>
+runner.test(
+	"withMeta(): should throw if first argument isn't MetadataType",
+	() => {
+		let threw = false;
+		try {
 			core.withMeta(
 				types.createNumberNode(42),
 				types.createMapNode(new Map([["b", types.createNumberNode(1)]])),
-			),
-		Error,
-		"Invalid metadata type",
-	);
-});
+			);
+		} catch (e) {
+			threw = true;
+		}
+		runner.assert(threw, true);
+	},
+);
 
-test("isNil(): should return true if argument is a NilNode", () => {
-	assertEquals(
+runner.test("isNil(): should return true if argument is a NilNode", () => {
+	runner.assert(
 		core.isNil(types.createNilNode()),
 		types.createBooleanNode(true),
 	);
 });
 
-test("isNil(): should return false if argument is not a NilNode", () => {
-	assertEquals(
+runner.test("isNil(): should return false if argument is not a NilNode", () => {
+	runner.assert(
 		core.isNil(types.createBooleanNode(true)),
 		types.createBooleanNode(false),
 	);
 });
 
-test("isTrue(): should return true for a true value", () => {
-	assertEquals(
+runner.test("isTrue(): should return true for a true value", () => {
+	runner.assert(
 		core.isTrue(types.createBooleanNode(true)),
 		types.createBooleanNode(true),
 	);
 });
 
-test("isTrue(): should return false for a false value", () => {
-	assertEquals(
+runner.test("isTrue(): should return false for a false value", () => {
+	runner.assert(
 		core.isTrue(types.createBooleanNode(false)),
 		types.createBooleanNode(false),
 	);
 });
 
-test("isFalse(): should return true for a false value", () => {
-	assertEquals(
+runner.test("isFalse(): should return true for a false value", () => {
+	runner.assert(
 		core.isFalse(types.createBooleanNode(false)),
 		types.createBooleanNode(true),
 	);
 });
 
-test("isFalse(): should return false for a true value", () => {
-	assertEquals(
+runner.test("isFalse(): should return false for a true value", () => {
+	runner.assert(
 		core.isFalse(types.createBooleanNode(true)),
 		types.createBooleanNode(false),
 	);
 });
 
-test("isString(): should return true if argument is a StringNode", () => {
-	assertEquals(
-		core.isString(types.createStringNode("foobar")),
-		types.createBooleanNode(true),
-	);
-});
+runner.test(
+	"isString(): should return true if argument is a StringNode",
+	() => {
+		runner.assert(
+			core.isString(types.createStringNode("foobar")),
+			types.createBooleanNode(true),
+		);
+	},
+);
 
-test("isString(): should return false if argument is not a StringNode", () => {
-	assertEquals(
-		core.isString(types.createBooleanNode(true)),
-		types.createBooleanNode(false),
-	);
-});
+runner.test(
+	"isString(): should return false if argument is not a StringNode",
+	() => {
+		runner.assert(
+			core.isString(types.createBooleanNode(true)),
+			types.createBooleanNode(false),
+		);
+	},
+);
 
-test("symbol(): should create symbol from a string", () => {
+runner.test("symbol(): should create symbol from a string", () => {
 	const result = core.symbol(types.createStringNode("abc"));
-	assertEquals(types.isSymbolNode(result), true);
+	runner.assert(types.isSymbolNode(result), true);
 });
 
-test("isSymbol(): should return true if argument is a SymbolNode", () => {
-	assertEquals(types.isSymbolNode(types.createSymbolNode("abc")), true);
-});
+runner.test(
+	"isSymbol(): should return true if argument is a SymbolNode",
+	() => {
+		runner.assert(types.isSymbolNode(types.createSymbolNode("abc")), true);
+	},
+);
 
-test("isSymbol(): should return false if argument is not a SymbolNode", () => {
-	assertEquals(types.isSymbolNode(types.createStringNode("abc")), false);
-});
+runner.test(
+	"isSymbol(): should return false if argument is not a SymbolNode",
+	() => {
+		runner.assert(types.isSymbolNode(types.createStringNode("abc")), false);
+	},
+);
 
-test("keyword(): should create keyword from a string", () => {
+runner.test("keyword(): should create keyword from a string", () => {
 	const result = core.keyword(types.createStringNode("pie"));
-	assertInstanceOf(result, types.KeywordNode);
-	assertEquals(result.value, "pie:");
+	runner.assert(result instanceof types.KeywordNode, true);
+	runner.assert(result.value, "pie:");
 });
 
-test("keyword(): should create new keyword from a symbol", () => {
+runner.test("keyword(): should create new keyword from a symbol", () => {
 	const result = core.keyword(types.createSymbolNode("cake"));
-	assertInstanceOf(result, types.KeywordNode);
-	assertEquals(result.value, "cake:");
+	runner.assert(result instanceof types.KeywordNode, true);
+	runner.assert(result.value, "cake:");
 });
 
-test("keyword(): should return an existing keyword", () => {
+runner.test("keyword(): should return an existing keyword", () => {
 	const key = types.createKeywordNode("cookies");
 	const result = core.keyword(key);
-	assertStrictEquals(result, key);
+	runner.assert(result, key);
 });
 
-test("isKeyword(): should return true if argument is a KeywordNode", () => {
-	assertEquals(
-		core.isKeyword(types.createKeywordNode("abc")),
-		types.createBooleanNode(true),
-	);
-});
+runner.test(
+	"isKeyword(): should return true if argument is a KeywordNode",
+	() => {
+		runner.assert(
+			core.isKeyword(types.createKeywordNode("abc")),
+			types.createBooleanNode(true),
+		);
+	},
+);
 
-test("isKeyword(): should return false if argument is not a KeywordNode", () => {
-	assertEquals(
-		core.isKeyword(types.createSymbolNode("abc")),
-		types.createBooleanNode(false),
-	);
-});
+runner.test(
+	"isKeyword(): should return false if argument is not a KeywordNode",
+	() => {
+		runner.assert(
+			core.isKeyword(types.createSymbolNode("abc")),
+			types.createBooleanNode(false),
+		);
+	},
+);
 
-test("isNumber(): should return true if argument is a NumberNode", () => {
-	assertEquals(
-		core.isNumber(types.createNumberNode(2)),
-		types.createBooleanNode(true),
-	);
-});
+runner.test(
+	"isNumber(): should return true if argument is a NumberNode",
+	() => {
+		runner.assert(
+			core.isNumber(types.createNumberNode(2)),
+			types.createBooleanNode(true),
+		);
+	},
+);
 
-test("isNumber(): should return false if argument is not a NumberNode", () => {
-	assertEquals(
-		core.isNumber(types.createStringNode("2")),
-		types.createBooleanNode(false),
-	);
-});
+runner.test(
+	"isNumber(): should return false if argument is not a NumberNode",
+	() => {
+		runner.assert(
+			core.isNumber(types.createStringNode("2")),
+			types.createBooleanNode(false),
+		);
+	},
+);
 
-test("isFn(): should return true if argument is a FunctionNode", () => {
+runner.test("isFn(): should return true if argument is a FunctionNode", () => {
 	const fn = types.createFunctionNode(() => types.createNilNode());
 	fn.isMacro = false;
-	assertEquals(core.isFn(fn), types.createBooleanNode(true));
+	runner.assert(core.isFn(fn), types.createBooleanNode(true));
 });
 
-test("isFn(): should return false if argument is not a FunctionNode", () => {
-	assertEquals(
-		core.isFn(types.createNumberNode(2)),
-		types.createBooleanNode(false),
-	);
-});
+runner.test(
+	"isFn(): should return false if argument is not a FunctionNode",
+	() => {
+		runner.assert(
+			core.isFn(types.createNumberNode(2)),
+			types.createBooleanNode(false),
+		);
+	},
+);
 
-test("isMacro(): should return true if argument is a macro", () => {
+runner.test("isMacro(): should return true if argument is a macro", () => {
 	const fn = types.createFunctionNode(() => types.createNilNode());
 	fn.isMacro = true;
-	assertEquals(core.isMacro(fn), types.createBooleanNode(true));
+	runner.assert(core.isMacro(fn), types.createBooleanNode(true));
 });
 
-test("isMacro(): should return false if argument is not a macro", () => {
-	assertEquals(
+runner.test("isMacro(): should return false if argument is not a macro", () => {
+	runner.assert(
 		core.isMacro(types.createNumberNode(2)),
 		types.createBooleanNode(false),
 	);
 });
 
-test("vector(): should create a vector from args", () => {
-	assertEquals(
+runner.test("vector(): should create a vector from args", () => {
+	runner.assert(
 		core.vector(
 			types.createNumberNode(1),
 			types.createNumberNode(2),
@@ -1128,29 +1365,35 @@ test("vector(): should create a vector from args", () => {
 	);
 });
 
-test("isVector(): should return true if argument is a VectorNode", () => {
-	assertEquals(
-		core.isVector(
-			types.createVectorNode([
-				types.createNumberNode(1),
-				types.createNumberNode(2),
-				types.createNumberNode(3),
-			]),
-		),
-		types.createBooleanNode(true),
-	);
-});
+runner.test(
+	"isVector(): should return true if argument is a VectorNode",
+	() => {
+		runner.assert(
+			core.isVector(
+				types.createVectorNode([
+					types.createNumberNode(1),
+					types.createNumberNode(2),
+					types.createNumberNode(3),
+				]),
+			),
+			types.createBooleanNode(true),
+		);
+	},
+);
 
-test("isVector(): should return false if argument is not a VectorNode", () => {
-	assertEquals(
-		core.isVector(types.createNumberNode(2)),
-		types.createBooleanNode(false),
-	);
-});
+runner.test(
+	"isVector(): should return false if argument is not a VectorNode",
+	() => {
+		runner.assert(
+			core.isVector(types.createNumberNode(2)),
+			types.createBooleanNode(false),
+		);
+	},
+);
 
 // Hash-map
-test("hashMap(): should create a map from alternating args", () => {
-	assertEquals(
+runner.test("hashMap(): should create a map from alternating args", () => {
+	runner.assert(
 		core.hashMap(
 			types.createStringNode("foo"),
 			types.createNumberNode(1),
@@ -1166,12 +1409,15 @@ test("hashMap(): should create a map from alternating args", () => {
 	);
 });
 
-test("hashMap(): should return an empty map if no arguments are passed", () => {
-	assertEquals(core.hashMap(), types.createMapNode());
-});
+runner.test(
+	"hashMap(): should return an empty map if no arguments are passed",
+	() => {
+		runner.assert(core.hashMap(), types.createMapNode());
+	},
+);
 
-test("isMap(): should return true if argument is a MapNode", () => {
-	assertEquals(
+runner.test("isMap(): should return true if argument is a MapNode", () => {
+	runner.assert(
 		core.isMap(
 			types.createMapNode(new Map([["foo", types.createNumberNode(1)]])),
 		),
@@ -1179,15 +1425,15 @@ test("isMap(): should return true if argument is a MapNode", () => {
 	);
 });
 
-test("isMap(): should return false if argument is not a MapNode", () => {
-	assertEquals(
+runner.test("isMap(): should return false if argument is not a MapNode", () => {
+	runner.assert(
 		core.isMap(types.createNumberNode(2)),
 		types.createBooleanNode(false),
 	);
 });
 
-test("assoc(): should merge key/value pairs into a map", () => {
-	assertEquals(
+runner.test("assoc(): should merge key/value pairs into a map", () => {
+	runner.assert(
 		core.assoc(
 			core.hashMap(types.createStringNode("foo"), types.createNumberNode(1)),
 			types.createStringNode("bar"),
@@ -1202,8 +1448,8 @@ test("assoc(): should merge key/value pairs into a map", () => {
 	);
 });
 
-test("dissoc(): should remove elements from a dict", () => {
-	assertEquals(
+runner.test("dissoc(): should remove elements from a dict", () => {
+	runner.assert(
 		core.dissoc(
 			core.hashMap(
 				types.createStringNode("foo"),
@@ -1217,8 +1463,8 @@ test("dissoc(): should remove elements from a dict", () => {
 	);
 });
 
-test("get(): should get a value from a map using a key", () => {
-	assertEquals(
+runner.test("get(): should get a value from a map using a key", () => {
+	runner.assert(
 		core.get(
 			core.hashMap(
 				types.createKeywordNode("foo:"),
@@ -1232,8 +1478,8 @@ test("get(): should get a value from a map using a key", () => {
 	);
 });
 
-test("get(): should return nil if key does not exist", () => {
-	assertEquals(
+runner.test("get(): should return nil if key does not exist", () => {
+	runner.assert(
 		core.get(
 			core.hashMap(
 				types.createKeywordNode("foo:"),
@@ -1247,8 +1493,8 @@ test("get(): should return nil if key does not exist", () => {
 	);
 });
 
-test("get(): should return nil for invalid maps", () => {
-	assertEquals(
+runner.test("get(): should return nil for invalid maps", () => {
+	runner.assert(
 		core.get(
 			types.createStringNode("sharks"),
 			types.createKeywordNode("surfers"),
@@ -1257,8 +1503,8 @@ test("get(): should return nil for invalid maps", () => {
 	);
 });
 
-test("contains(): should return true if key exists", () => {
-	assertEquals(
+runner.test("contains(): should return true if key exists", () => {
+	runner.assert(
 		core.contains(
 			core.hashMap(
 				types.createKeywordNode("foo:"),
@@ -1272,8 +1518,8 @@ test("contains(): should return true if key exists", () => {
 	);
 });
 
-test("contains(): should return false if key does not exist", () => {
-	assertEquals(
+runner.test("contains(): should return false if key does not exist", () => {
+	runner.assert(
 		core.contains(
 			core.hashMap(
 				types.createKeywordNode("foo:"),
@@ -1287,8 +1533,8 @@ test("contains(): should return false if key does not exist", () => {
 	);
 });
 
-test("keys(): should return a list of all keys in the map", () => {
-	assertEquals(
+runner.test("keys(): should return a list of all keys in the map", () => {
+	runner.assert(
 		core.keys(
 			core.hashMap(
 				types.createKeywordNode("foo:"),
@@ -1304,8 +1550,8 @@ test("keys(): should return a list of all keys in the map", () => {
 	);
 });
 
-test("vals(): should return a list of all values in the map", () => {
-	assertEquals(
+runner.test("vals(): should return a list of all values in the map", () => {
+	runner.assert(
 		core.vals(
 			core.hashMap(
 				types.createKeywordNode("foo:"),
@@ -1321,8 +1567,8 @@ test("vals(): should return a list of all values in the map", () => {
 	);
 });
 
-test("isSequential(): should return true for lists", () => {
-	assertEquals(
+runner.test("isSequential(): should return true for lists", () => {
+	runner.assert(
 		types.isSequentialNode(
 			types.createListNode([
 				types.createNumberNode(1),
@@ -1334,8 +1580,8 @@ test("isSequential(): should return true for lists", () => {
 	);
 });
 
-test("isSequential(): should return true for vectors", () => {
-	assertEquals(
+runner.test("isSequential(): should return true for vectors", () => {
+	runner.assert(
 		types.isSequentialNode(
 			types.createVectorNode([
 				types.createNumberNode(4),
@@ -1347,33 +1593,44 @@ test("isSequential(): should return true for vectors", () => {
 	);
 });
 
-test("isSequential(): should return false for non-sequential nodes", () => {
-	assertEquals(types.isSequentialNode(types.createNumberNode(42)), false);
-});
+runner.test(
+	"isSequential(): should return false for non-sequential nodes",
+	() => {
+		runner.assert(types.isSequentialNode(types.createNumberNode(42)), false);
+	},
+);
 
-test("join(): should concatenate elements with the default delimiter (spaces)", () => {
-	assertEquals(
-		core.join(
-			types.createListNode([
-				types.createNumberNode(1),
-				types.createNumberNode(2),
-				types.createStringNode("three"),
-			]),
-		),
-		types.createStringNode("1 2 three"),
-	);
-});
+runner.test(
+	"join(): should concatenate elements with the default delimiter (spaces)",
+	() => {
+		runner.assert(
+			core.join(
+				types.createListNode([
+					types.createNumberNode(1),
+					types.createNumberNode(2),
+					types.createStringNode("three"),
+				]),
+			),
+			types.createStringNode("1 2 three"),
+		);
+	},
+);
 
-test("join(): should concatenate elements with the given delimiter", () => {
-	assertEquals(
-		core.join(
-			types.createListNode([
-				types.createNumberNode(1),
-				types.createNumberNode(2),
-				types.createStringNode("three"),
-			]),
-			types.createStringNode(", "),
-		),
-		types.createStringNode("1, 2, three"),
-	);
-});
+runner.test(
+	"join(): should concatenate elements with the given delimiter",
+	() => {
+		runner.assert(
+			core.join(
+				types.createListNode([
+					types.createNumberNode(1),
+					types.createNumberNode(2),
+					types.createStringNode("three"),
+				]),
+				types.createStringNode(", "),
+			),
+			types.createStringNode("1, 2, three"),
+		);
+	},
+);
+
+runner.report();

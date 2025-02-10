@@ -1,12 +1,12 @@
 {
   "[json]": {
-    "editor.defaultFormatter": "denoland.vscode-deno"
+    "editor.defaultFormatter": "biomejs.biome"
   },
   "[jsonc]": {
-    "editor.defaultFormatter": "denoland.vscode-deno"
+    "editor.defaultFormatter": "biomejs.biome"
   },
   "[typescript]": {
-    "editor.defaultFormatter": "denoland.vscode-deno"
+    "editor.defaultFormatter": "biomejs.biome"
   },
   "deno.config": "./deno.jsonc",
   "deno.enable": true,
@@ -15,7 +15,7 @@
     "source.fixAll": "always",
     "source.organizeImports": "always"
   },
-  "editor.defaultFormatter": "denoland.vscode-deno",
+  "editor.defaultFormatter": "biomejs.biome",
   "editor.formatOnSave": true,
   "editor.rulers": [
     80

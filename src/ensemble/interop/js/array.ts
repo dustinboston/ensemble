@@ -1,4 +1,4 @@
-import * as core from "../../core.ts";
+import core from "../../core.ts";
 import * as printer from "../../printer.ts";
 import * as types from "../../types.ts";
 

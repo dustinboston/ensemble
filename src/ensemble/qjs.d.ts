@@ -4,9 +4,14 @@ declare module "qjs:os" {
 	export function remove(path: string): void;
 }
 
+declare interface File {
+	puts(text: string): void;
+	close(): void;
+}
+
 declare module "qjs:std" {
 	export function loadFile(path: string): string;
-	export function open(path: string, mode: string): any;
+	export function open(path: string, mode: string): QuickJSFile;
 	export function close(file: any): void;
 	export function getline(): string | null;
 	export const out: any;

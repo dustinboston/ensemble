@@ -4,6 +4,6 @@
 // is run from the command line. It is separate to make it easier to test the
 // io functions (by isolating them). There are no tests for this specific file.
 
-import { main } from "./io.ts";
+import io from "./io.ts";
 
-main(...scriptArgs);
+io.main(...scriptArgs);

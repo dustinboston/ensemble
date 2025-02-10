@@ -1,4 +1,4 @@
-import * as core from "../../core.ts";
+import core from "../../core.ts";
 import * as types from "../../types.ts";
 
 export const operators: Array<[string, types.Closure]> = [

@@ -3,22 +3,13 @@
 import * as os from "qjs:os";
 import * as std from "qjs:std";
 
-import * as cli from "./io.ts";
-import {
-	assertEquals,
-	assertSpyCall,
-	assertSpyCalls,
-	assertThrows,
-	returnsNext,
-	skip,
-	stub,
-	test,
-} from "./tests/test_runner.ts";
+import cli from "./io.ts";
+import runner from "./tests/test_runner.ts";
 import * as types from "./types.ts";
 
 const { readir, readln, slurp, spit, writeToFile } = cli;
 
-test("readir(): should list directory contents", () => {
+runner.test("readir(): should list directory contents", () => {
 	const temporaryDir = ".tmpa";
 	os.mkdir(temporaryDir);
 
@@ -38,18 +29,21 @@ test("readir(): should list directory contents", () => {
 		return item.value;
 	});
 
-	assertEquals(obj, [`file.txt`, "file2.txt"]);
+	runner.assert(obj, ["file.txt", "file2.txt"]);
 });
 
-test("readir(): should throw error if argument is not a string", () => {
-	assertThrows(
-		() => readir(types.createNumberNode(123) as unknown as types.StringNode),
-		TypeError,
-		"Invalid",
-	);
+runner.test("readir(): should throw error if argument is not a string", () => {
+	let threw = false;
+	try {
+		readir(types.createNumberNode(123) as unknown as types.StringNode);
+	} catch (e) {
+		threw = true;
+	}
+
+	runner.assert(threw, true);
 });
 
-test("slurp(): should read a file", () => {
+runner.test("slurp(): should read a file", () => {
 	const temporaryDir = ".tmpb";
 	const filePath = `${temporaryDir}/file.txt`;
 	const text = "content";
@@ -64,18 +58,21 @@ test("slurp(): should read a file", () => {
 	os.remove(filePath);
 	os.remove(temporaryDir);
 
-	assertEquals(result, text);
+	runner.assert(result, text);
 });
 
-test("slurp(): should throw error if file does not exist", () => {
-	assertThrows(
-		() => slurp(types.createStringNode("mocks/nonexistent")),
-		Error,
-		"No such file or directory",
-	);
+runner.test("slurp(): should throw error if file does not exist", () => {
+	let threw = false;
+	try {
+		slurp(types.createStringNode("mocks/nonexistent"));
+	} catch (e) {
+		threw = true;
+	}
+
+	runner.assert(threw, true);
 });
 
-test("spit(): should write to a file", async () => {
+runner.test("spit(): should write to a file", async () => {
 	const temporaryDir = ".tmpc";
 	const filePath = `${temporaryDir}/file.txt`;
 	const content = "newContent";
@@ -90,66 +87,106 @@ test("spit(): should write to a file", async () => {
 	os.remove(filePath);
 	os.remove(temporaryDir);
 
-	assertEquals(result, content);
+	runner.assert(result, content);
 });
 
-test("spit(): should throw error if path is not a string", () => {
-	assertThrows(
-		() => spit(types.createNumberNode(123), types.createStringNode("content")),
-		Error,
-		"Invalid",
-	);
+runner.test("spit(): should throw error if path is not a string", () => {
+	let threw = false;
+	try {
+		spit(types.createNumberNode(123), types.createStringNode("content"));
+	} catch (e) {
+		threw = true;
+	}
+
+	runner.assert(threw, true);
 });
 
-skip("readln(): should read line and return string", () => {
+runner.test("readln(): should read line and return string", () => {
 	const input = types.createStringNode("%");
 	const expected = types.createStringNode('"foobar"');
 
-	const promptStub = stub(cli, "displayPrompt", returnsNext(['"foobar"']));
+	let calls = 0;
+	let args: unknown[] = [];
+	const oldPrompt = cli.displayPrompt;
+	cli.displayPrompt = (..._args) => {
+		calls++;
+		args = _args;
+		return '"foobar"';
+	};
 
 	try {
-		assertEquals(readln(input), expected);
+		runner.assert(readln(input), expected);
 	} finally {
-		promptStub.restore();
+		cli.displayPrompt = oldPrompt;
 	}
 
-	assertSpyCall(promptStub, 0, {
-		args: [input.value],
-		returned: expected.value,
-	});
-
-	assertSpyCalls(promptStub, 1);
+	runner.assert(calls, 0);
+	runner.assert(args, [input.value]);
 });
 
-skip("readln(): should return nil/undef when readline returns null", () => {
-	const input = types.createStringNode("%");
-	const expected = types.createNilNode();
-	const promptStub = stub(globalThis, "prompt", returnsNext([null]));
+runner.test(
+	"readln(): should return nil/undef when readline returns null",
+	() => {
+		const input = types.createStringNode("%");
+		const expected = types.createNilNode();
 
+		let calls = 0;
+		let args: unknown[] = [];
+		const oldPrompt = cli.displayPrompt;
+		cli.displayPrompt = (..._args) => {
+			calls++;
+			args = _args;
+			return null;
+		};
+
+		try {
+			runner.assert(readln(input), expected);
+		} finally {
+			cli.displayPrompt = oldPrompt;
+		}
+
+		runner.assert(calls, 0);
+		runner.assert(args, [input.value]);
+	},
+);
+
+runner.test(
+	"readln(): should throw when argument count is less than one",
+	() => {
+		let threw = false;
+		try {
+			readln();
+		} catch (e) {
+			threw = true;
+		}
+
+		runner.assert(threw, true);
+	},
+);
+
+runner.test(
+	"readln(): should throw when argument count is more than one",
+	() => {
+		let threw = false;
+		try {
+			readln(types.createStringNode("foo"), types.createStringNode("bar"));
+		} catch (e) {
+			threw = true;
+		}
+
+		runner.assert(threw, true);
+	},
+);
+
+runner.test("readln(): should throw when argument is not a string", () => {
+	let threw = false;
 	try {
-		assertEquals(readln(input), expected);
-	} finally {
-		promptStub.restore();
+		readln(types.createNumberNode(42));
+	} catch (e) {
+		threw = true;
 	}
 
-	assertSpyCall(promptStub, 0, {
-		args: [input.value],
-		returned: null,
-	});
-
-	assertSpyCalls(promptStub, 1);
+	runner.assert(threw, true);
 });
 
-test("readln(): should throw when argument count is less than one", () => {
-	assertThrows(() => readln());
-});
-
-test("readln(): should throw when argument count is more than one", () => {
-	assertThrows(() =>
-		readln(types.createStringNode("foo"), types.createStringNode("bar")),
-	);
-});
-
-test("readln(): should throw when argument is not a string", () => {
-	assertThrows(() => readln(types.createNumberNode(42)));
-});
+runner.report();

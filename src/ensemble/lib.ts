@@ -3,7 +3,7 @@
  * language. Additionally, it adds the core functions: meta, with-meta, the
  * reader macro (^), time-ms, conj, string?, number?, fn?, macro?, and seq,.
  */
-import * as core from "./core.ts";
+import core from "./core.ts";
 import * as env from "./env.ts";
 import * as html from "./interop/html.ts";
 import * as js from "./interop/js.ts";

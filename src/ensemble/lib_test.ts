@@ -19,18 +19,13 @@ import {
 	macroExpand,
 	quasiQuote,
 } from "./lib.ts";
+import runner from "./tests/test_runner.ts";
 import {
-	assertEquals,
-	assertExists,
-	assertInstanceOf,
-	assertThrows,
-	test,
-} from "./tests/test_runner.ts";
-import {
+	type AstNode,
+	type ClosureMetadata,
+	FunctionNode,
+	type NumberNode,
 	assertDefined,
-	assertFunctionNode,
-	AstNode,
-	ClosureMetadata,
 	createBooleanNode,
 	createDomNode,
 	createFunctionNode,
@@ -41,74 +36,81 @@ import {
 	createStringNode,
 	createSymbolNode,
 	createVectorNode,
-	FunctionNode,
 	isFunctionNode,
 	isNumberNode,
-	NumberNode,
 } from "./types.ts";
 
-test("quasiquote(): should quote a symbol", () => {
+runner.test("quasiquote(): should quote a symbol", () => {
 	const input = createSymbolNode("a");
 	const expected = createListNode([createSymbolNode("quote"), input]);
-	assertEquals(quasiQuote(input), expected);
+	runner.assert(quasiQuote(input), expected);
 });
 
-test("quasiquote(): should quote a dictionary", () => {
+runner.test("quasiquote(): should quote a dictionary", () => {
 	const input = createMapNode(new Map([["a", createSymbolNode("b")]]));
 	const expected = createListNode([createSymbolNode("quote"), input]);
-	assertEquals(quasiQuote(input), expected);
+	runner.assert(quasiQuote(input), expected);
 });
 
-test("quasiquote(): should quote a Symbol", () => {
+runner.test("quasiquote(): should quote a Symbol", () => {
 	const input = createSymbolNode("someSymbol");
 	const expected = createListNode([createSymbolNode("quote"), input]);
-	assertEquals(quasiQuote(input), expected);
+	runner.assert(quasiQuote(input), expected);
 });
 
 // Non-sequential types
-test("quasiquote(): should quote a nil", () => {
+runner.test("quasiquote(): should quote a nil", () => {
 	const input = createNilNode();
-	assertEquals(quasiQuote(input), input);
+	runner.assert(quasiQuote(input), input);
 });
 
-test("quasiquote(): should quote a number", () => {
+runner.test("quasiquote(): should quote a number", () => {
 	const input = createNumberNode(42);
-	assertEquals(quasiQuote(input), input);
+	runner.assert(quasiQuote(input), input);
 });
 
 // Unquoted
-test("quasiquote(): should unquote a symbol unquote in List", () => {
+runner.test("quasiquote(): should unquote a symbol unquote in List", () => {
 	const input = createListNode([
 		createSymbolNode("unquote"),
 		createSymbolNode("x"),
 	]);
-	assertEquals(quasiQuote(input), createSymbolNode("x"));
+	runner.assert(quasiQuote(input), createSymbolNode("x"));
 });
 
 // Splice-unquote
-test("quasiquote(): should concat a symbol within a list with splice-unquote", () => {
-	const input = createListNode([
-		createListNode([createSymbolNode("splice-unquote"), createSymbolNode("x")]),
-	]);
-	const expected = createListNode([
-		createSymbolNode("concat"),
-		createSymbolNode("x"),
-		createListNode([]),
-	]);
-	assertEquals(quasiQuote(input), expected);
-});
+runner.test(
+	"quasiquote(): should concat a symbol within a list with splice-unquote",
+	() => {
+		const input = createListNode([
+			createListNode([
+				createSymbolNode("splice-unquote"),
+				createSymbolNode("x"),
+			]),
+		]);
+		const expected = createListNode([
+			createSymbolNode("concat"),
+			createSymbolNode("x"),
+			createListNode([]),
+		]);
+		runner.assert(quasiQuote(input), expected);
+	},
+);
 
-test("quasiquote(): should cons a symbol within a list with splice-unquote", () => {
-	const input = createListNode([createSymbolNode("y")]);
-	const expected = createListNode([
-		createSymbolNode("cons"),
-		createListNode([createSymbolNode("quote"), createSymbolNode("y")]),
-		createListNode([]),
-	]);
-	assertEquals(quasiQuote(input), expected);
-});
+runner.test(
+	"quasiquote(): should cons a symbol within a list with splice-unquote",
+	() => {
+		const input = createListNode([createSymbolNode("y")]);
+		const expected = createListNode([
+			createSymbolNode("cons"),
+			createListNode([createSymbolNode("quote"), createSymbolNode("y")]),
+			createListNode([]),
+		]);
+		runner.assert(quasiQuote(input), expected);
+	},
+);
 
-test("quasiquote(): should quote a with Vec", () => {
+runner.test("quasiquote(): should quote a with Vec", () => {
 	const input = createVectorNode([createSymbolNode("z")]);
 	const intermediate = createListNode([
 		createSymbolNode("cons"),
@@ -116,10 +118,10 @@ test("quasiquote(): should quote a with Vec", () => {
 		createListNode([]),
 	]);
 	const expected = createListNode([createSymbolNode("vec"), intermediate]);
-	assertEquals(quasiQuote(input), expected);
+	runner.assert(quasiQuote(input), expected);
 });
 
-test("evaluateDefMacro(): should define a macro", () => {
+runner.test("evaluateDefMacro(): should define a macro", () => {
 	const result = evaluateDefMacro(
 		createListNode([
 			createSymbolNode("defmacro!"),
@@ -130,11 +132,11 @@ test("evaluateDefMacro(): should define a macro", () => {
 	);
 
 	const fn = result.return as FunctionNode;
-	assertInstanceOf(fn, FunctionNode);
-	assertEquals(fn.isMacro, true);
+	runner.assert(fn instanceof FunctionNode, true);
+	runner.assert(fn.isMacro, true);
 });
 
-test("evaluateDefMacro(): should throw error on invalid key", () => {
+runner.test("evaluateDefMacro(): should throw error on invalid key", () => {
 	const env = new Env();
 	const ast = createListNode([
 		createSymbolNode("defmacro!"),
@@ -142,14 +144,17 @@ test("evaluateDefMacro(): should throw error on invalid key", () => {
 		createFunctionNode(() => createNilNode()),
 	]);
 
-	assertThrows(
-		() => evaluateDefMacro(ast, env),
-		Error,
-		"Invalid dictionary key",
-	);
+	let threw = false;
+	try {
+		evaluateDefMacro(ast, env);
+	} catch (e) {
+		threw = true;
+	}
+
+	runner.assert(threw, true);
 });
 
-test("evaluateDefMacro(): should copy metadata", () => {
+runner.test("evaluateDefMacro(): should copy metadata", () => {
 	const result = evaluateDefMacro(
 		createListNode([
 			createSymbolNode("defmacro!"),
@@ -165,64 +170,82 @@ test("evaluateDefMacro(): should copy metadata", () => {
 	);
 
 	const fn = result.return as FunctionNode;
-	assertInstanceOf(fn, FunctionNode);
-	assertEquals(fn.metadata?.value, "meta");
+	runner.assert(fn instanceof FunctionNode, true);
+	runner.assert(fn.metadata?.value, "meta");
 });
 
-test("isMacroCall(): should return false for non-list ast", () => {
+runner.test("isMacroCall(): should return false for non-list ast", () => {
 	const env = new Env();
 	const ast = createSymbolNode("a");
-	assertEquals(isMacroCall(ast, env), false);
+	runner.assert(isMacroCall(ast, env), false);
 });
 
-test("isMacroCall(): should return false for list with non-Sym first element", () => {
-	const env = new Env();
-	const ast = createListNode([createListNode([])]);
-	assertEquals(isMacroCall(ast, env), false);
-});
+runner.test(
+	"isMacroCall(): should return false for list with non-Sym first element",
+	() => {
+		const env = new Env();
+		const ast = createListNode([createListNode([])]);
+		runner.assert(isMacroCall(ast, env), false);
+	},
+);
 
-test("isMacroCall(): should return false when symbol not found in any env", () => {
-	const env = new Env();
-	const ast = createListNode([createSymbolNode("unknown")]);
-	assertEquals(isMacroCall(ast, env), false);
-});
+runner.test(
+	"isMacroCall(): should return false when symbol not found in any env",
+	() => {
+		const env = new Env();
+		const ast = createListNode([createSymbolNode("unknown")]);
+		runner.assert(isMacroCall(ast, env), false);
+	},
+);
 
-test("isMacroCall(): should return false when symbol is found but not a function", () => {
-	const env = new Env();
-	env.set(createSymbolNode("a"), createListNode([]));
-	const ast = createListNode([createSymbolNode("a")]);
-	assertEquals(isMacroCall(ast, env), false);
-});
+runner.test(
+	"isMacroCall(): should return false when symbol is found but not a function",
+	() => {
+		const env = new Env();
+		env.set(createSymbolNode("a"), createListNode([]));
+		const ast = createListNode([createSymbolNode("a")]);
+		runner.assert(isMacroCall(ast, env), false);
+	},
+);
 
-test("isMacroCall(): should return false when function is not a macro", () => {
-	const env = new Env();
-	const fn = createFunctionNode(() => createNilNode());
-	fn.isMacro = false;
-	env.set(createSymbolNode("a"), fn);
-	const ast = createListNode([createSymbolNode("a")]);
-	assertEquals(isMacroCall(ast, env), false);
-});
+runner.test(
+	"isMacroCall(): should return false when function is not a macro",
+	() => {
+		const env = new Env();
+		const fn = createFunctionNode(() => createNilNode());
+		fn.isMacro = false;
+		env.set(createSymbolNode("a"), fn);
+		const ast = createListNode([createSymbolNode("a")]);
+		runner.assert(isMacroCall(ast, env), false);
+	},
+);
 
-test("isMacroCall(): should return true when function is a macro", () => {
-	const env = new Env();
-	const fn = createFunctionNode(() => createNilNode());
-	fn.isMacro = true;
-	env.set(createSymbolNode("a"), fn);
-	const ast = createListNode([createSymbolNode("a")]);
-	assertEquals(isMacroCall(ast, env), true);
-});
+runner.test(
+	"isMacroCall(): should return true when function is a macro",
+	() => {
+		const env = new Env();
+		const fn = createFunctionNode(() => createNilNode());
+		fn.isMacro = true;
+		env.set(createSymbolNode("a"), fn);
+		const ast = createListNode([createSymbolNode("a")]);
+		runner.assert(isMacroCall(ast, env), true);
+	},
+);
 
-test("macroExpand(): should return the same AST when not a macro call", () => {
-	const env = new Env();
-	const ast = createListNode([
-		createSymbolNode("not_a_macro"),
-		createSymbolNode("a"),
-	]);
-	const expanded = macroExpand(ast, env);
-	assertEquals(expanded, ast);
-});
+runner.test(
+	"macroExpand(): should return the same AST when not a macro call",
+	() => {
+		const env = new Env();
+		const ast = createListNode([
+			createSymbolNode("not_a_macro"),
+			createSymbolNode("a"),
+		]);
+		const expanded = macroExpand(ast, env);
+		runner.assert(expanded, ast);
+	},
+);
 
-test("macroExpand(): should expand a single-layer macro", () => {
+runner.test("macroExpand(): should expand a single-layer macro", () => {
 	const env = new Env();
 	const macroFunc = createFunctionNode((...args) =>
 		createListNode([createSymbolNode("quote"), ...args]),
@@ -236,13 +259,13 @@ test("macroExpand(): should expand a single-layer macro", () => {
 	]);
 	const expanded = macroExpand(ast, env);
 
-	assertEquals(
+	runner.assert(
 		expanded,
 		createListNode([createSymbolNode("quote"), createSymbolNode("a")]),
 	);
 });
 
-test("macroExpand(): should expand nested macros", () => {
+runner.test("macroExpand(): should expand nested macros", () => {
 	const env = new Env();
 	const macroFunc1 = createFunctionNode((...args) =>
 		createListNode([createSymbolNode("quote"), ...args]),
@@ -262,49 +285,49 @@ test("macroExpand(): should expand nested macros", () => {
 	]);
 	const expanded = macroExpand(ast, env);
 
-	assertEquals(
+	runner.assert(
 		expanded,
 		createListNode([createSymbolNode("quote"), createSymbolNode("a")]),
 	);
 });
 
-test("evaluateAst(): should return the value for a symbol", () => {
+runner.test("evaluateAst(): should return the value for a symbol", () => {
 	const env = new Env();
 	const sym = createSymbolNode("x");
 	env.set(sym, createNumberNode(1));
 	const result = evaluateAst(sym, env);
-	assertEquals(result, createNumberNode(1));
+	runner.assert(result, createNumberNode(1));
 });
 
-test("evaluateAst(): should evaluate vectors", () => {
+runner.test("evaluateAst(): should evaluate vectors", () => {
 	const env = new Env();
 	const vec = createVectorNode([createNumberNode(1)]);
 	const result = evaluateAst(vec, env);
-	assertEquals(result, createVectorNode([createNumberNode(1)]));
+	runner.assert(result, createVectorNode([createNumberNode(1)]));
 });
 
-test("evaluateAst(): should evaluate lists", () => {
+runner.test("evaluateAst(): should evaluate lists", () => {
 	const env = new Env();
 	const list = createListNode([createNumberNode(1)]);
 	const result = evaluateAst(list, env);
-	assertEquals(result, createListNode([createNumberNode(1)]));
+	runner.assert(result, createListNode([createNumberNode(1)]));
 });
 
-test("evaluateAst(): should evaluate dictionaries", () => {
+runner.test("evaluateAst(): should evaluate dictionaries", () => {
 	const env = new Env();
 	const dict = createMapNode(new Map([["a", createNumberNode(1)]]));
 	const result = evaluateAst(dict, env);
-	assertEquals(result, createMapNode(new Map([["a", createNumberNode(1)]])));
+	runner.assert(result, createMapNode(new Map([["a", createNumberNode(1)]])));
 });
 
-test("evaluateAst(): should evaluate DomNodes", () => {
+runner.test("evaluateAst(): should evaluate DomNodes", () => {
 	const env = new Env();
 	const domNode = createDomNode(
 		"a",
 		new Map([["href", createStringNode("https://example.com")]]),
 	);
 	const result = evaluateAst(domNode, env);
-	assertEquals(
+	runner.assert(
 		result,
 		createDomNode(
 			"a",
@@ -313,14 +336,17 @@ test("evaluateAst(): should evaluate DomNodes", () => {
 	);
 });
 
-test("evaluateAst(): should return the input for unsupported types", () => {
-	const env = new Env();
-	const number_ = createNumberNode(1);
-	const result = evaluateAst(number_, env);
-	assertEquals(result, createNumberNode(1));
-});
+runner.test(
+	"evaluateAst(): should return the input for unsupported types",
+	() => {
+		const env = new Env();
+		const number_ = createNumberNode(1);
+		const result = evaluateAst(number_, env);
+		runner.assert(result, createNumberNode(1));
+	},
+);
 
-test("evaluate(): should handle 'def!' correctly", () => {
+runner.test("evaluate(): should handle 'def!' correctly", () => {
 	const env = new Env();
 	const result = evaluate(
 		createListNode([
@@ -330,10 +356,10 @@ test("evaluate(): should handle 'def!' correctly", () => {
 		]),
 		env,
 	);
-	assertEquals(isNumberNode(result), true);
+	runner.assert(isNumberNode(result), true);
 });
 
-test("evaluate(): should handle 'let*' correctly", () => {
+runner.test("evaluate(): should handle 'let*' correctly", () => {
 	const env = new Env();
 	const result = evaluate(
 		createListNode([
@@ -344,39 +370,39 @@ test("evaluate(): should handle 'let*' correctly", () => {
 		env,
 	);
 	// Tail-call
-	assertEquals(isNumberNode(result), true);
+	runner.assert(isNumberNode(result), true);
 });
 
-test("evaluate(): should handle 'quote' correctly", () => {
+runner.test("evaluate(): should handle 'quote' correctly", () => {
 	const env = new Env();
 	const result = evaluate(
 		createListNode([createSymbolNode("quote"), createNumberNode(1)]),
 		env,
 	);
-	assertEquals(isNumberNode(result), true);
+	runner.assert(isNumberNode(result), true);
 });
 
-test("evaluate(): should handle 'quasiquoteexpand' correctly", () => {
+runner.test("evaluate(): should handle 'quasiquoteexpand' correctly", () => {
 	const env = new Env();
 	const result = evaluate(
 		createListNode([createSymbolNode("quasiquoteexpand"), createNumberNode(1)]),
 		env,
 	);
-	assertEquals(isNumberNode(result), true);
+	runner.assert(isNumberNode(result), true);
 });
 
-test("evaluate(): should handle 'quasiquote' correctly", () => {
+runner.test("evaluate(): should handle 'quasiquote' correctly", () => {
 	const env = new Env();
 	const result = evaluate(
 		createListNode([createSymbolNode("quasiquote"), createNumberNode(1)]),
 		env,
 	);
 	// Tail-call
-	assertEquals(isNumberNode(result), true);
+	runner.assert(isNumberNode(result), true);
 });
 
 // Test for debugging expansion:
-test("evaluate(): Should create a macro", () => {
+runner.test("evaluate(): Should create a macro", () => {
 	// Input MAL looks like this:
 	// (defmacro! hotdog (fn* () "🌭") ;=>#<fn>
 	// (hotdog) ;=> "🌭"
@@ -393,10 +419,10 @@ test("evaluate(): Should create a macro", () => {
 
 	const result = evaluate(createListNode([createSymbolNode("hotdog")]), env);
 
-	assertEquals(result, createStringNode("🌭"));
+	runner.assert(result, createStringNode("🌭"));
 });
 
-test("evaluate(): 'defmacro!' body can be anything", () => {
+runner.test("evaluate(): 'defmacro!' body can be anything", () => {
 	const result = evaluate(
 		createListNode([
 			createSymbolNode("defmacro!"),
@@ -405,38 +431,38 @@ test("evaluate(): 'defmacro!' body can be anything", () => {
 		]),
 		new Env(),
 	);
-	assertEquals(isNumberNode(result), true);
+	runner.assert(isNumberNode(result), true);
 });
 
-test("evaluate(): should handle 'macroexpand' correctly", () => {
+runner.test("evaluate(): should handle 'macroexpand' correctly", () => {
 	const env = new Env();
 	const result = evaluate(
 		createListNode([createSymbolNode("macroexpand"), createNumberNode(1)]),
 		env,
 	);
-	assertEquals(isNumberNode(result), true);
+	runner.assert(isNumberNode(result), true);
 });
 
-test("evaluate(): should handle 'try*' correctly", () => {
+runner.test("evaluate(): should handle 'try*' correctly", () => {
 	const env = new Env();
 	const result = evaluate(
 		createListNode([createSymbolNode("try*"), createNumberNode(1)]),
 		env,
 	);
-	assertEquals(isNumberNode(result), true);
+	runner.assert(isNumberNode(result), true);
 });
 
-test("evaluate(): should handle 'do' correctly", () => {
+runner.test("evaluate(): should handle 'do' correctly", () => {
 	const env = new Env();
 	const result = evaluate(
 		createListNode([createSymbolNode("do"), createNumberNode(1)]),
 		env,
 	);
 	// Tail-call
-	assertEquals(isNumberNode(result), true);
+	runner.assert(isNumberNode(result), true);
 });
 
-test("evaluate(): should handle 'if' correctly", () => {
+runner.test("evaluate(): should handle 'if' correctly", () => {
 	const env = new Env();
 	const result = evaluate(
 		createListNode([
@@ -446,10 +472,10 @@ test("evaluate(): should handle 'if' correctly", () => {
 		]),
 		env,
 	);
-	assertEquals(isNumberNode(result), true);
+	runner.assert(isNumberNode(result), true);
 });
 
-test("evaluate(): should handle 'fn*' correctly", () => {
+runner.test("evaluate(): should handle 'fn*' correctly", () => {
 	const env = new Env();
 	const result = evaluate(
 		createListNode([
@@ -459,10 +485,10 @@ test("evaluate(): should handle 'fn*' correctly", () => {
 		]),
 		env,
 	);
-	assertEquals(isFunctionNode(result), true);
+	runner.assert(isFunctionNode(result), true);
 });
 
-test("evaluate(): should handle default case correctly", () => {
+runner.test("evaluate(): should handle default case correctly", () => {
 	const env = new Env();
 	env.set(
 		createSymbolNode("+"),
@@ -476,10 +502,10 @@ test("evaluate(): should handle default case correctly", () => {
 		]),
 		env,
 	);
-	assertEquals(isNumberNode(result), true);
+	runner.assert(isNumberNode(result), true);
 });
 
-test("evaluateDef(): should define a global variable", () => {
+runner.test("evaluateDef(): should define a global variable", () => {
 	const env = new Env();
 	const variableName = createSymbolNode("y");
 	const variableValue = createNumberNode(3);
@@ -492,22 +518,27 @@ test("evaluateDef(): should define a global variable", () => {
 	const result = evaluateDef(ast, env);
 
 	// Validate the return type and value
-	assertEquals(result.return, variableValue);
+	runner.assert(result.return, variableValue);
 
 	// Validate if the variable is set in environment
-	assertEquals(env.get(variableName), variableValue);
+	runner.assert(env.get(variableName), variableValue);
 });
 
-test("evaluateDef(): should throw an error for incorrect AST", () => {
+runner.test("evaluateDef(): should throw an error for incorrect AST", () => {
 	const env = new Env();
 	const ast = createListNode([createSymbolNode("def!")]);
 
-	assertThrows(() => {
+	let threw = false;
+	try {
 		evaluateDef(ast, env);
-	});
+	} catch (e) {
+		threw = true;
+	}
+
+	runner.assert(threw, true);
 });
 
-test("evaluateLet(): should define variables in a new scope", () => {
+runner.test("evaluateLet(): should define variables in a new scope", () => {
 	const env = new Env();
 	const varName1 = createSymbolNode("a");
 	const varValue1 = createNumberNode(1);
@@ -521,12 +552,12 @@ test("evaluateLet(): should define variables in a new scope", () => {
 	const result = evaluateLet(ast, env);
 
 	assertDefined(result.continue);
-	assertEquals(result.continue?.ast, body);
-	assertEquals(result.continue?.env.get(varName1), varValue1);
-	assertEquals(result.continue?.env.get(varName2), varValue2);
+	runner.assert(result.continue?.ast, body);
+	runner.assert(result.continue?.env.get(varName1), varValue1);
+	runner.assert(result.continue?.env.get(varName2), varValue2);
 });
 
-test("evaluateLet(): allows shadowing", () => {
+runner.test("evaluateLet(): allows shadowing", () => {
 	const env = new Env();
 	env.set(createSymbolNode("a"), createNumberNode(2));
 	const bindings = createListNode([createSymbolNode("a"), createNumberNode(3)]);
@@ -537,37 +568,33 @@ test("evaluateLet(): allows shadowing", () => {
 	const newEnv = result.continue?.env;
 	const finalAst = result.continue?.ast;
 
-	assertExists(finalAst);
-	assertExists(newEnv);
-	assertEquals(evaluate(finalAst, newEnv), createNumberNode(3));
+	runner.assert(finalAst !== undefined, true);
+	runner.assert(newEnv !== undefined, true);
+	runner.assert(evaluate(finalAst, newEnv), createNumberNode(3));
 });
 
-test("evaluateLet(): throws for incorrect AST", () => {
+runner.test("evaluateLet(): throws for incorrect AST", () => {
 	const env = new Env();
 	const ast = createListNode([createSymbolNode("let*")]);
 
-	assertThrows(() => {
+	let threw = false;
+	try {
 		evaluateLet(ast, env);
-	});
+	} catch (e) {
+		threw = true;
+	}
+
+	runner.assert(threw, true);
 });
 
-test("evaluateLet(): should throw an error for incorrect AST", () => {
-	const env = new Env();
-	const ast = createListNode([createSymbolNode("let*")]);
-
-	assertThrows(() => {
-		evaluateLet(ast, env);
-	});
-});
-
-test("evaluateQuote(): with a number", () => {
+runner.test("evaluateQuote(): with a number", () => {
 	const input = createNumberNode(7);
 	const quoted = createListNode([createSymbolNode("quote"), input]);
 	const result = evaluateQuote(quoted, new Env(undefined));
-	assertEquals(result.return, input);
+	runner.assert(result.return, input);
 });
 
-test("evaluateQuote(): with a list of numbers", () => {
+runner.test("evaluateQuote(): with a list of numbers", () => {
 	const input = createListNode([
 		createNumberNode(1),
 		createNumberNode(2),
@@ -575,10 +602,10 @@ test("evaluateQuote(): with a list of numbers", () => {
 	]);
 	const quoted = createListNode([createSymbolNode("quote"), input]);
 	const result = evaluateQuote(quoted, new Env(undefined));
-	assertEquals(result.return, input);
+	runner.assert(result.return, input);
 });
 
-test("evaluateQuote(): with nested lists", () => {
+runner.test("evaluateQuote(): with nested lists", () => {
 	const input = createListNode([
 		createNumberNode(1),
 		createNumberNode(2),
@@ -586,29 +613,34 @@ test("evaluateQuote(): with nested lists", () => {
 	]);
 	const quoted = createListNode([createSymbolNode("quote"), input]);
 	const result = evaluateQuote(quoted, new Env(undefined));
-	assertEquals(result.return, input);
+	runner.assert(result.return, input);
 });
 
-test("evaluateQuote(): should return the quoted expression", () => {
+runner.test("evaluateQuote(): should return the quoted expression", () => {
 	const env = new Env();
 	const quotedExpr = createListNode([createNumberNode(1), createNumberNode(2)]);
 	const ast = createListNode([createSymbolNode("quote"), quotedExpr]);
 
 	const result = evaluateQuote(ast, env);
 
-	assertEquals(result.return, quotedExpr);
+	runner.assert(result.return, quotedExpr);
 });
 
-test("evaluateQuote(): should throw an error for incorrect AST", () => {
+runner.test("evaluateQuote(): should throw an error for incorrect AST", () => {
 	const env = new Env();
 	const ast = createListNode([createSymbolNode("quote")]);
 
-	assertThrows(() => {
+	let threw = false;
+	try {
 		evaluateQuote(ast, env);
-	});
+	} catch (e) {
+		threw = true;
+	}
+
+	runner.assert(threw, true);
 });
 
-test("evaluateQuasiQuoteExpand(): returns expanded form", () => {
+runner.test("evaluateQuasiQuoteExpand(): returns expanded form", () => {
 	const ast = createListNode([
 		createSymbolNode("quasiquoteexpand"),
 		createListNode([createSymbolNode("unquote"), createSymbolNode("a")]),
@@ -619,18 +651,23 @@ test("evaluateQuasiQuoteExpand(): returns expanded form", () => {
 		createListNode([createSymbolNode("unquote"), createSymbolNode("a")]),
 	);
 
-	assertEquals(result.return, expectedResult);
+	runner.assert(result.return, expectedResult);
 });
 
-test("evaluateQuasiQuoteExpand(): throws for incorrect AST", () => {
+runner.test("evaluateQuasiQuoteExpand(): throws for incorrect AST", () => {
 	const ast = createListNode([createSymbolNode("quasiquoteexpand")]);
 
-	assertThrows(() => {
+	let threw = false;
+	try {
 		evaluateQuasiQuoteExpand(ast, new Env());
-	});
+	} catch (e) {
+		threw = true;
+	}
+
+	runner.assert(threw, true);
 });
 
-test("evaluateQuasiQuote(): performs quasiquote transformation", () => {
+runner.test("evaluateQuasiQuote(): performs quasiquote transformation", () => {
 	const ast = createListNode([
 		createSymbolNode("quasiquote"),
 		createListNode([createSymbolNode("unquote"), createSymbolNode("a")]),
@@ -642,19 +679,24 @@ test("evaluateQuasiQuote(): performs quasiquote transformation", () => {
 		createListNode([createSymbolNode("unquote"), createSymbolNode("a")]),
 	);
 
-	assertEquals(result.continue?.ast, expectedResult);
-	assertEquals(result.continue?.env, env);
+	runner.assert(result.continue?.ast, expectedResult);
+	runner.assert(result.continue?.env, env);
 });
 
-test("evaluateQuasiQuote(): throws for incorrect AST", () => {
+runner.test("evaluateQuasiQuote(): throws for incorrect AST", () => {
 	const ast = createListNode([createSymbolNode("quasiquote")]);
 
-	assertThrows(() => {
+	let threw = false;
+	try {
 		evaluateQuasiQuote(ast, new Env());
-	});
+	} catch (e) {
+		threw = true;
+	}
+
+	runner.assert(threw, true);
 });
 
-test("evaluateDefMacro(): defines a macro", () => {
+runner.test("evaluateDefMacro(): defines a macro", () => {
 	const ast = createListNode([
 		createSymbolNode("defmacro!"),
 		createSymbolNode("one"),
@@ -669,47 +711,55 @@ test("evaluateDefMacro(): defines a macro", () => {
 	const result = evaluateDefMacro(ast, env);
 	const fn = env.get(createSymbolNode("one")) as FunctionNode;
 
-	assertEquals(isFunctionNode(fn), true);
-	assertEquals(fn.isMacro, true);
-	assertEquals(result.return, fn);
+	runner.assert(isFunctionNode(fn), true);
+	runner.assert(fn.isMacro, true);
+	runner.assert(result.return, fn);
 });
 
-test("evaluateDefMacro(): throws for incorrect AST", () => {
+runner.test("evaluateDefMacro(): throws for incorrect AST", () => {
 	const ast = createListNode([createSymbolNode("defmacro!")]);
 
-	assertThrows(() => {
+	let threw = false;
+	try {
 		evaluateDefMacro(ast, new Env());
-	});
+	} catch (e) {
+		threw = true;
+	}
+
+	runner.assert(threw, true);
 });
 
-test("evaluateDo(): processes a single action and returns it", () => {
+runner.test("evaluateDo(): processes a single action and returns it", () => {
 	const ast = createListNode([createSymbolNode("do"), createNumberNode(3)]);
 	const env = new Env();
 	const result = evaluateDo(ast, env);
-	assertEquals(result.continue?.ast, createNumberNode(3));
+	runner.assert(result.continue?.ast, createNumberNode(3));
 });
 
-test("evaluateDo(): processes multiple actions and returns the last one", () => {
-	const ast = createListNode([
-		createSymbolNode("do"),
-		createNumberNode(3),
-		createNumberNode(4),
-		createStringNode("hello"),
-	]);
+runner.test(
+	"evaluateDo(): processes multiple actions and returns the last one",
+	() => {
+		const ast = createListNode([
+			createSymbolNode("do"),
+			createNumberNode(3),
+			createNumberNode(4),
+			createStringNode("hello"),
+		]);
 
-	const env = new Env();
-	const result = evaluateDo(ast, env);
-	assertEquals(result.continue?.ast, createStringNode("hello"));
-});
+		const env = new Env();
+		const result = evaluateDo(ast, env);
+		runner.assert(result.continue?.ast, createStringNode("hello"));
+	},
+);
 
-test("evaluateTry(): evaluates without errors", () => {
+runner.test("evaluateTry(): evaluates without errors", () => {
 	const ast = createListNode([createSymbolNode("try*"), createNumberNode(42)]);
 	const env = new Env();
 	const result = evaluateTry(ast, env);
-	assertEquals(result.return, createNumberNode(42));
+	runner.assert(result.return, createNumberNode(42));
 });
 
-test("evaluateTry(): catches thrown error and handles it", () => {
+runner.test("evaluateTry(): catches thrown error and handles it", () => {
 	const ast = createListNode([
 		createSymbolNode("try*"),
 		createListNode([
@@ -730,10 +780,10 @@ test("evaluateTry(): catches thrown error and handles it", () => {
 		}),
 	);
 	const result = evaluateTry(ast, env);
-	assertEquals(result.return, createStringNode("caught!"));
+	runner.assert(result.return, createStringNode("caught!"));
 });
 
-test("evaluateTry(): catches native error and handles it", () => {
+runner.test("evaluateTry(): catches native error and handles it", () => {
 	const ast = createListNode([
 		createSymbolNode("try*"),
 		createListNode([
@@ -754,97 +804,115 @@ test("evaluateTry(): catches native error and handles it", () => {
 		}),
 	);
 	const result = evaluateTry(ast, env);
-	assertEquals(result.return, createStringNode("caught!"));
+	runner.assert(result.return, createStringNode("caught!"));
 });
 
-test("evaluateIf(): evaluates true condition and returns thenExpr", () => {
-	const ast = createListNode([
-		createSymbolNode("if"),
-		createBooleanNode(true),
-		createNumberNode(42),
-		createNumberNode(0),
-	]);
-	const env = new Env();
-	const result = evaluateIf(ast, env);
-	assertEquals(result, {
-		return: undefined,
-		continue: { ast: createNumberNode(42), env: env },
-	});
-});
+runner.test(
+	"evaluateIf(): evaluates true condition and returns thenExpr",
+	() => {
+		const ast = createListNode([
+			createSymbolNode("if"),
+			createBooleanNode(true),
+			createNumberNode(42),
+			createNumberNode(0),
+		]);
+		const env = new Env();
+		const result = evaluateIf(ast, env);
+		runner.assert(result, {
+			return: undefined,
+			continue: { ast: createNumberNode(42), env: env },
+		});
+	},
+);
 
-test("evaluateIf(): evaluates false condition and returns elseExpr", () => {
-	const ast = createListNode([
-		createSymbolNode("if"),
-		createBooleanNode(false),
-		createNumberNode(42),
-		createNumberNode(0),
-	]);
-	const env = new Env();
-	const result = evaluateIf(ast, env);
-	assertEquals(result, {
-		return: undefined,
-		continue: { ast: createNumberNode(0), env },
-	});
-});
+runner.test(
+	"evaluateIf(): evaluates false condition and returns elseExpr",
+	() => {
+		const ast = createListNode([
+			createSymbolNode("if"),
+			createBooleanNode(false),
+			createNumberNode(42),
+			createNumberNode(0),
+		]);
+		const env = new Env();
+		const result = evaluateIf(ast, env);
+		runner.assert(result, {
+			return: undefined,
+			continue: { ast: createNumberNode(0), env },
+		});
+	},
+);
 
-test("evaluateIf(): evaluates null condition and returns elseExpr", () => {
-	const ast = createListNode([
-		createSymbolNode("if"),
-		createNilNode(),
-		createNumberNode(42),
-		createNumberNode(0),
-	]);
-	const env = new Env();
-	const result = evaluateIf(ast, env);
-	assertEquals(result, {
-		return: undefined,
-		continue: { ast: createNumberNode(0), env },
-	});
-});
+runner.test(
+	"evaluateIf(): evaluates null condition and returns elseExpr",
+	() => {
+		const ast = createListNode([
+			createSymbolNode("if"),
+			createNilNode(),
+			createNumberNode(42),
+			createNumberNode(0),
+		]);
+		const env = new Env();
+		const result = evaluateIf(ast, env);
+		runner.assert(result, {
+			return: undefined,
+			continue: { ast: createNumberNode(0), env },
+		});
+	},
+);
 
-test("evaluateIf(): evaluates true condition without elseExpr returns thenExpr", () => {
-	const ast = createListNode([
-		createSymbolNode("if"),
-		createBooleanNode(true),
-		createNumberNode(42),
-	]);
-	const env = new Env();
-	const result = evaluateIf(ast, env);
-	assertEquals(result, {
-		return: undefined,
-		continue: { ast: createNumberNode(42), env },
-	});
-});
+runner.test(
+	"evaluateIf(): evaluates true condition without elseExpr returns thenExpr",
+	() => {
+		const ast = createListNode([
+			createSymbolNode("if"),
+			createBooleanNode(true),
+			createNumberNode(42),
+		]);
+		const env = new Env();
+		const result = evaluateIf(ast, env);
+		runner.assert(result, {
+			return: undefined,
+			continue: { ast: createNumberNode(42), env },
+		});
+	},
+);
 
-test("evaluateIf(): evaluates false condition without elseExpr returns nil", () => {
-	const ast = createListNode([
-		createSymbolNode("if"),
-		createBooleanNode(false),
-		createNumberNode(42),
-	]);
-	const env = new Env();
-	const result = evaluateIf(ast, env);
-	assertEquals(result, {
-		continue: undefined,
-		return: createNilNode(),
-	});
-});
+runner.test(
+	"evaluateIf(): evaluates false condition without elseExpr returns nil",
+	() => {
+		const ast = createListNode([
+			createSymbolNode("if"),
+			createBooleanNode(false),
+			createNumberNode(42),
+		]);
+		const env = new Env();
+		const result = evaluateIf(ast, env);
+		runner.assert(result, {
+			continue: undefined,
+			return: createNilNode(),
+		});
+	},
+);
 
-test("evaluateIf(): evaluates null condition without elseExpr returns nil", () => {
-	const ast = createListNode([
-		createSymbolNode("if"),
-		createNilNode(),
-		createNumberNode(42),
-	]);
-	const env = new Env();
-	const result = evaluateIf(ast, env);
-	assertEquals(result, {
-		continue: undefined,
-		return: createNilNode(),
-	});
-});
+runner.test(
+	"evaluateIf(): evaluates null condition without elseExpr returns nil",
+	() => {
+		const ast = createListNode([
+			createSymbolNode("if"),
+			createNilNode(),
+			createNumberNode(42),
+		]);
+		const env = new Env();
+		const result = evaluateIf(ast, env);
+		runner.assert(result, {
+			continue: undefined,
+			return: createNilNode(),
+		});
+	},
+);
 
-test("evaluateFn(): creates a simple anonymous function", () => {
+runner.test("evaluateFn(): creates a simple anonymous function", () => {
 	const ast = createListNode([
 		createSymbolNode("fn*"),
 		createListNode([createSymbolNode("a"), createSymbolNode("b")]),
@@ -865,26 +933,29 @@ test("evaluateFn(): creates a simple anonymous function", () => {
 	);
 	const result = evaluateFn(ast, env);
 	const fn = result.return as FunctionNode;
-	assertExists(fn);
+	runner.assert(fn !== undefined, true);
 	const fnResult = fn.value(createNumberNode(2), createNumberNode(3));
-	assertEquals(fnResult, createNumberNode(5));
+	runner.assert(fnResult, createNumberNode(5));
 });
 
-test("evaluateFn(): creates a function with empty args and returns body value", () => {
-	const ast = createListNode([
-		createSymbolNode("fn*"),
-		createListNode([]),
-		createNumberNode(10),
-	]);
-	const env = new Env();
-	const result = evaluateFn(ast, env);
-	const fn = result.return as FunctionNode;
-	assertExists(fn);
-	const fnResult = fn.value();
-	assertEquals(fnResult, createNumberNode(10));
-});
+runner.test(
+	"evaluateFn(): creates a function with empty args and returns body value",
+	() => {
+		const ast = createListNode([
+			createSymbolNode("fn*"),
+			createListNode([]),
+			createNumberNode(10),
+		]);
+		const env = new Env();
+		const result = evaluateFn(ast, env);
+		const fn = result.return as FunctionNode;
+		runner.assert(fn !== undefined, true);
+		const fnResult = fn.value();
+		runner.assert(fnResult, createNumberNode(10));
+	},
+);
 
-test("evaluateFn(): captures environment in closure", () => {
+runner.test("evaluateFn(): captures environment in closure", () => {
 	const ast = createListNode([
 		createSymbolNode("fn*"),
 		createListNode([createSymbolNode("a")]),
@@ -907,12 +978,12 @@ test("evaluateFn(): captures environment in closure", () => {
 
 	const result = evaluateFn(ast, env);
 	const fn = result.return as FunctionNode;
-	assertExists(fn);
+	runner.assert(fn !== undefined, true);
 	const fnResult = fn.value(createNumberNode(2));
-	assertEquals(fnResult, createNumberNode(7));
+	runner.assert(fnResult, createNumberNode(7));
 });
 
-test("evaluateApply(): applies built-in function correctly", () => {
+runner.test("evaluateApply(): applies built-in function correctly", () => {
 	const ast = createListNode([
 		createSymbolNode("+"),
 		createNumberNode(1),
@@ -921,10 +992,10 @@ test("evaluateApply(): applies built-in function correctly", () => {
 	const env = new Env();
 	env.set(createSymbolNode("+"), createFunctionNode(add));
 	const result = evaluateApply(ast, env);
-	assertEquals(result.return, createNumberNode(3));
+	runner.assert(result.return, createNumberNode(3));
 });
 
-test("evaluateApply(): applies closure correctly", () => {
+runner.test("evaluateApply(): applies closure correctly", () => {
 	const ast = createListNode([createSymbolNode("add2"), createNumberNode(5)]);
 	const closureMeta: ClosureMetadata = {
 		ast: createListNode([
@@ -941,8 +1012,8 @@ test("evaluateApply(): applies closure correctly", () => {
 	env.set(createSymbolNode("add2"), add2);
 	const result = evaluateApply(ast, env);
 
-	assertDefined(result.continue?.ast);
-	assertEquals(
+	runner.assert(result.continue?.ast !== undefined, true);
+	runner.assert(
 		result.continue?.ast,
 		createListNode([
 			createSymbolNode("+"),
@@ -952,33 +1023,43 @@ test("evaluateApply(): applies closure correctly", () => {
 	);
 });
 
-test("evaluateApply(): returns function itself if it is not applicable", () => {
-	const ast = createListNode([createStringNode("non-fn")]);
-	const env = new Env();
-	const result = evaluateApply(ast, env);
-	assertEquals(result.return, createStringNode("non-fn"));
-});
+runner.test(
+	"evaluateApply(): returns function itself if it is not applicable",
+	() => {
+		const ast = createListNode([createStringNode("non-fn")]);
+		const env = new Env();
+		const result = evaluateApply(ast, env);
+		runner.assert(result.return, createStringNode("non-fn"));
+	},
+);
 
-test("evaluateApply(): throws error for non-list input", () => {
+runner.test("evaluateApply(): throws error for non-list input", () => {
 	const ast = createNumberNode(42);
 	const env = new Env();
-	assertThrows(() => evaluateApply(ast, env));
+
+	let threw = false;
+	try {
+		evaluateApply(ast, env);
+	} catch (e) {
+		threw = true;
+	}
+
+	runner.assert(threw, true);
 });
 
-test("initEnv(): initEnv initializes the core functions", () => {
+runner.test("initEnv(): initEnv initializes the core functions", () => {
 	const env = initEnv();
-	assertEquals(typeof env.get(createSymbolNode("+")).value, "function");
+	runner.assert(typeof env.get(createSymbolNode("+")).value, "function");
 });
 
-test("initEnv(): initEnv initializes eval function", () => {
+runner.test("initEnv(): initEnv initializes eval function", () => {
 	const env = initEnv();
-	assertEquals(typeof env.get(createSymbolNode("eval")).value, "function");
+	runner.assert(typeof env.get(createSymbolNode("eval")).value, "function");
 });
 
-// TODO: I messed up "not". The if might be too restrictive now
-test("initEnv(): initEnv runs repl with predefined functions", () => {
+runner.test("initEnv(): initEnv runs repl with predefined functions", () => {
 	const env = initEnv();
 	const fn = env.get(createSymbolNode("not")) as FunctionNode;
-	assertFunctionNode(fn);
-	assertEquals(fn.value(createNumberNode(1)), createBooleanNode(false));
+	runner.assert(isFunctionNode(fn), true);
+	runner.assert(fn.value(createNumberNode(1)), createBooleanNode(false));
 });
