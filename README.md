@@ -1,6 +1,7 @@
 # Ensemble: Novel Synthesis of Eich, McCarthy, Berners-Lee, Lie, etc
 
-Ensemble is a _web_ programming language that combines JavaScript, HTML, and CSS with a Lisp-like syntax.
+Ensemble is a _web_ programming language that combines JavaScript, HTML, and CSS 
+in a Lisp-like like language with HTML style syntax.
 
 ## Syntax
 
@@ -11,17 +12,17 @@ Ensemble is a _web_ programming language that combines JavaScript, HTML, and CSS
        (fibonacci (- n 2))))));
 ```
 
-## Examples
+## Usage
 
 ```bash
-./deno run -A ./src/ensemble_cli.ts ./examples/fibonacci.ensmbl
+./bin/ensemble
 ```
 
 ## Supported APIs
 
 ### JavaScript Built-ins
 
-See [Standard built-in objects](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects)
+See [Standard built-in objects][Globals] for information on each global.
 
 - Value properties
   - globalThis
@@ -116,24 +117,88 @@ See [Standard built-in objects](https://developer.mozilla.org/en-US/docs/Web/Jav
 
 ## Development
 
-- Install [Deno](https://deno.land/)
-- Clone <https://github.com/dustinboston/ensemble>
-- Run `deno task repl`
+### Directory Structure
 
-## Unit and Integration Tests
-
-Run all test suites:
-
-```sh
-deno test
+```
+root
+├── bin
+├── src
+│   ├── ensemble
+│   │   ├── build
+│   │   └── tests
+│   ├── examples
+│   └── extension
+├── var
+│   ├── data
+│   ├── generated
+│   └── reference
+└── Makefile
 ```
 
-## End-to-End Tests
+### Prerequisites
 
-```bash
-pip install -r requirement.txt
-python
-```
+#### Install NodeJS
+
+1. [Download and Install NodeJS][NodeJS].
+2. Run `npm install -g typescript esbuild` from your terminal of choice.
+2. Follow the QuickJS installation instructions below.
+
+#### Install or Update QuickJS
+
+1. Download [the latest QuickJS binary][QuickJS] for your system.
+2. Gently place it into the top level bin folder.
+
+### Building Ensemble
+
+The following commands will build the Ensemble interpreter as a standalone 
+JavaScript file (using ESBuild) and the standalone executable using QuickJS-NG. 
+QuickJS-NG is a fork of the QuickJS JavaScript engine that is actively maintained.
+
+Run the build script from the root of the project:
+
+- **Windows**
+  ```powershell
+  Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+  .\bin\build.ps1
+  ```
+- **Linux**
+  ```bash
+  ./bin/build.sh
+  ```
+
+### Running Unit and Integration Tests
+
+To start the unit and integration tests, run the test script from the root of the project.
+
+- **Windows**
+  ```powershell
+  Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+  .\bin\test.ps1
+  ```
+- **Linux**
+  ```bash
+  ./bin/test.sh
+  ```
+
+**Note About Parallel Testing** 
+It is not possible to run the tests in parallel at the moment because there 
+when this code was ported from Deno to QuickJS there were tests with steps.
+These tests were not modified during conversion and remain order-dependent.  
+
+### Running End-to-End Tests
+
+1. [Download and Install Python][Python] 
+2. Run the test_e2e script from the root of the project.
+
+- **Windows**
+  ```powershell
+  Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+  .\bin\test_e2e.ps1
+  ```
+- **Linux**
+  ```bash
+  ./bin/test_e2e.sh
+  ```  
 
 ## Standards
 
@@ -156,10 +221,14 @@ python
 
 See [LICENSE](LICENSE)
 
+[Globals]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects
 [Holzman]: https://ieeexplore.ieee.org/document/1642624
 [JPL]: https://web.archive.org/web/20111015064908/http://lars-lab.jpl.nasa.gov/JPL_Coding_Standard_C.pdf
 [Martin]: https://github.com/kanaka/mal
 [MDN]: https://github.com/mdn/content/tree/main/files/jsondata
+[NodeJS]: https://nodejs.org/en
 [Nystrom]: https://craftinginterpreters.com/
+[Python]: https://www.python.org/
+[QuickJS]: https://github.com/quickjs-ng/quickjs/releases
 [TypeScript]: https://www.typescriptlang.org/docs/handbook/declaration-files/do-s-and-don-ts.html#any
 [Zemskov]: https://betterprogramming.pub/making-typescript-truly-strongly-typed-c3a8947434a2

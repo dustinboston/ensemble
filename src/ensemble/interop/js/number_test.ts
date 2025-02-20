@@ -1,8 +1,7 @@
-import { assertEquals, assertThrows, test } from "../../tests/test_runner.ts";
+import runner from "../../tests/test_runner.ts";
 import * as types from "../../types.ts";
 import {
 	newNumber,
-	numberNaN as number_NaN, // Renamed to avoid collision
 	numberEpsilon,
 	numberIsFinite,
 	numberIsInteger,
@@ -20,49 +19,80 @@ import {
 	numberPrototypeToFixed,
 	numberPrototypeToPrecision,
 	numberPrototypeToString,
+	numberNaN as number_NaN, // Renamed to avoid collision
 } from "./number.ts";
 
-test("newNumber", () => {
-	assertEquals(newNumber(types.createNumberNode(1)), types.createNumberNode(1));
-	assertEquals(
+runner.test("newNumber", () => {
+	runner.assert(
+		newNumber(types.createNumberNode(1)),
+		types.createNumberNode(1),
+	);
+	runner.assert(
 		newNumber(types.createStringNode("1")),
 		types.createNumberNode(1),
 	);
-	assertEquals(
+	runner.assert(
 		newNumber(types.createBooleanNode(true)),
 		types.createNumberNode(1),
 	);
-	assertThrows(() => newNumber());
-	assertThrows(() => newNumber("string" as unknown as types.AstNode));
+
+	let threw = false;
+	try {
+		newNumber();
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
+
+	threw = false;
+	try {
+		newNumber("string" as unknown as types.AstNode);
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
 });
 
-test("numberIsFinite", () => {
-	assertEquals(
+runner.test("numberIsFinite", () => {
+	runner.assert(
 		numberIsFinite(types.createNumberNode(1)),
 		types.createBooleanNode(true),
 	);
-	assertEquals(
-		numberIsFinite(types.createNumberNode(Infinity)),
+	runner.assert(
+		numberIsFinite(types.createNumberNode(Number.POSITIVE_INFINITY)),
 		types.createBooleanNode(false),
 	);
 
-	assertThrows(() => numberIsFinite());
+	let threw = false;
+	try {
+		numberIsFinite();
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
 });
 
-test("numberIsInteger", () => {
-	assertEquals(
+runner.test("numberIsInteger", () => {
+	runner.assert(
 		numberIsInteger(types.createNumberNode(1)),
 		types.createBooleanNode(true),
 	);
-	assertEquals(
+	runner.assert(
 		numberIsInteger(types.createNumberNode(1.5)),
 		types.createBooleanNode(false),
 	);
-	assertThrows(() => numberIsInteger());
+
+	let threw = false;
+	try {
+		numberIsInteger();
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
 });
 
-test("numberIsNaN", () => {
-	assertEquals(
+runner.test("numberIsNaN", () => {
+	runner.assert(
 		numberIsNaN(types.createNumberNode(Number.NaN)),
 		types.createBooleanNode(true),
 	);
@@ -71,106 +101,179 @@ test("numberIsNaN", () => {
 	// assertThrows(() => numberIsNaN());
 });
 
-test("numberIsSafeInteger", () => {
-	assertEquals(
+runner.test("numberIsSafeInteger", () => {
+	runner.assert(
 		numberIsSafeInteger(types.createNumberNode(1)),
 		types.createBooleanNode(true),
 	);
-	assertEquals(
+	runner.assert(
 		numberIsSafeInteger(types.createNumberNode(Number.MAX_SAFE_INTEGER + 1)),
 		types.createBooleanNode(false),
 	);
-	assertThrows(() => numberIsSafeInteger());
+
+	let threw = false;
+	try {
+		numberIsSafeInteger();
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
 });
 
-test("numberParseFloat", () => {
+runner.test("numberParseFloat", () => {
 	const result = numberParseFloat(types.createStringNode("3.14"));
-	assertEquals(result, types.createNumberNode(3.14));
+	runner.assert(result, types.createNumberNode(3.14));
 });
 
-test("numberParseFloat: invalid arg", () => {
+runner.test("numberParseFloat: invalid arg", () => {
 	const nanNum = numberParseFloat(types.createStringNode("test"));
-	assertEquals(isNaN(nanNum.value), true);
+	runner.assert(Number.isNaN(nanNum.value), true);
 });
 
-test("numberParseFloat: missing arg", () => {
-	assertThrows(() => numberParseFloat());
+runner.test("numberParseFloat: missing arg", () => {
+	let threw = false;
+	try {
+		numberParseFloat();
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
 });
 
-test("numberParseInt", () => {
-	assertEquals(
+runner.test("numberParseInt", () => {
+	runner.assert(
 		numberParseInt(types.createStringNode("10")),
 		types.createNumberNode(10),
 	);
-	assertEquals(
+	runner.assert(
 		numberParseInt(types.createStringNode("10"), types.createNumberNode(2)),
 		types.createNumberNode(2),
 	);
 
-	assertThrows(() =>
-		numberParseInt(types.createStringNode("10"), types.createStringNode("")),
-	);
+	let threw = false;
+	try {
+		numberParseInt(types.createStringNode("10"), types.createStringNode(""));
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
 });
 
-test("numberEpsilon", () => {
-	assertEquals(numberEpsilon(), types.createNumberNode(Number.EPSILON));
-	assertThrows(() => numberEpsilon(types.createNumberNode(1)));
+runner.test("numberEpsilon", () => {
+	runner.assert(numberEpsilon(), types.createNumberNode(Number.EPSILON));
+
+	let threw = false;
+	try {
+		numberEpsilon(types.createNumberNode(1));
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
 });
 
-test("numberMaxSafeInteger", () => {
-	assertEquals(
+runner.test("numberMaxSafeInteger", () => {
+	runner.assert(
 		numberMaxSafeInteger(),
 		types.createNumberNode(Number.MAX_SAFE_INTEGER),
 	);
-	assertThrows(() => numberMaxSafeInteger(types.createNumberNode(1)));
+
+	let threw = false;
+	try {
+		numberMaxSafeInteger(types.createNumberNode(1));
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
 });
 
-test("numberMaxValue", () => {
-	assertEquals(numberMaxValue(), types.createNumberNode(Number.MAX_VALUE));
-	assertThrows(() => numberMaxValue(types.createNumberNode(1)));
+runner.test("numberMaxValue", () => {
+	runner.assert(numberMaxValue(), types.createNumberNode(Number.MAX_VALUE));
+
+	let threw = false;
+	try {
+		numberMaxValue(types.createNumberNode(1));
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
 });
 
-test("numberMinSafeInteger", () => {
-	assertEquals(
+runner.test("numberMinSafeInteger", () => {
+	runner.assert(
 		numberMinSafeInteger(),
 		types.createNumberNode(Number.MIN_SAFE_INTEGER),
 	);
-	assertThrows(() => numberMinSafeInteger(types.createNumberNode(1)));
+
+	let threw = false;
+	try {
+		numberMinSafeInteger(types.createNumberNode(1));
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
 });
 
-test("numberMinValue", () => {
-	assertEquals(numberMinValue(), types.createNumberNode(Number.MIN_VALUE));
-	assertThrows(() => numberMinValue(types.createNumberNode(1)));
+runner.test("numberMinValue", () => {
+	runner.assert(numberMinValue(), types.createNumberNode(Number.MIN_VALUE));
+
+	let threw = false;
+	try {
+		numberMinValue(types.createNumberNode(1));
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
 });
 
-test("numberNaN", () => {
+runner.test("numberNaN", () => {
 	const nanNum = number_NaN();
-	assertEquals(Number.isNaN(nanNum), true);
-	assertThrows(() => number_NaN(types.createNumberNode(1)));
+	runner.assert(Number.isNaN(nanNum), true);
+
+	let threw = false;
+	try {
+		number_NaN(types.createNumberNode(1));
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
 });
 
-test("numberNegativeInfinity", () => {
-	assertEquals(
+runner.test("numberNegativeInfinity", () => {
+	runner.assert(
 		numberNegativeInfinity(),
 		types.createNumberNode(Number.NEGATIVE_INFINITY),
 	);
-	assertThrows(() => numberNegativeInfinity(types.createNumberNode(1)));
+
+	let threw = false;
+	try {
+		numberNegativeInfinity(types.createNumberNode(1));
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
 });
 
-test("numberPositiveInfinity", () => {
-	assertEquals(
+runner.test("numberPositiveInfinity", () => {
+	runner.assert(
 		numberPositiveInfinity(),
 		types.createNumberNode(Number.POSITIVE_INFINITY),
 	);
-	assertThrows(() => numberPositiveInfinity(types.createNumberNode(1)));
+
+	let threw = false;
+	try {
+		numberPositiveInfinity(types.createNumberNode(1));
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
 });
 
-test("numberPrototypeToExponential", () => {
-	assertEquals(
+runner.test("numberPrototypeToExponential", () => {
+	runner.assert(
 		numberPrototypeToExponential(types.createNumberNode(1)),
 		types.createStringNode("1e+0"),
 	);
-	assertEquals(
+	runner.assert(
 		numberPrototypeToExponential(
 			types.createNumberNode(1),
 			types.createNumberNode(2),
@@ -179,12 +282,12 @@ test("numberPrototypeToExponential", () => {
 	);
 });
 
-test("numberPrototypeToFixed", () => {
-	assertEquals(
+runner.test("numberPrototypeToFixed", () => {
+	runner.assert(
 		numberPrototypeToFixed(types.createNumberNode(1)),
 		types.createStringNode("1"),
 	);
-	assertEquals(
+	runner.assert(
 		numberPrototypeToFixed(
 			types.createNumberNode(1.532),
 			types.createNumberNode(2),
@@ -193,12 +296,12 @@ test("numberPrototypeToFixed", () => {
 	);
 });
 
-test("numberPrototypeToPrecision", () => {
-	assertEquals(
+runner.test("numberPrototypeToPrecision", () => {
+	runner.assert(
 		numberPrototypeToPrecision(types.createNumberNode(1)),
 		types.createStringNode("1"),
 	);
-	assertEquals(
+	runner.assert(
 		numberPrototypeToPrecision(
 			types.createNumberNode(1),
 			types.createNumberNode(3),
@@ -207,12 +310,12 @@ test("numberPrototypeToPrecision", () => {
 	);
 });
 
-test("numberPrototypeToString", () => {
-	assertEquals(
+runner.test("numberPrototypeToString", () => {
+	runner.assert(
 		numberPrototypeToString(types.createNumberNode(120)),
 		types.createStringNode("120"),
 	);
-	assertEquals(
+	runner.assert(
 		numberPrototypeToString(
 			types.createNumberNode(120),
 			types.createNumberNode(16),

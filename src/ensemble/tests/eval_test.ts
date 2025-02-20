@@ -1,59 +1,58 @@
-/**
- * Test evaluation of expressions.
- * Imported from `step2_eval.mal` tests.
- * @file
- */
 import { initEnv, rep } from "../lib.ts";
-import { assertEquals, assertThrows, test } from "./test_runner.ts";
+import runner from "./test_runner.ts";
 
-test("EVAL: Should add", () => {
+runner.test("EVAL: Should add", () => {
 	const env = initEnv();
-	assertEquals(rep("(+ 1 2))", env), "3");
+	runner.assert(rep("(+ 1 2))", env), "3");
 });
 
-test("EVAL: Should multiply", () => {
+runner.test("EVAL: Should multiply", () => {
 	const env = initEnv();
-	assertEquals(rep("(+ 5 (* 2 3)))", env), "11");
+	runner.assert(rep("(+ 5 (* 2 3)))", env), "11");
 });
 
-test("EVAL: Should subtract", () => {
+runner.test("EVAL: Should subtract", () => {
 	const env = initEnv();
-	assertEquals(rep("(- (+ 5 (* 2 3)) 3))", env), "8");
+	runner.assert(rep("(- (+ 5 (* 2 3)) 3))", env), "8");
 });
 
-test("EVAL: Should divide", () => {
+runner.test("EVAL: Should divide", () => {
 	const env = initEnv();
-	assertEquals(rep("(/ (- (+ 5 (* 2 3)) 3) 4))", env), "2");
+	runner.assert(rep("(/ (- (+ 5 (* 2 3)) 3) 4))", env), "2");
 });
 
-test("EVAL: Should evaluate bigger numbers", () => {
+runner.test("EVAL: Should evaluate bigger numbers", () => {
 	const env = initEnv();
-	assertEquals(rep("(/ (- (+ 515 (* 87 311)) 302) 27)", env), "1010");
+	runner.assert(rep("(/ (- (+ 515 (* 87 311)) 302) 27)", env), "1010");
 });
 
-test("EVAL: Should throw an error with no return value", () => {
+runner.test("EVAL: Should throw an error with no return value", () => {
 	const env = initEnv();
-	assertThrows(() => {
+	let threw = false;
+	try {
 		rep("(abc 1 2 3)", env);
-	});
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
 });
 
-test("EVAL: Should return an empty array", () => {
+runner.test("EVAL: Should return an empty array", () => {
 	const env = initEnv();
-	assertEquals(rep("()", env), "()");
+	runner.assert(rep("()", env), "()");
 });
 
-test("EVAL: Should evaluate arrays", () => {
+runner.test("EVAL: Should evaluate arrays", () => {
 	const env = initEnv();
-	assertEquals(rep("[1 2 (+ 1 2)]", env), "[1 2 3]");
+	runner.assert(rep("[1 2 (+ 1 2)]", env), "[1 2 3]");
 });
 
-test("EVAL: Should evaluate object literals", () => {
+runner.test("EVAL: Should evaluate object literals", () => {
 	const env = initEnv();
-	assertEquals(rep("{ a: (+ 7 8) }", env), "{a: 15}");
+	runner.assert(rep("{ a: (+ 7 8) }", env), "{a: 15}");
 });
 
-test("EVAL: Should return an empty object literal", () => {
+runner.test("EVAL: Should return an empty object literal", () => {
 	const env = initEnv();
-	assertEquals(rep("{}", env), "{}");
+	runner.assert(rep("{}", env), "{}");
 });

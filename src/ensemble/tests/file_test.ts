@@ -1,13 +1,3 @@
-/**
- * Test file operations.
- * Imported from `step6_file.mal` tests.
- *
- * All of the expected results are built manually and then printed with
- * "printReadably" set to true to emulate how they would appear in the terminal
- * without actually printing to the terminal (slow).
- *
- * @file
- */
 import { initMain, rep } from "../io.ts";
 import { printString } from "../printer.ts";
 import {
@@ -20,43 +10,35 @@ import {
 	StringNode,
 	SymbolNode,
 } from "../types.ts";
-import { assertEquals, test } from "./test_runner.ts";
 
-test("FILE: Execute the program in a sub process", () => {
-	assertEquals(
+import runner from "./test_runner.ts";
+
+runner.test("FILE: Execute the program in a sub process", () => {
+	runner.assert(
 		rep("(+ 1 2)", initMain()),
 		printString(new NumberNode(3), true),
 	);
 });
 
-test("FILE: Testing read-string with list containing integers and nil", () => {
-	assertEquals(
-		rep('(read-string "(1 2 (3 4) nil)")', initMain()),
-		"(1 2 (3 4) nil)",
-		// printString(
-		//   new ListNode([
-		//     new NumberNode(1),
-		//     new NumberNode(2),
-		//     new ListNode([
-		//       new NumberNode(3),
-		//       new NumberNode(4),
-		//     ]),
-		//     new ListNode([]),
-		//   ]),
-		//   true,
-		// ),
-	);
-});
+runner.test(
+	"FILE: Testing read-string with list containing integers and nil",
+	() => {
+		runner.assert(
+			rep('(read-string "(1 2 (3 4) nil)")', initMain()),
+			"(1 2 (3 4) nil)",
+		);
+	},
+);
 
-test("FILE: Testing read-string with nil", () => {
-	assertEquals(
+runner.test("FILE: Testing read-string with nil", () => {
+	runner.assert(
 		rep('(= nil (read-string "nil"))', initMain()),
 		printString(new BooleanNode(true)),
 	);
 });
 
-test("FILE: Testing read-string with addition expression", () => {
-	assertEquals(
+runner.test("FILE: Testing read-string with addition expression", () => {
+	runner.assert(
 		rep('(read-string "(+ 2 3)")', initMain()),
 		printString(
 			new ListNode([new SymbolNode("+"), new NumberNode(2), new NumberNode(3)]),
@@ -65,365 +47,364 @@ test("FILE: Testing read-string with addition expression", () => {
 	);
 });
 
-test("FILE: Testing read-string with newline character", () => {
-	assertEquals(
+runner.test("FILE: Testing read-string with newline character", () => {
+	runner.assert(
 		rep(`(read-string "\\"\\n\\"")`, initMain()),
 		printString(new StringNode("\n"), true),
 	);
 });
 
-test("FILE: Testing read-string with comment", () => {
-	assertEquals(
+runner.test("FILE: Testing read-string with comment", () => {
+	runner.assert(
 		rep('(read-string "7 ;; comment")', initMain()),
 		printString(new NumberNode(7), true),
 	);
 });
 
-test("FILE: Testing read-string with comment only", () => {
+runner.test("FILE: Testing read-string with comment only", () => {
 	// No fatal error, returns empty string
-	assertEquals(
+	runner.assert(
 		rep('(read-string ";; comment")', initMain()),
 		printString(new NilNode(), true),
 	);
 });
 
-test("FILE: Testing eval with addition expression", () => {
-	assertEquals(
+runner.test("FILE: Testing eval with addition expression", () => {
+	runner.assert(
 		rep('(eval (read-string "(+ 2 3)"))', initMain()),
 		printString(new NumberNode(5), true),
 	);
 });
 
-test("FILE: Testing slurp with file content", () => {
+runner.test("FILE: Testing slurp with file content", () => {
 	const sharedEnv = initMain();
 
-	assertEquals(
+	runner.assert(
 		rep('(slurp "./tests/fixtures/test.txt")', sharedEnv),
 		printString(new StringNode("A line of text\n"), true),
 	);
 
-	test("FILE: Testing slurp with file content loaded twice", () => {
-		assertEquals(
+	runner.test("FILE: Testing slurp with file content loaded twice", () => {
+		runner.assert(
 			rep('(slurp "./tests/fixtures/test.txt")', initMain()),
 			printString(new StringNode("A line of text\n"), true),
 		);
 	});
 });
 
-test("FILE: Testing load-file and function definitions", () => {
+runner.test("FILE: Testing load-file and function definitions", () => {
 	const sharedEnv = initMain();
-	assertEquals(
+	runner.assert(
 		rep('(load-file "./tests/fixtures/inc.mal")', sharedEnv),
 		printString(new NilNode(), true),
 	);
 
-	test("FILE: Testing inc1 function from loaded file", () => {
-		assertEquals(
+	runner.test("FILE: Testing inc1 function from loaded file", () => {
+		runner.assert(
 			rep("(inc1 7)", sharedEnv),
 			printString(new NumberNode(8), true),
 		);
 	});
 
-	test("FILE: Testing inc3 function from loaded file", () => {
-		assertEquals(
+	runner.test("FILE: Testing inc3 function from loaded file", () => {
+		runner.assert(
 			rep("(inc3 9)", sharedEnv),
 			printString(new NumberNode(12), true),
 		);
 	});
 });
 
-test("FILE: Testing atom creation and operations", () => {
+runner.test("FILE: Testing atom creation and operations", () => {
 	const sharedEnv = initMain();
 
-	assertEquals(
+	runner.assert(
 		rep('(load-file "./tests/fixtures/inc.mal")', sharedEnv),
 		printString(new NilNode(), true),
 	);
 
-	assertEquals(
+	runner.assert(
 		rep("(def! a (atom 2))", sharedEnv),
 		printString(new AtomNode(new NumberNode(2)), true),
 	);
 
-	test("FILE: Testing atom? predicate", () => {
-		assertEquals(
+	runner.test("FILE: Testing atom? predicate", () => {
+		runner.assert(
 			rep("(atom? a)", sharedEnv),
 			printString(new BooleanNode(true), true),
 		);
 	});
 
-	test("FILE: Testing atom? predicate with non-atom", () => {
-		assertEquals(
+	runner.test("FILE: Testing atom? predicate with non-atom", () => {
+		runner.assert(
 			rep("(atom? 1)", sharedEnv),
 			printString(new BooleanNode(false), true),
 		);
 	});
 
-	test("FILE: Testing deref on atom", () => {
-		assertEquals(
+	runner.test("FILE: Testing deref on atom", () => {
+		runner.assert(
 			rep("(deref a)", sharedEnv),
 			printString(new NumberNode(2), true),
 		);
 	});
 
-	test("FILE: Testing reset! on atom", () => {
-		assertEquals(
+	runner.test("FILE: Testing reset! on atom", () => {
+		runner.assert(
 			rep("(reset! a 3)", sharedEnv),
 			printString(new NumberNode(3), true),
 		);
 	});
 
-	test("FILE: Testing deref after reset! on atom", () => {
-		assertEquals(
+	runner.test("FILE: Testing deref after reset! on atom", () => {
+		runner.assert(
 			rep("(deref a)", sharedEnv),
 			printString(new NumberNode(3), true),
 		);
 	});
 
-	test("FILE: Testing swap! with function on atom", () => {
-		assertEquals(
+	runner.test("FILE: Testing swap! with function on atom", () => {
+		runner.assert(
 			rep("(swap! a inc3)", sharedEnv),
 			printString(new NumberNode(6), true),
 		);
 	});
 
-	test("FILE: Testing swap! with identity function on atom", () => {
-		assertEquals(
+	runner.test("FILE: Testing swap! with identity function on atom", () => {
+		runner.assert(
 			rep("(swap! a (fn* (a) a))", sharedEnv),
 			printString(new NumberNode(6), true),
 		);
 	});
 
-	test("FILE: Testing swap! with * function on atom", () => {
-		assertEquals(
+	runner.test("FILE: Testing swap! with * function on atom", () => {
+		runner.assert(
 			rep("(swap! a (fn* (a) (* 2 a)))", sharedEnv),
 			printString(new NumberNode(12), true),
 		);
 	});
 
-	test("FILE: Testing swap! with fn* and extra args on atom", () => {
-		assertEquals(
+	runner.test("FILE: Testing swap! with fn* and extra args on atom", () => {
+		runner.assert(
 			rep("(swap! a (fn* (a b) (* a b)) 10)", sharedEnv),
 			printString(new NumberNode(120), true),
 		);
 	});
 
-	test("FILE: Testing swap! with addition function on atom", () => {
-		assertEquals(
+	runner.test("FILE: Testing swap! with addition function on atom", () => {
+		runner.assert(
 			rep("(swap! a + 3)", sharedEnv),
 			printString(new NumberNode(123), true),
 		);
 	});
 
-	test("FILE: Testing swap!/closure interaction", () => {
+	runner.test("FILE: Testing swap!/closure interaction", () => {
 		rep("(def! inc-it (fn* (a) (+ 1 a)))", sharedEnv);
 		rep("(def! atm (atom 7))", sharedEnv);
 		rep("(def! f (fn* () (swap! atm inc-it)))", sharedEnv);
 
-		assertEquals(rep("(f)", sharedEnv), printString(new NumberNode(8), true));
+		runner.assert(rep("(f)", sharedEnv), printString(new NumberNode(8), true));
 	});
 
-	test("FILE: Testing whether closures retain atoms", () => {
+	runner.test("FILE: Testing whether closures retain atoms", () => {
 		rep("(def! g (let* (atm (atom 0)) (fn* () (deref atm))))", sharedEnv);
 		rep("(def! atm (atom 1))", sharedEnv);
 
-		assertEquals(rep("(g)", sharedEnv), printString(new NumberNode(0), true));
+		runner.assert(rep("(g)", sharedEnv), printString(new NumberNode(0), true));
 	});
 
-	test("FILE: Testing deref using @ reader macro", () => {
+	runner.test("FILE: Testing deref using @ reader macro", () => {
 		rep("(def! atm (atom 9))", sharedEnv);
-		assertEquals(rep("@atm", sharedEnv), printString(new NumberNode(9), true));
-	});
-
-	test("FILE: Testing vector params not broken by TCO", () => {
-		rep("(def! g (fn* [] 78))", sharedEnv);
-		assertEquals(rep("(g)", sharedEnv), printString(new NumberNode(78), true));
-	});
-
-	test("FILE: Testing vector params with argument", () => {
-		rep("(def! g (fn* [a] (+ a 78)))", sharedEnv);
-		assertEquals(
-			rep("(g 3)", sharedEnv),
-			printString(new NumberNode(81), true),
-		);
+		runner.assert(rep("@atm", sharedEnv), printString(new NumberNode(9), true));
 	});
 });
 
-test("FILE: Testing large computations", () => {
+runner.test("FILE: Testing vector params not broken by TCO", () => {
 	const sharedEnv = initMain();
+	rep("(def! g (fn* [] 78))", sharedEnv);
+	runner.assert(rep("(g)", sharedEnv), printString(new NumberNode(78), true));
+});
 
-	assertEquals(
+runner.test("FILE: Testing vector params with argument", () => {
+	const sharedEnv = initMain();
+	rep("(def! g (fn* [a] (+ a 78)))", sharedEnv);
+	runner.assert(rep("(g 3)", sharedEnv), printString(new NumberNode(81), true));
+});
+
+runner.test("FILE: Testing large computations", () => {
+	const sharedEnv = initMain();
+	runner.assert(
 		rep('(load-file "./tests/fixtures/computations.mal")', sharedEnv),
 		printString(new NilNode(), true),
 	);
 
-	test("FILE: Testing sumdown function from computations file", () => {
-		assertEquals(
+	runner.test("FILE: Testing sumdown function from computations file", () => {
+		runner.assert(
 			rep("(sumdown 2)", sharedEnv),
 			printString(new NumberNode(3), true),
 		);
 	});
 
-	test("FILE: Testing fibonacci function from computations file", () => {
-		assertEquals(
+	runner.test("FILE: Testing fibonacci function from computations file", () => {
+		runner.assert(
 			rep("(fib 2)", sharedEnv),
 			printString(new NumberNode(1), true),
 		);
 	});
 });
 
-test("FILE: Testing *ARGV* existence and emptiness", () => {
+runner.test("FILE: Testing *ARGV* existence and emptiness", () => {
 	const sharedEnv = initMain();
-
 	sharedEnv.set(new SymbolNode("*ARGV*"), new ListNode([]));
-
 	sharedEnv.set(new SymbolNode("*host-language*"), new StringNode("ENSEMBLE"));
 
-	assertEquals(
+	runner.assert(
 		rep("(list? *ARGV*)", sharedEnv),
 		printString(new BooleanNode(true), true),
 	);
 
-	assertEquals(rep("*ARGV*", sharedEnv), printString(new ListNode([]), true));
+	runner.assert(rep("*ARGV*", sharedEnv), printString(new ListNode([]), true));
 });
 
-test("FILE: Testing eval setting aa in root scope and access in nested scope", () => {
-	assertEquals(
-		rep(
-			'(let* (b 12) (do (eval (read-string "(def! aa 7)")) aa ))',
-			initMain(),
-		),
-		printString(new NumberNode(7), true),
-	);
-});
+runner.test(
+	"FILE: Testing eval setting aa in root scope and access in nested scope",
+	() => {
+		runner.assert(
+			rep(
+				'(let* (b 12) (do (eval (read-string "(def! aa 7)")) aa ))',
+				initMain(),
+			),
+			printString(new NumberNode(7), true),
+		);
+	},
+);
 
-test("FILE: Testing comments in file", () => {
+runner.test("FILE: Testing comments in file", () => {
 	const sharedEnv = initMain();
-
-	assertEquals(
+	runner.assert(
 		rep('(load-file "./tests/fixtures/incB.mal")\n(inc4 7)', sharedEnv),
 		printString(new NilNode(), true),
 	);
 
-	test("FILE: Testing comments in inc4", () => {
-		assertEquals(
+	runner.test("FILE: Testing comments in inc4", () => {
+		runner.assert(
 			rep("(inc4 7)", sharedEnv),
 			printString(new NumberNode(11), true),
 		);
 	});
 
-	test("FILE: Testing comments in inc5", () => {
-		assertEquals(
+	runner.test("FILE: Testing comments in inc5", () => {
+		runner.assert(
 			rep("(inc5 7)", sharedEnv),
 			printString(new NumberNode(12), true),
 		);
 	});
 });
 
-test("FILE: Testing map literal across multiple lines in a file", () => {
+runner.test("FILE: Testing map literal across multiple lines in a file", () => {
 	const sharedEnv = initMain();
-
-	assertEquals(
+	runner.assert(
 		rep('(load-file "./tests/fixtures/incC.mal")', sharedEnv),
 		printString(new NilNode(), true),
 	);
 
-	test("FILE: multi-line map is read correctly", () => {
-		assertEquals(
+	runner.test("FILE: multi-line map is read correctly", () => {
+		runner.assert(
 			rep("mymap", sharedEnv),
 			printString(new MapNode(new Map([['"a"', new NumberNode(1)]])), true),
 		);
 	});
 });
 
-test("FILE: Checking eval does not use local environments", () => {
+runner.test("FILE: Checking eval does not use local environments", () => {
 	const sharedEnv = initMain();
-
-	assertEquals(
+	runner.assert(
 		rep("(def! a 1)", sharedEnv),
 		printString(new NumberNode(1), true),
 	);
 
-	test("FILE: A variable defined within eval should not overwrite a global with the same name", () => {
-		assertEquals(
-			rep('(let* (a 2) (eval (read-string "a")))', sharedEnv),
-			printString(new NumberNode(1), true),
-		);
-	});
+	runner.test(
+		"FILE: A variable defined within eval should not overwrite a global with the same name",
+		() => {
+			runner.assert(
+				rep('(let* (a 2) (eval (read-string "a")))', sharedEnv),
+				printString(new NumberNode(1), true),
+			);
+		},
+	);
 });
 
-test("FILE: Read commented out exclamation mark", () => {
-	assertEquals(
+runner.test("FILE: Read commented out exclamation mark", () => {
+	runner.assert(
 		rep('(read-string "1;!")', initMain()),
 		printString(new NumberNode(1), true),
 	);
 });
 
-test("FILE: Read commented out double quote", () => {
-	assertEquals(
+runner.test("FILE: Read commented out double quote", () => {
+	runner.assert(
 		rep(`(read-string "1;\\"")`, initMain()),
 		printString(new NumberNode(1), true),
 	);
 });
 
-test("FILE: Read commented out exclamation pound sign", () => {
-	assertEquals(
+runner.test("FILE: Read commented out exclamation pound sign", () => {
+	runner.assert(
 		rep('(read-string "1;#")', initMain()),
 		printString(new NumberNode(1), true),
 	);
 });
 
-test("FILE: Read commented out exclamation dollar sign", () => {
-	assertEquals(
+runner.test("FILE: Read commented out exclamation dollar sign", () => {
+	runner.assert(
 		rep('(read-string "1;$")', initMain()),
 		printString(new NumberNode(1), true),
 	);
 });
 
-test("FILE: Read commented out exclamation percent sign", () => {
-	assertEquals(
+runner.test("FILE: Read commented out exclamation percent sign", () => {
+	runner.assert(
 		rep('(read-string "1;%")', initMain()),
 		printString(new NumberNode(1), true),
 	);
 });
 
-test("FILE: Read commented out single quote", () => {
-	assertEquals(
+runner.test("FILE: Read commented out single quote", () => {
+	runner.assert(
 		rep(`(read-string "1;'")`, initMain()),
 		printString(new NumberNode(1), true),
 	);
 });
 
-test("FILE: Read commented out backslash", () => {
-	assertEquals(
+runner.test("FILE: Read commented out backslash", () => {
+	runner.assert(
 		rep(`(read-string "1;\\\\")`, initMain()),
 		printString(new NumberNode(1), true),
 	);
 });
 
-test("FILE: Read commented out double backslash", () => {
-	assertEquals(
+runner.test("FILE: Read commented out double backslash", () => {
+	runner.assert(
 		rep('(read-string "1;\\\\\\\\")', initMain()),
 		printString(new NumberNode(1), true),
 	);
 });
 
-test("FILE: Read commented out triple backslash", () => {
-	assertEquals(
+runner.test("FILE: Read commented out triple backslash", () => {
+	runner.assert(
 		rep('(read-string "1;\\\\\\\\\\\\")', initMain()),
 		printString(new NumberNode(1), true),
 	);
 });
 
-test("FILE: Read commented out backtick", () => {
-	assertEquals(
+runner.test("FILE: Read commented out backtick", () => {
+	runner.assert(
 		rep('(read-string "1;`")', initMain()),
 		printString(new NumberNode(1), true),
 	);
 });
 
-test("FILE: Read the commented out kitchen sink of characters", () => {
-	assertEquals(
+runner.test("FILE: Read the commented out kitchen sink of characters", () => {
+	runner.assert(
 		rep('(read-string "1; &()*+,-./:;<=>?@[]^_{|}~")', initMain()),
 		printString(new NumberNode(1), true),
 	);

@@ -1,88 +1,109 @@
-import { assertEquals, assertThrows, test } from "../../tests/test_runner.ts";
+import runner from "../../tests/test_runner.ts";
 import * as types from "../../types.ts";
 import * as operators from "./operator.ts";
 
 // and
-test("and", () => {
-	assertEquals(
+runner.test("and", () => {
+	runner.assert(
 		operators.and(types.createBooleanNode(true), types.createBooleanNode(true)),
 		types.createBooleanNode(true),
 	);
-	assertEquals(
+	runner.assert(
 		operators.and(
 			types.createBooleanNode(true),
 			types.createBooleanNode(false),
 		),
 		types.createBooleanNode(false),
 	);
-	assertEquals(
+	runner.assert(
 		operators.and(types.createNumberNode(1), types.createNumberNode(0)),
 		types.createBooleanNode(false),
 	);
 });
 
 // bitwiseAnd
-test("bitwiseAnd", () => {
-	assertEquals(
+runner.test("bitwiseAnd", () => {
+	runner.assert(
 		operators.bitwiseAnd(types.createNumberNode(5), types.createNumberNode(3)),
 		types.createNumberNode(1),
 	);
-	assertThrows(() =>
+
+	let threw = false;
+	try {
 		operators.bitwiseAnd(
 			types.createStringNode("test"),
 			types.createNumberNode(1),
-		),
-	);
+		);
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
 });
 
 // bitwiseNot
-
-test("bitwiseNot", () => {
-	assertEquals(
+runner.test("bitwiseNot", () => {
+	runner.assert(
 		operators.bitwiseNot(types.createNumberNode(5)),
 		types.createNumberNode(~5),
 	);
-	assertThrows(() => operators.bitwiseNot(types.createStringNode("test")));
+
+	let threw = false;
+	try {
+		operators.bitwiseNot(types.createStringNode("test"));
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
 });
 
 // bitwiseOr
-test("bitwiseOr", () => {
-	assertEquals(
+runner.test("bitwiseOr", () => {
+	runner.assert(
 		operators.bitwiseOr(types.createNumberNode(1), types.createNumberNode(2)),
 		types.createNumberNode(3),
 	);
-	assertThrows(() =>
+
+	let threw = false;
+	try {
 		operators.bitwiseOr(
 			types.createStringNode("test"),
 			types.createNumberNode(0),
-		),
-	);
+		);
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
 });
 
 // bitwiseXor
-test("bitwiseXor", () => {
-	assertEquals(
+runner.test("bitwiseXor", () => {
+	runner.assert(
 		operators.bitwiseXor(types.createNumberNode(1), types.createNumberNode(3)),
 		types.createNumberNode(2),
 	);
-	assertThrows(() =>
+
+	let threw = false;
+	try {
 		operators.bitwiseXor(
 			types.createStringNode("test"),
 			types.createNumberNode(1),
-		),
-	);
+		);
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
 });
 
 // decrement
-test("decrement", () => {
-	assertEquals(
+runner.test("decrement", () => {
+	runner.assert(
 		operators.decrement(types.createNumberNode(2)),
 		types.createVectorNode([
 			types.createNumberNode(1),
 			types.createNumberNode(2),
 		]),
 	);
-	assertEquals(
+	runner.assert(
 		operators.decrement(
 			types.createNumberNode(2),
 			types.createStringNode("prefix"),
@@ -92,24 +113,29 @@ test("decrement", () => {
 			types.createNumberNode(1),
 		]),
 	);
-	assertThrows(() =>
+
+	let threw = false;
+	try {
 		operators.decrement(
 			types.createNumberNode(1),
 			types.createStringNode("asdf"),
-		),
-	);
+		);
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
 });
 
 // increment
-test("increment", () => {
-	assertEquals(
+runner.test("increment", () => {
+	runner.assert(
 		operators.increment(types.createNumberNode(1)),
 		types.createVectorNode([
 			types.createNumberNode(2),
 			types.createNumberNode(1),
 		]),
 	);
-	assertEquals(
+	runner.assert(
 		operators.increment(
 			types.createNumberNode(1),
 			types.createStringNode("prefix"),
@@ -119,74 +145,90 @@ test("increment", () => {
 			types.createNumberNode(2),
 		]),
 	);
-	assertThrows(() =>
+
+	let threw = false;
+	try {
 		operators.increment(
 			types.createNumberNode(1),
 			types.createStringNode("asdf"),
-		),
-	);
+		);
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
 });
 
 // instanceOf
-test("instanceOf", () => {
+runner.test("instanceOf", () => {
 	const num = types.createNumberNode(1);
 	const str = types.createStringNode("");
 
-	assertEquals(
+	runner.assert(
 		operators.instanceOf(num, types.createStringNode("NumberNode")),
 		types.createBooleanNode(true),
 	);
-	assertEquals(
+	runner.assert(
 		operators.instanceOf(str, types.createStringNode("StringNode")),
 		types.createBooleanNode(true),
 	);
-	assertEquals(
+	runner.assert(
 		operators.instanceOf(num, types.createStringNode("StringNode")),
 		types.createBooleanNode(false),
 	);
 
-	assertThrows(() => operators.instanceOf(num, types.createNumberNode(1)));
+	let threw = false;
+	try {
+		operators.instanceOf(num, types.createNumberNode(1));
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
 });
 
 // leftShift
-test("leftShift", () => {
-	assertEquals(
+runner.test("leftShift", () => {
+	runner.assert(
 		operators.leftShift(types.createNumberNode(1), types.createNumberNode(2)),
 		types.createNumberNode(4),
 	);
-	assertThrows(() =>
-		operators.leftShift(types.createStringNode(""), types.createNumberNode(1)),
-	);
+
+	let threw = false;
+	try {
+		operators.leftShift(types.createStringNode(""), types.createNumberNode(1));
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
 });
 
 // not
-test("not", () => {
-	assertEquals(
+runner.test("not", () => {
+	runner.assert(
 		operators.not(types.createBooleanNode(false)),
 		types.createBooleanNode(true),
 	);
 });
 
 // notEqualTo
-test("notEqualTo", () => {
-	assertEquals(
+runner.test("notEqualTo", () => {
+	runner.assert(
 		operators.notEqualTo(types.createNumberNode(1), types.createNumberNode(1)),
 		types.createBooleanNode(false),
 	);
 
-	assertEquals(
+	runner.assert(
 		operators.notEqualTo(types.createNumberNode(1), types.createNumberNode(2)),
 		types.createBooleanNode(true),
 	);
 });
 
 // nullishCoalesce
-test("nullishCoalescing", () => {
-	assertEquals(
+runner.test("nullishCoalescing", () => {
+	runner.assert(
 		operators.nullishCoalesce(types.createNilNode(), types.createNumberNode(5)),
 		types.createNumberNode(5),
 	);
-	assertEquals(
+	runner.assert(
 		operators.nullishCoalesce(
 			types.createNumberNode(1),
 			types.createNumberNode(5),
@@ -196,86 +238,105 @@ test("nullishCoalescing", () => {
 });
 
 // or
-test("or", () => {
-	assertEquals(
+runner.test("or", () => {
+	runner.assert(
 		operators.or(types.createBooleanNode(false), types.createBooleanNode(true)),
 		types.createBooleanNode(true),
 	);
 
-	assertEquals(
+	runner.assert(
 		operators.or(
 			types.createBooleanNode(false),
 			types.createBooleanNode(false),
 		),
 		types.createBooleanNode(false),
 	);
-	assertEquals(
+	runner.assert(
 		operators.or(types.createNumberNode(0), types.createNumberNode(1)),
 		types.createBooleanNode(true),
 	);
 });
 
 // power
-test("power", () => {
-	assertEquals(
+runner.test("power", () => {
+	runner.assert(
 		operators.power(types.createNumberNode(3), types.createNumberNode(2)),
 		types.createNumberNode(9),
 	);
-	assertThrows(() =>
-		operators.power(types.createStringNode(""), types.createNumberNode(1)),
-	);
+
+	let threw = false;
+	try {
+		operators.power(types.createStringNode(""), types.createNumberNode(1));
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
 });
 
 // remainder
-test("remainder", () => {
-	assertEquals(
+runner.test("remainder", () => {
+	runner.assert(
 		operators.remainder(types.createNumberNode(5), types.createNumberNode(2)),
 		types.createNumberNode(1),
 	);
-	assertThrows(() =>
-		operators.remainder(types.createStringNode(""), types.createNumberNode(1)),
-	);
+
+	let threw = false;
+	try {
+		operators.remainder(types.createStringNode(""), types.createNumberNode(1));
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
 });
 
 // rightShift
-test("rightShift", () => {
-	assertEquals(
+runner.test("rightShift", () => {
+	runner.assert(
 		operators.rightShift(types.createNumberNode(5), types.createNumberNode(1)),
 		types.createNumberNode(2),
 	);
-	assertThrows(() =>
-		operators.rightShift(types.createStringNode(""), types.createNumberNode(1)),
-	);
-});
 
+	let threw = false;
+	try {
+		operators.rightShift(types.createStringNode(""), types.createNumberNode(1));
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
+});
 // typeOf
 
-test("typeOf", () => {
+runner.test("typeOf", () => {
 	const num = types.createNumberNode(1);
 
-	assertEquals(
+	runner.assert(
 		operators.typeOf(num, types.createStringNode("number")),
 		types.createBooleanNode(true),
 	);
-	assertEquals(
+	runner.assert(
 		operators.typeOf(num, types.createStringNode("string")),
 		types.createBooleanNode(false),
 	);
 });
 
 // unsignedRightShift
-test("unsignedRightShift", () => {
-	assertEquals(
+runner.test("unsignedRightShift", () => {
+	runner.assert(
 		operators.unsignedRightShift(
 			types.createNumberNode(5),
 			types.createNumberNode(1),
 		),
 		types.createNumberNode(2),
 	);
-	assertThrows(() =>
+
+	let threw = false;
+	try {
 		operators.unsignedRightShift(
 			types.createStringNode(""),
 			types.createNumberNode(1),
-		),
-	);
+		);
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
 });

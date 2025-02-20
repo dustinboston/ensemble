@@ -1,7 +1,7 @@
 {
 	"formatter": {
 		"enabled": true,
-		"include": ["src/**/*.ts"],
+		"include": ["bin/*.js", "src/**/*.ts"],
 		"ignore": ["src/extension/node_modules", "src/ensemble/build/**/*"],
 		"formatWithErrors": false,
 		"attributePosition": "auto",

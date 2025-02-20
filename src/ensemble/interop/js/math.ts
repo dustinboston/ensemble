@@ -258,7 +258,7 @@ export function mathPow(...astArgs: types.AstNode[]): types.AstNode {
 	) {
 		const base = astArgs[0].value;
 		const exponent = astArgs[1].value;
-		const result = Math.pow(base, exponent);
+		const result = base ** exponent;
 		return types.toAst(result);
 	}
 	throw new TypeError('Invalid arguments to "Math.pow"');

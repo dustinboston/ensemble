@@ -570,6 +570,10 @@ runner.test("evaluateLet(): allows shadowing", () => {
 
 	runner.assert(finalAst !== undefined, true);
 	runner.assert(newEnv !== undefined, true);
+	runner.assert(finalAst !== undefined, true);
+	if (finalAst === undefined || newEnv === undefined) {
+		throw new Error("finalAst should not be undefined!");
+	}
 	runner.assert(evaluate(finalAst, newEnv), createNumberNode(3));
 });
 

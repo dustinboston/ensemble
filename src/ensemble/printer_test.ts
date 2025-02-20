@@ -1,13 +1,7 @@
-/**
- * Tests for the printer module.
- * Mostly copied from `step1_read_print.mal`.
- * @file
- */
-
 import { printString } from "./printer.ts";
-import { assertEquals, assertThrows, test } from "./tests/test_runner.ts";
+import runner from "./tests/test_runner.ts";
 import {
-	AstNode,
+	type AstNode,
 	createAtomNode,
 	createBooleanNode,
 	createDomNode,
@@ -23,57 +17,66 @@ import {
 	createVectorNode,
 } from "./types.ts";
 
-test("printString(): should print strings without quotes if printReadably is false", () => {
-	assertEquals(printString(createStringNode("hello"), false), "hello");
+runner.test(
+	"printString(): should print strings without quotes if printReadably is false",
+	() => {
+		runner.assert(printString(createStringNode("hello"), false), "hello");
+	},
+);
+
+runner.test(
+	"printString(): should print strings with quotes if printReadably is true",
+	() => {
+		runner.assert(printString(createStringNode("hello"), true), '"hello"');
+	},
+);
+
+runner.test("printString(): should print symbols without quotes", () => {
+	runner.assert(printString(createSymbolNode("sym")), "sym");
 });
 
-test("printString(): should print strings with quotes if printReadably is true", () => {
-	assertEquals(printString(createStringNode("hello"), true), '"hello"');
+runner.test("printString(): should print keywords", () => {
+	runner.assert(printString(createKeywordNode("key:")), "key:");
 });
 
-test("printString(): should print symbols without quotes", () => {
-	assertEquals(printString(createSymbolNode("sym")), "sym");
+runner.test("printString(): should print booleans without quotes", () => {
+	runner.assert(printString(createBooleanNode(true)), "true");
 });
 
-test("printString(): should print keywords", () => {
-	assertEquals(printString(createKeywordNode("key:")), "key:");
+runner.test("printString(): should print numbers without quotes", () => {
+	runner.assert(printString(createNumberNode(123)), "123");
 });
 
-test("printString(): should print booleans without quotes", () => {
-	assertEquals(printString(createBooleanNode(true)), "true");
-});
-
-test("printString(): should print numbers without quotes", () => {
-	assertEquals(printString(createNumberNode(123)), "123");
-});
-
-test("printString(): should correctly print atom type", () => {
-	assertEquals(
+runner.test("printString(): should correctly print atom type", () => {
+	runner.assert(
 		printString(createAtomNode(createStringNode("hello"))),
 		"(atom hello)",
 	);
 });
 
-test("printString(): should correctly print error type", () => {
-	assertEquals(
+runner.test("printString(): should correctly print error type", () => {
+	runner.assert(
 		printString(createErrorNode(createStringNode("message"))),
 		"message",
 	);
 });
 
-test("printString(): should correctly print function type", () => {
-	assertEquals(printString(createFunctionNode(() => createNilNode())), "#<fn>");
+runner.test("printString(): should correctly print function type", () => {
+	runner.assert(
+		printString(createFunctionNode(() => createNilNode())),
+		"#<fn>",
+	);
 });
 
-test("printString(): should correctly print list type", () => {
-	assertEquals(
+runner.test("printString(): should correctly print list type", () => {
+	runner.assert(
 		printString(createListNode([createStringNode("a"), createStringNode("b")])),
 		"(a b)",
 	);
 });
 
-test("printString(): should correctly print vector type", () => {
-	assertEquals(
+runner.test("printString(): should correctly print vector type", () => {
+	runner.assert(
 		printString(
 			createVectorNode([createStringNode("x"), createStringNode("y")]),
 		),
@@ -81,8 +84,8 @@ test("printString(): should correctly print vector type", () => {
 	);
 });
 
-test("printString(): should correctly print MapNodes", () => {
-	assertEquals(
+runner.test("printString(): should correctly print MapNodes", () => {
+	runner.assert(
 		printString(
 			createMapNode(
 				new Map<string, AstNode>([
@@ -95,22 +98,29 @@ test("printString(): should correctly print MapNodes", () => {
 	);
 });
 
-test("printString(): should correctly print DomNodes", () => {
+runner.test("printString(): should correctly print DomNodes", () => {
 	const domNode = createDomNode(
 		"a",
 		new Map([["href", createStringNode("https://example.com")]]),
 	);
-	assertEquals(printString(domNode), '<a href="https://example.com"></a>');
+	runner.assert(printString(domNode), '<a href="https://example.com"></a>');
 });
 
-test("printString(): should correctly print nil type", () => {
-	assertEquals(printString(createNilNode()), "nil");
+runner.test("printString(): should correctly print nil type", () => {
+	runner.assert(printString(createNilNode()), "nil");
 });
 
-test("printString(): should throw an error for unmatched types", () => {
+runner.test("printString(): should throw an error for unmatched types", () => {
 	const invalid = new Set();
 
-	assertThrows(() => {
+	let threw = false;
+	try {
 		printString(invalid as unknown as AstNode);
-	});
+	} catch (e) {
+		threw = true;
+	}
+
+	runner.assert(threw, true);
 });
+
+runner.report();

@@ -519,13 +519,13 @@ export function arrayToSpliced(...args: types.AstNode[]): types.AstNode {
 	if (args.length < 3) {
 		const result = vector.toSpliced(start);
 		return types.createVectorNode(result);
-	} else {
-		types.assertNumberNode(args[2]);
-		const deleteCount = args[2].value;
-		const items = args.slice(3);
-		const result = vector.toSpliced(start, deleteCount, ...items);
-		return types.createVectorNode(result);
 	}
+
+	types.assertNumberNode(args[2]);
+	const deleteCount = args[2].value;
+	const items = args.slice(3);
+	const result = vector.toSpliced(start, deleteCount, ...items);
+	return types.createVectorNode(result);
 }
 
 // Based on cons

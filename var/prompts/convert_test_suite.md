@@ -1,4 +1,4 @@
-Update this suite of tests to use only the `test` and `assert` methods from `test_runner.ts`. `test_runner.ts` exports the following code:
+Update these tests to use only the `test` and `assert` methods from `test_runner.ts`. `test_runner.ts` exports the following code:
 
 ```ts
 export default {
@@ -143,4 +143,24 @@ runner.test("printUnescapedStringToScreen(): logs the unescaped string", () => {
 	runner.assert(args, ['"abc\\ndef\\nghi"']);
 	runner.assert(calls, 1);
 });
+```
+
+## Handling Quotes
+
+Double quotes should be used for everything unless the string requires single quotes or backticks. Here are some examples:
+
+- CORRECT: "asdf"
+- CORRECT: 'asdf'
+- CORRECT: `${foo} asdf`
+- CORRECT: `'foo' "asdf"`
+- INCORRECT: `asdf`
+
+Do not use backticks for a string that does not have both double and single quotes OR a template tag.
+
+## Code to Convert
+
+Here are the tests to convert:
+
+```ts
+
 ```

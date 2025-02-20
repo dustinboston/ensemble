@@ -1,80 +1,147 @@
-import { assertEquals, assertThrows, test } from "../../tests/test_runner.ts";
+import runner from "../../tests/test_runner.ts";
 import * as types from "../../types.ts";
 import * as builtin from "./builtin.ts";
 
-test("globalDecodeURI - basic functionality", () => {
+runner.test("globalDecodeURI - basic functionality", () => {
 	const uri = types.createStringNode("https://example.com/test%20uri");
 	const result = builtin.globalDecodeUri(uri);
-	assertEquals(result, types.createStringNode("https://example.com/test uri"));
+	runner.assert(result, types.createStringNode("https://example.com/test uri"));
 });
 
-test("globalDecodeURI - invalid arguments", () => {
-	assertThrows(() => builtin.globalDecodeUri());
-	assertThrows(() => builtin.globalDecodeUri(types.createNumberNode(1)));
-	assertThrows(() =>
+runner.test("globalDecodeURI - invalid arguments", () => {
+	let threw = false;
+	try {
+		builtin.globalDecodeUri();
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
+
+	threw = false;
+	try {
+		builtin.globalDecodeUri(types.createNumberNode(1));
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
+
+	threw = false;
+	try {
 		builtin.globalDecodeUri(
 			types.createStringNode("test"),
 			types.createStringNode("test"),
-		),
-	);
+		);
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
 });
 
-test("globalDecodeURIComponent - basic functionality", () => {
+runner.test("globalDecodeURIComponent - basic functionality", () => {
 	const uri = types.createStringNode("test%20uri");
 	const result = builtin.globalDecodeUriComponent(uri);
-	assertEquals(result, types.createStringNode("test uri"));
+	runner.assert(result, types.createStringNode("test uri"));
 });
 
-test("globalDecodeURIComponent - invalid arguments", () => {
-	assertThrows(() => builtin.globalDecodeUriComponent());
-	assertThrows(() =>
-		builtin.globalDecodeUriComponent(types.createNumberNode(1)),
-	);
-	assertThrows(() =>
+runner.test("globalDecodeURIComponent - invalid arguments", () => {
+	let threw = false;
+	try {
+		builtin.globalDecodeUriComponent();
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
+
+	threw = false;
+	try {
+		builtin.globalDecodeUriComponent(types.createNumberNode(1));
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
+
+	threw = false;
+	try {
 		builtin.globalDecodeUriComponent(
 			types.createStringNode("test"),
 			types.createStringNode("test"),
-		),
-	);
+		);
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
 });
 
-test("globalEncodeURI - basic functionality", () => {
+runner.test("globalEncodeURI - basic functionality", () => {
 	const uri = types.createStringNode("https://example.com/test uri");
 	const result = builtin.globalEncodeUri(uri);
 
-	assertEquals(
+	runner.assert(
 		result,
 		types.createStringNode("https://example.com/test%20uri"),
 	);
 });
 
-test("globalEncodeURI - invalid arguments", () => {
-	assertThrows(() => builtin.globalEncodeUri());
-	assertThrows(() => builtin.globalEncodeUri(types.createNumberNode(1)));
-	assertThrows(() =>
+runner.test("globalEncodeURI - invalid arguments", () => {
+	let threw = false;
+	try {
+		builtin.globalEncodeUri();
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
+
+	threw = false;
+	try {
+		builtin.globalEncodeUri(types.createNumberNode(1));
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
+
+	threw = false;
+	try {
 		builtin.globalEncodeUri(
 			types.createStringNode("test"),
 			types.createStringNode("test"),
-		),
-	);
+		);
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
 });
-
-test("globalEncodeURIComponent - basic functionality", () => {
+runner.test("globalEncodeURIComponent - basic functionality", () => {
 	const uri = types.createStringNode("test uri");
 
 	const result = builtin.globalEncodeUriComponent(uri);
-	assertEquals(result, types.createStringNode("test%20uri"));
+	runner.assert(result, types.createStringNode("test%20uri"));
 });
 
-test("globalEncodeURIComponent - invalid arguments", () => {
-	assertThrows(() => builtin.globalEncodeUriComponent());
-	assertThrows(() =>
-		builtin.globalEncodeUriComponent(types.createNumberNode(1)),
-	);
-	assertThrows(() =>
+runner.test("globalEncodeURIComponent - invalid arguments", () => {
+	let threw = false;
+	try {
+		builtin.globalEncodeUriComponent();
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
+
+	threw = false;
+	try {
+		builtin.globalEncodeUriComponent(types.createNumberNode(1));
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
+
+	threw = false;
+	try {
 		builtin.globalEncodeUriComponent(
 			types.createStringNode("test"),
 			types.createStringNode("test"),
-		),
-	);
+		);
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
 });

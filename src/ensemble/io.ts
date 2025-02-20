@@ -88,7 +88,7 @@ export function slurp(...args: types.AstNode[]): types.AstNode {
 	const content = std.loadFile(filePath.value);
 
 	if (content === null) {
-		throw new Error(`No such file or directory. xxx`);
+		throw new Error("No such file or directory. xxx");
 	}
 
 	return types.createStringNode(content);

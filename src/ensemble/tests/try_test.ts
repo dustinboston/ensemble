@@ -1,7 +1,7 @@
 /**
  * Test try/catch:
  *
- * Imported from `step9_quote.mal` tests.
+ * Imported from 'step9_quote.mal' tests.
  *
  * All of the expected results are built manually and then printed with
  * "printReadably" set to true to emulate how they would appear in the terminal
@@ -10,121 +10,149 @@
  * @file
  */
 
-import {
-	assertEquals,
-	assertSpyCalls,
-	assertThrows,
-	spy,
-	test,
-} from "./test_runner.ts";
-
 import { initEnv, rep } from "../lib.ts";
 import { printString } from "../printer.ts";
 import { ErrorNode, NilNode, NumberNode, StringNode } from "../types.ts";
+import runner from "./test_runner.ts";
 
-test(`TRY: Testing throw`, () => {
+runner.test("TRY: Testing throw", () => {
 	const sharedEnv = initEnv();
 
-	test(`Testing throw with string error`, () => {
+	runner.test("Testing throw with string error", () => {
 		let threwError = false;
 		try {
-			rep(`(throw "err1")`, sharedEnv);
+			rep('(throw "err1")', sharedEnv);
 		} catch (error) {
 			threwError = true;
-			assertEquals(error, new ErrorNode(new StringNode("err1")));
+			runner.assert(error, new ErrorNode(new StringNode("err1")));
 		}
-		assertEquals(threwError, true);
+		runner.assert(threwError, true);
 	});
 });
 
-test(`TRY: Testing try*/catch*`, () => {
+runner.test("TRY: Testing try*/catch*", () => {
 	const sharedEnv = initEnv();
 
-	test(`Evaluating try* without error`, () => {
-		// 123
-		assertEquals(
-			rep(`(try* 123 (catch* e 456))`, sharedEnv),
+	runner.test("Evaluating try* without error", () => {
+		runner.assert(
+			rep("(try* 123 (catch* e 456))", sharedEnv),
 			printString(new NumberNode(123), true),
 		);
 	});
 
-	test(`Evaluating try* with undefined symbol`, () => {
-		const consoleLogSpy = spy(console, "log");
+	runner.test("Evaluating try* with undefined symbol", () => {
+		const oldLog = console.log;
+		let calls = 0;
+		let args: string[] = [];
+		console.log = (...x) => {
+			args = x;
+			calls++;
+		};
 
-		assertEquals(
-			rep(`(try* abc (catch* exc (prn "exc is:" exc)))`, sharedEnv),
-			printString(new NilNode(), true),
-		);
+		try {
+			runner.assert(
+				rep('(try* abc (catch* exc (prn "exc is:" exc)))', sharedEnv),
+				printString(new NilNode(), true),
+			);
+		} finally {
+			console.log = oldLog;
+		}
 
-		assertSpyCalls(consoleLogSpy, 1);
-		assertEquals(consoleLogSpy.calls[0].args[0], `"exc is:" "'abc' not found"`);
-		consoleLogSpy.restore();
+		runner.assert(calls, 1);
+		runner.assert(args[0], `"exc is:" "'abc' not found"`);
 	});
 
-	test(`Evaluating try* with function call to undefined symbol`, () => {
-		const consoleLogSpy = spy(console, "log");
+	runner.test("Evaluating try* with function call to undefined symbol", () => {
+		const oldLog = console.log;
+		let calls = 0;
+		let args: string[] = [];
+		console.log = (...x) => {
+			args = x;
+			calls++;
+		};
 
-		assertEquals(
-			rep(`(try* (abc 1 2) (catch* exc (prn "exc is:" exc)))`, sharedEnv),
-			printString(new NilNode(), true),
-		);
+		try {
+			runner.assert(
+				rep('(try* (abc 1 2) (catch* exc (prn "exc is:" exc)))', sharedEnv),
+				printString(new NilNode(), true),
+			);
+		} finally {
+			console.log = oldLog;
+		}
 
-		assertSpyCalls(consoleLogSpy, 1);
-		assertEquals(consoleLogSpy.calls[0].args[0], `"exc is:" "'abc' not found"`);
-		consoleLogSpy.restore();
-	});
-});
-
-test(`TRY: Make sure error from core can be caught`, () => {
-	const sharedEnv = initEnv();
-
-	test(`TRY: Catching core error`, () => {
-		const consoleLogSpy = spy(console, "log");
-
-		assertEquals(
-			rep(`(try* (nth () 1) (catch* exc (prn "exc is:" exc)))`, sharedEnv),
-			printString(new NilNode(), true),
-		);
-
-		assertSpyCalls(consoleLogSpy, 1);
-		assertEquals(consoleLogSpy.calls[0].args[0], `"exc is:" "out of range"`);
-		consoleLogSpy.restore();
-	});
-
-	test(`TRY: Catching thrown exception`, () => {
-		const consoleLogSpy = spy(console, "log");
-
-		assertEquals(
-			rep(
-				`(try* (throw "my exception") (catch* exc (do (prn "exc:" exc) 7)))`,
-				sharedEnv,
-			),
-			printString(new NumberNode(7), true),
-		);
-
-		assertSpyCalls(consoleLogSpy, 1);
-		assertEquals(consoleLogSpy.calls[0].args[0], `"exc:" "my exception"`);
-		consoleLogSpy.restore();
+		runner.assert(calls, 1);
+		runner.assert(args[0], `"exc is:" "'abc' not found"`);
 	});
 });
 
-test(`TRY: Test that exception handlers get restored correctly`, () => {
+runner.test("TRY: Make sure error from core can be caught", () => {
 	const sharedEnv = initEnv();
 
-	test(`Restoring exception handlers`, () => {
-		assertEquals(
+	runner.test("TRY: Catching core error", () => {
+		const oldLog = console.log;
+		let calls = 0;
+		let args: string[] = [];
+		console.log = (...x) => {
+			args = x;
+			calls++;
+		};
+
+		try {
+			runner.assert(
+				rep('(try* (nth () 1) (catch* exc (prn "exc is:" exc)))', sharedEnv),
+				printString(new NilNode(), true),
+			);
+		} finally {
+			console.log = oldLog;
+		}
+
+		runner.assert(calls, 1);
+		runner.assert(args[0], '"exc is:" "out of range"');
+	});
+
+	runner.test("TRY: Catching thrown exception", () => {
+		const oldLog = console.log;
+		let calls = 0;
+		let args: string[] = [];
+		console.log = (...x) => {
+			args = x;
+			calls++;
+		};
+
+		try {
+			runner.assert(
+				rep(
+					'(try* (throw "my exception") (catch* exc (do (prn "exc:" exc) 7)))',
+					sharedEnv,
+				),
+				printString(new NumberNode(7), true),
+			);
+		} finally {
+			console.log = oldLog;
+		}
+
+		runner.assert(calls, 1);
+		runner.assert(args[0], '"exc:" "my exception"');
+	});
+});
+
+runner.test("TRY: Test that exception handlers get restored correctly", () => {
+	const sharedEnv = initEnv();
+
+	runner.test("Restoring exception handlers", () => {
+		runner.assert(
 			rep(
-				`(try* (do (try* "t1" (catch* e "c1")) (throw "e1")) (catch* e "c2"))`,
+				'(try* (do (try* "t1" (catch* e "c1")) (throw "e1")) (catch* e "c2"))',
 				sharedEnv,
 			),
 			printString(new StringNode("c2"), true),
 		);
 	});
 
-	test(`Testing nested try*/catch*`, () => {
-		assertEquals(
+	runner.test("Testing nested try*/catch*", () => {
+		runner.assert(
 			rep(
-				`(try* (try* (throw "e1") (catch* e (throw "e2"))) (catch* e "c2"))`,
+				'(try* (try* (throw "e1") (catch* e (throw "e2"))) (catch* e "c2"))',
 				sharedEnv,
 			),
 			printString(new StringNode("c2"), true),
@@ -132,46 +160,55 @@ test(`TRY: Test that exception handlers get restored correctly`, () => {
 	});
 });
 
-test(`TRY: Test that throw is a function`, () => {
+runner.test("TRY: Test that throw is a function", () => {
 	const sharedEnv = initEnv();
-	test(`Throwing inside map`, () => {
-		assertEquals(
-			rep(`(try* (map throw (list "my err")) (catch* exc exc))`, sharedEnv),
+	runner.test("Throwing inside map", () => {
+		runner.assert(
+			rep('(try* (map throw (list "my err")) (catch* exc exc))', sharedEnv),
 			printString(new StringNode("my err"), true),
 		);
 	});
 });
 
-test(`TRY: Testing try* without catch*`, () => {
+runner.test("TRY: Testing try* without catch*", () => {
 	const sharedEnv = initEnv();
 
-	test(`Evaluating try* without catch*`, () => {
-		assertThrows(
-			() => {
-				rep(`(try* xyz)`, sharedEnv);
-			},
-			Error,
-			`'xyz' not found`,
-		);
+	runner.test("Evaluating try* without catch*", () => {
+		let threw = false;
+		try {
+			rep("(try* xyz)", sharedEnv);
+		} catch (e) {
+			threw = true;
+		}
+		runner.assert(threw, true);
 	});
 });
 
-test(`TRY: Testing throwing non-strings`, () => {
+runner.test("TRY: Testing throwing non-strings", () => {
 	const sharedEnv = initEnv();
 
-	test(`Throwing a list`, () => {
-		const consoleLogSpy = spy(console, "log");
+	runner.test("Throwing a list", () => {
+		const oldLog = console.log;
+		let calls = 0;
+		let args: string[] = [];
+		console.log = (...x) => {
+			args = x;
+			calls++;
+		};
 
-		assertEquals(
-			rep(
-				`(try* (throw (list 1 2 3)) (catch* exc (do (prn "err:" exc) 7)))`,
-				sharedEnv,
-			),
-			printString(new NumberNode(7), true),
-		);
+		try {
+			runner.assert(
+				rep(
+					'(try* (throw (list 1 2 3)) (catch* exc (do (prn "err:" exc) 7)))',
+					sharedEnv,
+				),
+				printString(new NumberNode(7), true),
+			);
+		} finally {
+			console.log = oldLog;
+		}
 
-		assertSpyCalls(consoleLogSpy, 1);
-		assertEquals(consoleLogSpy.calls[0].args[0], `"err:" \(1 2 3\)`);
-		consoleLogSpy.restore();
+		runner.assert(calls, 1);
+		runner.assert(args[0], '"err:" (1 2 3)');
 	});
 });

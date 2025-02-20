@@ -1,8 +1,8 @@
-import { assertEquals, assertThrows, test } from "../../tests/test_runner.ts";
+import runner from "../../tests/test_runner.ts";
 import * as types from "../../types.ts";
 import * as bool from "./boolean.ts";
 
-test("toBoolean - truthy values", () => {
+runner.test("toBoolean - truthy values", () => {
 	const values = [
 		types.createNumberNode(1),
 		types.createStringNode("hello"),
@@ -12,11 +12,11 @@ test("toBoolean - truthy values", () => {
 	];
 
 	for (const val of values) {
-		assertEquals(bool.toBoolean(val), types.createBooleanNode(true));
+		runner.assert(bool.toBoolean(val), types.createBooleanNode(true));
 	}
 });
 
-test("toBoolean - falsy values", () => {
+runner.test("toBoolean - falsy values", () => {
 	const values = [
 		types.createNumberNode(0),
 		types.createStringNode(""),
@@ -24,13 +24,24 @@ test("toBoolean - falsy values", () => {
 		types.createBooleanNode(false),
 	];
 	for (const val of values) {
-		assertEquals(bool.toBoolean(val), types.createBooleanNode(false));
+		runner.assert(bool.toBoolean(val), types.createBooleanNode(false));
 	}
 });
 
-test("toBoolean - invalid arguments", () => {
-	assertThrows(() => bool.toBoolean());
-	assertThrows(() =>
-		bool.toBoolean(types.createNumberNode(1), types.createNumberNode(1)),
-	);
+runner.test("toBoolean - invalid arguments", () => {
+	let threw = false;
+	try {
+		bool.toBoolean();
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
+
+	threw = false;
+	try {
+		bool.toBoolean(types.createNumberNode(1), types.createNumberNode(1));
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
 });

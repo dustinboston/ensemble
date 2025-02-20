@@ -239,9 +239,8 @@ export function increment(...args: types.AstNode[]): types.AstNode {
 			throw new TypeError(
 				`Invalid affix ${String(args[1].value)}. The affix must be "prefix" or "postfix"`,
 			);
-		} else {
-			affix = args[1].value;
 		}
+		affix = args[1].value;
 	}
 
 	if (affix === "postfix") {
@@ -302,9 +301,8 @@ export function decrement(...args: types.AstNode[]): types.AstNode {
 			throw new TypeError(
 				`Invalid affix ${String(args[1].value)}. The affix must be "prefix" or "postfix"`,
 			);
-		} else {
-			affix = args[1].value;
 		}
+		affix = args[1].value;
 	}
 
 	if (affix === "postfix") {
@@ -378,7 +376,8 @@ export function instanceOf(...args: types.AstNode[]): types.BooleanNode {
 
 	const value = args[0];
 	const type = args[1].value;
-	let instance = undefined;
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+	let instance: any = undefined;
 
 	if (
 		type === "AstNode" ||
@@ -395,10 +394,10 @@ export function instanceOf(...args: types.AstNode[]): types.BooleanNode {
 		type === "SymbolNode" ||
 		type === "VectorNode"
 	) {
-		// deno-lint-ignore no-explicit-any
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 		instance = (types as any)[args[1].value];
 	} else if (Object.hasOwn(globalThis, args[1].value)) {
-		// deno-lint-ignore no-explicit-any
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 		instance = (globalThis as any)[args[1].value];
 	} else {
 		throw new TypeError(`Unknown instance: "${args[1].value}"`);

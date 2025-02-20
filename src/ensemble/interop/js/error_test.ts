@@ -1,30 +1,30 @@
-import { assertEquals, assertThrows, test } from "../../tests/test_runner.ts";
+import runner from "../../tests/test_runner.ts";
 import * as types from "../../types.ts";
 import { getCause, getMessage, getName, newError } from "./error.ts";
 
-test("newError - one argument", () => {
+runner.test("newError - one argument", () => {
 	const message = types.createStringNode("test error");
 	const result = newError(message);
 
 	types.assertErrorNode(result);
 
-	assertEquals(result.value.value, "test error");
-	assertEquals(result.name.value, "Error"); // Default name
-	assertEquals(types.isNilNode(getCause(result)), true); // No cause
+	runner.assert(result.value.value, "test error");
+	runner.assert(result.name.value, "Error"); // Default name
+	runner.assert(types.isNilNode(getCause(result)), true); // No cause
 });
 
-test("newError - two arguments", () => {
+runner.test("newError - two arguments", () => {
 	const message = types.createStringNode("test error");
 	const name = types.createStringNode("TypeError");
 	const result = newError(message, name);
 
 	types.assertErrorNode(result);
-	assertEquals(result.value.value, "test error");
-	assertEquals(result.name.value, "TypeError");
-	assertEquals(types.isNilNode(getCause(result)), true); // No cause
+	runner.assert(result.value.value, "test error");
+	runner.assert(result.name.value, "TypeError");
+	runner.assert(types.isNilNode(getCause(result)), true); // No cause
 });
 
-test("newError - three arguments", () => {
+runner.test("newError - three arguments", () => {
 	const message = types.createStringNode("test error");
 	const name = types.createStringNode("TypeError");
 	const cause = types.createStringNode("Something went wrong");
@@ -32,75 +32,133 @@ test("newError - three arguments", () => {
 	const result = newError(message, name, cause);
 
 	types.assertErrorNode(result);
-	assertEquals(result.value.value, "test error");
-	assertEquals(result.name.value, "TypeError");
-	assertEquals(getCause(result), cause);
+	runner.assert(result.value.value, "test error");
+	runner.assert(result.name.value, "TypeError");
+	runner.assert(getCause(result), cause);
 });
 
-test("newError - invalid arguments", () => {
+runner.test("newError - invalid arguments", () => {
 	const num = types.createNumberNode(1);
 	const message = types.createStringNode("test error");
 
-	assertThrows(() => newError());
-	assertThrows(() => newError(num));
-	assertThrows(() => newError(message, num));
+	let threw = false;
+	try {
+		newError();
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
+
+	threw = false;
+	try {
+		newError(num);
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
+
+	threw = false;
+	try {
+		newError(message, num);
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
 });
 
-test("getMessage - basic functionality", () => {
+runner.test("getMessage - basic functionality", () => {
 	const message = types.createStringNode("test error");
 	const error = newError(message);
 
 	const result = getMessage(error);
-	assertEquals(result, message);
+	runner.assert(result, message);
 });
 
-test("getMessage - invalid arguments", () => {
-	assertThrows(() => getMessage());
+runner.test("getMessage - invalid arguments", () => {
+	let threw = false;
+	try {
+		getMessage();
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
+
 	const num = types.createNumberNode(1);
-
-	assertThrows(() => getMessage(num));
+	threw = false;
+	try {
+		getMessage(num);
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
 });
 
-test("getCause - with cause", () => {
+runner.test("getCause - with cause", () => {
 	const message = types.createStringNode("test error");
 	const cause = types.createNumberNode(1);
 	const error = newError(message, types.createNilNode(), cause);
 
 	const result = getCause(error);
-	assertEquals(result, cause);
+	runner.assert(result, cause);
 });
 
-test("getCause - without cause", () => {
+runner.test("getCause - without cause", () => {
 	const message = types.createStringNode("test error");
 	const error = newError(message);
 
 	const result = getCause(error);
-	assertEquals(types.isNilNode(result), true);
+	runner.assert(types.isNilNode(result), true);
 });
 
-test("getCause - invalid arguments", () => {
-	assertThrows(() => getCause());
-	assertThrows(() => getCause(types.createNumberNode(1)));
+runner.test("getCause - invalid arguments", () => {
+	let threw = false;
+	try {
+		getCause();
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
+
+	threw = false;
+	try {
+		getCause(types.createNumberNode(1));
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
 });
 
-test("getName - basic functionality", () => {
+runner.test("getName - basic functionality", () => {
 	const message = types.createStringNode("test error");
 	const name = types.createStringNode("TypeError");
 	const error = newError(message, name);
 
 	const result = getName(error);
-	assertEquals(result, name);
+	runner.assert(result, name);
 });
 
-test("getName - default name", () => {
+runner.test("getName - default name", () => {
 	const message = types.createStringNode("test error");
 
 	const error = newError(message);
 	const result = getName(error);
-	assertEquals(result.value, "Error");
+	runner.assert(result.value, "Error");
 });
 
-test("getName - invalid arguments", () => {
-	assertThrows(() => getName());
-	assertThrows(() => getName(types.createNumberNode(1)));
+runner.test("getName - invalid arguments", () => {
+	let threw = false;
+	try {
+		getName();
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
+
+	threw = false;
+	try {
+		getName(types.createNumberNode(1));
+	} catch (e) {
+		threw = true;
+	}
+	runner.assert(threw, true);
 });
