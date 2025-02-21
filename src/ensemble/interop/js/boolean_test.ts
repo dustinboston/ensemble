@@ -45,3 +45,5 @@ runner.test("toBoolean - invalid arguments", () => {
 	}
 	runner.assert(threw, true);
 });
+
+runner.report();

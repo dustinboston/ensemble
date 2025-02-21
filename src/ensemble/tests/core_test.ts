@@ -514,3 +514,5 @@ runner.test(
 		);
 	},
 );
+
+runner.report();

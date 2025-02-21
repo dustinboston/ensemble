@@ -2065,3 +2065,5 @@ runner.test("arrayReplaceWith - invalid arguments", () => {
 	}
 	runner.assert(threw, true);
 });
+
+runner.report();

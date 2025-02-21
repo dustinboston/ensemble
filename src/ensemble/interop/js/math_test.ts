@@ -440,3 +440,5 @@ runner.test("mathTrunc", () => {
 		types.createNumberNode(13),
 	);
 });
+
+runner.report();

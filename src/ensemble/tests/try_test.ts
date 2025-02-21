@@ -212,3 +212,5 @@ runner.test("TRY: Testing throwing non-strings", () => {
 		runner.assert(args[0], '"err:" (1 2 3)');
 	});
 });
+
+runner.report();

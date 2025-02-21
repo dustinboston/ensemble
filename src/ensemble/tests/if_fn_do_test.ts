@@ -350,3 +350,5 @@ runner.test("IF_FN_DO: Testing (empty? (list 1 2 3 4))", () => {
 	const env = initEnv();
 	runner.assert(rep("(empty? (list 1 2 3 4))", env), "false");
 });
+
+runner.report();

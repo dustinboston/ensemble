@@ -120,3 +120,5 @@ runner.test("ENV: Should evaluate vector with bindings", () => {
 runner.test("ENV: Last assignment takes priority", () => {
 	runner.assert(rep("(let* (x 2 x 3) x)", testEnv), "3");
 });
+
+runner.report();

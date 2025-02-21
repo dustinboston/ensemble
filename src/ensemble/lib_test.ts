@@ -1067,3 +1067,5 @@ runner.test("initEnv(): initEnv runs repl with predefined functions", () => {
 	runner.assert(isFunctionNode(fn), true);
 	runner.assert(fn.value(createNumberNode(1)), createBooleanNode(false));
 });
+
+runner.report();

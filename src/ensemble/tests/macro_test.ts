@@ -776,3 +776,5 @@ runner.test("MACRO: Test that macros use closures", () => {
 		);
 	});
 });
+
+runner.report();

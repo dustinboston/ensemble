@@ -162,3 +162,5 @@ runner.test("getName - invalid arguments", () => {
 	}
 	runner.assert(threw, true);
 });
+
+runner.report();

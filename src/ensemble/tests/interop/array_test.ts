@@ -205,3 +205,5 @@ runner.test("ARRAY INTEROP: Array.prototype.with", () => {
 // TODO: runner.test('ARRAY INTEROP: arrayLength', () => {
 //   runner.assert(rep('(arrayLength [1 2 3])', replEnv), '3');
 // });
+
+runner.report();

@@ -323,3 +323,5 @@ runner.test("numberPrototypeToString", () => {
 		types.createStringNode("78"),
 	);
 });
+
+runner.report();

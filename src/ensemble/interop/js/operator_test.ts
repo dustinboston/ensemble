@@ -340,3 +340,5 @@ runner.test("unsignedRightShift", () => {
 	}
 	runner.assert(threw, true);
 });
+
+runner.report();

@@ -740,3 +740,5 @@ runner.test("MAP: Testing that hashmaps don't alter function ast", () => {
 
 	// Shouldn't give an error
 });
+
+runner.report();

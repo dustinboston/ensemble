@@ -409,3 +409,5 @@ runner.test("FILE: Read the commented out kitchen sink of characters", () => {
 		printString(new NumberNode(1), true),
 	);
 });
+
+runner.report();

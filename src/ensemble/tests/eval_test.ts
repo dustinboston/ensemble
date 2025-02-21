@@ -56,3 +56,5 @@ runner.test("EVAL: Should return an empty object literal", () => {
 	const env = initEnv();
 	runner.assert(rep("{}", env), "{}");
 });
+
+runner.report();

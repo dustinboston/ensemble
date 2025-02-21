@@ -34,3 +34,5 @@ runner.test("TCO: Test mutually recursive tail-call functions", () => {
 runner.test("TCO: Testing that (do (do)) not broken by TCO", () => {
 	runner.assert(rep("(do (do 1 2))", tcoEnv), "2");
 });
+
+runner.report();

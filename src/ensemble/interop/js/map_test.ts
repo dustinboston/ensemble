@@ -185,3 +185,5 @@ runner.test("vals(): should return a list of all values in the map", () => {
 		]),
 	);
 });
+
+runner.report();

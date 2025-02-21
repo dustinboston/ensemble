@@ -1348,3 +1348,5 @@ runner.test("QUOTE: Debugging quasiquote", () => {
 		},
 	);
 });
+
+runner.report();

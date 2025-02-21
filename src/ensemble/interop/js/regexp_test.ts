@@ -169,3 +169,5 @@ runner.test("regExpPrototypeTest: throws if wrong number of args", () => {
 	}
 	runner.assert(threw, true);
 });
+
+runner.report();

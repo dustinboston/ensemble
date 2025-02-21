@@ -343,3 +343,5 @@ runner.test("VECLIST: Testing nth, first, rest with vectors", () => {
 		},
 	);
 });
+
+runner.report();

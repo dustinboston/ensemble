@@ -393,3 +393,5 @@ runner.test("stringLastIndexOf - invalid arguments", () => {
 	}
 	runner.assert(threw, true);
 });
+
+runner.report();

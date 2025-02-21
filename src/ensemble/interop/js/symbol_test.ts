@@ -129,3 +129,5 @@ runner.test("symbolKeyFor - invalid arguments", () => {
 	}
 	runner.assert(threw, true);
 });
+
+runner.report();

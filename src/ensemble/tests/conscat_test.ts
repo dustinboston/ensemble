@@ -261,3 +261,5 @@ runner.test("Cons/Concat: Testing cons and concat with vectors", () => {
 		},
 	);
 });
+
+runner.report();

@@ -114,3 +114,5 @@ runner.test("stringifyJson - invalid arguments", () => {
 //   assertEquals(types.isStringNode(result), true);
 //   assertEquals(result.value, '{"a":2}');
 // });
+
+runner.report();

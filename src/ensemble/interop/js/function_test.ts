@@ -178,3 +178,5 @@ runner.test("bind - invalid arguments", () => {
 	}
 	runner.assert(threw, true);
 });
+
+runner.report();

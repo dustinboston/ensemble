@@ -81,8 +81,6 @@ runner.test("utc - invalid arguments", () => {
 	);
 });
 
-// ... (Tests for other Date functions would follow a similar pattern)
-
 // Example for a getter
 runner.test("getDate - valid date", () => {
 	const date = new Date(2024, 0, 15);
@@ -138,8 +136,6 @@ runner.test("setDate - invalid arguments", () => {
 	runner.assert(threw, true);
 });
 
-// ... tests for remaining functions
-
 // toJSON
 runner.test("toJSON - returns ISO string", () => {
 	const timestamp = types.createNumberNode(
@@ -151,4 +147,4 @@ runner.test("toJSON - returns ISO string", () => {
 	runner.assert(result.value, "2024-01-01T12:00:00.000Z");
 });
 
-// ... more tests (same pattern)
+runner.report();
