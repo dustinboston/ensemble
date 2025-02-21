@@ -13,7 +13,7 @@
 		"keywords": {
 			"patterns": [{
 				"name": "keyword.control.ensemble",
-				"match": "\\b(try|catch|var|globalThis|const|let|defmacro!|do|if|function|=>|quote|quasiquoteexpand|quasiquote|unquote|splice-unquote|doctype|html|head|title|style|body|script|console.log|p|header|h1|div|title|head|i)\\b"
+				"match": "\\b(try|catch|var|globalThis|const|let|defmacro!|do|if|function|quote|quasiquoteexpand|quasiquote|unquote|splice-unquote|doctype|html|head|title|style|body|script|console.log|p|header|h1|div|title|head|i|lt|lte|gt|gte|add|subtract|multiply|divide|neq|nullish|power|remainder|rshift|lshift|rshift-unsigned|bit-and|bit-or|bit-xor|bit-not|and|or|not|inc|dec)\\b"
 			}]
 		},
 		"strings": {

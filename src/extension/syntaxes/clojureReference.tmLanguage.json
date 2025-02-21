@@ -59,7 +59,7 @@
 	],
 	"repository": {
 		"comment": {
-			"begin": "(?<!\\\\);",
+			"begin": "(?<!\\\\)(;|//)",
 			"beginCaptures": {
 				"0": {
 					"name": "punctuation.definition.comment.clojure"

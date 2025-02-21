@@ -9,7 +9,11 @@ import * as types from "./types.ts";
 export const ns = new Map<types.MapKeyNode, types.FunctionNode>();
 
 const nsValues: Array<[string, types.Closure]> = [
-	["=", eq],
+	// ["=", eq],
+	["eq", eq],
+	["equals", eq],
+	["equal", eq],
+
 	["throw", throwError],
 	["nil?", isNil],
 	["true?", isTrue],
@@ -35,14 +39,28 @@ const nsValues: Array<[string, types.Closure]> = [
 	["trim", trim],
 
 	// Operators
-	["<", lt],
-	["<=", lte],
-	[">", gt],
-	[">=", gte],
-	["+", add],
-	["-", subtract],
-	["*", multiply],
-	["/", divide],
+	// ["<", lt],
+	// ["<=", lte],
+	// [">", gt],
+	// [">=", gte],
+	// ["+", add],
+	// ["-", subtract],
+	// ["*", multiply],
+	// ["/", divide],
+
+	["lt", lt],
+	// ["less-than", lt],
+	["lte", lte],
+	// ["less-than-equal", lte],
+	["gt", gt],
+	// ["greater-than", gt],
+	["gte", gte],
+	// ["greater-than-equal", gte],
+	["add", add],
+	["subtract", subtract],
+	["multiply", multiply],
+	["divide", divide],
+
 	["time-ms", timeMs],
 
 	// Maps

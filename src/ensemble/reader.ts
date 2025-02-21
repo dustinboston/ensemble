@@ -5,7 +5,7 @@
 import * as types from "./types.ts";
 
 export const tokenRegex =
-	/[\s,]*(~@|[[\]{}()'`~^@]|"(?:\\.|[^\\"])*"?|;.*|\/\/.*|[^\s[\]{}('"`,;)]*)/g;
+	/[\s,=]*(~@|[[\]{}()'`~^@<>]|"(?:\\.|[^\\"])*"?|;.*|\/\/.*|\r?\n|[^\s[\]{}<>('"`,;=)]*)/g;
 export const numberRegex = /^-?\d+(\.\d+)?$/;
 export const stringRegex = /"(?:\\.|[^\\"])*"/;
 
@@ -25,6 +25,8 @@ export const stringRegex = /"(?:\\.|[^\\"])*"/;
  * ```
  */
 export class Reader {
+	line = 0;
+
 	/**
 	 * Creates an instance of the Reader class to manage a stream of tokens
 	 * derived from a source code string. It initializes with an array of
@@ -48,6 +50,18 @@ export class Reader {
 
 	// Peeks at the current token without advancing the position.
 	peek = () => this.tokens[this.pos];
+
+	context = () => {
+		const start = this.pos - 10;
+		const end = this.pos + 10;
+		return this.tokens.slice(start, end).join(" ");
+	};
+}
+
+function formatError(error: string | Error, reader: Reader): string {
+	const message = error instanceof Error ? error.message : error;
+	const context = reader.context();
+	return `Error: ${message}\n  on line ${reader.line} near "${context}"`;
 }
 
 /**
@@ -85,10 +99,16 @@ export function tokenize(code: string): string[] {
  * @example readString('(def x 42)'); // returns an Ast
  */
 export function readString(code: string): types.AstNode {
-	const tokens = tokenize(code);
-	if (tokens.length === 0) return types.createNilNode();
-	const result = readForm(new Reader(tokens));
-	return result;
+	try {
+		const tokens = tokenize(code);
+		if (tokens.length === 0) return types.createNilNode();
+		const result = readForm(new Reader(tokens));
+		return result;
+	} catch (e) {
+		const message = e instanceof Error ? e.message : String(e);
+		console.log(`Error reading input: ${message}`);
+		return types.createNilNode();
+	}
 }
 
 /**
@@ -147,6 +167,14 @@ export function readForm(rdr: Reader): types.AstNode {
 	// characters that are used in javascript. Specifically the ~ and ^, but
 	// also potentiall the @. However, some tests would need to be updated.
 	switch (token) {
+		case "\n":
+		case "\r\n": {
+			rdr.line++;
+			rdr.next();
+			// Skip newlines but count them.
+			return readForm(rdr);
+		}
+
 		case "'": {
 			rdr.next();
 			return makeForm("quote");
@@ -180,8 +208,10 @@ export function readForm(rdr: Reader): types.AstNode {
 
 		case ")":
 		case "]":
-		case "}": {
-			throw new Error(`unexpected '${token}'`);
+		case "}":
+		case ">": {
+			const error = formatError(`unexpected '${token}'`, rdr);
+			throw new Error(error);
 		}
 
 		case "(": {
@@ -194,6 +224,10 @@ export function readForm(rdr: Reader): types.AstNode {
 
 		case "{": {
 			return readSequence(rdr, "}");
+		}
+
+		case "<": {
+			return readSequence(rdr, ">");
 		}
 
 		default: {
@@ -250,7 +284,8 @@ export function readAtom(rdr: Reader): types.AstNode {
 	}
 
 	if (token.startsWith('"')) {
-		throw new Error("expected '\"', got EOF");
+		const error = formatError("expected '\"', got EOF", rdr);
+		throw new Error(error);
 	}
 
 	return types.createSymbolNode(token);
@@ -301,7 +336,8 @@ export function readSequence(
 	while (true) {
 		const token = rdr.peek();
 		if (token === undefined) {
-			throw new Error(`expected '${end}', got EOF`);
+			const error = formatError(`expected '${end}', got EOF`, rdr);
+			throw new Error(error);
 		}
 
 		if (token === end) {
@@ -313,6 +349,7 @@ export function readSequence(
 	}
 
 	switch (end) {
+		case ">":
 		case ")": {
 			return types.createListNode(astNodes);
 		}
@@ -335,7 +372,8 @@ export function readSequence(
 		}
 
 		default: {
-			throw new Error("unknown end value");
+			const error = formatError(`unknown end value: ${end}`, rdr);
+			throw new Error(error);
 		}
 	}
 }
