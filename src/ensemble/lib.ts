@@ -7,17 +7,10 @@ import core from "./core.ts";
 import * as env from "./env.ts";
 import * as html from "./interop/html.ts";
 import * as js from "./interop/js.ts";
+import * as dom from "./interop/js/dom.ts";
 import * as printer from "./printer.ts";
 import * as reader from "./reader.ts";
 import * as types from "./types.ts";
-
-export * as core from "./core.ts";
-export * as env from "./env.ts";
-export * as html from "./interop/html.ts";
-export * as js from "./interop/js.ts";
-export * as printer from "./printer.ts";
-export * as reader from "./reader.ts";
-export * as types from "./types.ts";
 
 export type TryCatchAst = types.ListNode & {
 	value: [
@@ -1054,6 +1047,11 @@ export function initEnv(): env.Env {
 	// Core HTML functions
 	for (const [htmlSymbol, htmlFunc] of html.ns.entries()) {
 		replEnv.set(htmlSymbol, htmlFunc);
+	}
+
+	// Core DOM functions
+	for (const [domSymbol, domFunc] of dom.ns.entries()) {
+		replEnv.set(domSymbol, domFunc);
 	}
 
 	// Eval treats mal-data as a mal program

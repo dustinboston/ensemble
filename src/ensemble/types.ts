@@ -4,7 +4,7 @@
 
 // TODO: Move assertions functions for Ensemble *forms* into ensemble.ts
 
-import { type Env } from "./env.ts";
+import type { Env } from "./env.ts";
 
 // MARK: TYPES
 // =============================================================================
@@ -161,7 +161,8 @@ type TypeClass =
  * @param value - The data that this class represents.
  */
 export class AtomNode {
-	// deno-lint-ignore no-explicit-any
+	kind = "AtomNode";
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	constructor(public value: any) {}
 }
 
@@ -171,6 +172,7 @@ export class AtomNode {
  * @param value - The data that this class represents.
  */
 export class BooleanNode {
+	kind = "BooleanNode";
 	constructor(public value: boolean) {}
 }
 
@@ -180,6 +182,7 @@ export class BooleanNode {
  * @param value - The data that this class represents.
  */
 export class DomNode {
+	kind = "DomNode";
 	// domNode: HTMLElement | null = null;
 	constructor(
 		public value: string, // The tag name
@@ -227,6 +230,7 @@ export type NameStringNode = StringNode & {
  * @param value - The data that this class represents.
  */
 export class ErrorNode {
+	kind = "ErrorNode";
 	name: StringNode = createStringNode("Error");
 	cause?: AstNode;
 
@@ -270,6 +274,7 @@ export class ErrorNode {
  * @param metadata - Additional data to associate with this node.
  */
 export class FunctionNode {
+	kind = "FunctionNode";
 	constructor(
 		public value: Closure,
 		public closureMeta?: ClosureMetadata,
@@ -284,16 +289,17 @@ export class FunctionNode {
  * @param value - The data that this class represents.
  */
 export class KeywordNode {
+	kind = "KeywordNode";
 	constructor(private _value: string) {
 		this._value = _value.replaceAll(":", "");
 	}
 
 	public get value() {
-		return this._value + ":";
+		return `${this._value}:`;
 	}
 
 	public set value(keyword: string) {
-		this._value = keyword.replaceAll(":", "") + ":";
+		this._value = `${keyword.replaceAll(":", "")}:`;
 	}
 
 	public get bare() {
@@ -307,6 +313,7 @@ export class KeywordNode {
  * @param value - The data that this class represents.
  */
 export class ListNode {
+	kind = "ListNode";
 	constructor(
 		public value: AstNode[],
 		public metadata?: AstNode, // WAS = createNilNode()
@@ -323,6 +330,7 @@ export class ListNode {
  * @param value - The data that this class represents.
  */
 export class MapNode {
+	kind = "MapNode";
 	constructor(
 		public value: Map<string, AstNode> = new Map<string, AstNode>(),
 		public metadata?: AstNode, // WAS = createNilNode()
@@ -335,6 +343,7 @@ export class MapNode {
  * @param value - The data that this class represents.
  */
 export class NilNode {
+	kind = "NilNode";
 	constructor(public value: unknown = null) {}
 }
 
@@ -344,6 +353,7 @@ export class NilNode {
  * @param value - The data that this class represents.
  */
 export class NumberNode {
+	kind = "NumberNode";
 	// TODO: Add support for BigInt, e.g. value: number | bigint and handle internally
 	constructor(public value: number) {}
 }
@@ -354,6 +364,7 @@ export class NumberNode {
  * @param value - The data that this class represents.
  */
 export class SymbolNode {
+	kind = "SymbolNode";
 	constructor(public value: string) {}
 }
 
@@ -363,6 +374,7 @@ export class SymbolNode {
  * @param value - The data that this class represents.
  */
 export class StringNode {
+	kind = "StringNode";
 	constructor(public value: string) {}
 }
 
@@ -372,6 +384,7 @@ export class StringNode {
  * @param value - The data that this class represents.
  */
 export class VectorNode<T extends AstNode = AstNode> {
+	kind = "VectorNode";
 	constructor(
 		public value: T[],
 		public metadata?: AstNode, // WAS = createNilNode()
@@ -629,7 +642,7 @@ export function createDomNode(
 /**
  * Factory function to create an AtomNode.
  */
-// deno-lint-ignore no-explicit-any
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 export function createAtomNode(value: any): AtomNode {
 	return new AtomNode(value);
 }
@@ -780,7 +793,7 @@ export function isAstNode(node: unknown): node is AstNode {
  */
 export function isAtomNode(
 	node: unknown,
-	// deno-lint-ignore no-explicit-any
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 ): node is AtomNode & { value: any } {
 	return node instanceof AtomNode;
 }
@@ -1095,9 +1108,8 @@ export function isAstTruthy(
 	if (isNumberNode(a)) {
 		if (useJavaScriptTruthiness) {
 			return Boolean(a.value);
-		} else {
-			return true;
 		}
+		return true;
 	}
 
 	return Boolean(a.value);

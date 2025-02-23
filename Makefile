@@ -8,14 +8,14 @@ BIN_DIR=./bin
 ENSEMBLE_SRC_DIR=./src/ensemble
 ENSEMBLE_BINARY_FILE=$(BIN_DIR)/ensemble
 ENSEMBLE_BUILD_DIR=$(ENSEMBLE_SRC_DIR)/build
-ENSEMBLE_BUNDLE_FILE=$(BIN_DIR)/ensemble.js
+ENSEMBLE_BUNDLE_FILE=$(BIN_DIR)/ensemble_cli.js
+ENSEMBLE_RUNTIME_FILE=$(BIN_DIR)/ensemble.js
 ENSEMBLE_TESTS_DIR=$(ENSEMBLE_SRC_DIR)/tests
 ENSEMBLE_TS_FILES:=$(shell find $(ENSEMBLE_SRC_DIR) -name '*.ts')
 EXTENSION_DIR=./src/extension
 QJS_BINARY_FILE=$(BIN_DIR)/qjs
-QUICKJS_DIR=./lib/quickjs
-QUICKJS_BUILD_DIR=$(QUICKJS_DIR)/build
-EXTENSION_VERSION=0.0.5
+EXTENSION_VERSION=$(shell date +"%y.%m.%d-%H%M")
+EXTENSION_NAME=ensemble-syntax-$(EXTENSION_VERSION).vsix
 NODE_MODULES_DIR="./node_modules"
 
 # Targets
@@ -31,28 +31,31 @@ $(QJS_BINARY_FILE):
 $(ENSEMBLE_BINARY_FILE): $(QJS_BINARY_FILE) $(ENSEMBLE_BUNDLE_FILE)
 	$(QJS_BINARY_FILE) --std --module --out "$(ENSEMBLE_BINARY_FILE)" --compile "$(ENSEMBLE_BUNDLE_FILE)"
 
-# Bundle Typescript into a single file. See "Note Regarding Compiling".
+# Bundle Typescript into a single file.
 $(ENSEMBLE_BUNDLE_FILE): $(ENSEMBLE_TS_FILES)
 	$(NODE) esbuild "$(ENSEMBLE_SRC_DIR)/cli.ts" --outfile="$(ENSEMBLE_BUNDLE_FILE)" --bundle --format=esm --minify --platform=neutral --target=esnext --external:qjs:* --main-fields=main,module
+
+$(ENSEMBLE_RUNTIME_FILE): $(ENSEMBLE_TS_FILES)	
+	$(NODE) esbuild "$(ENSEMBLE_SRC_DIR)/lib.ts" --outfile="$(ENSEMBLE_RUNTIME_FILE)" --bundle --format=esm --platform=neutral --target=esnext --main-fields=rep,initEnv,module
 
 # Compile all of the Typescript files to JavaScript in the build directory
 $(ENSEMBLE_BUILD_DIR)/%.js: $(ENSEMBLE_TS_FILES)
 	cd "$(ENSEMBLE_SRC_DIR)" && $(NODE) tsc --build
 
 # Build the Ensemble CLI JavaScript file and standalone binary
-build: install-dependencies $(QJS_BINARY_FILE) $(ENSEMBLE_BUNDLE_FILE) $(ENSEMBLE_BINARY_FILE) $(ENSEMBLE_BUILD_DIR)/%.js
+build: install-dependencies $(QJS_BINARY_FILE) $(ENSEMBLE_BUNDLE_FILE) $(ENSEMBLE_RUNTIME_FILE) $(ENSEMBLE_BINARY_FILE) $(ENSEMBLE_BUILD_DIR)/%.js
 
 # Clean the Ensemble build directory and artifacts
 clean:
 	@if [ -d "$(ENSEMBLE_BUILD_DIR)" ]; then rm -rf $(ENSEMBLE_BUILD_DIR); fi  
 	@if [ -d "$(NODE_MODULES_DIR)" ]; then rm -rf $(NODE_MODULES_DIR); fi  
 	@if [ -f "$(ENSEMBLE_BUNDLE_FILE)" ]; then rm $(ENSEMBLE_BUNDLE_FILE); fi
+	@if [ -f "$(ENSEMBLE_RUNTIME_FILE)" ]; then rm $(ENSEMBLE_RUNTIME_FILE); fi
 	@if [ -f "$(ENSEMBLE_BINARY_FILE)" ]; then rm $(ENSEMBLE_BINARY_FILE); fi
 	
 # Install syntax and snippets extensions
 install: package
-	cd $(EXTENSION_DIR) && npm install
-	code --install-extension $(EXTENSION_DIR)/ensemble-syntax-$(EXTENSION_VERSION).vsix
+	cd $(EXTENSION_DIR) && code --install-extension $(EXTENSION_NAME)
 
 # TODO: Fetch QuickJS binary from GitHub releases
 install-dependencies:	
@@ -60,7 +63,9 @@ install-dependencies:
 
 # Package syntax and snippets extensions
 package:
-	cd $(EXTENSION_DIR) && $(NODE) $(VSCE) package
+	cd $(EXTENSION_DIR) && npm install
+	cd $(EXTENSION_DIR) && npm version $(EXTENSION_VERSION) --no-git-tag-version --no-commit-hooks
+	cd $(EXTENSION_DIR) && $(NODE) $(VSCE) package -o $(EXTENSION_NAME)
 
 # Testing
 test: test-unit-fun test-e2e

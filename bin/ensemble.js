@@ -1,14 +1,6186 @@
-import*as Qo from"qjs:os";import*as re from"qjs:std";var Fe=class{constructor(t){this.value=t}},De=class{constructor(t){this.value=t}},Le=class{constructor(t,o=new Map,s=[],r){this.value=t;this.attributes=o;this.children=s;this.metadata=r}},rs=["Error","AggregateError","RangeError","ReferenceError","SyntaxError","TypeError","URIError"],Ae=class e{constructor(t,o,s=N()){this.value=t;o!==void 0&&e.isErrorName(o)&&(this.name=o),s!==void 0&&(this.cause=s)}name=d("Error");cause;static isErrorName(t){let o=t.value;return rs.includes(o)}static assertErrorName(t){if(!e.isErrorName(t))throw new TypeError("Error type must be 'Error', 'AggregateError', 'RangeError', 'ReferenceError', 'SyntaxError', 'TypeError', or 'URIError'.")}},Ie=class{constructor(t,o,s=!1,r){this.value=t;this.closureMeta=o;this.isMacro=s;this.metadata=r}},ke=class{constructor(t){this._value=t;this._value=t.replaceAll(":","")}get value(){return this._value+":"}set value(t){this._value=t.replaceAll(":","")+":"}get bare(){return this._value}},ve=class{constructor(t,o){this.value=t;this.metadata=o}},Re=class{constructor(t=new Map,o){this.value=t;this.metadata=o}},qe=class{constructor(t=null){this.value=t}},ee=class{constructor(t){this.value=t}},de=class{constructor(t){this.value=t}},ce=class{constructor(t){this.value=t}},he=class{constructor(t,o){this.value=t;this.metadata=o}};function f(e){if(!G(e))throw new TypeError("Invalid AstNode")}function O(e){if(!te(e))throw new TypeError("Invalid AtomNode")}function B(e){if(!b(e))throw new TypeError("Invalid MapNode")}function Ue(e){if(!X(e))throw new TypeError("Invalid ErrorNode")}function C(e){if(!R(e))throw new TypeError("Invalid FunctionNode")}function W(e){if(!M(e))throw new TypeError("Invalid ListNode")}function ct(e){if(!E(e))throw new TypeError("Invalid NilNode")}function u(e){if(!v(e))throw new TypeError("Invalid NumberNode")}function l(e){if(!w(e))throw new TypeError("Invalid StringNode")}function K(e){if(!I(e))throw new TypeError("Invalid SymbolNode")}function x(e){if(!D(e))throw new TypeError("Invalid VectorNode")}function ue(e){if(!(e instanceof RegExp))throw new Error("Expected a RegExp object.")}function Nt(e){if(typeof e!="symbol")throw new Error("Expected a Symbol object.")}function xe(e,t,o,s){return new Le(e,t,o,s)}function pe(e){return new Fe(e)}function c(e){return new De(e)}function F(e,t){return new Re(e,t)}function P(e,t,o){return f(e),new Ae(e,t,o)}function k(e,t,o,s){return new Ie(e,t,o,s)}function Ne(e){return new ke(e)}function g(e,t){return new ve(e,t)}function N(e){return new qe(e)}function a(e){return new ee(e)}function d(e){return new ce(e)}function S(e){return new de(e)}function m(e=[],t){return new he(e,t)}function se(e){return e instanceof Le}function G(e){return te(e)||H(e)||se(e)||X(e)||R(e)||z(e)||M(e)||b(e)||E(e)||v(e)||w(e)||I(e)||D(e)}function te(e){return e instanceof Fe}function H(e){return e instanceof De&&typeof e.value=="boolean"}function b(e){return e instanceof Re&&e.value instanceof Map}function X(e){return e instanceof Ae&&G(e.value)}function R(e){return e instanceof Ie&&typeof e.value=="function"}function z(e){return e instanceof ke&&typeof e.value=="string"&&e.value.endsWith(":")}function M(e){return e instanceof ve&&e.value.every(G)}function E(e){return e instanceof qe&&e.value===null}function v(e){return e instanceof ee&&typeof e.value=="number"}function w(e){return e instanceof ce&&typeof e.value=="string"}function I(e){return e instanceof de&&typeof e.value=="string"}function D(e){return e instanceof he&&e.value.every(G)}function us(e,t){return Object.getPrototypeOf(e)===Object.getPrototypeOf(t)}function Be(e){if(e===void 0)throw new Error("Value is undefined")}function we(e){return e!==void 0}function Ke(e,t=!1){if(H(e))return e.value;let o=e;return te(o)?G(o.value)?Ke(o.value):!!o.value:E(e)?!1:v(e)?t?!!e.value:!0:!!e.value}function U(e){return M(e)||D(e)}function J(e){if(!M(e)&&!D(e))throw new TypeError("Invalid sequential type")}function $(e){if(!(w(e)||I(e)||z(e)))throw new TypeError("Invalid dictionary key")}function ps(e){return w(e)||I(e)||z(e)}function et(e){if(!R(e)&&!M(e)&&!D(e)&&!b(e)&&!se(e))throw new TypeError("Invalid metadata type")}function n(e,t,o){if(e!==t){let s=`Wanted ${t} arguments but got ${e}`;throw o&&(s+=` ${o}`),new Error(s)}}function A(e,t,o){if(e<t||e>o)throw new Error("Unexpected number of arguments")}function T(e,t){if(e<t)throw new Error("Unexpected minimum number of arguments")}function be(e){if(e%2!==0)throw new Error("Uneven number of arguments")}function Y(e,t){for(let o of e)if(!(o instanceof t))throw new TypeError("All values must be of the same type")}function oe(e,t){if(U(e)&&U(t)){if(e.value.length!==t.value.length)return c(!1);for(let s=0;s<e.value.length;s++)if(!oe(e.value[s],t.value[s]).value)return c(!1);return c(!0)}if(b(e)&&b(t)){if(e.value.size!==t.value.size)return c(!1);for(let[s,r]of e.value){let i=t.value.get(s);if(i===void 0||!oe(r,i).value)return c(!1)}return c(!0)}if(!us(e,t))return c(!1);let o=e.value===t.value;return c(o)}function tt(e,t){let o=M(e)&&I(e.value[0]);return o&&t!==void 0?e.value[0].value===t:o}function is(e,t){if(e!==t)throw new Error(`Unexpected value '${e}', wanted ${t}`)}function me(e,t){is(e.value,t)}function Ce(e,t){return{continue:{ast:e,env:t},return:void 0}}function ie(e){return{continue:void 0,return:e}}function j(e){if(te(e))return as(e);if(H(e))return ys(e);if(b(e))return ls(e);if(X(e))return cs(e);if(R(e))return Ns(e);if(z(e))return ms(e);if(M(e))return fs(e);if(E(e))return As(e);if(v(e))return vs(e);if(w(e))return hs(e);if(I(e))return xs(e);if(D(e))return bs(e);if(se(e))return ds(e);throw new Error("Unmatched object")}function as(e){return pe(j(e.value))}function ys(e){return c(e.value)}function ls(e){let t=F(new Map(e.value));return t.metadata=j(e.metadata??N()),t}function ds(e){let t=e.value,o=e.attributes,s=e.children,r=xe(t,new Map(o),s.map(j));return r.metadata=j(e.metadata??N()),r}function cs(e){return P(j(e.value))}function Ns(e){let t=k(e.value);if(t.isMacro=e.isMacro,t.metadata=j(e.metadata??N()),e.closureMeta){let o=e.closureMeta;t.closureMeta={ast:j(o.ast),env:o.env,parameters:o.parameters.map(s=>S(s.value))}}return t}function ms(e){return Ne(e.value)}function fs(e){let t=g(e.value.map(o=>j(o)));return t.metadata=j(e.metadata??N()),t}function As(e){return N()}function vs(e){return a(e.value)}function hs(e){return d(e.value)}function xs(e){return S(e.value)}function bs(e){let t=m(e.value.map(o=>j(o)));return t.metadata=j(e.metadata??N()),t}function $e(e,t,o){e.set(Z(t),o)}function je(e,t){e.delete(Z(t))}function Oe(e,t){return e.has(Z(t))}function We(e,t){return e.get(Z(t))}function _e(e){let t=[...e.keys()];return g(t.map(o=>mt(o)))}function Z(e){let t=e;if(z(t))return t.value;let o=e;return w(o)?`"${o.value}"`:e.value}function mt(e){return e.endsWith(":")?Ne(e):e.startsWith('"')?d(e.slice(1,-1)):S(e)}function Me(e){let t=ps(e)?e.value:e;return t.startsWith(":")||t.endsWith(":")?t.replaceAll(":",""):t.startsWith('"')&&t.endsWith('"')?t.slice(1,-1):t}function ot(e){let t=[];for(let[o,s]of e.entries())t.push(mt(o),s);return t}function Pe(e){return e.replaceAll("\\","\\\\").replaceAll('"','\\"').replaceAll(`
-`,"\\n")}function Q(e){if(te(e))return gs(e);if(H(e))return Ss(e);if(b(e))return Ge(e);if(X(e))return ws(e);if(R(e))return Cs(e);if(z(e))return Ms(e);if(M(e))return Es(e);if(E(e))return Ts();if(v(e))return ae(e);if(w(e))return ge(e);if(I(e))return Vs(e);if(D(e))return Fs(e);throw new Error("Could not unwrap object.")}function gs(e){return Q(e.value)}function Ss(e){return e.value}function ws(e){let t=w(e.value)?e.value.value:String(Q(e.value));return new Error(t)}function Cs(e){return(...t)=>p(Q(e.value(...t)))}function Ms(e){return e.value}function Es(e){return e.value.map(Q)}function Ge(e){let t={};for(let[o,s]of e.value.entries())t[o]=Q(s);return t}function Ts(){return null}function ae(e){return e.value}function ge(e){return e.value}function Vs(e){return e.value}function Fs(e){return e.value.map(Q)}function p(e){if(G(e))return e;switch(typeof e){case"undefined":return N();case"number":return a(e);case"string":return e.startsWith('"')?d(e):e.startsWith(":")?Ne(e):S(e);case"boolean":return c(e);case"symbol":return d(JSON.stringify(e));case"function":return k((...t)=>{try{return p(e(...t.map(o=>o.value)))}catch(o){return o instanceof Error?P(d(o.message)):P(d(JSON.stringify(o)))}});case"object":{if(e instanceof Error)return P(d(e.message));if(e===null)return N();if(Array.isArray(e)){let s=e.map(r=>p(r));return g(s)}if(e instanceof Map){let s=new Map;for(let[r,i]of e.entries()){let y=String(r),h=p(i);s.set(y,h)}return F(s)}let t=e,o=new Map;for(let[s,r]of Object.entries(t)){let i=String(s),y=p(r);o.set(i,y)}return F(o)}default:{let t=String(e);return P(d(`unknown type ${t}`))}}}var ne=class{value=new Map;outer;binds=[];exprs=[];constructor(t=void 0,o=[],s=[]){this.outer=t,this.binds=o,this.exprs=s;for(let r=0;r<o.length;r++){let i=o[r];if(i.value==="&"){let h=o[r+1];if(h){let V=s.slice(r),ns=Z(h);this.value.set(ns,g(V));break}}let y=Z(i);this.value.set(y,s[r])}}serialize(){let t=F(),o=F();this.outer&&(o=this.outer.serialize());let s=this.value.entries();for(let[r,i]of s)t.value.set(r,i);return t.value.set("__outer__",o),t}set(t,o){let s=Z(t);return this.value.set(s,o),o}findEnv(t){let o=Z(t);if(this.value.has(o))return this;if(we(this.outer))return this.outer.findEnv(t)}get(t){let o=this.findEnv(t);if(o===void 0)throw new Error(`'${t.value}' not found`);let s=Z(t),r=o.value.get(s);return Be(r),r}};function q(e,t=!1){if(w(e))return t?`"${Pe(e.value)}"`:e.value;if(z(e)||H(e)||v(e)||I(e))return String(e.value);let o=e;if(te(o))return`(atom ${q(o.value)})`;if(X(e))return q(e.value,t);if(R(e))return"#<fn>";if(U(e)){let s=M(e),r=e.value.map(i=>q(i,t)).join(" ");return s?`(${r})`:`[${r}]`}if(se(e))return fe(e,t);if(b(e))return`{${ot(e.value).map(r=>q(r,t)).join(" ")}}`;if(E(e))return"nil";throw new Error(`unmatched object ${JSON.stringify(e)}`)}var Ds=new Set(["area","base","br","col","embed","hr","img","input","link","meta","param","source","track","wbr"]);function fe(e,t=!1){if(se(e)){let s=e.value,r=Ds.has(s),i="";if(e.attributes.size>0&&(i=" "+Array.from(e.attributes).map(([h,V])=>h==="style"?Is(V,t):`${Me(h)}="${fe(V,t)}"`).join(" ")),r)return`<${s}${i} />`;let y=[];if(e.children.length>0){let h=[];s==="style"?h=e.children.map(V=>Ls(V,t)):s==="script"?h=e.children.map(V=>ze(V,t)):h=e.children.map(V=>fe(V,t)),y.push(h.join(" "))}return s==="!doctype"?`<!doctype html>
-${y.join(" ")}`:`<${s}${i}>${y.join(" ")}</${s}>`}if(w(e))return t?`"${Pe(e.value)}"`:e.value;if(z(e)||H(e)||v(e)||I(e))return String(e.value);let o=e;if(te(o))return`(atom ${fe(o.value)})`;if(X(e))return fe(e.value,t);if(R(e))return"#<fn>";if(U(e)){let s=M(e),r=e.value.map(i=>fe(i,t)).join(" ");return s?`(${r})`:`[${r}]`}if(b(e))return`{${ot(e.value).map(r=>fe(r,t)).join(" ")}}`;if(E(e))return"nil";throw new Error(`unmatched object ${JSON.stringify(e)}`)}function ze(e,t=!1){if(se(e))return`(const el = document.createElement("${e.value}"); document.body.appendChild(el);)`;if(M(e)){let o=e.value,s=o[0],r=o.slice(1);return`(${s.value}(${r.map(i=>ze(i)).join(", ")}))`}return D(e)?`[${e.value.map(s=>ze(s)).join(",")}]`:R(e)?`(${e.value.toString()})`:w(e)||z(e)||I(e)?`"${e.value}"`:H(e)||v(e)?String(e.value):b(e)?`{${Object.entries(e.value).map(([s,r])=>{let i=/^[a-zA-Z_$][0-9a-zA-Z_$]*$/.test(s)?s:`"${s}"`,y=ze(r,t);return`${i}: ${y}`}).join(", ")}}`:E(e)?"null":"/* javascript */"}function Se(e,t=!1){if(w(e))return t?Pe(e.value):e.value;if(z(e))return e.value.slice(1);if(v(e))return String(e.value);if(I(e))return e.value;if(X(e))return Se(e.value,t);if(M(e)||D(e))return e.value.map(o=>Se(o,t)).join(" ");if(b(e))return[...e.value].map(([o,s])=>{let r=Me(o);return E(s)?r:b(s)?`${r} {${Se(s,t)}}`:`${Me(o)}: ${Se(s,t)};`}).join(" ");if(H(e)||te(e)||R(e)||se(e)||E(e))return"";throw new Error("unmatched object")}function Ls(e,t=!1){return Se(e,t)}function Is(e,t=!1){return b(e)?ks(e,t):"{}"}function ks(e,t=!1){return[...e.value].map(([o,s])=>`${Me(o)}: ${Se(s,t)};`).join("")}var Rs=/[\s,=]*(~@|[[\]{}()'`~^@<>]|"(?:\\.|[^\\"])*"?|;.*|\/\/.*|\r?\n|[^\s[\]{}<>('"`,;=)]*)/g,qs=/^-?\d+(\.\d+)?$/,Us=/"(?:\\.|[^\\"])*"/,nt=class{constructor(t,o=0){this.tokens=t;this.pos=o}line=0;next=()=>this.tokens[this.pos++];peek=()=>this.tokens[this.pos];context=()=>{let t=this.pos-10,o=this.pos+10;return this.tokens.slice(t,o).join(" ")}};function Je(e,t){let o=e instanceof Error?e.message:e,s=t.context();return`Error: ${o}
-  on line ${t.line} near "${s}"`}function Bs(e){return[...e.matchAll(Rs)].filter(o=>!o[1].startsWith(";")&&!o[1].startsWith("//")&&o[1]!=="").map(o=>o[1])}function Ye(e){try{let t=Bs(e);return t.length===0?N():Te(new nt(t))}catch(t){let o=t instanceof Error?t.message:String(t);return console.log(`Error reading input: ${o}`),N()}}function Te(e){let t=e.peek();if(t===void 0)throw new Error("EOF");function o(s,r){return g([S(s),Te(e),...r?[r]:[]])}switch(t){case`
-`:case`\r
-`:return e.line++,e.next(),Te(e);case"'":return e.next(),o("quote");case"`":return e.next(),o("quasiquote");case"~":return e.next(),o("unquote");case"~@":return e.next(),o("splice-unquote");case"^":{e.next();let s=Te(e);return o("with-meta",s)}case"@":return e.next(),o("deref");case")":case"]":case"}":case">":{let s=Je(`unexpected '${t}'`,e);throw new Error(s)}case"(":return Qe(e,")");case"[":return Qe(e,"]");case"{":return Qe(e,"}");case"<":return Qe(e,">");default:return Ks(e)}}function Ks(e){let t=e.next();if(t===void 0)throw new Error("unexpected EOF");if(t==="nil")return N();if(t==="false")return c(!1);if(t==="true")return c(!0);if(qs.test(t))return a(Number.parseFloat(t));if(Us.test(t))return d($s(t));if(t.startsWith(":")||t.endsWith(":"))return Ne(t);if(t.startsWith('"')){let o=Je(`expected '"', got EOF`,e);throw new Error(o)}return S(t)}function $s(e){return e.slice(1,-1).replaceAll(/\\(.)/g,(t,o)=>o==="n"?`
-`:o)}function Qe(e,t){let o=[];for(e.next();;){let s=e.peek();if(s===void 0){let r=Je(`expected '${t}', got EOF`,e);throw new Error(r)}if(s===t){e.next();break}o.push(Te(e))}switch(t){case">":case")":return g(o);case"]":return m(o);case"}":{let s=F();for(let r=0;r<o.length;r+=2){let i=o[r];$(i);let y=o[r+1],h=Z(i);s.value.set(h,y)}return s}default:{let s=Je(`unknown end value: ${t}`,e);throw new Error(s)}}}var ft=new Map,At=[["eq",He],["equals",He],["equal",He],["throw",Qt],["nil?",to],["true?",oo],["false?",so],["symbol",pt],["Symbol.new",pt],["symbol?",ro],["keyword",uo],["keyword?",po],["number?",io],["macro?",yo],["pr-str",vt],["str",ht],["prn",xt],["println",ut],["console.log",ut],["read-string",bt],["string?",no],["trim",gt],["lt",St],["lte",wt],["gt",Ct],["gte",Mt],["add",Et],["subtract",Tt],["multiply",Vt],["divide",Ft],["time-ms",Dt],["assoc",mo],["contains?",vo],["dissoc",fo],["get",Ao],["hash-map",it],["keys",ho],["map?",No],["vals",xo],["list",Lt],["list?",It],["apply",Jt],["fn?",ao],["concat",Rt],["conj",Ht],["cons",kt],["count",Ot],["empty?",jt],["first",Bt],["last",Kt],["join",go],["map",Yt],["nth",Ut],["rest",$t],["seq",Xt],["sequential?",bo],["vec",qt],["vector",lo],["vector?",co],["meta",Zt],["with-meta",eo],["atom",Wt],["atom?",_t],["deref",Pt],["reset!",Gt],["swap!",zt]];for(let[e,t]of At)ft.set(S(e),k(t));function He(...e){return n(e.length,2),oe(e[0],e[1])}function vt(...e){let t=e.map(o=>q(o,!0)).join(" ");return d(t)}function ht(...e){let t=e.map(o=>q(o,!1)).join("");return d(t)}function xt(...e){let t=e.map(o=>q(o,!0)).join(" ");return console.log(t),N()}function ut(...e){let t=e.map(o=>q(o,!1)).join(" ");return console.log(t),N()}function bt(...e){n(e.length,1);let t=e[0];return l(t),Ye(t.value)}function gt(...e){n(e.length,1);let t=e[0];return l(t),d(t.value.trim())}function St(...e){n(e.length,2,`
-args: ${JSON.stringify(e,null,"  ")}`);let t=e[0];u(t);let o=e[1];return u(o),c(t.value<o.value)}function wt(...e){n(e.length,2);let t=e[0];u(t);let o=e[1];return u(o),c(t.value<=o.value)}function Ct(...e){n(e.length,2);let t=e[0];u(t);let o=e[1];return u(o),c(t.value>o.value)}function Mt(...e){n(e.length,2);let t=e[0];u(t);let o=e[1];return u(o),c(t.value>=o.value)}function Et(...e){n(e.length,2);let t=e[0];u(t);let o=e[1];return u(o),a(t.value+o.value)}function Tt(...e){n(e.length,2);let t=e[0];u(t);let o=e[1];return u(o),a(t.value-o.value)}function Vt(...e){n(e.length,2);let t=e[0];u(t);let o=e[1];return u(o),a(t.value*o.value)}function Ft(...e){n(e.length,2);let t=e[0];u(t);let o=e[1];return u(o),a(t.value/o.value)}function Dt(...e){return n(e.length,0),a(new Date().getTime())}function Lt(...e){for(let t of e)f(t);return g(e)}function It(...e){return n(e.length,1),c(M(e[0]))}function kt(...e){return n(e.length,2),J(e[1]),new ve([e[0],...e[1].value])}function Rt(...e){let t=[];for(let o of e)J(o),t.push(...o.value);return g(t)}function qt(...e){return M(e[0])?m(e[0].value):e[0]}function Ut(...e){if(n(e.length,2),U(e[0])&&v(e[1])){let t=e[1].value,o=e[0],s=e[0].value.length;if(s>0&&t<s)return o.value[t]}throw new Error("out of range")}function Bt(...e){return n(e.length,1),U(e[0])&&e[0].value.length>0?e[0].value[0]:N()}function Kt(...e){return n(e.length,1),U(e[0])&&e[0].value.length>0?e[0].value[e[0].value.length-1]:N()}function $t(...e){return n(e.length,1),U(e[0])?g(e[0].value.slice(1)):g([])}function jt(...e){n(e.length,1);let t=e[0];return J(t),c(t.value.length===0)}function Ot(...e){n(e.length,1);let t=e[0];if(E(t))return a(0);if(b(e[0]))return a(e[0].value.size);if(U(e[0]))return a(e[0].value.length);throw new TypeError("Invalid argument type")}function Wt(...e){n(e.length,1);let t=e[0];return pe(t)}function _t(...e){n(e.length,1);let t=e[0];return c(te(t))}function Pt(...e){n(e.length,1);let t=e[0];return O(t),t.value}function Gt(...e){n(e.length,2);let t=e[0],o=e[1];return O(t),t.value=o,o}function zt(...e){T(e.length,2);let t=e[0];O(t);let o=e[1];C(o);let s=e.slice(2);return t.value=o.value(t.value,...s),t.value}function Qt(...e){throw n(e.length,1),f(e[0]),P(e[0])}function Jt(...e){let t=e.length;T(t,2),C(e[0]);let o=e[t-1];return J(o),e[0].value(...e.slice(1,-1),...o.value)}function Yt(...e){let t=e.length;n(t,2),C(e[0]),J(e[1]);let o=e[0],r=e[1].value.map(i=>o.value(i));return g(r)}function Ht(...e){T(e.length,2),J(e[0]);let[t,...o]=e;return M(t)?g([...o.reverse(),...t.value]):m([...e[0].value,...o])}function Xt(...e){n(e.length,1);let t=e[0];return M(t)&&t.value.length>0?t:D(t)&&t.value.length>0?g([...t.value]):w(t)&&t.value.length>0?g(t.value.split("").map(o=>d(o))):N()}function Zt(...e){return n(e.length,1),et(e[0]),e[0].metadata??N()}function eo(...e){n(e.length,2),et(e[0]),f(e[1]);let t=j(e[0]);return t.metadata=e[1],t}function to(...e){return n(e.length,1),c(E(e[0]))}function oo(...e){return n(e.length,1),c(H(e[0])&&e[0].value)}function so(...e){return n(e.length,1),c(H(e[0])&&!e[0].value)}function no(...e){return n(e.length,1),c(w(e[0]))}function pt(...e){return n(e.length,1),l(e[0]),S(e[0].value)}function ro(...e){return n(e.length,1),c(I(e[0]))}function uo(...e){n(e.length,1),$(e[0]);let t=e[0];if(z(t))return t;let o=e[0];return Ne(`:${o.value}`)}function po(...e){return n(e.length,1),c(z(e[0]))}function io(...e){return n(e.length,1),c(v(e[0]))}function ao(...e){return n(e.length,1),c(R(e[0])&&!e[0].isMacro)}function yo(...e){return n(e.length,1),c(R(e[0])?e[0].isMacro:!1)}function lo(...e){return m(e)}function co(...e){return n(e.length,1),c(D(e[0]))}function it(...e){if(e.length===0)return F();if(e.length===1&&b(e[0]))return F(new Map(e[0].value));be(e.length);let t=F();for(let o=0;o<e.length;o+=2){let s=e[o];$(s),$e(t.value,s,e[o+1])}return t}function No(...e){return n(e.length,1),c(b(e[0]))}function mo(...e){T(e.length,1),B(e[0]);let t=e.slice(1),o=F(new Map(e[0].value)),s=it(...t);for(let[r,i]of s.value.entries())o.value.set(r,i);return o}function fo(...e){T(e.length,1),B(e[0]);let t=F(new Map(e[0].value));for(let o of e.splice(1))$(o),je(t.value,o);return t}function Ao(...e){n(e.length,2);let t=e[0];if(!b(t))return N();let o=e[1];$(o);let s=We(t.value,o);return s!==void 0?s:N()}function vo(...e){n(e.length,2);let t=e[0],o=e[1];return B(t),$(o),c(Oe(t.value,o))}function ho(...e){return n(e.length,1),B(e[0]),_e(e[0].value)}function xo(...e){return n(e.length,1),B(e[0]),g([...e[0].value.values()])}function bo(...e){return c(U(e[0]))}function go(...e){A(e.length,1,2),J(e[0]);let t=w(e[1])?e[1].value:" ",o=e[0].value.map(s=>q(s,!1)).join(t);return d(o)}function js(...e){T(e.length,2);let[t,...o]=e,s=o.pop();Be(s),C(s);let r=o.length;for(let i=0;i<r;i++){let y=o[i];if(W(y),n(y.value.length,2),C(y.value[1]),oe(t,y.value[0]).value)return y.value[1].value()}return s.value()}var ye={add:Et,apply:Jt,applyToSequence:Yt,assoc:mo,atom:Wt,concat:Rt,conj:Ht,cons:kt,contains:vo,deref:Pt,dissoc:fo,divide:Ft,empty:jt,eq:He,firstNodeInList:Bt,get:Ao,gt:Ct,gte:Mt,hashMap:it,isAtom:_t,isFalse:so,isFn:ao,isKeyword:po,isListNode:It,isMacro:yo,isMap:No,isNil:to,isNumber:io,isSequentialNode:bo,isString:no,isSymbolNode:ro,isTrue:oo,isVector:co,join:go,keys:ho,keyword:uo,lastNodeInList:Kt,length:Ot,list:Lt,lt:St,lte:wt,meta:Zt,multiply:Vt,ns:ft,nsValues:At,nth:Ut,printEscapedString:vt,printEscapedStringToScreen:xt,printUnescapedString:ht,printUnescapedStringToScreen:ut,readString:bt,reset:Gt,rest:$t,seq:Xt,subtract:Tt,swap:zt,switchCase:js,symbol:pt,throwError:Qt,timeMs:Dt,trim:gt,vals:xo,vec:qt,vector:lo,withMeta:eo};var Ws=new Set(["!doctype","a","abbr","address","area","article","aside","audio","b","base","bdi","bdo","blockquote","body","br","button","canvas","caption","cite","code","col","colgroup","data","datalist","dd","del","details","dfn","dialog","div","dl","dt","em","embed","fieldset","figcaption","figure","footer","form","h1","h2","h3","h4","h5","h6","head","header","hgroup","hr","html","i","iframe","img","imgmap","input","kbd","label","legend","li","link","main","mark","menu","meter","nav","noscript","object","ol","optgroup","option","output","p","picture","pre","portal","progress","q","rp","rt","ruby","s","samp","script","search","section","select","slot","small","source","span","strong","style","sub","summary","sup","table","tbody","td","template","textarea","tfoot","th","thead","time","title","tr","track","u","ul","var","video","wbr"]),Xe=new Map;for(let e of Ws)Xe.set(S(e),k(_s(e)));function _s(e){return(...t)=>Ps(S(e),...t)}function Ps(...e){T(e.length,1);let t=e[0];K(t);let o=new Map,s=[];return b(e[1])?(e[1].value.forEach((r,i)=>o.set(i,r)),e.slice(2).forEach(r=>s.push(r))):e.slice(1).forEach(r=>s.push(r)),xe(t.value,o,s)}function Gs(...e){n(e.length,1),l(e[0]);let t=e[0].value,o=document.querySelector(t);if(o===null)return N();let r=Array.from(o.attributes).reduce((i,y)=>i.set(y.name,d(y.value)),new Map);return xe(o.tagName,r,[])}Xe.set(S("document.querySelector"),k(Gs));var To=[["Array",zs],["Array.from",wo],["Array.isArray",Js],["Array.of",wo],["Array.prototype.at",Qs],["Array.prototype.concat",Ys],["Array.prototype.copyWithin",Hs],["Array.prototype.entries",Xs],["Array.prototype.every",Zs],["Array.prototype.fill",en],["Array.prototype.filter",tn],["Array.prototype.find",on],["Array.prototype.findIndex",sn],["Array.prototype.findLast",nn],["Array.prototype.findLastIndex",rn],["Array.prototype.flat",un],["Array.prototype.flatMap",pn],["Array.prototype.includes",an],["Array.prototype.indexOf",yn],["Array.prototype.join",ln],["Array.prototype.keys",dn],["Array.prototype.length",fn],["Array.prototype.map",cn],["Array.prototype.pop",Nn],["Array.prototype.push",mn],["Array.prototype.reduce",An],["Array.prototype.reverse",Co],["Array.prototype.shift",vn],["Array.prototype.slice",hn],["Array.prototype.some",xn],["Array.prototype.sort",Mo],["Array.prototype.splice",Eo],["Array.prototype.toReversed",Co],["Array.prototype.toSorted",Mo],["Array.prototype.toSpliced",Eo],["Array.prototype.unshift",bn],["Array.prototype.values",gn],["Array.prototype.with",Sn],["Array.toString",ye.printEscapedString]];function zs(...e){if(T(e.length,1),e.length===1&&v(e[0])){let t=Array(e[0].value).fill(N());return m(t)}return m(e)}function wo(...e){A(e.length,1,3),x(e[0]),e.length>=2&&C(e[1]),e.length===3&&f(e[2]);let t=Array.from(e[0].value,e[1]?.value,e[2]?.value);return m(t)}function Qs(...e){n(e.length,2),x(e[0]),u(e[1]);let t=e[0].value,o=e[1].value,s=t.at(o);return s?p(s):N()}function Js(...e){n(e.length,1),f(e[0]);let t=D(e[0]);return c(t)}function Ys(...e){T(e.length,1),Y(e,he);let t=e[0].value.concat(...e.slice(1).map(o=>o.value));return m(t)}function Hs(...e){A(e.length,1,4),x(e[0]),u(e[1]),u(e[2]);let t=e[0].value,o=e[1].value,s=e[2].value,r=v(e[3])?e[3].value:void 0,i=t.copyWithin(o,s,r);return m(i)}function Xs(...e){n(e.length,1),x(e[0]);let t=e[0].value.map((o,s)=>{let r=a(s);return m([r,o])});return m(t)}function Zs(...e){n(e.length,2),x(e[0]),C(e[1]);let t=e[0].value,o=e[1].value,s=t.every((r,i,y)=>o(a(i),r,m(y)).value);return c(s)}function en(...e){A(e.length,2,4),x(e[0]),f(e[1]);let t=e[0].value.map(Q),o=e[1].value,s;e.length>=3&&(u(e[2]),s=e[2].value);let r;e.length===4&&(u(e[3]),r=e[3].value);let i=t.fill(o,s,r);return m(i.map(p))}function tn(...e){n(e.length,2),C(e[0]),x(e[1]);let t=e[0],s=e[1].value.filter(r=>!!t.value(r).value);return m(s)}function on(...e){n(e.length,2),x(e[0]),C(e[1]);let t=e[0].value,o=e[1].value;return t.find((r,i,y)=>o(r,a(i),m(y)).value)??N()}function sn(...e){n(e.length,2),x(e[0]),C(e[1]);let t=e[0].value,o=e[1].value,s=t.findIndex((r,i,y)=>o(r,a(i),m(y)).value);return a(s)}function nn(...e){n(e.length,2),x(e[0]),C(e[1]);let t=e[0].value,o=e[1].value;return t.findLast((r,i,y)=>o(r,a(i),m(y)).value)??N()}function rn(...e){n(e.length,2),x(e[0]),C(e[1]);let t=e[0].value,o=e[1].value,s=t.findLastIndex((r,i,y)=>o(r,a(i),m(y)).value);return a(s)}function un(...e){n(e.length,1),x(e[0]);let t=e[0].value;function o(r){return r.reduce((i,y)=>i.concat(D(y)?o(y.value):y),[])}let s=o(t);return m(s)}function pn(...e){n(e.length,2),x(e[0]),C(e[1]);let t=e[0].value,o=e[1].value;function s(y){return y.reduce((h,V)=>h.concat(D(V)?s(V.value):V),[])}let r=t.map((y,h,V)=>o(y,a(h),m(V))),i=s(r);return m(i)}function an(...e){n(e.length,2),x(e[0]),f(e[1]);let t=e[0],o=e[1],s=t.value.some(r=>oe(r,o).value);return c(s)}function yn(...e){n(e.length,2),x(e[0]),f(e[1]);let t=e[0],o=e[1];for(let[s,r]of t.value.entries())if(oe(r,o).value)return a(s);return a(-1)}function ln(...e){A(e.length,1,2),J(e[0]);let t=w(e[1])?e[1].value:" ",o=e[0].value.map(s=>q(s,!1)).join(t);return d(o)}function dn(...e){n(e.length,1),x(e[0]);let o=e[0].value.map((s,r)=>a(r));return m(o)}function cn(...e){A(e.length,2,3),x(e[0]),C(e[1]);let t=e[0].value,o=e[1].value,s=e.length===3?e[2].value:void 0,r=t.map((i,y,h)=>{let V=o(i,a(y),s);return p(V)});return m(r)}function Nn(...e){n(e.length,1),x(e[0]);let t=e[0],o=t.value[t.value.length-1];return p(o)}function mn(...e){if(T(e.length,2),!e.every(G))throw new TypeError("Invalid arguments.");return x(e[0]),m([...e[0].value,...e.slice(1)])}function fn(...e){n(e.length,1),x(e[0]);let t=e[0];return a(t.value.length)}function An(...e){n(e.length,3),C(e[0]),x(e[1]);let t=e[0],o=e[1],s=e[2];for(let r of o.value)s=t.value(s,r);return s}function Co(...e){n(e.length,1),x(e[0]);let o=e[0].value.toReversed();return m(o)}function vn(...e){n(e.length,1),x(e[0]);let o=e[0].value[0];return o||N()}function hn(...e){A(e.length,1,3),x(e[0]);let t=0;e[1]!==void 0&&(u(e[1]),t=e[1].value);let o=e[0].value.length;return e[2]!==void 0&&(u(e[2]),o=e[2].value),m(e[0].value.slice(t,o))}function xn(...e){n(e.length,2),x(e[0]),C(e[1]);let t=e[0].value,o=e[1].value,s=t.some((r,i,y)=>o(r,a(i),m(y)).value);return c(s)}function Mo(...e){n(e.length,2),x(e[0]),C(e[1]);let t=e[0].value,o=e[1].value,s=t.toSorted((r,i)=>{let y=o(r,i);return u(y),y.value});return m(s)}function Eo(...e){A(e.length,2,4),x(e[0]),u(e[1]);let t=e[0].value,o=e[1].value;if(e.length<3){let y=t.toSpliced(o);return m(y)}u(e[2]);let s=e[2].value,r=e.slice(3),i=t.toSpliced(o,s,...r);return m(i)}function bn(...e){n(e.length,2),x(e[1]);let t=[e[0],...e[1].value];return m(t)}function gn(...e){n(e.length,1),x(e[0]);let o=e[0].value.map(s=>s);return m(o)}function Sn(...e){n(e.length,3),x(e[0]),u(e[1]),f(e[2]);let t=e[0],o=e[1],s=e[2],r=t.value.with(o.value,s);return m(r)}var Vo=[["Boolean",wn]];function wn(...e){return n(e.length,1),f(e[0]),c(!!e[0].value)}var Fo=[["decodeURI",Cn],["decodeURIComponent",Mn],["encodeURI",En],["encodeURIComponent",Tn]];function Cn(...e){n(e.length,1),l(e[0]);let t=decodeURI(e[0].value);return d(t)}function Mn(...e){n(e.length,1),l(e[0]);let t=decodeURIComponent(e[0].value);return d(t)}function En(...e){n(e.length,1),l(e[0]);let t=encodeURI(e[0].value);return d(t)}function Tn(...e){n(e.length,1),l(e[0]);let t=encodeURIComponent(e[0].value);return d(t)}var Do=[["Date",Vn],["Date.now",Fn],["Date.parse",Dn],["Date.UTC",Ln],["Date.prototype.getDate",In],["Date.prototype.getDay",kn],["Date.prototype.getFullYear",Rn],["Date.prototype.getHours",qn],["Date.prototype.getMilliseconds",Un],["Date.prototype.getMinutes",Bn],["Date.prototype.getMonth",Kn],["Date.prototype.getSeconds",$n],["Date.prototype.getTime",jn],["Date.prototype.getTimezoneOffset",On],["Date.prototype.getUTCDate",Wn],["Date.prototype.getUTCDay",_n],["Date.prototype.getUTCFullYear",Pn],["Date.prototype.getUTCHours",Gn],["Date.prototype.getUTCMilliseconds",zn],["Date.prototype.getUTCMinutes",Qn],["Date.prototype.getUTCMonth",Jn],["Date.prototype.getUTCSeconds",Yn],["Date.prototype.setDate",Hn],["Date.prototype.setFullYear",Xn],["Date.prototype.setHours",Zn],["Date.prototype.setMilliseconds",er],["Date.prototype.setMinutes",tr],["Date.prototype.setMonth",or],["Date.prototype.setSeconds",sr],["Date.prototype.setTime",nr],["Date.prototype.setUTCDate",rr],["Date.prototype.setUTCFullYear",ur],["Date.prototype.setUTCHours",pr],["Date.prototype.setUTCMilliseconds",ir],["Date.prototype.setUTCMinutes",ar],["Date.prototype.setUTCMonth",yr],["Date.prototype.setUTCSeconds",lr],["Date.prototype.toDateString",dr],["Date.prototype.toISOString",cr],["Date.prototype.toJSON",Nr],["Date.prototype.toLocaleDateString",mr],["Date.prototype.toLocaleString",fr],["Date.prototype.toLocaleTimeString",Ar],["Date.prototype.toString",vr],["Date.prototype.toTimeString",hr],["Date.prototype.toUTCString",xr]];function Vn(...e){let t=e.map(Q),o=t.length>0?new Date(...t):new Date;return a(o.getTime())}function Fn(...e){return a(Date.now())}function Dn(...e){n(e.length,1),l(e[0]);let t=Date.parse(e[0].value);return a(t)}function Ln(...e){let t=e.map(Q),o=Date.UTC(...t);return Number.isNaN(o)?N():a(o)}function In(...e){n(e.length,1),u(e[0]);let t=new Date(e[0].value);return a(t.getDate())}function kn(...e){n(e.length,1),u(e[0]);let t=new Date(e[0].value);return a(t.getDay())}function Rn(...e){n(e.length,1),u(e[0]);let t=new Date(e[0].value);return a(t.getFullYear())}function qn(...e){n(e.length,1),u(e[0]);let t=new Date(e[0].value);return a(t.getHours())}function Un(...e){n(e.length,1),u(e[0]);let t=new Date(e[0].value);return a(t.getMilliseconds())}function Bn(...e){n(e.length,1),u(e[0]);let t=new Date(e[0].value);return a(t.getMinutes())}function Kn(...e){n(e.length,1),u(e[0]);let t=new Date(e[0].value);return a(t.getMonth())}function $n(...e){n(e.length,1),u(e[0]);let t=new Date(e[0].value);return a(t.getSeconds())}function jn(...e){n(e.length,1),u(e[0]);let t=new Date(e[0].value);return a(t.getTime())}function On(...e){n(e.length,1),u(e[0]);let t=new Date(e[0].value);return a(t.getTimezoneOffset())}function Wn(...e){n(e.length,1),u(e[0]);let t=new Date(e[0].value);return a(t.getUTCDate())}function _n(...e){n(e.length,1),u(e[0]);let t=new Date(e[0].value);return a(t.getUTCDay())}function Pn(...e){n(e.length,1),u(e[0]);let t=new Date(e[0].value);return a(t.getUTCFullYear())}function Gn(...e){n(e.length,1),u(e[0]);let t=new Date(e[0].value);return a(t.getUTCHours())}function zn(...e){n(e.length,1),u(e[0]);let t=new Date(e[0].value);return a(t.getUTCMilliseconds())}function Qn(...e){n(e.length,1),u(e[0]);let t=new Date(e[0].value);return a(t.getUTCMinutes())}function Jn(...e){n(e.length,1),u(e[0]);let t=new Date(e[0].value);return a(t.getUTCMonth())}function Yn(...e){n(e.length,1),u(e[0]);let t=new Date(e[0].value);return a(t.getUTCSeconds())}function Hn(...e){n(e.length,2),u(e[0]),u(e[1]);let t=new Date(e[0].value);return t.setDate(e[1].value),a(t.getTime())}function Xn(...e){n(e.length,2),u(e[0]),u(e[1]);let t=new Date(e[0].value);return t.setFullYear(e[1].value),a(t.getTime())}function Zn(...e){n(e.length,2),u(e[0]),u(e[1]);let t=new Date(e[0].value);return t.setHours(e[1].value),a(t.getTime())}function er(...e){n(e.length,2),u(e[0]),u(e[1]);let t=new Date(e[0].value);return t.setMilliseconds(e[1].value),a(t.getTime())}function tr(...e){n(e.length,2),u(e[0]),u(e[1]);let t=new Date(e[0].value);return t.setMinutes(e[1].value),a(t.getTime())}function or(...e){n(e.length,2),u(e[0]),u(e[1]);let t=new Date(e[0].value);return t.setMonth(e[1].value),a(t.getTime())}function sr(...e){n(e.length,2),u(e[0]),u(e[1]);let t=new Date(e[0].value);return t.setSeconds(e[1].value),a(t.getTime())}function nr(...e){n(e.length,2),u(e[0]),u(e[1]);let t=new Date(e[0].value);return t.setTime(e[1].value),a(t.getTime())}function rr(...e){n(e.length,2),u(e[0]),u(e[1]);let t=new Date(e[0].value);return t.setUTCDate(e[1].value),a(t.getTime())}function ur(...e){n(e.length,2),u(e[0]),u(e[1]);let t=new Date(e[0].value);return t.setUTCFullYear(e[1].value),a(t.getTime())}function pr(...e){n(e.length,2),u(e[0]),u(e[1]);let t=new Date(e[0].value);return t.setUTCHours(e[1].value),a(t.getTime())}function ir(...e){n(e.length,2),u(e[0]),u(e[1]);let t=new Date(e[0].value);return t.setUTCMilliseconds(e[1].value),a(t.getTime())}function ar(...e){n(e.length,2),u(e[0]),u(e[1]);let t=new Date(e[0].value);return t.setUTCMinutes(e[1].value),a(t.getTime())}function yr(...e){n(e.length,2),u(e[0]),u(e[1]);let t=new Date(e[0].value);return t.setUTCMonth(e[1].value),a(t.getTime())}function lr(...e){n(e.length,2),u(e[0]),u(e[1]);let t=new Date(e[0].value);return t.setUTCSeconds(e[1].value),a(t.getTime())}function dr(...e){n(e.length,1),u(e[0]);let t=new Date(e[0].value);return d(t.toDateString())}function cr(...e){n(e.length,1),u(e[0]);let t=new Date(e[0].value);return d(t.toISOString())}function Nr(...e){A(e.length,1,2),u(e[0]),e[1]&&l(e[1]);let t=new Date(e[0].value);return d(t.toJSON())}function mr(...e){A(e.length,1,3),u(e[0]);let t=new Date(e[0].value),o=e.slice(1).map(Q);return d(t.toLocaleDateString(...o))}function fr(...e){A(e.length,1,3),u(e[0]);let t=new Date(e[0].value),o=e.slice(1).map(Q);return d(t.toLocaleString(...o))}function Ar(...e){A(e.length,1,3),u(e[0]);let t=new Date(e[0].value),o=e.slice(1).map(Q);return d(t.toLocaleTimeString(...o))}function vr(...e){n(e.length,1),u(e[0]);let t=new Date(e[0].value);return d(t.toString())}function hr(...e){n(e.length,1),u(e[0]);let t=new Date(e[0].value);return d(t.toTimeString())}function xr(...e){n(e.length,1),u(e[0]);let t=new Date(e[0].value);return d(t.toUTCString())}var Lo=[["Error",br],["Error.prototype.message",gr],["Error.prototype.cause",Sr],["Error.prototype.name",wr]];function br(...e){A(e.length,1,3);let t=e[0];l(t);let o;if(e[1]!==void 0){if(!w(e[1])&&!E(e[1]))throw new TypeError("Second argument must be a string or nil.");w(e[1])&&(Ae.assertErrorName(e[1]),o=e[1])}let s;return e[2]!==void 0&&(f(e[2]),s=e[2]),P(t,o,s)}function gr(...e){return n(e.length,1),Ue(e[0]),e[0].value}function Sr(...e){return n(e.length,1),Ue(e[0]),e[0].cause??N()}function wr(...e){return n(e.length,1),Ue(e[0]),e[0].name}var ko=[["Function",Io],["Function.isFunction",ye.isFn],["Function.prototype.apply",Cr],["Function.prototype.bind",Er],["Function.prototype.call",Mr],["js-eval",Io]];function Io(...e){n(e.length,1),l(e[0]);try{let t=new Function(`'use strict'; return (${e[0].value})`)();return p(t)}catch(t){return t instanceof Error?P(d(t.message)):P(d(JSON.stringify(t)))}}function Cr(...e){n(e.length,2),C(e[0]),x(e[1]);let t=e[0].value.apply(null,e[1].value);return p(t)}function Mr(...e){T(e.length,1),C(e[0]);let t=e[0].value.call(null,...e.slice(1));return p(t)}function Er(...e){T(e.length,2),C(e[0]),f(e[1]);let t=e[0].value.bind(e[1],...e.slice(2));return p(t)}var Ro=[["Map.isMap",Tr],["Map.new",qo],["Map.prototype.delete",Dr],["Map.prototype.entries",Vr],["Map.prototype.get",Lr],["Map.prototype.has",Ir],["Map.prototype.keys",kr],["Map.prototype.set",Fr],["Map.prototype.size",qr],["Map.prototype.values",Rr]];function Tr(...e){return n(e.length,1),c(b(e[0]))}function qo(...e){if(e.length===0)return F();if(e.length===1&&b(e[0]))return F(new Map(e[0].value));be(e.length);let t=F();for(let o=0;o<e.length;o+=2){let s=e[o];$(s),$e(t.value,s,e[o+1])}return t}function Vr(...e){n(e.length,1),B(e[0]);let t=e[0].value.entries(),o=m();for(let[s,r]of t){let i=m([p(s),p(r)]);o.value.push(i)}return o}function Fr(...e){T(e.length,1),B(e[0]);let t=e.slice(1),o=F(new Map(e[0].value)),s=qo(...t);for(let[r,i]of s.value.entries())o.value.set(r,i);return o}function Dr(...e){T(e.length,1),B(e[0]);let t=F(new Map(e[0].value));for(let o of e.splice(1))$(o),je(t.value,o);return t}function Lr(...e){n(e.length,2);let t=e[0];if(!b(t))return N();let o=e[1];$(o);let s=We(t.value,o);return s!==void 0?s:N()}function Ir(...e){n(e.length,2);let t=e[0],o=e[1];return B(t),$(o),c(Oe(t.value,o))}function kr(...e){return n(e.length,1),B(e[0]),_e(e[0].value)}function Rr(...e){return n(e.length,1),B(e[0]),g([...e[0].value.values()])}function qr(...e){n(e.length,1);let t=e[0];if(E(t))return a(0);if(b(e[0]))return a(e[0].value.size);if(U(e[0]))return a(e[0].value.length);throw new TypeError("Invalid argument type")}var Uo=[["Math.abs",Ur],["Math.acos",Br],["Math.acosh",Kr],["Math.asin",$r],["Math.asinh",jr],["Math.atan",Or],["Math.atan2",Wr],["Math.atanh",_r],["Math.cbrt",Pr],["Math.ceil",Gr],["Math.clz32",zr],["Math.cos",Qr],["Math.cosh",Jr],["Math.exp",Yr],["Math.expm1",Hr],["Math.floor",Xr],["Math.fround",Zr],["Math.hypot",eu],["Math.imul",tu],["Math.log",ou],["Math.log10",su],["Math.log1p",nu],["Math.log2",ru],["Math.max",uu],["Math.min",pu],["Math.pow",iu],["Math.random",au],["Math.round",yu],["Math.sign",lu],["Math.sin",du],["Math.sinh",cu],["Math.sqrt",Nu],["Math.tan",mu],["Math.tanh",fu],["Math.trunc",Au],["Math.E",vu],["Math.LN10",hu],["Math.LN2",xu],["Math.LOG10E",bu],["Math.LOG2E",gu],["Math.PI",Su],["Math.SQRT1_2",wu],["Math.SQRT2",Cu]];function Ur(...e){n(e.length,1),u(e[0]);let t=e[0].value,o=Math.abs(t);return p(o)}function Br(...e){n(e.length,1),u(e[0]);let t=e[0].value,o=Math.acos(t);return p(o)}function Kr(...e){n(e.length,1),u(e[0]);let t=e[0].value,o=Math.acosh(t);return p(o)}function $r(...e){n(e.length,1),u(e[0]);let t=e[0].value,o=Math.asin(t);return p(o)}function jr(...e){n(e.length,1),u(e[0]);let t=e[0].value,o=Math.asinh(t);return p(o)}function Or(...e){n(e.length,1),u(e[0]);let t=e[0].value,o=Math.atan(t);return p(o)}function Wr(...e){n(e.length,2),u(e[0]),u(e[1]);let t=e[0].value,o=e[1].value,s=Math.atan2(t,o);return p(s)}function _r(...e){n(e.length,1),u(e[0]);let t=e[0].value,o=Math.atanh(t);return p(o)}function Pr(...e){n(e.length,1),u(e[0]);let t=e[0].value,o=Math.cbrt(t);return p(o)}function Gr(...e){n(e.length,1),u(e[0]);let t=e[0].value,o=Math.ceil(t);return p(o)}function zr(...e){n(e.length,1),u(e[0]);let t=e[0].value,o=Math.clz32(t);return p(o)}function Qr(...e){n(e.length,1),u(e[0]);let t=e[0].value,o=Math.cos(t);return p(o)}function Jr(...e){n(e.length,1),u(e[0]);let t=e[0].value,o=Math.cosh(t);return p(o)}function Yr(...e){n(e.length,1),u(e[0]);let t=e[0].value,o=Math.exp(t);return p(o)}function Hr(...e){n(e.length,1),u(e[0]);let t=e[0].value,o=Math.expm1(t);return p(o)}function Xr(...e){n(e.length,1),u(e[0]);let t=e[0].value,o=Math.floor(t);return p(o)}function Zr(...e){n(e.length,1),u(e[0]);let t=e[0].value,o=Math.fround(t);return p(o)}function eu(...e){Y(e,ee);let t=e.map(ae),o=Math.hypot(...t);return p(o)}function tu(...e){n(e.length,2),u(e[0]),u(e[1]);let t=e[0].value,o=e[1].value,s=Math.imul(t,o);return p(s)}function ou(...e){n(e.length,1),u(e[0]);let t=e[0].value,o=Math.log(t);return p(o)}function su(...e){n(e.length,1),u(e[0]);let t=e[0].value,o=Math.log10(t);return p(o)}function nu(...e){n(e.length,1),u(e[0]);let t=e[0].value,o=Math.log1p(t);return p(o)}function ru(...e){n(e.length,1),u(e[0]);let t=e[0].value,o=Math.log2(t);return p(o)}function uu(...e){Y(e,ee);let t=e.map(ae),o=Math.max(...t);return p(o)}function pu(...e){Y(e,ee);let t=e.map(ae),o=Math.min(...t);return p(o)}function iu(...e){if(e.length===2&&v(e[0])&&v(e[1])){let t=e[0].value,o=e[1].value,s=t**o;return p(s)}throw new TypeError('Invalid arguments to "Math.pow"')}function au(...e){if(e.length===0){let t=Math.random();return p(t)}throw new TypeError('Invalid arguments to "Math.random"')}function yu(...e){n(e.length,1),u(e[0]);let t=e[0].value,o=Math.round(t);return p(o)}function lu(...e){n(e.length,1),u(e[0]);let t=e[0].value,o=Math.sign(t);return p(o)}function du(...e){n(e.length,1),u(e[0]);let t=e[0].value,o=Math.sin(t);return p(o)}function cu(...e){n(e.length,1),u(e[0]);let t=e[0].value,o=Math.sinh(t);return p(o)}function Nu(...e){n(e.length,1),u(e[0]);let t=e[0].value,o=Math.sqrt(t);return p(o)}function mu(...e){n(e.length,1),u(e[0]);let t=e[0].value,o=Math.tan(t);return p(o)}function fu(...e){n(e.length,1),u(e[0]);let t=e[0].value,o=Math.tanh(t);return p(o)}function Au(...e){n(e.length,1),u(e[0]);let t=e[0].value,o=Math.trunc(t);return p(o)}function vu(...e){if(e.length===0)return p(Math.E);throw new TypeError('Invalid arguments to "Math.E"')}function hu(...e){if(e.length===0)return p(Math.LN10);throw new TypeError('Invalid arguments to "Math.LN10"')}function xu(...e){if(e.length===0)return p(Math.LN2);throw new TypeError('Invalid arguments to "Math.LN2"')}function bu(...e){if(e.length===0)return p(Math.LOG10E);throw new TypeError('Invalid arguments to "Math.LOG10E"')}function gu(...e){if(e.length===0)return p(Math.LOG2E);throw new TypeError('Invalid arguments to "Math.LOG2E"')}function Su(...e){if(e.length===0)return p(Math.PI);throw new TypeError('Invalid arguments to "Math.PI"')}function wu(...e){if(e.length===0)return p(Math.SQRT1_2);throw new TypeError('Invalid arguments to "Math.SQRT1_2"')}function Cu(...e){if(e.length===0)return p(Math.SQRT2);throw new TypeError('Invalid arguments to "Math.SQRT2"')}var Bo=[["Number",Mu],["Number.isFinite",Eu],["Number.isInteger",Tu],["Number.isNaN",Vu],["Number.isSafeInteger",Fu],["Number.parseFloat",Du],["Number.parseInt",Lu],["Number.prototype.toExponential",ju],["Number.prototype.toFixed",Ou],["Number.prototype.toPrecision",Wu],["Number.prototype.toString",_u],["Number.EPSILON",Iu],["Number.MAX_SAFE_INTEGER",ku],["Number.MAX_VALUE",Ru],["Number.MIN_SAFE_INTEGER",qu],["Number.MIN_VALUE",Uu],["Number.NaN",Bu],["Number.NEGATIVE_INFINITY",Ku],["Number.POSITIVE_INFINITY",$u]];function Mu(...e){if(e.length===1&&G(e[0])){let t=e[0].value,o=Number(t);return p(o)}throw new TypeError('Invalid arguments to "Number"')}function Eu(...e){if(e.length===1&&G(e[0])){let t=e[0].value,o=Number.isFinite(t);return p(o)}throw new TypeError('Invalid arguments to "Number.isFinite"')}function Tu(...e){if(e.length===1&&G(e[0])){let t=e[0].value,o=Number.isInteger(t);return p(o)}throw new TypeError('Invalid arguments to "Number.isInteger"')}function Vu(...e){if(e.length===1&&G(e[0])){let t=e[0].value,o=Number.isNaN(t);return p(o)}throw new TypeError('Invalid arguments to "Number.isNaN"')}function Fu(...e){if(e.length===1&&G(e[0])){let t=e[0].value,o=Number.isSafeInteger(t);return p(o)}throw new TypeError('Invalid arguments to "Number.isSafeInteger"')}function Du(...e){n(e.length,1),l(e[0]);let t=ge(e[0]),o=Number.parseFloat(t);return p(o)}function Lu(...e){A(e.length,1,2),l(e[0]);let t=e[0].value;if(e.length===2){u(e[1]);let s=e[1].value,r=Number.parseInt(t,s);return a(r)}let o=Number.parseInt(t);return a(o)}function Iu(...e){if(e.length===0){let t=Number.EPSILON;return p(t)}throw new TypeError('Invalid arguments to "Number.EPSILON"')}function ku(...e){if(e.length===0){let t=Number.MAX_SAFE_INTEGER;return p(t)}throw new TypeError('Invalid arguments to "Number.MAX_SAFE_INTEGER"')}function Ru(...e){if(e.length===0){let t=Number.MAX_VALUE;return p(t)}throw new TypeError('Invalid arguments to "Number.MAX_VALUE"')}function qu(...e){if(e.length===0){let t=Number.MIN_SAFE_INTEGER;return p(t)}throw new TypeError('Invalid arguments to "Number.MIN_SAFE_INTEGER"')}function Uu(...e){if(e.length===0){let t=Number.MIN_VALUE;return p(t)}throw new TypeError('Invalid arguments to "Number.MIN_VALUE"')}function Bu(...e){if(e.length===0){let t=Number.NaN;return p(t)}throw new TypeError('Invalid arguments to "Number.NaN"')}function Ku(...e){if(e.length===0){let t=Number.NEGATIVE_INFINITY;return p(t)}throw new TypeError('Invalid arguments to "Number.NEGATIVE_INFINITY"')}function $u(...e){if(e.length===0){let t=Number.POSITIVE_INFINITY;return p(t)}throw new TypeError('Invalid arguments to "Number.POSITIVE_INFINITY"')}function ju(...e){if(A(e.length,1,2),u(e[0]),e.length===2){u(e[1]);let o=e[1].value,s=e[0].value.toExponential(o);return d(s)}let t=e[0].value.toExponential();return d(t)}function Ou(...e){if(A(e.length,1,2),u(e[0]),e.length===2){u(e[1]);let o=e[1].value,s=e[0].value.toFixed(o);return d(s)}let t=e[0].value.toFixed();return d(t)}function Wu(...e){if(A(e.length,1,2),u(e[0]),e.length===2){u(e[1]);let o=e[1].value,s=e[0].value.toPrecision(o);return d(s)}let t=e[0].value.toPrecision();return d(t)}function _u(...e){if(A(e.length,1,2),u(e[0]),e.length===2){u(e[1]);let o=e[1].value,s=e[0].value.toString(o);return d(s)}let t=e[0].value.toString();return d(t)}var Ko=[["neq",op],["nullish",rp],["power",up],["remainder",zu],["rshift",Zu],["lshift",Xu],["rshift-unsigned",ep],["bit-and",Qu],["bit-or",Ju],["bit-xor",Yu],["bit-not",Hu],["and",Pu],["or",Gu],["not",tp],["inc",sp],["dec",np]];function Pu(...e){for(let o of e)if(!Ke(o,!0))return c(!1);return c(!0)}function Gu(...e){for(let t of e)if(Ke(t))return c(!0);return c(!1)}function zu(e,t){if(v(e)&&v(t))return a((e.value%t.value+t.value)%t.value);throw new TypeError("not a number")}function Qu(e,t){if(v(e)&&v(t))return a(e.value&t.value);throw new TypeError("not a number")}function Ju(e,t){if(v(e)&&v(t))return a(e.value|t.value);throw new TypeError("not a number")}function Yu(e,t){if(v(e)&&v(t))return a(e.value^t.value);throw new TypeError("not a number")}function Hu(e){if(v(e))return a(~e.value);throw new TypeError("not a number")}function Xu(e,t){if(v(e)&&v(t))return a(e.value<<t.value);throw new TypeError("not a number")}function Zu(e,t){if(v(e)&&v(t))return a(e.value>>t.value);throw new TypeError("not a number")}function ep(e,t){if(v(e)&&v(t))return a(e.value>>>t.value);throw new TypeError("not a number")}function tp(e){return c(!e.value)}function op(...e){n(e.length,2);let t=oe(e[0],e[1]);return c(!t.value)}function sp(...e){A(e.length,1,2),u(e[0]);let t="postfix";if(e[1]!==void 0){if(l(e[1]),e[1].value!=="prefix"&&e[1].value!=="postfix")throw new TypeError(`Invalid affix ${String(e[1].value)}. The affix must be "prefix" or "postfix"`);t=e[1].value}if(t==="postfix")return m([a(e[0].value+1),a(e[0].value)]);if(t==="prefix")return m([a(e[0].value+1),a(e[0].value+1)]);throw new Error("Unhandled error in decrement")}function np(...e){A(e.length,1,2),u(e[0]);let t="postfix";if(e[1]!==void 0){if(l(e[1]),e[1].value!=="prefix"&&e[1].value!=="postfix")throw new TypeError(`Invalid affix ${String(e[1].value)}. The affix must be "prefix" or "postfix"`);t=e[1].value}if(t==="postfix")return m([a(e[0].value-1),a(e[0].value)]);if(t==="prefix")return m([a(e[0].value-1),a(e[0].value-1)]);throw new Error("Unhandled error in decrement")}function rp(e,t){return e.value==null?t:e}function up(e,t){if(v(e)&&v(t))return a(e.value**t.value);throw new TypeError("not a number")}var $o=[["RegExp.new",pp],["RegExp.prototype.exec",ip],["RegExp.prototype.test",ap]];function pp(...e){A(e.length,1,2),l(e[0]);let t=e[0].value;if(e.length===2){l(e[1]);let s=e[1].value,r=new RegExp(t,s);return pe(r)}let o=new RegExp(t);return pe(o)}function ip(...e){n(e.length,2),O(e[0]);let t=e[0].value;ue(t),l(e[1]);let o=e[1].value,s=t.exec(o);return s?m(s.map(p)):N()}function ap(...e){n(e.length,2),O(e[0]),ue(e[0].value),l(e[1]);let t=e[0].value.test(e[1].value);return c(t)}var Wo=[["String",ye.printUnescapedString],["String.fromCharCode",yp],["String.fromCodePoint",lp],["String.prototype.at",jo],["String.prototype.charAt",jo],["String.prototype.charCodeAt",Oo],["String.prototype.codePointAt",Oo],["String.prototype.concat",dp],["String.prototype.endsWith",cp],["String.prototype.includes",Np],["String.prototype.indexOf",mp],["String.prototype.isWellFormed",fp],["String.prototype.lastIndexOf",Ap],["String.prototype.length",vp],["String.prototype.localeCompare",hp],["String.prototype.match",xp],["String.prototype.matchAll",bp],["String.prototype.normalize",gp],["String.prototype.padEnd",Sp],["String.prototype.padStart",wp],["String.prototype.repeat",Cp],["String.prototype.replace",Mp],["String.prototype.replaceAll",Ep],["String.prototype.search",Tp],["String.prototype.slice",Vp],["String.prototype.split",Fp],["String.prototype.startsWith",Dp],["String.prototype.toLocaleLowerCase",Lp],["String.prototype.toLocaleUpperCase",Ip],["String.prototype.toLowerCase",kp],["String.prototype.toUpperCase",Rp],["String.prototype.toWellFormed",qp],["String.prototype.trim",Up],["String.prototype.trimEnd",Bp],["String.prototype.trimStart",Kp],["String.raw",$p]];function yp(...e){n(e.length,1),x(e[0]),Y(e[0].value,ee);let t=e[0].value.map(ae),o=String.fromCharCode(...t);return d(o)}function lp(...e){Y(e,ee);let t=e.map(ae),o=String.fromCodePoint(...t);return d(o)}function jo(...e){n(e.length,2),l(e[0]),u(e[1]);let t=String.prototype.at.call(e[0].value,e[1].value);return t===void 0?N():d(t)}function Oo(...e){n(e.length,2),l(e[0]),u(e[1]);let t=String.prototype.codePointAt.call(e[0].value,e[1].value);return t===void 0?N():a(t)}function dp(...e){T(e.length,2),Y(e,ce);let t=e[0].value,o=e.slice(1).map(ge),s=String.prototype.concat.call(t,...o);return d(s)}function cp(...e){A(e.length,2,3),l(e[0]),l(e[1]),e.length===3&&u(e[2]);let t=e[0].value,o=e[1].value,s=e.length===3?e[2].value:void 0,r=String.prototype.endsWith.call(t,o,s);return p(r)}function Np(...e){A(e.length,2,3),l(e[0]),l(e[1]),e.length===3&&u(e[2]);let t=e[0].value,o=e[1].value,s=e.length===3?e[2].value:void 0,r=String.prototype.includes.call(t,o,s);return p(r)}function mp(...e){A(e.length,2,3),l(e[0]),l(e[1]),e.length===3&&u(e[2]);let t=e[0].value,o=e[1].value,s=e.length===3?e[2].value:void 0,r=String.prototype.indexOf.call(t,o,s);return p(r)}function fp(...e){n(e.length,1),l(e[0]);let t=e[0].value,o=String.prototype.isWellFormed.call(t);return p(o)}function Ap(...e){A(e.length,2,3),l(e[0]),l(e[1]),e.length===3&&u(e[2]);let t=e[0].value,o=e[1].value,s=e.length===3?e[2].value:void 0,r=String.prototype.lastIndexOf.call(t,o,s);return p(r)}function vp(...e){n(e.length,1),f(e[0]);let o=e[0].value.length;return p(o)}function hp(...e){A(e.length,2,4),l(e[0]),l(e[1]);let t=e[0].value,o=e[1].value,s,r;if(e.length>2){let y=e[2];w(y)?s=y.value:D(y)?(Y(y.value,ce),s=y.value.map(ge)):(ct(y),s=void 0)}if(e.length>3){let y=e[3];B(y),r=Ge(y)}let i=String.prototype.localeCompare.call(t,o,s,r);return p(i)}function xp(...e){n(e.length,2),l(e[0]),O(e[1]),ue(e[1].value);let t=e[0].value,o=e[1].value,s=String.prototype.match.call(t,o);return p(s)}function bp(...e){n(e.length,2),l(e[0]),O(e[1]),ue(e[1].value);let t=e[0].value,o=e[1].value,s=String.prototype.matchAll.call(t,o);return p(s)}function gp(...e){A(e.length,1,2),f(e[0]),e.length===2&&l(e[1]);let t=e[0].value,o=e.length===2?e[1].value:void 0,s=String.prototype.normalize.call(t,o);return p(s)}function Sp(...e){A(e.length,2,3),f(e[0]),u(e[1]),e.length===3&&l(e[2]);let t=e[0].value,o=e[1].value,s=e.length===3?e[2].value:void 0,r=String.prototype.padEnd.call(t,o,s);return p(r)}function wp(...e){A(e.length,2,3),f(e[0]),u(e[1]),e.length===3&&l(e[2]);let t=e[0].value,o=e[1].value,s=e.length===3?e[2].value:void 0,r=String.prototype.padStart.call(t,o,s);return p(r)}function Cp(...e){n(e.length,2),l(e[0]),u(e[1]);let t=e[0].value,o=e[1].value,s=String.prototype.repeat.call(t,o);return p(s)}function Mp(...e){n(e.length,3),l(e[0]);let t="";w(e[1])||(O(e[1]),ue(e[1].value)),t=e[1].value;let o;if(w(e[2]))o=e[2].value;else throw new Error("Function replacers are not implemented for String.prototype.replace");let r=e[0].value.replace(t,o);return p(r)}function Ep(...e){n(e.length,3),l(e[0]);let t="";w(e[1])||(O(e[1]),ue(e[1].value)),t=e[1].value;let o;if(w(e[2]))o=e[2].value;else throw new Error("Function replacers are not implemented for String.prototype.replaceAll");let r=e[0].value.replaceAll(t,o);return p(r)}function Tp(...e){n(e.length,2),l(e[0]),O(e[1]),ue(e[1].value);let t=e[0].value,o=e[1].value,s=String.prototype.search.call(t,o);return p(s)}function Vp(...e){A(e.length,1,3),f(e[0]),e.length>1&&u(e[1]),e.length>2&&u(e[2]);let t=e[0].value,o=e.length>1?e[1].value:void 0,s=e.length>2?e[2].value:void 0,r=String.prototype.slice.call(t,o,s);return p(r)}function Fp(...e){A(e.length,2,3),l(e[0]),l(e[1]),e.length===3&&u(e[2]);let t=e[0].value,o=e[1].value,s=e.length===3?e[2].value:void 0,r=t.split(o,s);return p(r)}function Dp(...e){A(e.length,2,3),f(e[0]),l(e[1]),e.length===3&&u(e[2]);let t=e[0].value,o=e[1].value,s=e.length>2?e[2].value:void 0,r=String.prototype.startsWith.call(t,o,s);return p(r)}function Lp(...e){A(e.length,1,2),f(e[0]),e.length===2&&(E(e[1])||l(e[1]));let t=e[0].value,o=e.length===2&&!E(e[1])?e[1].value:void 0,s=String.prototype.toLocaleLowerCase.call(t,o);return p(s)}function Ip(...e){A(e.length,1,2),f(e[0]),e.length===2&&(E(e[1])||l(e[1]));let t=e[0].value,o=e.length===2&&!E(e[1])?e[1].value:void 0,s=String.prototype.toLocaleUpperCase.call(t,o);return p(s)}function kp(...e){n(e.length,1),f(e[0]);let t=e[0].value,o=String.prototype.toLowerCase.call(t);return p(o)}function Rp(...e){n(e.length,1),f(e[0]);let t=e[0].value,o=String.prototype.toUpperCase.call(t);return p(o)}function qp(...e){n(e.length,1),f(e[0]);let t=e[0].value,o=String.prototype.toWellFormed.call(t);return p(o)}function Up(...e){n(e.length,1),f(e[0]);let t=e[0].value,o=String.prototype.trim.call(t);return p(o)}function Bp(...e){n(e.length,1),f(e[0]);let t=e[0].value,o=String.prototype.trimEnd.call(t);return p(o)}function Kp(...e){n(e.length,1),f(e[0]);let t=e[0].value,o=String.prototype.trimStart.call(t);return p(o)}function $p(...e){n(e.length,2),B(e[0]),x(e[1]);let t=Ge(e[0]),o=e[1].value,s=String.raw(t,...o);return p(s)}var _o=[["Symbol",jp],["Symbol.for",Op],["Symbol.keyFor",Wp]];function jp(...e){A(e.length,0,1),e.length===1&&l(e[0]);let t=e.length===1?e[0].value:void 0,o=Symbol(t);return pe(o)}function Op(...e){n(e.length,1),l(e[0]);let t=e[0].value,o=Symbol.for(t);return pe(o)}function Wp(...e){n(e.length,1),O(e[0]),Nt(e[0].value);let t=e[0].value,o=Symbol.keyFor(t);return o?d(o):N()}var _p=[...To,...Vo,...Fo,...Ko,...Do,...Lo,...ko,...Ro,...Uo,...Bo,...$o,...Wo,..._o],Ve=new Map;for(let[e,t]of _p)if(Ve.set(S(e),k(t)),e.includes(".prototype.")){let o=e.replace(".prototype.","::");Ve.set(S(o),k(t))}else if(e.includes(".prototype[")){let o=e.replace(".prototype[","::[");Ve.set(S(o),k(t))}function Pp(e){W(e),A(e.value.length,2,3);let t=e.value[0];if(K(t),t.value!=="try"&&t.value!=="try*")throw new Error("use `try` or `try*` in try/catch expressions");if(f(e.value[1]),e.value[2]){W(e.value[2]),n(e.value[2].value.length,3),K(e.value[2].value[0]);let o=e.value[2].value[0];if(o.value!=="catch"&&o.value!=="catch*")throw new Error("use `catch` or `catch*` in try/catch expressions");K(e.value[2].value[1]),f(e.value[2].value[2])}}function Gp(e){W(e),n(e.value.length,3),K(e.value[0]);let t=e.value[0];if(t.value!=="def!"&&t.value!=="globalThis"&&t.value!=="var")throw new Error("use `def!`, `globalThis`, or `var` in def! expressions");$(e.value[1]),f(e.value[2])}function zp(e){W(e),n(e.value.length,3),K(e.value[0]);let t=e.value[0];if(t.value!=="let*"&&t.value!=="let"&&t.value!=="const")throw new Error("use `let*`, `let`, or `const` in let* expressions");J(e.value[1]),f(e.value[2]),be(e.value[1].value.length);for(let o=0;o<e.value[1].value.length;o+=2)K(e.value[1].value[o]),f(e.value[1].value[o+1])}function Qp(e){W(e),n(e.value.length,2),K(e.value[0]),me(e.value[0],"quote"),f(e.value[1])}function Jp(e){let t="quasiquoteexpand";W(e),n(e.value.length,2),K(e.value[0]),me(e.value[0],t),f(e.value[1])}function Yp(e){let t="quasiquote";W(e),n(e.value.length,2),K(e.value[0]),me(e.value[0],t),f(e.value[1])}function Hp(e){let t="defmacro!";W(e),n(e.value.length,3),K(e.value[0]),me(e.value[0],t),$(e.value[1]),f(e.value[2])}function Xp(e){let t="do";W(e),T(e.value.length,1),K(e.value[0]),me(e.value[0],t);for(let o of e.value.slice(1))f(o)}function Zp(e){let t="if";W(e),A(e.value.length,3,4),K(e.value[0]),me(e.value[0],t),f(e.value[1]),f(e.value[2]),we(e.value[3])&&f(e.value[3])}function ei(e){W(e),n(e.value.length,3),K(e.value[0]);let t=e.value[0];if(!["fn*","function","=>"].includes(t.value))throw new Error("use `fn*`, `function`, of `=>` in fn* expressions");J(e.value[1]),Y(e.value[1].value,de),f(e.value[2])}function ti(e){return Ye(e)}function yt(e){if(b(e)||I(e))return g([S("quote"),e]);if(!U(e))return e;if(tt(e,"unquote"))return e.value[1];let s=g([]);for(let r=e.value.length-1;r>=0;r--){let i=e.value[r];s=tt(i,"splice-unquote")?g([S("concat"),i.value[1],s]):g([S("cons"),yt(i),s])}return D(e)&&(s=g([S("vec"),s])),s}function oi(e,t){if(!M(e)||!(e.value[0]instanceof de))return!1;let o=e.value[0],s=t.findEnv(o);if(!we(s))return!1;let r=s.get(o);return R(r)?r.isMacro:!1}function Go(e,t){let o=e;for(;oi(o,t);){let s=o,r=s.value[0];o=t.get(r).value(...s.value.slice(1))}return o}function at(e,t){if(I(e))return t.get(e);if(D(e)){let o=e.value.map(s=>_(s,t));return m(o)}if(M(e)){let o=e.value.map(s=>_(s,t));return g(o)}if(b(e)){let o=new Map;for(let[s,r]of e.value.entries())o.set(s,_(r,t));return F(o)}if(se(e)){let o=e.value,s=Array.from(e.attributes).reduce((i,[y,h])=>i.set(y,_(h,t)),new Map),r=e.children.map(i=>_(i,t));return xe(o,s,r)}return e}function _(e,t){for(;;){if(M(e)===!1)return at(e,t);if(e.value.length===0)return e;if(e=Go(e,t),M(e)===!1)return at(e,t);if(e.value.length===0)return e;let o=I(e.value[0])?e.value[0].value:"goto_default_clause",s;switch(o){case"var":case"def!":{s=si(e,t);break}case"let":case"const":case"let*":{s=ni(e,t);break}case"quote":{s=ri(e,t);break}case"quasiquoteexpand":{s=ui(e,t);break}case"quasiquote":{s=pi(e,t);break}case"defmacro!":{s=ii(e,t);break}case"macroexpand":{s=ie(Go(e.value[1],t));break}case"try":case"try*":{s=yi(e,t);break}case"do":{s=ai(e,t);break}case"if":{s=li(e,t);break}case"=>":case"function":case"fn*":{s=di(e,t);break}default:s=ci(e,t)}if(s.return)return s.return;e=s.continue.ast,t=s.continue.env}}function si(e,t){Gp(e);let o=e.value[1],s=e.value[2],r=_(s,t);return ie(t.set(o,r))}function ni(e,t){zp(e);let o=e.value[1],s=o.value.length,r=new ne(t);for(let i=0;i<s;i+=2){let y=o.value[i],h=o.value[i+1],V=_(h,r);r.set(y,V)}return Ce(e.value[2],r)}function ri(e,t){return Qp(e),ie(e.value[1])}function ui(e,t){return Jp(e),ie(yt(e.value[1]))}function pi(e,t){Yp(e);let o=yt(e.value[1]);return Ce(o,t)}function ii(e,t){Hp(e);let o=e.value[1],s=e.value[2],r=_(s,t),i=j(r);return R(i)&&(i.isMacro=!0),ie(t.set(o,i))}function ai(e,t){Xp(e);let o=N();for(let s=1;s<e.value.length;s++)o=_(e.value[s],t);return{continue:{ast:o,env:t},return:void 0}}function yi(e,t){Pp(e);try{return{return:_(e.value[1],t),continue:void 0}}catch(o){if(!e.value[2])throw o;let s=e.value[2].value[1],r=e.value[2].value[2],i;X(o)?i=o:o instanceof Error?i=d(o.message):i=d(JSON.stringify(o));let y=P(i),h=new ne(t,[s],[y]);return{return:_(r,h),continue:void 0}}}function li(e,t){Zp(e);let o=e.value[1],s=_(o,t);if(s.value!==!1&&s.value!==null){let r=e.value[2];return Ce(r,t)}if(e.value[3]!==void 0){let r=e.value[3];return Ce(r,t)}return ie(N())}function di(e,t){ei(e);let o=e.value[1].value,s=e.value[2],r=t,y=k((...h)=>{let V=new ne(r,o,h);return _(s,V)},{ast:s,env:r,parameters:o});return ie(y)}function ci(e,t){let o=at(e,t);W(o);let s=o.value[0];if(R(s)){let r=o.value.slice(1);if(s.closureMeta){let y=s.closureMeta.ast,h=new ne(s.closureMeta.env,s.closureMeta.parameters,r);return{continue:{ast:y,env:h},return:void 0}}return{return:s.value(...r),continue:void 0}}return{return:s,continue:void 0}}function Ni(e){return q(e,!0)}function le(e,t){return Ni(_(ti(e),t))}function zo(){let e=new ne(void 0);for(let[t,o]of ye.ns.entries())e.set(t,o);for(let[t,o]of Ve.entries())e.set(t,o);for(let[t,o]of Xe.entries())e.set(t,o);return e.set(S("eval"),k((...t)=>(n(t.length,1),_(t[0],e)))),e.set(S("dump"),k((...t)=>{let o=e.serialize();return console.log(q(o,!0)),N()})),le("(def! not (fn* (a) (if a false true)))",e),le(`(defmacro! cond
+var __defProp = Object.defineProperty;
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
+
+// src/ensemble/types.ts
+var types_exports = {};
+__export(types_exports, {
+  AtomNode: () => AtomNode,
+  BooleanNode: () => BooleanNode,
+  DomNode: () => DomNode,
+  ErrorNode: () => ErrorNode,
+  FunctionNode: () => FunctionNode,
+  KeywordNode: () => KeywordNode,
+  ListNode: () => ListNode,
+  MapNode: () => MapNode,
+  NilNode: () => NilNode,
+  NumberNode: () => NumberNode,
+  StringNode: () => StringNode,
+  SymbolNode: () => SymbolNode,
+  VectorNode: () => VectorNode,
+  append: () => append,
+  assertArgumentCount: () => assertArgumentCount,
+  assertAstNode: () => assertAstNode,
+  assertAtomNode: () => assertAtomNode,
+  assertBooleanNode: () => assertBooleanNode,
+  assertDefined: () => assertDefined,
+  assertDomNode: () => assertDomNode,
+  assertEq: () => assertEq,
+  assertEqual: () => assertEqual,
+  assertErrorNode: () => assertErrorNode,
+  assertEvenArgumentCount: () => assertEvenArgumentCount,
+  assertFunctionNode: () => assertFunctionNode,
+  assertGreaterThanEqual: () => assertGreaterThanEqual,
+  assertIsOneOf: () => assertIsOneOf,
+  assertKeywordNode: () => assertKeywordNode,
+  assertListNode: () => assertListNode,
+  assertMapKeyNode: () => assertMapKeyNode,
+  assertMapNode: () => assertMapNode,
+  assertMetadataType: () => assertMetadataType,
+  assertMinimumArgumentCount: () => assertMinimumArgumentCount,
+  assertNilNode: () => assertNilNode,
+  assertNullOrUndefined: () => assertNullOrUndefined,
+  assertNumberNode: () => assertNumberNode,
+  assertRegExp: () => assertRegExp,
+  assertSequential: () => assertSequential,
+  assertSequentialValues: () => assertSequentialValues,
+  assertStringNode: () => assertStringNode,
+  assertSymWithValue: () => assertSymWithValue,
+  assertSymbol: () => assertSymbol,
+  assertSymbolNode: () => assertSymbolNode,
+  assertTrue: () => assertTrue,
+  assertUndefined: () => assertUndefined,
+  assertVariableArgumentCount: () => assertVariableArgumentCount,
+  assertVectorNode: () => assertVectorNode,
+  continueResult: () => continueResult,
+  convertMapKeyToString: () => convertMapKeyToString,
+  convertStringToMapKey: () => convertStringToMapKey,
+  copy: () => copy,
+  copyAtomNode: () => copyAtomNode,
+  copyBooleanNode: () => copyBooleanNode,
+  copyDomNode: () => copyDomNode,
+  copyErrorNode: () => copyErrorNode,
+  copyFunctionNode: () => copyFunctionNode,
+  copyKeywordNode: () => copyKeywordNode,
+  copyListNode: () => copyListNode,
+  copyMapNode: () => copyMapNode,
+  copyNilNode: () => copyNilNode,
+  copyNumberNode: () => copyNumberNode,
+  copyStringNode: () => copyStringNode,
+  copySymbolNode: () => copySymbolNode,
+  copyVectorNode: () => copyVectorNode,
+  createAtomNode: () => createAtomNode,
+  createBooleanNode: () => createBooleanNode,
+  createDomNode: () => createDomNode,
+  createErrorNode: () => createErrorNode,
+  createFunctionNode: () => createFunctionNode,
+  createKeywordNode: () => createKeywordNode,
+  createListNode: () => createListNode,
+  createMapNode: () => createMapNode,
+  createNilNode: () => createNilNode,
+  createNumberNode: () => createNumberNode,
+  createStringNode: () => createStringNode,
+  createSymbolNode: () => createSymbolNode,
+  createVectorNode: () => createVectorNode,
+  deleteMapElement: () => deleteMapElement,
+  getBareMapKey: () => getBareMapKey,
+  getMapElement: () => getMapElement,
+  getMapKeys: () => getMapKeys,
+  getMapValues: () => getMapValues,
+  hasMapElement: () => hasMapElement,
+  htmlEncode: () => htmlEncode,
+  isAstNode: () => isAstNode,
+  isAstTruthy: () => isAstTruthy,
+  isAtomNode: () => isAtomNode,
+  isBooleanNode: () => isBooleanNode,
+  isDefined: () => isDefined,
+  isDomNode: () => isDomNode,
+  isEqualTo: () => isEqualTo,
+  isErrorNode: () => isErrorNode,
+  isFunctionNode: () => isFunctionNode,
+  isKeywordNode: () => isKeywordNode,
+  isListNode: () => isListNode,
+  isMapKeyNode: () => isMapKeyNode,
+  isMapNode: () => isMapNode,
+  isNilNode: () => isNilNode,
+  isNumberNode: () => isNumberNode,
+  isSameClass: () => isSameClass,
+  isSequentialNode: () => isSequentialNode,
+  isStringNode: () => isStringNode,
+  isSymbolNode: () => isSymbolNode,
+  isTypedVector: () => isTypedVector,
+  isVectorNode: () => isVectorNode,
+  listStartsWithSymbol: () => listStartsWithSymbol,
+  mapFlat: () => mapFlat,
+  normalizeWhitespace: () => normalizeWhitespace,
+  prepend: () => prepend,
+  returnResult: () => returnResult,
+  setMapElement: () => setMapElement,
+  slash: () => slash,
+  splitAtFirstDot: () => splitAtFirstDot,
+  toAst: () => toAst,
+  toErrorNode: () => toErrorNode,
+  unwrap: () => unwrap,
+  unwrapAtomNode: () => unwrapAtomNode,
+  unwrapBooleanNode: () => unwrapBooleanNode,
+  unwrapDomNode: () => unwrapDomNode,
+  unwrapErrorNode: () => unwrapErrorNode,
+  unwrapFunctionNode: () => unwrapFunctionNode,
+  unwrapKeywordNode: () => unwrapKeywordNode,
+  unwrapListNode: () => unwrapListNode,
+  unwrapMapNode: () => unwrapMapNode,
+  unwrapNilNode: () => unwrapNilNode,
+  unwrapNumberNode: () => unwrapNumberNode,
+  unwrapStringNode: () => unwrapStringNode,
+  unwrapSymbolNode: () => unwrapSymbolNode,
+  unwrapVectorNode: () => unwrapVectorNode
+});
+var AtomNode = class {
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  constructor(value) {
+    this.value = value;
+  }
+  kind = "AtomNode";
+};
+var BooleanNode = class {
+  constructor(value) {
+    this.value = value;
+  }
+  kind = "BooleanNode";
+};
+var DomNode = class {
+  // domNode: HTMLElement | null = null;
+  constructor(value, attributes = /* @__PURE__ */ new Map(), children = [], metadata) {
+    this.value = value;
+    this.attributes = attributes;
+    this.children = children;
+    this.metadata = metadata;
+  }
+  kind = "DomNode";
+};
+var errorTypes = [
+  "Error",
+  "AggregateError",
+  "RangeError",
+  "ReferenceError",
+  "SyntaxError",
+  "TypeError",
+  "URIError"
+];
+var ErrorNode = class _ErrorNode {
+  /**
+   * @param value - message
+   */
+  constructor(value, name, cause = createNilNode()) {
+    this.value = value;
+    if (name !== void 0 && _ErrorNode.isErrorName(name)) {
+      this.name = name;
+    }
+    if (cause !== void 0) {
+      this.cause = cause;
+    }
+  }
+  kind = "ErrorNode";
+  name = createStringNode("Error");
+  cause;
+  static isErrorName(name) {
+    const value = name.value;
+    return errorTypes.includes(value);
+  }
+  static assertErrorName(name) {
+    if (!_ErrorNode.isErrorName(name)) {
+      throw new TypeError(
+        "Error type must be 'Error', 'AggregateError', 'RangeError', 'ReferenceError', 'SyntaxError', 'TypeError', or 'URIError'."
+      );
+    }
+  }
+};
+var FunctionNode = class {
+  constructor(value, closureMeta, isMacro2 = false, metadata) {
+    this.value = value;
+    this.closureMeta = closureMeta;
+    this.isMacro = isMacro2;
+    this.metadata = metadata;
+  }
+  kind = "FunctionNode";
+};
+var KeywordNode = class {
+  constructor(_value) {
+    this._value = _value;
+    this._value = _value.replaceAll(":", "");
+  }
+  kind = "KeywordNode";
+  get value() {
+    return `${this._value}:`;
+  }
+  set value(keyword2) {
+    this._value = `${keyword2.replaceAll(":", "")}:`;
+  }
+  get bare() {
+    return this._value;
+  }
+};
+var ListNode = class {
+  constructor(value, metadata) {
+    this.value = value;
+    this.metadata = metadata;
+  }
+  kind = "ListNode";
+};
+var MapNode = class {
+  constructor(value = /* @__PURE__ */ new Map(), metadata) {
+    this.value = value;
+    this.metadata = metadata;
+  }
+  kind = "MapNode";
+};
+var NilNode = class {
+  constructor(value = null) {
+    this.value = value;
+  }
+  kind = "NilNode";
+};
+var NumberNode = class {
+  // TODO: Add support for BigInt, e.g. value: number | bigint and handle internally
+  constructor(value) {
+    this.value = value;
+  }
+  kind = "NumberNode";
+};
+var SymbolNode = class {
+  constructor(value) {
+    this.value = value;
+  }
+  kind = "SymbolNode";
+};
+var StringNode = class {
+  constructor(value) {
+    this.value = value;
+  }
+  kind = "StringNode";
+};
+var VectorNode = class {
+  constructor(value, metadata) {
+    this.value = value;
+    this.metadata = metadata;
+  }
+  kind = "VectorNode";
+};
+function assertDomNode(node2) {
+  if (!isDomNode(node2)) {
+    throw new TypeError("Invalid DomNode");
+  }
+}
+function assertAstNode(node2) {
+  if (!isAstNode(node2)) {
+    throw new TypeError("Invalid AstNode");
+  }
+}
+function assertAtomNode(node2) {
+  if (!isAtomNode(node2)) {
+    throw new TypeError("Invalid AtomNode");
+  }
+}
+function assertBooleanNode(node2) {
+  if (!isBooleanNode(node2)) {
+    throw new TypeError("Invalid BooleanNode");
+  }
+}
+function assertMapNode(node2) {
+  if (!isMapNode(node2)) {
+    throw new TypeError("Invalid MapNode");
+  }
+}
+function assertErrorNode(node2) {
+  if (!isErrorNode(node2)) {
+    throw new TypeError("Invalid ErrorNode");
+  }
+}
+function assertFunctionNode(node2) {
+  if (!isFunctionNode(node2)) {
+    throw new TypeError("Invalid FunctionNode");
+  }
+}
+function assertKeywordNode(node2) {
+  if (!isKeywordNode(node2)) {
+    throw new TypeError("Invalid KeywordNode");
+  }
+}
+function assertListNode(node2) {
+  if (!isListNode(node2)) {
+    throw new TypeError("Invalid ListNode");
+  }
+}
+function assertNilNode(node2) {
+  if (!isNilNode(node2)) {
+    throw new TypeError("Invalid NilNode");
+  }
+}
+function assertNumberNode(node2) {
+  if (!isNumberNode(node2)) {
+    throw new TypeError("Invalid NumberNode");
+  }
+}
+function assertStringNode(node2) {
+  if (!isStringNode(node2)) {
+    throw new TypeError("Invalid StringNode");
+  }
+}
+function assertSymbolNode(node2) {
+  if (!isSymbolNode(node2)) {
+    throw new TypeError("Invalid SymbolNode");
+  }
+}
+function assertVectorNode(node2) {
+  if (!isVectorNode(node2)) {
+    throw new TypeError("Invalid VectorNode");
+  }
+}
+function assertRegExp(value) {
+  if (!(value instanceof RegExp)) {
+    throw new Error("Expected a RegExp object.");
+  }
+}
+function assertSymbol(value) {
+  if (typeof value !== "symbol") {
+    throw new Error("Expected a Symbol object.");
+  }
+}
+function createDomNode(value, attributes, children, metadata) {
+  return new DomNode(value, attributes, children, metadata);
+}
+function createAtomNode(value) {
+  return new AtomNode(value);
+}
+function createBooleanNode(value) {
+  return new BooleanNode(value);
+}
+function createMapNode(value, metadata) {
+  return new MapNode(value, metadata);
+}
+function createErrorNode(value, type, cause) {
+  assertAstNode(value);
+  return new ErrorNode(value, type, cause);
+}
+function createFunctionNode(value, closureMeta, isMacro2, metadata) {
+  return new FunctionNode(value, closureMeta, isMacro2, metadata);
+}
+function createKeywordNode(value) {
+  return new KeywordNode(value);
+}
+function createListNode(value, metadata) {
+  return new ListNode(value, metadata);
+}
+function createNilNode(value) {
+  return new NilNode(value);
+}
+function createNumberNode(value) {
+  return new NumberNode(value);
+}
+function createStringNode(value) {
+  return new StringNode(value);
+}
+function createSymbolNode(value) {
+  return new SymbolNode(value);
+}
+function createVectorNode(value = [], metadata) {
+  return new VectorNode(value, metadata);
+}
+function isDomNode(node2) {
+  return node2 instanceof DomNode;
+}
+function isAstNode(node2) {
+  return isAtomNode(node2) || isBooleanNode(node2) || isDomNode(node2) || isErrorNode(node2) || isFunctionNode(node2) || // isJsNode(node) ||
+  isKeywordNode(node2) || isListNode(node2) || isMapNode(node2) || isNilNode(node2) || isNumberNode(node2) || isStringNode(node2) || isSymbolNode(node2) || isVectorNode(node2);
+}
+function isAtomNode(node2) {
+  return node2 instanceof AtomNode;
+}
+function isBooleanNode(node2) {
+  return node2 instanceof BooleanNode && typeof node2.value === "boolean";
+}
+function isMapNode(node2) {
+  return node2 instanceof MapNode && node2.value instanceof Map;
+}
+function isErrorNode(node2) {
+  return node2 instanceof ErrorNode && isAstNode(node2.value);
+}
+function isFunctionNode(node2) {
+  return node2 instanceof FunctionNode && typeof node2.value === "function";
+}
+function isKeywordNode(node2) {
+  return node2 instanceof KeywordNode && typeof node2.value === "string" && node2.value.endsWith(":");
+}
+function isListNode(node2) {
+  return node2 instanceof ListNode && node2.value.every(isAstNode);
+}
+function isNilNode(node2) {
+  return node2 instanceof NilNode && node2.value === null;
+}
+function isNumberNode(node2) {
+  return node2 instanceof NumberNode && typeof node2.value === "number";
+}
+function isStringNode(node2) {
+  return node2 instanceof StringNode && typeof node2.value === "string";
+}
+function isSymbolNode(node2) {
+  return node2 instanceof SymbolNode && typeof node2.value === "string";
+}
+function isVectorNode(node2) {
+  return node2 instanceof VectorNode && node2.value.every(isAstNode);
+}
+function isSameClass(object1, object2) {
+  return Object.getPrototypeOf(object1) === Object.getPrototypeOf(object2);
+}
+function assertEq(a, b) {
+  if (!isEqualTo(a, b)) {
+    throw new Error("Values are not equal");
+  }
+}
+function assertDefined(object) {
+  if (object === void 0) {
+    throw new Error("Value is undefined");
+  }
+}
+function assertUndefined(object) {
+  if (object !== void 0) {
+    throw new Error("Value is not undefined");
+  }
+}
+function assertNullOrUndefined(object) {
+  if (object !== void 0 && object !== null) {
+    throw new Error("Value is not null or undefined");
+  }
+}
+function isDefined(object) {
+  return object !== void 0;
+}
+function assertTrue(object) {
+  if (object === false) {
+    throw new Error("Value is not true");
+  }
+}
+function isAstTruthy(a, useJavaScriptTruthiness = false) {
+  if (isBooleanNode(a)) {
+    return a.value;
+  }
+  const atom2 = a;
+  if (isAtomNode(atom2)) {
+    return isAstNode(atom2.value) ? isAstTruthy(atom2.value) : Boolean(atom2.value);
+  }
+  const nilAst = a;
+  if (isNilNode(nilAst)) {
+    return false;
+  }
+  if (isNumberNode(a)) {
+    if (useJavaScriptTruthiness) {
+      return Boolean(a.value);
+    }
+    return true;
+  }
+  return Boolean(a.value);
+}
+function isSequentialNode(value) {
+  return isListNode(value) || isVectorNode(value);
+}
+function assertSequential(value) {
+  if (!isListNode(value) && !isVectorNode(value)) {
+    throw new TypeError("Invalid sequential type");
+  }
+}
+function assertMapKeyNode(value) {
+  if (!(isStringNode(value) || isSymbolNode(value) || isKeywordNode(value))) {
+    throw new TypeError("Invalid dictionary key");
+  }
+}
+function isMapKeyNode(value) {
+  return isStringNode(value) || isSymbolNode(value) || isKeywordNode(value);
+}
+function assertMetadataType(value) {
+  if (!isFunctionNode(value) && !isListNode(value) && !isVectorNode(value) && !isMapNode(value) && !isDomNode(value)) {
+    throw new TypeError("Invalid metadata type");
+  }
+}
+function assertArgumentCount(actualCount, expectedCount, optionalMessage) {
+  if (actualCount !== expectedCount) {
+    let message = `Wanted ${expectedCount} arguments but got ${actualCount}`;
+    if (optionalMessage) {
+      message += ` ${optionalMessage}`;
+    }
+    throw new Error(message);
+  }
+}
+function assertVariableArgumentCount(actualCount, minExpectedCount, maxExpectedCount) {
+  if (actualCount < minExpectedCount || actualCount > maxExpectedCount) {
+    throw new Error("Unexpected number of arguments");
+  }
+}
+function assertMinimumArgumentCount(actualCount, minExpectedCount) {
+  if (actualCount < minExpectedCount) {
+    throw new Error("Unexpected minimum number of arguments");
+  }
+}
+function assertEvenArgumentCount(maybeEven) {
+  if (maybeEven % 2 !== 0) {
+    throw new Error("Uneven number of arguments");
+  }
+}
+function assertSequentialValues(sequentialValues, typeClass) {
+  for (const p of sequentialValues) {
+    if (!(p instanceof typeClass)) {
+      throw new TypeError("All values must be of the same type");
+    }
+  }
+}
+function assertIsOneOf(astNode, typeClasses) {
+  if (!typeClasses.some((typeClass) => astNode instanceof typeClass)) {
+    throw new TypeError("Invalid type");
+  }
+}
+function isTypedVector(sequentialValues, typeClass) {
+  return sequentialValues.value.every((p) => p instanceof typeClass);
+}
+function isEqualTo(a, b) {
+  if (isSequentialNode(a) && isSequentialNode(b)) {
+    if (a.value.length !== b.value.length) {
+      return createBooleanNode(false);
+    }
+    for (let i = 0; i < a.value.length; i++) {
+      if (!isEqualTo(a.value[i], b.value[i]).value) {
+        return createBooleanNode(false);
+      }
+    }
+    return createBooleanNode(true);
+  }
+  if (isMapNode(a) && isMapNode(b)) {
+    if (a.value.size !== b.value.size) {
+      return createBooleanNode(false);
+    }
+    for (const [aKeyString, aValue] of a.value) {
+      const bValue = b.value.get(aKeyString);
+      if (bValue === void 0) {
+        return createBooleanNode(false);
+      }
+      const recurResult = isEqualTo(aValue, bValue);
+      if (!recurResult.value) {
+        return createBooleanNode(false);
+      }
+    }
+    return createBooleanNode(true);
+  }
+  if (!isSameClass(a, b)) {
+    return createBooleanNode(false);
+  }
+  const result = a.value === b.value;
+  return createBooleanNode(result);
+}
+function listStartsWithSymbol(listNode, symbolValue) {
+  const isListWithSymbol = isListNode(listNode) && isSymbolNode(listNode.value[0]);
+  if (isListWithSymbol && symbolValue !== void 0) {
+    return listNode.value[0].value === symbolValue;
+  }
+  return isListWithSymbol;
+}
+function assertEqual(actual, expected) {
+  if (actual !== expected) {
+    throw new Error(`Unexpected value '${actual}', wanted ${expected}`);
+  }
+}
+function assertGreaterThanEqual(actual, expected) {
+  if (actual >= expected) {
+    throw new Error("Unexpected value");
+  }
+}
+function assertSymWithValue(sym, value) {
+  assertEqual(sym.value, value);
+}
+function continueResult(ast, env) {
+  return {
+    continue: { ast, env },
+    return: void 0
+  };
+}
+function returnResult(ast) {
+  return {
+    continue: void 0,
+    return: ast
+  };
+}
+var prepend = (acc, curr) => [
+  curr,
+  ...acc
+];
+var append = (acc, curr) => [
+  ...acc,
+  curr
+];
+function copy(ast) {
+  if (isAtomNode(ast)) {
+    return copyAtomNode(ast);
+  }
+  if (isBooleanNode(ast)) {
+    return copyBooleanNode(ast);
+  }
+  if (isMapNode(ast)) {
+    return copyMapNode(ast);
+  }
+  if (isErrorNode(ast)) {
+    return copyErrorNode(ast);
+  }
+  if (isFunctionNode(ast)) {
+    return copyFunctionNode(ast);
+  }
+  if (isKeywordNode(ast)) {
+    return copyKeywordNode(ast);
+  }
+  if (isListNode(ast)) {
+    return copyListNode(ast);
+  }
+  if (isNilNode(ast)) {
+    return copyNilNode(ast);
+  }
+  if (isNumberNode(ast)) {
+    return copyNumberNode(ast);
+  }
+  if (isStringNode(ast)) {
+    return copyStringNode(ast);
+  }
+  if (isSymbolNode(ast)) {
+    return copySymbolNode(ast);
+  }
+  if (isVectorNode(ast)) {
+    return copyVectorNode(ast);
+  }
+  if (isDomNode(ast)) {
+    return copyDomNode(ast);
+  }
+  throw new Error("Unmatched object");
+}
+function copyAtomNode(a) {
+  return createAtomNode(copy(a.value));
+}
+function copyBooleanNode(a) {
+  return createBooleanNode(a.value);
+}
+function copyMapNode(a) {
+  const dict = createMapNode(new Map(a.value));
+  dict.metadata = copy(a.metadata ?? createNilNode());
+  return dict;
+}
+function copyDomNode(a) {
+  const tagName = a.value;
+  const attributes = a.attributes;
+  const children = a.children;
+  const domNode = createDomNode(
+    tagName,
+    new Map(attributes),
+    children.map(copy)
+  );
+  domNode.metadata = copy(a.metadata ?? createNilNode());
+  return domNode;
+}
+function copyErrorNode(a) {
+  return createErrorNode(copy(a.value));
+}
+function copyFunctionNode(a) {
+  const func = createFunctionNode(a.value);
+  func.isMacro = a.isMacro;
+  func.metadata = copy(a.metadata ?? createNilNode());
+  if (a.closureMeta) {
+    const cl = a.closureMeta;
+    func.closureMeta = {
+      ast: copy(cl.ast),
+      env: cl.env,
+      // Copy env?
+      parameters: cl.parameters.map((sym) => createSymbolNode(sym.value))
+    };
+  }
+  return func;
+}
+function copyKeywordNode(a) {
+  return createKeywordNode(a.value);
+}
+function copyListNode(a) {
+  const list2 = createListNode(a.value.map((value) => copy(value)));
+  list2.metadata = copy(a.metadata ?? createNilNode());
+  return list2;
+}
+function copyNilNode(_ast) {
+  return createNilNode();
+}
+function copyNumberNode(a) {
+  return createNumberNode(a.value);
+}
+function copyStringNode(a) {
+  return createStringNode(a.value);
+}
+function copySymbolNode(a) {
+  return createSymbolNode(a.value);
+}
+function copyVectorNode(a) {
+  const vec2 = createVectorNode(a.value.map((value) => copy(value)));
+  vec2.metadata = copy(a.metadata ?? createNilNode());
+  return vec2;
+}
+function setMapElement(map, key, value) {
+  map.set(convertMapKeyToString(key), value);
+}
+function deleteMapElement(map, key) {
+  map.delete(convertMapKeyToString(key));
+}
+function hasMapElement(map, key) {
+  return map.has(convertMapKeyToString(key));
+}
+function getMapElement(map, key) {
+  return map.get(convertMapKeyToString(key));
+}
+function getMapKeys(map) {
+  const keys2 = [...map.keys()];
+  return createListNode(keys2.map((key) => convertStringToMapKey(key)));
+}
+function convertMapKeyToString(ast) {
+  const key = ast;
+  if (isKeywordNode(key)) {
+    return key.value;
+  }
+  const string_ = ast;
+  if (isStringNode(string_)) {
+    return `"${string_.value}"`;
+  }
+  return ast.value;
+}
+function convertStringToMapKey(key) {
+  if (key.endsWith(":")) {
+    return createKeywordNode(key);
+  }
+  if (key.startsWith('"')) {
+    return createStringNode(key.slice(1, -1));
+  }
+  return createSymbolNode(key);
+}
+function getBareMapKey(key) {
+  const value = isMapKeyNode(key) ? key.value : key;
+  if (value.startsWith(":") || value.endsWith(":")) {
+    return value.replaceAll(":", "");
+  }
+  if (value.startsWith('"') && value.endsWith('"')) {
+    return value.slice(1, -1);
+  }
+  return value;
+}
+function getMapValues(map) {
+  const values = [...map.values()];
+  return createListNode(values);
+}
+function mapFlat(map) {
+  const flat = [];
+  for (const [key, value] of map.entries()) {
+    flat.push(convertStringToMapKey(key), value);
+  }
+  return flat;
+}
+function splitAtFirstDot(filename) {
+  const firstDotIndex = filename.indexOf(".");
+  return [filename.slice(0, firstDotIndex), filename.slice(firstDotIndex + 1)];
+}
+function htmlEncode(unsafe) {
+  return unsafe.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&apos;");
+}
+function normalizeWhitespace(string_) {
+  return string_.replaceAll("\n", " ").replaceAll(/\s{2,}/g, " ");
+}
+function slash(string_) {
+  return string_.replaceAll("\\", "\\\\").replaceAll('"', '\\"').replaceAll("\n", "\\n");
+}
+function unwrap(ast) {
+  if (isAtomNode(ast)) {
+    return unwrapAtomNode(ast);
+  }
+  if (isBooleanNode(ast)) {
+    return unwrapBooleanNode(ast);
+  }
+  if (isMapNode(ast)) {
+    return unwrapMapNode(ast);
+  }
+  if (isErrorNode(ast)) {
+    return unwrapErrorNode(ast);
+  }
+  if (isFunctionNode(ast)) {
+    return unwrapFunctionNode(ast);
+  }
+  if (isKeywordNode(ast)) {
+    return unwrapKeywordNode(ast);
+  }
+  if (isListNode(ast)) {
+    return unwrapListNode(ast);
+  }
+  if (isNilNode(ast)) {
+    return unwrapNilNode();
+  }
+  if (isNumberNode(ast)) {
+    return unwrapNumberNode(ast);
+  }
+  if (isStringNode(ast)) {
+    return unwrapStringNode(ast);
+  }
+  if (isSymbolNode(ast)) {
+    return unwrapSymbolNode(ast);
+  }
+  if (isVectorNode(ast)) {
+    return unwrapVectorNode(ast);
+  }
+  throw new Error("Could not unwrap object.");
+}
+function unwrapAtomNode(ast) {
+  return unwrap(ast.value);
+}
+function unwrapBooleanNode(ast) {
+  return ast.value;
+}
+function unwrapDomNode(ast) {
+  return ast.value;
+}
+function unwrapErrorNode(ast) {
+  const message = isStringNode(ast.value) ? ast.value.value : String(unwrap(ast.value));
+  return new Error(message);
+}
+function unwrapFunctionNode(ast) {
+  return (...args) => toAst(unwrap(ast.value(...args)));
+}
+function unwrapKeywordNode(ast) {
+  return ast.value;
+}
+function unwrapListNode(ast) {
+  return ast.value.map(unwrap);
+}
+function unwrapMapNode(ast) {
+  const plainObject = {};
+  for (const [key, value] of ast.value.entries()) {
+    plainObject[key] = unwrap(value);
+  }
+  return plainObject;
+}
+function unwrapNilNode() {
+  return null;
+}
+function unwrapNumberNode(ast) {
+  return ast.value;
+}
+function unwrapStringNode(ast) {
+  return ast.value;
+}
+function unwrapSymbolNode(ast) {
+  return ast.value;
+}
+function unwrapVectorNode(ast) {
+  return ast.value.map(unwrap);
+}
+function toAst(input) {
+  if (isAstNode(input)) {
+    return input;
+  }
+  switch (typeof input) {
+    case "undefined": {
+      return createNilNode();
+    }
+    case "number": {
+      return createNumberNode(input);
+    }
+    case "string": {
+      if (input.startsWith('"')) {
+        return createStringNode(input);
+      }
+      if (input.startsWith(":")) {
+        return createKeywordNode(input);
+      }
+      return createSymbolNode(input);
+    }
+    case "boolean": {
+      return createBooleanNode(input);
+    }
+    case "symbol": {
+      return createStringNode(JSON.stringify(input));
+    }
+    case "function": {
+      return createFunctionNode((...args) => {
+        try {
+          return toAst(input(...args.map((x) => x.value)));
+        } catch (error) {
+          if (error instanceof Error) {
+            return createErrorNode(createStringNode(error.message));
+          }
+          return createErrorNode(createStringNode(JSON.stringify(error)));
+        }
+      });
+    }
+    case "object": {
+      if (input instanceof Error) {
+        return createErrorNode(createStringNode(input.message));
+      }
+      if (input === null) {
+        return createNilNode();
+      }
+      if (Array.isArray(input)) {
+        const array = input.map((element) => toAst(element));
+        return createListNode(array);
+      }
+      if (input instanceof Map) {
+        const map2 = /* @__PURE__ */ new Map();
+        for (const [maybeString, unknownValue] of input.entries()) {
+          const key = String(maybeString);
+          const value = toAst(unknownValue);
+          map2.set(key, value);
+        }
+        return createMapNode(map2);
+      }
+      const inputObject = input;
+      const map = /* @__PURE__ */ new Map();
+      for (const [maybeString, unknownValue] of Object.entries(inputObject)) {
+        const key = String(maybeString);
+        const value = toAst(unknownValue);
+        map.set(key, value);
+      }
+      return createMapNode(map);
+    }
+    default: {
+      const coercedUnknown = String(input);
+      return createErrorNode(
+        createStringNode(`unknown type ${coercedUnknown}`)
+      );
+    }
+  }
+}
+function toErrorNode(caughtError) {
+  if (isErrorNode(caughtError)) return caughtError;
+  if (isAstNode(caughtError)) return createErrorNode(caughtError);
+  if (caughtError instanceof Error) {
+    return createErrorNode(createStringNode(caughtError.message));
+  }
+  return createErrorNode(createStringNode(String(caughtError)));
+}
+
+// src/ensemble/printer.ts
+function printString(ast, printReadably = false) {
+  if (isStringNode(ast)) {
+    return printReadably ? `"${slash(ast.value)}"` : ast.value;
+  }
+  if (isKeywordNode(ast) || isBooleanNode(ast) || isNumberNode(ast) || isSymbolNode(ast)) {
+    return String(ast.value);
+  }
+  const atom2 = ast;
+  if (isAtomNode(atom2)) {
+    return `(atom ${printString(atom2.value)})`;
+  }
+  if (isErrorNode(ast)) {
+    return printString(ast.value, printReadably);
+  }
+  if (isFunctionNode(ast)) {
+    return "#<fn>";
+  }
+  if (isSequentialNode(ast)) {
+    const isList = isListNode(ast);
+    const serialized = ast.value.map((value) => printString(value, printReadably)).join(" ");
+    return isList ? `(${serialized})` : `[${serialized}]`;
+  }
+  if (isDomNode(ast)) {
+    return printHtml(ast, printReadably);
+  }
+  if (isMapNode(ast)) {
+    const serialized = mapFlat(ast.value).map((value) => printString(value, printReadably)).join(" ");
+    return `{${serialized}}`;
+  }
+  if (isNilNode(ast)) {
+    return "nil";
+  }
+  throw new Error(`unmatched object ${JSON.stringify(ast)}`);
+}
+var selfClosingTags = /* @__PURE__ */ new Set([
+  "area",
+  "base",
+  "br",
+  "col",
+  "embed",
+  "hr",
+  "img",
+  "input",
+  "link",
+  "meta",
+  "param",
+  "source",
+  "track",
+  "wbr"
+]);
+function printHtml(ast, printReadably = false) {
+  if (isDomNode(ast)) {
+    const tagName = ast.value;
+    const isSelfClosing = selfClosingTags.has(tagName);
+    let attributes = "";
+    if (ast.attributes.size > 0) {
+      attributes = ` ${Array.from(ast.attributes).map(([key, value]) => {
+        if (key === "style") return printInlineCss(value, printReadably);
+        return `${getBareMapKey(key)}="${printHtml(value, printReadably)}"`;
+      }).join(" ")}`;
+    }
+    if (isSelfClosing) return `<${tagName}${attributes} />`;
+    const body = [];
+    if (ast.children.length > 0) {
+      let children = [];
+      if (tagName === "style") {
+        children = ast.children.map(
+          (child) => printStyleTag(child, printReadably)
+        );
+      } else if (tagName === "script") {
+        children = ast.children.map(
+          (child) => printJavaScript(child, printReadably)
+        );
+      } else {
+        children = ast.children.map((child) => printHtml(child, printReadably));
+      }
+      body.push(children.join(" "));
+    }
+    if (tagName === "!doctype") {
+      return `<!doctype html>
+${body.join(" ")}`;
+    }
+    return `<${tagName}${attributes}>${body.join(" ")}</${tagName}>`;
+  }
+  if (isStringNode(ast)) {
+    return printReadably ? `"${slash(ast.value)}"` : ast.value;
+  }
+  if (isKeywordNode(ast) || isBooleanNode(ast) || isNumberNode(ast) || isSymbolNode(ast)) {
+    return String(ast.value);
+  }
+  const atom2 = ast;
+  if (isAtomNode(atom2)) {
+    return `(atom ${printHtml(atom2.value)})`;
+  }
+  if (isErrorNode(ast)) {
+    return printHtml(ast.value, printReadably);
+  }
+  if (isFunctionNode(ast)) {
+    return "#<fn>";
+  }
+  if (isSequentialNode(ast)) {
+    const isList = isListNode(ast);
+    const serialized = ast.value.map((value) => printHtml(value, printReadably)).join(" ");
+    return isList ? `(${serialized})` : `[${serialized}]`;
+  }
+  if (isMapNode(ast)) {
+    const serialized = mapFlat(ast.value).map((value) => printHtml(value, printReadably)).join(" ");
+    return `{${serialized}}`;
+  }
+  if (isNilNode(ast)) {
+    return "nil";
+  }
+  throw new Error(`unmatched object ${JSON.stringify(ast)}`);
+}
+function printJavaScript(ast, printReadably = false) {
+  const en = printString(ast, true);
+  const js = `
+	import { rep, initEnv } from '../../bin/ensemble.js';
+	rep(\`${en}\`, initEnv());	
+	`;
+  return js;
+}
+function printCss(ast, printReadably = false) {
+  if (isStringNode(ast)) {
+    if (printReadably) {
+      return slash(ast.value);
+    }
+    return ast.value;
+  }
+  if (isKeywordNode(ast)) {
+    return ast.value.slice(1);
+  }
+  if (isNumberNode(ast)) {
+    return String(ast.value);
+  }
+  if (isSymbolNode(ast)) {
+    return ast.value;
+  }
+  if (isErrorNode(ast)) {
+    return printCss(ast.value, printReadably);
+  }
+  if (isListNode(ast) || isVectorNode(ast)) {
+    return ast.value.map((value) => printCss(value, printReadably)).join(" ");
+  }
+  if (isMapNode(ast)) {
+    return [...ast.value].map(([key, valueAst]) => {
+      const selector = getBareMapKey(key);
+      if (isNilNode(valueAst)) return selector;
+      if (isMapNode(valueAst)) {
+        return `${selector} {${printCss(valueAst, printReadably)}}`;
+      }
+      return `${getBareMapKey(key)}: ${printCss(valueAst, printReadably)};`;
+    }).join(" ");
+  }
+  if (isBooleanNode(ast) || isAtomNode(ast) || isFunctionNode(ast) || isDomNode(ast) || isNilNode(ast)) {
+    return "";
+  }
+  throw new Error("unmatched object");
+}
+function printStyleTag(ast, printReadably = false) {
+  return printCss(ast, printReadably);
+}
+function printInlineCss(ast, printReadably = false) {
+  return isMapNode(ast) ? printCssDeclarationBlock(ast, printReadably) : "{}";
+}
+function printCssDeclarationBlock(valueAst, printReadably = false) {
+  return [...valueAst.value].map(
+    ([key, value]) => `${getBareMapKey(key)}: ${printCss(value, printReadably)};`
+  ).join("");
+}
+
+// src/ensemble/reader.ts
+var tokenRegex = /[\s,=]*(~@|[[\]{}()'`~^@<>]|"(?:\\.|[^\\"])*"?|;.*|\/\/.*|\r?\n|[^\s[\]{}<>('"`,;=)]*)/g;
+var numberRegex = /^-?\d+(\.\d+)?$/;
+var stringRegex = /"(?:\\.|[^\\"])*"/;
+var Reader = class {
+  /**
+   * Creates an instance of the Reader class to manage a stream of tokens
+   * derived from a source code string. It initializes with an array of
+   * tokens and optionally a position index, defaulted to 0, representing
+   * the starting point in the token stream.
+   * @param tokens - An array of strings representing the tokens derived
+   * 	from source code string.
+   * @param pos - The initial position in the token stream. Defaults to 0.
+   * @example
+   * ```typescript
+   * const reader = new Reader(tokenize("(+ 1 2)"));
+   * ```
+   */
+  constructor(tokens, pos = 0) {
+    this.tokens = tokens;
+    this.pos = pos;
+  }
+  line = 0;
+  // Retrieves the next token and advances the position.
+  next = () => this.tokens[this.pos++];
+  // Peeks at the current token without advancing the position.
+  peek = () => this.tokens[this.pos];
+  context = () => {
+    const start = this.pos - 10;
+    const end = this.pos + 10;
+    return this.tokens.slice(start, end).join(" ");
+  };
+};
+function formatError(error, reader) {
+  const message = error instanceof Error ? error.message : error;
+  const context = reader.context();
+  return `Error: ${message}
+  on line ${reader.line} near "${context}"`;
+}
+function tokenize(code) {
+  const matches = [...code.matchAll(tokenRegex)].filter(
+    (match) => !match[1].startsWith(";") && !match[1].startsWith("//") && match[1] !== ""
+  ).map((match) => match[1]);
+  return matches;
+}
+function readString(code) {
+  try {
+    const tokens = tokenize(code);
+    if (tokens.length === 0) return createNilNode();
+    const result = readForm(new Reader(tokens));
+    return result;
+  } catch (e) {
+    const message = e instanceof Error ? e.message : String(e);
+    console.log(`Error reading input: ${message}`);
+    return createNilNode();
+  }
+}
+function readForm(rdr) {
+  const token = rdr.peek();
+  if (token === void 0) {
+    throw new Error("EOF");
+  }
+  function makeForm(symbol2, meta2) {
+    return createListNode([
+      createSymbolNode(symbol2),
+      readForm(rdr),
+      ...meta2 ? [meta2] : []
+    ]);
+  }
+  switch (token) {
+    case "\n":
+    case "\r\n": {
+      rdr.line++;
+      rdr.next();
+      return readForm(rdr);
+    }
+    case "'": {
+      rdr.next();
+      return makeForm("quote");
+    }
+    case "`": {
+      rdr.next();
+      return makeForm("quasiquote");
+    }
+    case "~": {
+      rdr.next();
+      return makeForm("unquote");
+    }
+    case "~@": {
+      rdr.next();
+      return makeForm("splice-unquote");
+    }
+    case "^": {
+      rdr.next();
+      const meta2 = readForm(rdr);
+      return makeForm("with-meta", meta2);
+    }
+    case "@": {
+      rdr.next();
+      return makeForm("deref");
+    }
+    case ")":
+    case "]":
+    case "}":
+    case ">": {
+      const error = formatError(`unexpected '${token}'`, rdr);
+      throw new Error(error);
+    }
+    case "(": {
+      return readSequence(rdr, ")");
+    }
+    case "[": {
+      return readSequence(rdr, "]");
+    }
+    case "{": {
+      return readSequence(rdr, "}");
+    }
+    case "<": {
+      return readSequence(rdr, ">");
+    }
+    default: {
+      return readAtom(rdr);
+    }
+  }
+}
+function readAtom(rdr) {
+  const token = rdr.next();
+  if (token === void 0) {
+    throw new Error("unexpected EOF");
+  }
+  if (token === "nil") {
+    return createNilNode();
+  }
+  if (token === "false") {
+    return createBooleanNode(false);
+  }
+  if (token === "true") {
+    return createBooleanNode(true);
+  }
+  if (numberRegex.test(token)) {
+    return createNumberNode(Number.parseFloat(token));
+  }
+  if (stringRegex.test(token)) {
+    const unescaped = createStringNode(unescapeString(token));
+    return unescaped;
+  }
+  if (token.startsWith(":") || token.endsWith(":")) {
+    return createKeywordNode(token);
+  }
+  if (token.startsWith('"')) {
+    const error = formatError(`expected '"', got EOF`, rdr);
+    throw new Error(error);
+  }
+  return createSymbolNode(token);
+}
+function unescapeString(token) {
+  return token.slice(1, -1).replaceAll(/\\(.)/g, (_, c) => c === "n" ? "\n" : c);
+}
+function readSequence(rdr, end) {
+  const astNodes = [];
+  rdr.next();
+  while (true) {
+    const token = rdr.peek();
+    if (token === void 0) {
+      const error = formatError(`expected '${end}', got EOF`, rdr);
+      throw new Error(error);
+    }
+    if (token === end) {
+      rdr.next();
+      break;
+    }
+    astNodes.push(readForm(rdr));
+  }
+  switch (end) {
+    case ">":
+    case ")": {
+      return createListNode(astNodes);
+    }
+    case "]": {
+      return createVectorNode(astNodes);
+    }
+    case "}": {
+      const dict = createMapNode();
+      for (let i = 0; i < astNodes.length; i += 2) {
+        const key = astNodes[i];
+        assertMapKeyNode(key);
+        const value = astNodes[i + 1];
+        const keyString = convertMapKeyToString(key);
+        dict.value.set(keyString, value);
+      }
+      return dict;
+    }
+    default: {
+      const error = formatError(`unknown end value: ${end}`, rdr);
+      throw new Error(error);
+    }
+  }
+}
+
+// src/ensemble/core.ts
+var ns = /* @__PURE__ */ new Map();
+var nsValues = [
+  // ["=", eq],
+  ["eq", eq],
+  ["throw", throwError],
+  ["nil?", isNil],
+  ["true?", isTrue],
+  ["false?", isFalse],
+  ["symbol", symbol],
+  ["Symbol.new", symbol],
+  ["symbol?", isSymbolNode2],
+  ["keyword", keyword],
+  ["keyword?", isKeyword],
+  ["number?", isNumber],
+  ["macro?", isMacro],
+  // Input/Output
+  ["pr-str", printEscapedString],
+  ["str", printUnescapedString],
+  ["prn", printEscapedStringToScreen],
+  ["println", printUnescapedStringToScreen],
+  ["console.log", printUnescapedStringToScreen],
+  ["read-string", readString2],
+  // Strings
+  ["string?", isString],
+  ["trim", trim],
+  // Operators
+  // ["<", lt],
+  // ["<=", lte],
+  // [">", gt],
+  // [">=", gte],
+  // ["+", add],
+  // ["-", subtract],
+  // ["*", multiply],
+  // ["/", divide],
+  ["lt", lt],
+  // ["less-than", lt],
+  ["lte", lte],
+  // ["less-than-equal", lte],
+  ["gt", gt],
+  // ["greater-than", gt],
+  ["gte", gte],
+  // ["greater-than-equal", gte],
+  ["add", add],
+  // sum
+  ["subtract", subtract],
+  // difference, dif
+  ["multiply", multiply],
+  // product, prod
+  ["divide", divide],
+  // quotient, quot
+  ["time-ms", timeMs],
+  // Maps
+  ["assoc", assoc],
+  ["contains?", contains],
+  ["dissoc", dissoc],
+  ["get", get],
+  ["hash-map", hashMap],
+  ["keys", keys],
+  ["map?", isMap],
+  ["vals", vals],
+  // We treat lists similar to functions
+  ["list", list],
+  ["list?", isListNode2],
+  ["apply", apply],
+  ["fn?", isFn],
+  // Arrays
+  ["concat", concat],
+  ["conj", conj],
+  ["cons", cons],
+  ["count", length],
+  ["empty?", empty],
+  ["first", firstNodeInList],
+  ["last", lastNodeInList],
+  ["join", join],
+  ["map", applyToSequence],
+  ["nth", nth],
+  ["rest", rest],
+  ["seq", seq],
+  ["sequential?", isSequentialNode2],
+  ["vec", vec],
+  ["vector", vector],
+  ["vector?", isVector],
+  ["meta", meta],
+  ["with-meta", withMeta],
+  ["atom", atom],
+  ["atom?", isAtom],
+  ["deref", deref],
+  ["reset!", reset],
+  ["swap!", swap],
+  [".", getProp]
+];
+for (const [sym, fn] of nsValues) {
+  ns.set(createSymbolNode(sym), createFunctionNode(fn));
+}
+function eq(...args) {
+  assertArgumentCount(args.length, 2);
+  return isEqualTo(args[0], args[1]);
+}
+function printEscapedString(...args) {
+  const result = args.map((arg) => printString(arg, true)).join(" ");
+  return createStringNode(result);
+}
+function printUnescapedString(...args) {
+  const result = args.map((arg) => printString(arg, false)).join("");
+  return createStringNode(result);
+}
+function printEscapedStringToScreen(...args) {
+  const result = args.map((arg) => printString(arg, true)).join(" ");
+  console.log(result);
+  return createNilNode();
+}
+function printUnescapedStringToScreen(...args) {
+  const result = args.map((arg) => printString(arg, false)).join(" ");
+  console.log(result);
+  return createNilNode();
+}
+function readString2(...args) {
+  assertArgumentCount(args.length, 1);
+  const code = args[0];
+  assertStringNode(code);
+  return readString(code.value);
+}
+function trim(...args) {
+  assertArgumentCount(args.length, 1);
+  const string_ = args[0];
+  assertStringNode(string_);
+  return createStringNode(string_.value.trim());
+}
+function lt(...args) {
+  assertArgumentCount(
+    args.length,
+    2,
+    `
+args: ${JSON.stringify(args, null, "  ")}`
+  );
+  const a = args[0];
+  assertNumberNode(a);
+  const b = args[1];
+  assertNumberNode(b);
+  return createBooleanNode(a.value < b.value);
+}
+function lte(...args) {
+  assertArgumentCount(args.length, 2);
+  const a = args[0];
+  assertNumberNode(a);
+  const b = args[1];
+  assertNumberNode(b);
+  return createBooleanNode(a.value <= b.value);
+}
+function gt(...args) {
+  assertArgumentCount(args.length, 2);
+  const a = args[0];
+  assertNumberNode(a);
+  const b = args[1];
+  assertNumberNode(b);
+  return createBooleanNode(a.value > b.value);
+}
+function gte(...args) {
+  assertArgumentCount(args.length, 2);
+  const a = args[0];
+  assertNumberNode(a);
+  const b = args[1];
+  assertNumberNode(b);
+  return createBooleanNode(a.value >= b.value);
+}
+function add(...args) {
+  assertArgumentCount(args.length, 2);
+  const a = args[0];
+  assertNumberNode(a);
+  const b = args[1];
+  assertNumberNode(b);
+  return createNumberNode(a.value + b.value);
+}
+function subtract(...args) {
+  assertArgumentCount(args.length, 2);
+  const a = args[0];
+  assertNumberNode(a);
+  const b = args[1];
+  assertNumberNode(b);
+  return createNumberNode(a.value - b.value);
+}
+function multiply(...args) {
+  assertArgumentCount(args.length, 2);
+  const a = args[0];
+  assertNumberNode(a);
+  const b = args[1];
+  assertNumberNode(b);
+  return createNumberNode(a.value * b.value);
+}
+function divide(...args) {
+  assertArgumentCount(args.length, 2);
+  const a = args[0];
+  assertNumberNode(a);
+  const b = args[1];
+  assertNumberNode(b);
+  return createNumberNode(a.value / b.value);
+}
+function timeMs(...args) {
+  assertArgumentCount(args.length, 0);
+  return createNumberNode((/* @__PURE__ */ new Date()).getTime());
+}
+function list(...args) {
+  for (const arg of args) {
+    assertAstNode(arg);
+  }
+  return createListNode(args);
+}
+function isListNode2(...args) {
+  assertArgumentCount(args.length, 1);
+  return createBooleanNode(isListNode(args[0]));
+}
+function cons(...args) {
+  assertArgumentCount(args.length, 2);
+  assertSequential(args[1]);
+  return new ListNode([args[0], ...args[1].value]);
+}
+function concat(...args) {
+  const resultList = [];
+  for (const arg of args) {
+    assertSequential(arg);
+    resultList.push(...arg.value);
+  }
+  return createListNode(resultList);
+}
+function vec(...args) {
+  return isListNode(args[0]) ? createVectorNode(args[0].value) : args[0];
+}
+function nth(...args) {
+  assertArgumentCount(args.length, 2);
+  if (isSequentialNode(args[0]) && isNumberNode(args[1])) {
+    const index = args[1].value;
+    const list2 = args[0];
+    const length2 = args[0].value.length;
+    if (length2 > 0 && index < length2) {
+      const value = list2.value[index];
+      return value;
+    }
+  }
+  throw new Error("out of range");
+}
+function firstNodeInList(...args) {
+  assertArgumentCount(args.length, 1);
+  if (isSequentialNode(args[0]) && args[0].value.length > 0) {
+    return args[0].value[0];
+  }
+  return createNilNode();
+}
+function lastNodeInList(...args) {
+  assertArgumentCount(args.length, 1);
+  if (isSequentialNode(args[0]) && args[0].value.length > 0) {
+    return args[0].value[args[0].value.length - 1];
+  }
+  return createNilNode();
+}
+function rest(...args) {
+  assertArgumentCount(args.length, 1);
+  if (isSequentialNode(args[0])) {
+    return createListNode(args[0].value.slice(1));
+  }
+  return createListNode([]);
+}
+function empty(...args) {
+  assertArgumentCount(args.length, 1);
+  const list2 = args[0];
+  assertSequential(list2);
+  return createBooleanNode(list2.value.length === 0);
+}
+function length(...args) {
+  assertArgumentCount(args.length, 1);
+  const value = args[0];
+  if (isNilNode(value)) {
+    return createNumberNode(0);
+  }
+  if (isMapNode(args[0])) {
+    return createNumberNode(args[0].value.size);
+  }
+  if (isSequentialNode(args[0])) {
+    return createNumberNode(args[0].value.length);
+  }
+  throw new TypeError("Invalid argument type");
+}
+function atom(...args) {
+  assertArgumentCount(args.length, 1);
+  const value = args[0];
+  return createAtomNode(value);
+}
+function isAtom(...args) {
+  assertArgumentCount(args.length, 1);
+  const node2 = args[0];
+  return createBooleanNode(isAtomNode(node2));
+}
+function deref(...args) {
+  assertArgumentCount(args.length, 1);
+  const atom2 = args[0];
+  assertAtomNode(atom2);
+  return atom2.value;
+}
+function reset(...args) {
+  assertArgumentCount(args.length, 2);
+  const atom2 = args[0];
+  const node2 = args[1];
+  assertAtomNode(atom2);
+  atom2.value = node2;
+  return node2;
+}
+function swap(...args) {
+  assertMinimumArgumentCount(args.length, 2);
+  const atom2 = args[0];
+  assertAtomNode(atom2);
+  const fn = args[1];
+  assertFunctionNode(fn);
+  const rest2 = args.slice(2);
+  atom2.value = fn.value(atom2.value, ...rest2);
+  return atom2.value;
+}
+function throwError(...args) {
+  assertArgumentCount(args.length, 1);
+  assertAstNode(args[0]);
+  throw createErrorNode(args[0]);
+}
+function apply(...args) {
+  const count = args.length;
+  assertMinimumArgumentCount(count, 2);
+  assertFunctionNode(args[0]);
+  const lastList = args[count - 1];
+  assertSequential(lastList);
+  return args[0].value(...args.slice(1, -1), ...lastList.value);
+}
+function applyToSequence(...args) {
+  const count = args.length;
+  assertArgumentCount(count, 2);
+  assertFunctionNode(args[0]);
+  assertSequential(args[1]);
+  const fn = args[0];
+  const list2 = args[1];
+  const result = list2.value.map((item) => fn.value(item));
+  return createListNode(result);
+}
+function conj(...args) {
+  assertMinimumArgumentCount(args.length, 2);
+  assertSequential(args[0]);
+  const [seq2, ...rest2] = args;
+  if (isListNode(seq2)) {
+    return createListNode([...rest2.reverse(), ...seq2.value]);
+  }
+  return createVectorNode([...args[0].value, ...rest2]);
+}
+function seq(...args) {
+  assertArgumentCount(args.length, 1);
+  const ast = args[0];
+  if (isListNode(ast) && ast.value.length > 0) {
+    return ast;
+  }
+  if (isVectorNode(ast) && ast.value.length > 0) {
+    return createListNode([...ast.value]);
+  }
+  if (isStringNode(ast) && ast.value.length > 0) {
+    return createListNode(
+      ast.value.split("").map((char) => createStringNode(char))
+    );
+  }
+  return createNilNode();
+}
+function meta(...args) {
+  assertArgumentCount(args.length, 1);
+  assertMetadataType(args[0]);
+  return args[0].metadata ?? createNilNode();
+}
+function withMeta(...args) {
+  assertArgumentCount(args.length, 2);
+  assertMetadataType(args[0]);
+  assertAstNode(args[1]);
+  const copy2 = copy(args[0]);
+  copy2.metadata = args[1];
+  return copy2;
+}
+function isNil(...args) {
+  assertArgumentCount(args.length, 1);
+  return createBooleanNode(isNilNode(args[0]));
+}
+function isTrue(...args) {
+  assertArgumentCount(args.length, 1);
+  return createBooleanNode(isBooleanNode(args[0]) && args[0].value);
+}
+function isFalse(...args) {
+  assertArgumentCount(args.length, 1);
+  return createBooleanNode(
+    isBooleanNode(args[0]) && !args[0].value
+  );
+}
+function isString(...args) {
+  assertArgumentCount(args.length, 1);
+  return createBooleanNode(isStringNode(args[0]));
+}
+function symbol(...args) {
+  assertArgumentCount(args.length, 1);
+  assertStringNode(args[0]);
+  return createSymbolNode(args[0].value);
+}
+function isSymbolNode2(...args) {
+  assertArgumentCount(args.length, 1);
+  return createBooleanNode(isSymbolNode(args[0]));
+}
+function keyword(...args) {
+  assertArgumentCount(args.length, 1);
+  assertMapKeyNode(args[0]);
+  const key = args[0];
+  if (isKeywordNode(key)) {
+    return key;
+  }
+  const string_ = args[0];
+  return createKeywordNode(`:${string_.value}`);
+}
+function isKeyword(...args) {
+  assertArgumentCount(args.length, 1);
+  return createBooleanNode(isKeywordNode(args[0]));
+}
+function isNumber(...args) {
+  assertArgumentCount(args.length, 1);
+  return createBooleanNode(isNumberNode(args[0]));
+}
+function isFn(...args) {
+  assertArgumentCount(args.length, 1);
+  return createBooleanNode(
+    isFunctionNode(args[0]) && !args[0].isMacro
+  );
+}
+function isMacro(...args) {
+  assertArgumentCount(args.length, 1);
+  return createBooleanNode(
+    isFunctionNode(args[0]) ? args[0].isMacro : false
+  );
+}
+function vector(...args) {
+  return createVectorNode(args);
+}
+function isVector(...args) {
+  assertArgumentCount(args.length, 1);
+  return createBooleanNode(isVectorNode(args[0]));
+}
+function hashMap(...args) {
+  if (args.length === 0) {
+    return createMapNode();
+  }
+  if (args.length === 1 && isMapNode(args[0])) {
+    return createMapNode(new Map(args[0].value));
+  }
+  assertEvenArgumentCount(args.length);
+  const dict = createMapNode();
+  for (let i = 0; i < args.length; i += 2) {
+    const key = args[i];
+    assertMapKeyNode(key);
+    setMapElement(dict.value, key, args[i + 1]);
+  }
+  return dict;
+}
+function isMap(...args) {
+  assertArgumentCount(args.length, 1);
+  return createBooleanNode(isMapNode(args[0]));
+}
+function assoc(...args) {
+  assertMinimumArgumentCount(args.length, 1);
+  assertMapNode(args[0]);
+  const rest2 = args.slice(1);
+  const dict = createMapNode(
+    new Map(args[0].value)
+  );
+  const pairs = hashMap(...rest2);
+  for (const [key, value] of pairs.value.entries()) {
+    dict.value.set(key, value);
+  }
+  return dict;
+}
+function dissoc(...args) {
+  assertMinimumArgumentCount(args.length, 1);
+  assertMapNode(args[0]);
+  const dict = createMapNode(
+    new Map(args[0].value)
+  );
+  for (const dictKey of args.splice(1)) {
+    assertMapKeyNode(dictKey);
+    deleteMapElement(dict.value, dictKey);
+  }
+  return dict;
+}
+function get(...args) {
+  assertArgumentCount(args.length, 2);
+  const mapNode = args[0];
+  if (!isMapNode(mapNode)) {
+    return createNilNode();
+  }
+  const key = args[1];
+  assertMapKeyNode(key);
+  const value = getMapElement(mapNode.value, key);
+  if (value !== void 0) {
+    return value;
+  }
+  return createNilNode();
+}
+function contains(...args) {
+  assertArgumentCount(args.length, 2);
+  const dict = args[0];
+  const key = args[1];
+  assertMapNode(dict);
+  assertMapKeyNode(key);
+  return createBooleanNode(hasMapElement(dict.value, key));
+}
+function keys(...args) {
+  assertArgumentCount(args.length, 1);
+  assertMapNode(args[0]);
+  return getMapKeys(args[0].value);
+}
+function vals(...args) {
+  assertArgumentCount(args.length, 1);
+  assertMapNode(args[0]);
+  return createListNode([...args[0].value.values()]);
+}
+function isSequentialNode2(...args) {
+  return createBooleanNode(isSequentialNode(args[0]));
+}
+function join(...args) {
+  assertVariableArgumentCount(args.length, 1, 2);
+  assertSequential(args[0]);
+  const delim = isStringNode(args[1]) ? args[1].value : " ";
+  const joined = args[0].value.map((ast) => printString(ast, false)).join(delim);
+  return createStringNode(joined);
+}
+function switchCase(...args) {
+  assertMinimumArgumentCount(args.length, 2);
+  const [expr, ...clauses] = args;
+  const defaultClause = clauses.pop();
+  assertDefined(defaultClause);
+  assertFunctionNode(defaultClause);
+  const length2 = clauses.length;
+  for (let i = 0; i < length2; i++) {
+    const clause = clauses[i];
+    assertListNode(clause);
+    assertArgumentCount(clause.value.length, 2);
+    assertFunctionNode(clause.value[1]);
+    const result = isEqualTo(expr, clause.value[0]);
+    if (result.value) {
+      return clause.value[1].value();
+    }
+  }
+  return defaultClause.value();
+}
+function getProp(...args) {
+  console.log("getProp", JSON.stringify(args));
+  assertMinimumArgumentCount(args.length, 2);
+  assertAstNode(args[0]);
+  assertStringNode(args[1]);
+  const path = args[1].value;
+  let obj = null;
+  const value = args[0].value;
+  if (Array.isArray(value)) {
+    obj = value;
+  } else if (value instanceof Map) {
+    obj = Object.fromEntries(value);
+  } else if (value instanceof Set) {
+    obj = Array.from(value);
+  } else if (value !== null && typeof value === "object") {
+    obj = value;
+  }
+  if (obj === null) {
+    return createNilNode();
+  }
+  const result = path.split(".").reduce((current, key) => {
+    if (current && key in current) {
+      return current[key];
+    }
+  }, obj);
+  return toAst(result);
+}
+var core_default = {
+  add,
+  apply,
+  applyToSequence,
+  assoc,
+  atom,
+  concat,
+  conj,
+  cons,
+  contains,
+  deref,
+  dissoc,
+  divide,
+  empty,
+  eq,
+  firstNodeInList,
+  get,
+  gt,
+  gte,
+  hashMap,
+  isAtom,
+  isFalse,
+  isFn,
+  isKeyword,
+  isListNode: isListNode2,
+  isMacro,
+  isMap,
+  isNil,
+  isNumber,
+  isSequentialNode: isSequentialNode2,
+  isString,
+  isSymbolNode: isSymbolNode2,
+  isTrue,
+  isVector,
+  join,
+  keys,
+  keyword,
+  lastNodeInList,
+  length,
+  list,
+  lt,
+  lte,
+  meta,
+  multiply,
+  ns,
+  nsValues,
+  nth,
+  printEscapedString,
+  printEscapedStringToScreen,
+  printUnescapedString,
+  printUnescapedStringToScreen,
+  readString: readString2,
+  reset,
+  rest,
+  seq,
+  subtract,
+  swap,
+  switchCase,
+  symbol,
+  throwError,
+  timeMs,
+  trim,
+  vals,
+  vec,
+  vector,
+  withMeta
+};
+
+// src/ensemble/env.ts
+var Env = class {
+  // Stores key-value pair mappings.
+  value = /* @__PURE__ */ new Map();
+  outer;
+  binds = [];
+  exprs = [];
+  /**
+   * Creates an instance of the Env class.
+   * @param outerEnv - The outer environment.
+   * @param binds - Array of symbols to be bound.
+   * @param exprs - Array of AST nodes to be bound to symbols.
+   * @example new Env();
+   */
+  constructor(outerEnv = void 0, binds = [], exprs = []) {
+    this.outer = outerEnv;
+    this.binds = binds;
+    this.exprs = exprs;
+    for (let i = 0; i < binds.length; i++) {
+      const bind2 = binds[i];
+      if (bind2.value === "&") {
+        const nextBind = binds[i + 1];
+        if (nextBind) {
+          const remainingExprs = exprs.slice(i);
+          const keyString2 = convertMapKeyToString(nextBind);
+          this.value.set(keyString2, createListNode(remainingExprs));
+          break;
+        }
+      }
+      const keyString = convertMapKeyToString(bind2);
+      this.value.set(keyString, exprs[i]);
+    }
+  }
+  serialize() {
+    const serialized = createMapNode();
+    let outer = createMapNode();
+    if (this.outer) {
+      outer = this.outer.serialize();
+    }
+    const entries = this.value.entries();
+    for (const [key, value] of entries) {
+      serialized.value.set(key, value);
+    }
+    serialized.value.set("__outer__", outer);
+    return serialized;
+  }
+  /**
+   * Set a key-value pair in the environment.
+   * @param key - The key to be added.
+   * @param value - The AST node to be associated with the key.
+   * @returns The AST node that was added.
+   * @example myEnv.set(makeStr('foo'), makeNum(42));
+   */
+  set(key, value) {
+    const keyString = convertMapKeyToString(key);
+    this.value.set(keyString, value);
+    return value;
+  }
+  /**
+   * Find the environment where a key is defined.
+   * @description
+   * This uses a polymorphic `this` type to facilitate method chaining
+   * and to enable subclasses to return instances of their own type when this
+   * method is called. It utilizes the `outer` property which can reference an
+   * `Env` instance or any of its subclasses, hence promoting flexibility in
+   * terms of where this method can find the specified key.
+   * @param key - The key to search for.
+   * @returns The environment where the key is defined, or undefined.
+   * @example myEnv.findEnv(makeSym('foobar'));
+   */
+  findEnv(key) {
+    const keyString = convertMapKeyToString(key);
+    if (this.value.has(keyString)) {
+      return this;
+    }
+    if (!isDefined(this.outer)) {
+      return void 0;
+    }
+    return this.outer.findEnv(key);
+  }
+  /**
+   * Get the value associated with a given key from the
+   * symbolTable. Uses the key's value property to search, finds the
+   * matching key in the value Map, and returns its value.
+   * @param key - A types.DictKeys types.Ast item.
+   * @returns Associated value as types.Ast.
+   * @throws When the key was not found in any environments.
+   * @example myEnv.get(makeKey('foo'));
+   */
+  get(key) {
+    const foundEnv = this.findEnv(key);
+    if (foundEnv === void 0) {
+      throw new Error(`'${key.value}' not found`);
+    }
+    const keyString = convertMapKeyToString(key);
+    const dictValue = foundEnv.value.get(keyString);
+    assertDefined(dictValue);
+    return dictValue;
+  }
+};
+
+// src/ensemble/interop/html.ts
+var htmlTags = /* @__PURE__ */ new Set([
+  "!doctype",
+  "a",
+  "abbr",
+  "address",
+  "area",
+  "article",
+  "aside",
+  "audio",
+  "b",
+  "base",
+  "bdi",
+  "bdo",
+  "blockquote",
+  "body",
+  "br",
+  "button",
+  "canvas",
+  "caption",
+  "cite",
+  "code",
+  "col",
+  "colgroup",
+  "data",
+  "datalist",
+  "dd",
+  "del",
+  "details",
+  "dfn",
+  "dialog",
+  "div",
+  "dl",
+  "dt",
+  "em",
+  "embed",
+  "fieldset",
+  "figcaption",
+  "figure",
+  "footer",
+  "form",
+  "h1",
+  "h2",
+  "h3",
+  "h4",
+  "h5",
+  "h6",
+  "head",
+  "header",
+  "hgroup",
+  "hr",
+  "html",
+  "i",
+  "iframe",
+  "img",
+  "imgmap",
+  // Renamed from map to avoid conflict with core map function
+  "input",
+  "kbd",
+  "label",
+  "legend",
+  "li",
+  "link",
+  "main",
+  "mark",
+  "menu",
+  "meter",
+  "nav",
+  "noscript",
+  "object",
+  "ol",
+  "optgroup",
+  "option",
+  "output",
+  "p",
+  "picture",
+  "pre",
+  "portal",
+  "progress",
+  "q",
+  "rp",
+  "rt",
+  "ruby",
+  "s",
+  "samp",
+  "script",
+  "search",
+  "section",
+  "select",
+  "slot",
+  "small",
+  "source",
+  "span",
+  "strong",
+  "style",
+  "sub",
+  "summary",
+  "sup",
+  "table",
+  "tbody",
+  "td",
+  "template",
+  "textarea",
+  "tfoot",
+  "th",
+  "thead",
+  "time",
+  "title",
+  "tr",
+  "track",
+  "u",
+  "ul",
+  "var",
+  "video",
+  "wbr"
+]);
+var ns2 = /* @__PURE__ */ new Map();
+for (const htmlTag of htmlTags) {
+  ns2.set(
+    createSymbolNode(htmlTag),
+    createFunctionNode(tag(htmlTag))
+  );
+}
+function tag(tag2) {
+  return (...args) => {
+    return node(createSymbolNode(tag2), ...args);
+  };
+}
+function node(...args) {
+  assertMinimumArgumentCount(args.length, 1);
+  const tagName = args[0];
+  assertSymbolNode(tagName);
+  const attributes = /* @__PURE__ */ new Map();
+  const children = [];
+  if (isMapNode(args[1])) {
+    args[1].value.forEach((value, key) => attributes.set(key, value));
+    args.slice(2).forEach((child) => children.push(child));
+  } else {
+    args.slice(1).forEach((child) => children.push(child));
+  }
+  return createDomNode(tagName.value, attributes, children);
+}
+function querySelector(...args) {
+  assertArgumentCount(args.length, 1);
+  assertStringNode(args[0]);
+  const selector = args[0].value;
+  const element = document.querySelector(selector);
+  if (element === null) {
+    return createNilNode();
+  }
+  const nodeMap = Array.from(element.attributes);
+  const attributes = nodeMap.reduce((map, attr) => {
+    return map.set(attr.name, createStringNode(attr.value));
+  }, /* @__PURE__ */ new Map());
+  return createDomNode(element.tagName, attributes, []);
+}
+ns2.set(
+  createSymbolNode("document.querySelector"),
+  createFunctionNode(querySelector)
+);
+
+// src/ensemble/interop/js/array.ts
+var arrayFunctions = [
+  ["Array", toArray],
+  ["Array.from", arrayFrom],
+  ["Array.isArray", arrayIsArray],
+  ["Array.of", arrayFrom],
+  ["Array.prototype.at", arrayAt],
+  ["Array.prototype.concat", arrayConcat],
+  ["Array.prototype.copyWithin", arrayCopyWithin],
+  ["Array.prototype.entries", arrayEntries],
+  ["Array.prototype.every", arrayEvery],
+  ["Array.prototype.fill", arrayFill],
+  ["Array.prototype.filter", arrayFilter],
+  ["Array.prototype.find", arrayFind],
+  ["Array.prototype.findIndex", arrayFindIndex],
+  ["Array.prototype.findLast", arrayFindLast],
+  ["Array.prototype.findLastIndex", arrayFindLastIndex],
+  ["Array.prototype.flat", arrayFlat],
+  ["Array.prototype.flatMap", arrayFlatMap],
+  ["Array.prototype.includes", arrayIncludes],
+  ["Array.prototype.indexOf", arrayIndexOf],
+  ["Array.prototype.join", arrayJoin],
+  ["Array.prototype.keys", arrayKeys],
+  ["Array.prototype.length", arrayLength],
+  ["Array.prototype.map", arrayMap],
+  ["Array.prototype.pop", arrayLast],
+  ["Array.prototype.push", arrayPush],
+  ["Array.prototype.reduce", arrayReduce],
+  ["Array.prototype.reverse", arrayToReversed],
+  ["Array.prototype.shift", arrayFirst],
+  ["Array.prototype.slice", arraySlice],
+  ["Array.prototype.some", arraySome],
+  ["Array.prototype.sort", arrayToSorted],
+  ["Array.prototype.splice", arrayToSpliced],
+  ["Array.prototype.toReversed", arrayToReversed],
+  ["Array.prototype.toSorted", arrayToSorted],
+  ["Array.prototype.toSpliced", arrayToSpliced],
+  ["Array.prototype.unshift", arrayUnshift],
+  // Prepend
+  ["Array.prototype.values", arrayValues],
+  ["Array.prototype.with", arrayReplaceWith],
+  ["Array.toString", core_default.printEscapedString]
+];
+function toArray(...args) {
+  assertMinimumArgumentCount(args.length, 1);
+  if (args.length === 1 && isNumberNode(args[0])) {
+    const fillableArray = Array(args[0].value).fill(createNilNode());
+    return createVectorNode(fillableArray);
+  }
+  return createVectorNode(args);
+}
+function arrayFrom(...args) {
+  assertVariableArgumentCount(args.length, 1, 3);
+  assertVectorNode(args[0]);
+  if (args.length >= 2) {
+    assertFunctionNode(args[1]);
+  }
+  if (args.length === 3) {
+    assertAstNode(args[2]);
+  }
+  const result = Array.from(
+    args[0].value,
+    args[1]?.value,
+    args[2]?.value
+  );
+  return createVectorNode(result);
+}
+function arrayAt(...args) {
+  assertArgumentCount(args.length, 2);
+  assertVectorNode(args[0]);
+  assertNumberNode(args[1]);
+  const vector2 = args[0].value;
+  const index = args[1].value;
+  const result = vector2.at(index);
+  return result ? toAst(result) : createNilNode();
+}
+function arrayIsArray(...args) {
+  assertArgumentCount(args.length, 1);
+  assertAstNode(args[0]);
+  const result = isVectorNode(args[0]);
+  return createBooleanNode(result);
+}
+function arrayConcat(...args) {
+  assertMinimumArgumentCount(args.length, 1);
+  assertSequentialValues(args, VectorNode);
+  const result = args[0].value.concat(...args.slice(1).map((x) => x.value));
+  return createVectorNode(result);
+}
+function arrayCopyWithin(...args) {
+  assertVariableArgumentCount(args.length, 1, 4);
+  assertVectorNode(args[0]);
+  assertNumberNode(args[1]);
+  assertNumberNode(args[2]);
+  const vector2 = args[0].value;
+  const target = args[1].value;
+  const start = args[2].value;
+  const end = isNumberNode(args[3]) ? args[3].value : void 0;
+  const result = vector2.copyWithin(target, start, end);
+  return createVectorNode(result);
+}
+function arrayEntries(...args) {
+  assertArgumentCount(args.length, 1);
+  assertVectorNode(args[0]);
+  const result = args[0].value.map((valueNode, index) => {
+    const indexNode = createNumberNode(index);
+    return createVectorNode([indexNode, valueNode]);
+  });
+  return createVectorNode(result);
+}
+function arrayEvery(...args) {
+  assertArgumentCount(args.length, 2);
+  assertVectorNode(args[0]);
+  assertFunctionNode(args[1]);
+  const vector2 = args[0].value;
+  const fn = args[1].value;
+  const result = vector2.every((value, index, vector3) => {
+    const test = fn(
+      createNumberNode(index),
+      value,
+      createVectorNode(vector3)
+    );
+    return test.value;
+  });
+  return createBooleanNode(result);
+}
+function arrayFill(...args) {
+  assertVariableArgumentCount(args.length, 2, 4);
+  assertVectorNode(args[0]);
+  assertAstNode(args[1]);
+  const vector2 = args[0].value.map(unwrap);
+  const value = args[1].value;
+  let start = void 0;
+  if (args.length >= 3) {
+    assertNumberNode(args[2]);
+    start = args[2].value;
+  }
+  let end = void 0;
+  if (args.length === 4) {
+    assertNumberNode(args[3]);
+    end = args[3].value;
+  }
+  const result = vector2.fill(value, start, end);
+  return createVectorNode(result.map(toAst));
+}
+function arrayFilter(...args) {
+  assertArgumentCount(args.length, 2);
+  assertFunctionNode(args[0]);
+  assertVectorNode(args[1]);
+  const fn = args[0];
+  const vec2 = args[1];
+  const filtered = vec2.value.filter((item) => Boolean(fn.value(item).value));
+  return createVectorNode(filtered);
+}
+function arrayFind(...args) {
+  assertArgumentCount(args.length, 2);
+  assertVectorNode(args[0]);
+  assertFunctionNode(args[1]);
+  const vector2 = args[0].value;
+  const fn = args[1].value;
+  const result = vector2.find((value, index, vector3) => {
+    const test = fn(
+      value,
+      createNumberNode(index),
+      createVectorNode(vector3)
+    );
+    return test.value;
+  });
+  return result ?? createNilNode();
+}
+function arrayFindIndex(...args) {
+  assertArgumentCount(args.length, 2);
+  assertVectorNode(args[0]);
+  assertFunctionNode(args[1]);
+  const vector2 = args[0].value;
+  const fn = args[1].value;
+  const result = vector2.findIndex((value, index, vector3) => {
+    const test = fn(
+      value,
+      createNumberNode(index),
+      createVectorNode(vector3)
+    );
+    return test.value;
+  });
+  return createNumberNode(result);
+}
+function arrayFindLast(...args) {
+  assertArgumentCount(args.length, 2);
+  assertVectorNode(args[0]);
+  assertFunctionNode(args[1]);
+  const vector2 = args[0].value;
+  const fn = args[1].value;
+  const result = vector2.findLast((value, index, vector3) => {
+    const test = fn(
+      value,
+      createNumberNode(index),
+      createVectorNode(vector3)
+    );
+    return test.value;
+  });
+  return result ?? createNilNode();
+}
+function arrayFindLastIndex(...args) {
+  assertArgumentCount(args.length, 2);
+  assertVectorNode(args[0]);
+  assertFunctionNode(args[1]);
+  const vector2 = args[0].value;
+  const fn = args[1].value;
+  const result = vector2.findLastIndex((value, index, vector3) => {
+    const test = fn(
+      value,
+      createNumberNode(index),
+      createVectorNode(vector3)
+    );
+    return test.value;
+  });
+  return createNumberNode(result);
+}
+function arrayFlat(...args) {
+  assertArgumentCount(args.length, 1);
+  assertVectorNode(args[0]);
+  const vector2 = args[0].value;
+  function flattenDeep(arr) {
+    return arr.reduce((acc, val) => {
+      return acc.concat(isVectorNode(val) ? flattenDeep(val.value) : val);
+    }, []);
+  }
+  const result = flattenDeep(vector2);
+  return createVectorNode(result);
+}
+function arrayFlatMap(...args) {
+  assertArgumentCount(args.length, 2);
+  assertVectorNode(args[0]);
+  assertFunctionNode(args[1]);
+  const vector2 = args[0].value;
+  const fn = args[1].value;
+  function flattenDeep(arr) {
+    return arr.reduce((acc, val) => {
+      return acc.concat(isVectorNode(val) ? flattenDeep(val.value) : val);
+    }, []);
+  }
+  const mapped = vector2.map((value, index, vector3) => {
+    return fn(
+      value,
+      createNumberNode(index),
+      createVectorNode(vector3)
+    );
+  });
+  const result = flattenDeep(mapped);
+  return createVectorNode(result);
+}
+function arrayIncludes(...args) {
+  assertArgumentCount(args.length, 2);
+  assertVectorNode(args[0]);
+  assertAstNode(args[1]);
+  const vec2 = args[0];
+  const element = args[1];
+  const result = vec2.value.some((item) => isEqualTo(item, element).value);
+  return createBooleanNode(result);
+}
+function arrayIndexOf(...args) {
+  assertArgumentCount(args.length, 2);
+  assertVectorNode(args[0]);
+  assertAstNode(args[1]);
+  const vec2 = args[0];
+  const element = args[1];
+  for (const [index, item] of vec2.value.entries()) {
+    if (isEqualTo(item, element).value) {
+      return createNumberNode(index);
+    }
+  }
+  return createNumberNode(-1);
+}
+function arrayJoin(...args) {
+  assertVariableArgumentCount(args.length, 1, 2);
+  assertSequential(args[0]);
+  const delim = isStringNode(args[1]) ? args[1].value : " ";
+  const joined = args[0].value.map((ast) => printString(ast, false)).join(delim);
+  return createStringNode(joined);
+}
+function arrayKeys(...args) {
+  assertArgumentCount(args.length, 1);
+  assertVectorNode(args[0]);
+  const vec2 = args[0];
+  const result = vec2.value.map((_, index) => createNumberNode(index));
+  return createVectorNode(result);
+}
+function arrayMap(...args) {
+  assertVariableArgumentCount(args.length, 2, 3);
+  assertVectorNode(args[0]);
+  assertFunctionNode(args[1]);
+  const vector2 = args[0].value;
+  const callback = args[1].value;
+  const thisArg = args.length === 3 ? args[2].value : void 0;
+  const result = vector2.map((value, index, _arr) => {
+    const res = callback(value, createNumberNode(index), thisArg);
+    return toAst(res);
+  });
+  return createVectorNode(result);
+}
+function arrayLast(...args) {
+  assertArgumentCount(args.length, 1);
+  assertVectorNode(args[0]);
+  const vec2 = args[0];
+  const result = vec2.value[vec2.value.length - 1];
+  return toAst(result);
+}
+function arrayPush(...args) {
+  assertMinimumArgumentCount(args.length, 2);
+  if (!args.every(isAstNode)) {
+    throw new TypeError("Invalid arguments.");
+  }
+  assertVectorNode(args[0]);
+  return createVectorNode([...args[0].value, ...args.slice(1)]);
+}
+function arrayLength(...args) {
+  assertArgumentCount(args.length, 1);
+  assertVectorNode(args[0]);
+  const vec2 = args[0];
+  const result = createNumberNode(vec2.value.length);
+  return result;
+}
+function arrayReduce(...args) {
+  assertArgumentCount(args.length, 3);
+  assertFunctionNode(args[0]);
+  assertVectorNode(args[1]);
+  const fn = args[0];
+  const vec2 = args[1];
+  let accumulator = args[2];
+  for (const item of vec2.value) {
+    accumulator = fn.value(accumulator, item);
+  }
+  return accumulator;
+}
+function arrayToReversed(...args) {
+  assertArgumentCount(args.length, 1);
+  assertVectorNode(args[0]);
+  const vec2 = args[0];
+  const result = vec2.value.toReversed();
+  return createVectorNode(result);
+}
+function arrayFirst(...args) {
+  assertArgumentCount(args.length, 1);
+  assertVectorNode(args[0]);
+  const vec2 = args[0];
+  const result = vec2.value[0];
+  return result ? result : createNilNode();
+}
+function arraySlice(...args) {
+  assertVariableArgumentCount(args.length, 1, 3);
+  assertVectorNode(args[0]);
+  let start = 0;
+  if (args[1] !== void 0) {
+    assertNumberNode(args[1]);
+    start = args[1].value;
+  }
+  let end = args[0].value.length;
+  if (args[2] !== void 0) {
+    assertNumberNode(args[2]);
+    end = args[2].value;
+  }
+  return createVectorNode(args[0].value.slice(start, end));
+}
+function arraySome(...args) {
+  assertArgumentCount(args.length, 2);
+  assertVectorNode(args[0]);
+  assertFunctionNode(args[1]);
+  const vector2 = args[0].value;
+  const fn = args[1].value;
+  const result = vector2.some((value, index, vector3) => {
+    const test = fn(
+      value,
+      createNumberNode(index),
+      createVectorNode(vector3)
+    );
+    return test.value;
+  });
+  return createBooleanNode(result);
+}
+function arrayToSorted(...args) {
+  assertArgumentCount(args.length, 2);
+  assertVectorNode(args[0]);
+  assertFunctionNode(args[1]);
+  const vector2 = args[0].value;
+  const fn = args[1].value;
+  const result = vector2.toSorted((a, b) => {
+    const order = fn(a, b);
+    assertNumberNode(order);
+    return order.value;
+  });
+  return createVectorNode(result);
+}
+function arrayToSpliced(...args) {
+  assertVariableArgumentCount(args.length, 2, 4);
+  assertVectorNode(args[0]);
+  assertNumberNode(args[1]);
+  const vector2 = args[0].value;
+  const start = args[1].value;
+  if (args.length < 3) {
+    const result2 = vector2.toSpliced(start);
+    return createVectorNode(result2);
+  }
+  assertNumberNode(args[2]);
+  const deleteCount = args[2].value;
+  const items = args.slice(3);
+  const result = vector2.toSpliced(start, deleteCount, ...items);
+  return createVectorNode(result);
+}
+function arrayUnshift(...args) {
+  assertArgumentCount(args.length, 2);
+  assertVectorNode(args[1]);
+  const prepended = [args[0], ...args[1].value];
+  return createVectorNode(prepended);
+}
+function arrayValues(...args) {
+  assertArgumentCount(args.length, 1);
+  assertVectorNode(args[0]);
+  const vec2 = args[0];
+  const result = vec2.value.map((value) => value);
+  return createVectorNode(result);
+}
+function arrayReplaceWith(...args) {
+  assertArgumentCount(args.length, 3);
+  assertVectorNode(args[0]);
+  assertNumberNode(args[1]);
+  assertAstNode(args[2]);
+  const vec2 = args[0];
+  const index = args[1];
+  const value = args[2];
+  const result = vec2.value.with(index.value, value);
+  return createVectorNode(result);
+}
+
+// src/ensemble/interop/js/boolean.ts
+var booleanFunctions = [
+  ["Boolean", toBoolean]
+];
+function toBoolean(...astArgs) {
+  assertArgumentCount(astArgs.length, 1);
+  assertAstNode(astArgs[0]);
+  return createBooleanNode(Boolean(astArgs[0].value));
+}
+
+// src/ensemble/interop/js/builtin.ts
+var builtInFunctions = [
+  ["decodeURI", globalDecodeUri],
+  ["decodeURIComponent", globalDecodeUriComponent],
+  ["encodeURI", globalEncodeUri],
+  ["encodeURIComponent", globalEncodeUriComponent]
+];
+function globalDecodeUri(...astArgs) {
+  assertArgumentCount(astArgs.length, 1);
+  assertStringNode(astArgs[0]);
+  const result = decodeURI(astArgs[0].value);
+  return createStringNode(result);
+}
+function globalDecodeUriComponent(...astArgs) {
+  assertArgumentCount(astArgs.length, 1);
+  assertStringNode(astArgs[0]);
+  const result = decodeURIComponent(astArgs[0].value);
+  return createStringNode(result);
+}
+function globalEncodeUri(...astArgs) {
+  assertArgumentCount(astArgs.length, 1);
+  assertStringNode(astArgs[0]);
+  const result = encodeURI(astArgs[0].value);
+  return createStringNode(result);
+}
+function globalEncodeUriComponent(...astArgs) {
+  assertArgumentCount(astArgs.length, 1);
+  assertStringNode(astArgs[0]);
+  const result = encodeURIComponent(astArgs[0].value);
+  return createStringNode(result);
+}
+
+// src/ensemble/interop/js/date.ts
+var dateFunctions = [
+  ["Date", newDate],
+  ["Date.now", dateNow],
+  ["Date.parse", dateParse],
+  ["Date.UTC", dateUtc],
+  ["Date.prototype.getDate", dateGetDate],
+  ["Date.prototype.getDay", dateGetDay],
+  ["Date.prototype.getFullYear", dateGetFullYear],
+  ["Date.prototype.getHours", dateGetHours],
+  ["Date.prototype.getMilliseconds", dateGetMilliseconds],
+  ["Date.prototype.getMinutes", dateGetMinutes],
+  ["Date.prototype.getMonth", dateGetMonth],
+  ["Date.prototype.getSeconds", dateGetSeconds],
+  ["Date.prototype.getTime", dateGetTime],
+  ["Date.prototype.getTimezoneOffset", dateGetTimezoneOffset],
+  ["Date.prototype.getUTCDate", dateGetUTCDate],
+  ["Date.prototype.getUTCDay", dateGetUTCDay],
+  ["Date.prototype.getUTCFullYear", dateGetUTCFullYear],
+  ["Date.prototype.getUTCHours", dateGetUTCHours],
+  ["Date.prototype.getUTCMilliseconds", dateGetUTCMilliseconds],
+  ["Date.prototype.getUTCMinutes", dateGetUTCMinutes],
+  ["Date.prototype.getUTCMonth", dateGetUTCMonth],
+  ["Date.prototype.getUTCSeconds", dateGetUTCSeconds],
+  ["Date.prototype.setDate", dateSetDate],
+  ["Date.prototype.setFullYear", dateSetFullYear],
+  ["Date.prototype.setHours", dateSetHours],
+  ["Date.prototype.setMilliseconds", dateSetMilliseconds],
+  ["Date.prototype.setMinutes", dateSetMinutes],
+  ["Date.prototype.setMonth", dateSetMonth],
+  ["Date.prototype.setSeconds", dateSetSeconds],
+  ["Date.prototype.setTime", dateSetTime],
+  ["Date.prototype.setUTCDate", dateSetUTCDate],
+  ["Date.prototype.setUTCFullYear", dateSetUTCFullYear],
+  ["Date.prototype.setUTCHours", dateSetUTCHours],
+  ["Date.prototype.setUTCMilliseconds", dateSetUTCMilliseconds],
+  ["Date.prototype.setUTCMinutes", dateSetUTCMinutes],
+  ["Date.prototype.setUTCMonth", dateSetUTCMonth],
+  ["Date.prototype.setUTCSeconds", dateSetUTCSeconds],
+  ["Date.prototype.toDateString", dateToDateString],
+  ["Date.prototype.toISOString", dateToISOString],
+  ["Date.prototype.toJSON", dateToJSON],
+  ["Date.prototype.toLocaleDateString", dateToLocaleDateString],
+  ["Date.prototype.toLocaleString", dateToLocaleString],
+  ["Date.prototype.toLocaleTimeString", dateToLocaleTimeString],
+  ["Date.prototype.toString", dateToString],
+  ["Date.prototype.toTimeString", dateToTimeString],
+  ["Date.prototype.toUTCString", dateToUTCString]
+];
+function newDate(...args) {
+  const unwrapped = args.map(unwrap);
+  const date = unwrapped.length > 0 ? new Date(...unwrapped) : /* @__PURE__ */ new Date();
+  return createNumberNode(date.getTime());
+}
+function dateNow(..._args) {
+  return createNumberNode(Date.now());
+}
+function dateParse(...args) {
+  assertArgumentCount(args.length, 1);
+  assertStringNode(args[0]);
+  const date = Date.parse(args[0].value);
+  return createNumberNode(date);
+}
+function dateUtc(...args) {
+  const unwrapped = args.map(unwrap);
+  const timestamp = Date.UTC(...unwrapped);
+  if (Number.isNaN(timestamp)) return createNilNode();
+  return createNumberNode(timestamp);
+}
+function dateGetDate(...args) {
+  assertArgumentCount(args.length, 1);
+  assertNumberNode(args[0]);
+  const date = new Date(args[0].value);
+  return createNumberNode(date.getDate());
+}
+function dateGetDay(...args) {
+  assertArgumentCount(args.length, 1);
+  assertNumberNode(args[0]);
+  const date = new Date(args[0].value);
+  return createNumberNode(date.getDay());
+}
+function dateGetFullYear(...args) {
+  assertArgumentCount(args.length, 1);
+  assertNumberNode(args[0]);
+  const date = new Date(args[0].value);
+  return createNumberNode(date.getFullYear());
+}
+function dateGetHours(...args) {
+  assertArgumentCount(args.length, 1);
+  assertNumberNode(args[0]);
+  const date = new Date(args[0].value);
+  return createNumberNode(date.getHours());
+}
+function dateGetMilliseconds(...args) {
+  assertArgumentCount(args.length, 1);
+  assertNumberNode(args[0]);
+  const date = new Date(args[0].value);
+  return createNumberNode(date.getMilliseconds());
+}
+function dateGetMinutes(...args) {
+  assertArgumentCount(args.length, 1);
+  assertNumberNode(args[0]);
+  const date = new Date(args[0].value);
+  return createNumberNode(date.getMinutes());
+}
+function dateGetMonth(...args) {
+  assertArgumentCount(args.length, 1);
+  assertNumberNode(args[0]);
+  const date = new Date(args[0].value);
+  return createNumberNode(date.getMonth());
+}
+function dateGetSeconds(...args) {
+  assertArgumentCount(args.length, 1);
+  assertNumberNode(args[0]);
+  const date = new Date(args[0].value);
+  return createNumberNode(date.getSeconds());
+}
+function dateGetTime(...args) {
+  assertArgumentCount(args.length, 1);
+  assertNumberNode(args[0]);
+  const date = new Date(args[0].value);
+  return createNumberNode(date.getTime());
+}
+function dateGetTimezoneOffset(...args) {
+  assertArgumentCount(args.length, 1);
+  assertNumberNode(args[0]);
+  const date = new Date(args[0].value);
+  return createNumberNode(date.getTimezoneOffset());
+}
+function dateGetUTCDate(...args) {
+  assertArgumentCount(args.length, 1);
+  assertNumberNode(args[0]);
+  const date = new Date(args[0].value);
+  return createNumberNode(date.getUTCDate());
+}
+function dateGetUTCDay(...args) {
+  assertArgumentCount(args.length, 1);
+  assertNumberNode(args[0]);
+  const date = new Date(args[0].value);
+  return createNumberNode(date.getUTCDay());
+}
+function dateGetUTCFullYear(...args) {
+  assertArgumentCount(args.length, 1);
+  assertNumberNode(args[0]);
+  const date = new Date(args[0].value);
+  return createNumberNode(date.getUTCFullYear());
+}
+function dateGetUTCHours(...args) {
+  assertArgumentCount(args.length, 1);
+  assertNumberNode(args[0]);
+  const date = new Date(args[0].value);
+  return createNumberNode(date.getUTCHours());
+}
+function dateGetUTCMilliseconds(...args) {
+  assertArgumentCount(args.length, 1);
+  assertNumberNode(args[0]);
+  const date = new Date(args[0].value);
+  return createNumberNode(date.getUTCMilliseconds());
+}
+function dateGetUTCMinutes(...args) {
+  assertArgumentCount(args.length, 1);
+  assertNumberNode(args[0]);
+  const date = new Date(args[0].value);
+  return createNumberNode(date.getUTCMinutes());
+}
+function dateGetUTCMonth(...args) {
+  assertArgumentCount(args.length, 1);
+  assertNumberNode(args[0]);
+  const date = new Date(args[0].value);
+  return createNumberNode(date.getUTCMonth());
+}
+function dateGetUTCSeconds(...args) {
+  assertArgumentCount(args.length, 1);
+  assertNumberNode(args[0]);
+  const date = new Date(args[0].value);
+  return createNumberNode(date.getUTCSeconds());
+}
+function dateSetDate(...args) {
+  assertArgumentCount(args.length, 2);
+  assertNumberNode(args[0]);
+  assertNumberNode(args[1]);
+  const date = new Date(args[0].value);
+  date.setDate(args[1].value);
+  return createNumberNode(date.getTime());
+}
+function dateSetFullYear(...args) {
+  assertArgumentCount(args.length, 2);
+  assertNumberNode(args[0]);
+  assertNumberNode(args[1]);
+  const date = new Date(args[0].value);
+  date.setFullYear(args[1].value);
+  return createNumberNode(date.getTime());
+}
+function dateSetHours(...args) {
+  assertArgumentCount(args.length, 2);
+  assertNumberNode(args[0]);
+  assertNumberNode(args[1]);
+  const date = new Date(args[0].value);
+  date.setHours(args[1].value);
+  return createNumberNode(date.getTime());
+}
+function dateSetMilliseconds(...args) {
+  assertArgumentCount(args.length, 2);
+  assertNumberNode(args[0]);
+  assertNumberNode(args[1]);
+  const date = new Date(args[0].value);
+  date.setMilliseconds(args[1].value);
+  return createNumberNode(date.getTime());
+}
+function dateSetMinutes(...args) {
+  assertArgumentCount(args.length, 2);
+  assertNumberNode(args[0]);
+  assertNumberNode(args[1]);
+  const date = new Date(args[0].value);
+  date.setMinutes(args[1].value);
+  return createNumberNode(date.getTime());
+}
+function dateSetMonth(...args) {
+  assertArgumentCount(args.length, 2);
+  assertNumberNode(args[0]);
+  assertNumberNode(args[1]);
+  const date = new Date(args[0].value);
+  date.setMonth(args[1].value);
+  return createNumberNode(date.getTime());
+}
+function dateSetSeconds(...args) {
+  assertArgumentCount(args.length, 2);
+  assertNumberNode(args[0]);
+  assertNumberNode(args[1]);
+  const date = new Date(args[0].value);
+  date.setSeconds(args[1].value);
+  return createNumberNode(date.getTime());
+}
+function dateSetTime(...args) {
+  assertArgumentCount(args.length, 2);
+  assertNumberNode(args[0]);
+  assertNumberNode(args[1]);
+  const date = new Date(args[0].value);
+  date.setTime(args[1].value);
+  return createNumberNode(date.getTime());
+}
+function dateSetUTCDate(...args) {
+  assertArgumentCount(args.length, 2);
+  assertNumberNode(args[0]);
+  assertNumberNode(args[1]);
+  const date = new Date(args[0].value);
+  date.setUTCDate(args[1].value);
+  return createNumberNode(date.getTime());
+}
+function dateSetUTCFullYear(...args) {
+  assertArgumentCount(args.length, 2);
+  assertNumberNode(args[0]);
+  assertNumberNode(args[1]);
+  const date = new Date(args[0].value);
+  date.setUTCFullYear(args[1].value);
+  return createNumberNode(date.getTime());
+}
+function dateSetUTCHours(...args) {
+  assertArgumentCount(args.length, 2);
+  assertNumberNode(args[0]);
+  assertNumberNode(args[1]);
+  const date = new Date(args[0].value);
+  date.setUTCHours(args[1].value);
+  return createNumberNode(date.getTime());
+}
+function dateSetUTCMilliseconds(...args) {
+  assertArgumentCount(args.length, 2);
+  assertNumberNode(args[0]);
+  assertNumberNode(args[1]);
+  const date = new Date(args[0].value);
+  date.setUTCMilliseconds(args[1].value);
+  return createNumberNode(date.getTime());
+}
+function dateSetUTCMinutes(...args) {
+  assertArgumentCount(args.length, 2);
+  assertNumberNode(args[0]);
+  assertNumberNode(args[1]);
+  const date = new Date(args[0].value);
+  date.setUTCMinutes(args[1].value);
+  return createNumberNode(date.getTime());
+}
+function dateSetUTCMonth(...args) {
+  assertArgumentCount(args.length, 2);
+  assertNumberNode(args[0]);
+  assertNumberNode(args[1]);
+  const date = new Date(args[0].value);
+  date.setUTCMonth(args[1].value);
+  return createNumberNode(date.getTime());
+}
+function dateSetUTCSeconds(...args) {
+  assertArgumentCount(args.length, 2);
+  assertNumberNode(args[0]);
+  assertNumberNode(args[1]);
+  const date = new Date(args[0].value);
+  date.setUTCSeconds(args[1].value);
+  return createNumberNode(date.getTime());
+}
+function dateToDateString(...args) {
+  assertArgumentCount(args.length, 1);
+  assertNumberNode(args[0]);
+  const date = new Date(args[0].value);
+  return createStringNode(date.toDateString());
+}
+function dateToISOString(...args) {
+  assertArgumentCount(args.length, 1);
+  assertNumberNode(args[0]);
+  const date = new Date(args[0].value);
+  return createStringNode(date.toISOString());
+}
+function dateToJSON(...args) {
+  assertVariableArgumentCount(args.length, 1, 2);
+  assertNumberNode(args[0]);
+  if (args[1]) assertStringNode(args[1]);
+  const date = new Date(args[0].value);
+  return createStringNode(date.toJSON());
+}
+function dateToLocaleDateString(...args) {
+  assertVariableArgumentCount(args.length, 1, 3);
+  assertNumberNode(args[0]);
+  const date = new Date(args[0].value);
+  const dateArgs = args.slice(1).map(unwrap);
+  return createStringNode(
+    date.toLocaleDateString(...dateArgs)
+  );
+}
+function dateToLocaleString(...args) {
+  assertVariableArgumentCount(args.length, 1, 3);
+  assertNumberNode(args[0]);
+  const date = new Date(args[0].value);
+  const dateArgs = args.slice(1).map(unwrap);
+  return createStringNode(
+    date.toLocaleString(...dateArgs)
+  );
+}
+function dateToLocaleTimeString(...args) {
+  assertVariableArgumentCount(args.length, 1, 3);
+  assertNumberNode(args[0]);
+  const date = new Date(args[0].value);
+  const dateArgs = args.slice(1).map(unwrap);
+  return createStringNode(
+    date.toLocaleTimeString(...dateArgs)
+  );
+}
+function dateToString(...args) {
+  assertArgumentCount(args.length, 1);
+  assertNumberNode(args[0]);
+  const date = new Date(args[0].value);
+  return createStringNode(date.toString());
+}
+function dateToTimeString(...args) {
+  assertArgumentCount(args.length, 1);
+  assertNumberNode(args[0]);
+  const date = new Date(args[0].value);
+  return createStringNode(date.toTimeString());
+}
+function dateToUTCString(...args) {
+  assertArgumentCount(args.length, 1);
+  assertNumberNode(args[0]);
+  const date = new Date(args[0].value);
+  return createStringNode(date.toUTCString());
+}
+
+// src/ensemble/interop/js/error.ts
+var errorFunctions = [
+  ["Error", newError],
+  ["Error.prototype.message", getMessage],
+  ["Error.prototype.cause", getCause],
+  ["Error.prototype.name", getName]
+  // Type of error
+];
+function newError(...args) {
+  assertVariableArgumentCount(args.length, 1, 3);
+  const message = args[0];
+  assertStringNode(message);
+  let name;
+  if (args[1] !== void 0) {
+    if (!isStringNode(args[1]) && !isNilNode(args[1])) {
+      throw new TypeError("Second argument must be a string or nil.");
+    }
+    if (isStringNode(args[1])) {
+      ErrorNode.assertErrorName(args[1]);
+      name = args[1];
+    }
+  }
+  let cause = void 0;
+  if (args[2] !== void 0) {
+    assertAstNode(args[2]);
+    cause = args[2];
+  }
+  return createErrorNode(message, name, cause);
+}
+function getMessage(...args) {
+  assertArgumentCount(args.length, 1);
+  assertErrorNode(args[0]);
+  return args[0].value;
+}
+function getCause(...args) {
+  assertArgumentCount(args.length, 1);
+  assertErrorNode(args[0]);
+  return args[0].cause ?? createNilNode();
+}
+function getName(...args) {
+  assertArgumentCount(args.length, 1);
+  assertErrorNode(args[0]);
+  return args[0].name;
+}
+
+// src/ensemble/interop/js/function.ts
+var functionFunctions = [
+  ["Function", jsEval],
+  // Javascript Interop
+  ["Function.isFunction", core_default.isFn],
+  // Javascript Interop
+  ["Function.prototype.apply", apply2],
+  ["Function.prototype.bind", bind],
+  ["Function.prototype.call", call],
+  ["js-eval", jsEval]
+  // Javascript Interop
+];
+function jsEval(...args) {
+  assertArgumentCount(args.length, 1);
+  assertStringNode(args[0]);
+  try {
+    const result = new Function(
+      `'use strict'; return (${args[0].value})`
+    )();
+    return toAst(result);
+  } catch (error) {
+    if (error instanceof Error) {
+      return createErrorNode(createStringNode(error.message));
+    }
+    return createErrorNode(createStringNode(JSON.stringify(error)));
+  }
+}
+function apply2(...args) {
+  assertArgumentCount(args.length, 2);
+  assertFunctionNode(args[0]);
+  assertVectorNode(args[1]);
+  const result = args[0].value.apply(null, args[1].value);
+  return toAst(result);
+}
+function call(...args) {
+  assertMinimumArgumentCount(args.length, 1);
+  assertFunctionNode(args[0]);
+  const result = args[0].value.call(null, ...args.slice(1));
+  return toAst(result);
+}
+function bind(...args) {
+  assertMinimumArgumentCount(args.length, 2);
+  assertFunctionNode(args[0]);
+  assertAstNode(args[1]);
+  const result = args[0].value.bind(args[1], ...args.slice(2));
+  return toAst(result);
+}
+
+// src/ensemble/interop/js/map.ts
+var mapFunctions = [
+  ["Map.isMap", mapIsMap],
+  // Added method
+  ["Map.new", mapNew],
+  ["Map.prototype.delete", mapDelete],
+  ["Map.prototype.entries", mapGetEntries],
+  ["Map.prototype.get", mapGet],
+  ["Map.prototype.has", mapHas],
+  ["Map.prototype.keys", mapKeys],
+  ["Map.prototype.set", mapSet],
+  ["Map.prototype.size", mapSize],
+  ["Map.prototype.values", mapValues]
+];
+function mapIsMap(...args) {
+  assertArgumentCount(args.length, 1);
+  return createBooleanNode(isMapNode(args[0]));
+}
+function mapNew(...args) {
+  if (args.length === 0) {
+    return createMapNode();
+  }
+  if (args.length === 1 && isMapNode(args[0])) {
+    return createMapNode(new Map(args[0].value));
+  }
+  assertEvenArgumentCount(args.length);
+  const dict = createMapNode();
+  for (let i = 0; i < args.length; i += 2) {
+    const key = args[i];
+    assertMapKeyNode(key);
+    setMapElement(dict.value, key, args[i + 1]);
+  }
+  return dict;
+}
+function mapGetEntries(...astArgs) {
+  assertArgumentCount(astArgs.length, 1);
+  assertMapNode(astArgs[0]);
+  const entries = astArgs[0].value.entries();
+  const vectors = createVectorNode();
+  for (const [key, value] of entries) {
+    const vector2 = createVectorNode([
+      toAst(key),
+      toAst(value)
+    ]);
+    vectors.value.push(vector2);
+  }
+  return vectors;
+}
+function mapSet(...args) {
+  assertMinimumArgumentCount(args.length, 1);
+  assertMapNode(args[0]);
+  const rest2 = args.slice(1);
+  const dict = createMapNode(
+    new Map(args[0].value)
+  );
+  const pairs = mapNew(...rest2);
+  for (const [key, value] of pairs.value.entries()) {
+    dict.value.set(key, value);
+  }
+  return dict;
+}
+function mapDelete(...args) {
+  assertMinimumArgumentCount(args.length, 1);
+  assertMapNode(args[0]);
+  const dict = createMapNode(
+    new Map(args[0].value)
+  );
+  for (const dictKey of args.splice(1)) {
+    assertMapKeyNode(dictKey);
+    deleteMapElement(dict.value, dictKey);
+  }
+  return dict;
+}
+function mapGet(...args) {
+  assertArgumentCount(args.length, 2);
+  const mapNode = args[0];
+  if (!isMapNode(mapNode)) {
+    return createNilNode();
+  }
+  const key = args[1];
+  assertMapKeyNode(key);
+  const value = getMapElement(mapNode.value, key);
+  if (value !== void 0) {
+    return value;
+  }
+  return createNilNode();
+}
+function mapHas(...args) {
+  assertArgumentCount(args.length, 2);
+  const dict = args[0];
+  const key = args[1];
+  assertMapNode(dict);
+  assertMapKeyNode(key);
+  return createBooleanNode(hasMapElement(dict.value, key));
+}
+function mapKeys(...args) {
+  assertArgumentCount(args.length, 1);
+  assertMapNode(args[0]);
+  return getMapKeys(args[0].value);
+}
+function mapValues(...args) {
+  assertArgumentCount(args.length, 1);
+  assertMapNode(args[0]);
+  return createListNode([...args[0].value.values()]);
+}
+function mapSize(...args) {
+  assertArgumentCount(args.length, 1);
+  const value = args[0];
+  if (isNilNode(value)) {
+    return createNumberNode(0);
+  }
+  if (isMapNode(args[0])) {
+    return createNumberNode(args[0].value.size);
+  } else if (isSequentialNode(args[0])) {
+    return createNumberNode(args[0].value.length);
+  } else {
+    throw new TypeError("Invalid argument type");
+  }
+}
+
+// src/ensemble/interop/js/math.ts
+var mathFunctions = [
+  ["Math.abs", mathAbs],
+  ["Math.acos", mathAcos],
+  ["Math.acosh", mathAcosh],
+  ["Math.asin", mathAsin],
+  ["Math.asinh", mathAsinh],
+  ["Math.atan", mathAtan],
+  ["Math.atan2", mathAtan2],
+  ["Math.atanh", mathAtanh],
+  ["Math.cbrt", mathCbrt],
+  ["Math.ceil", mathCeil],
+  ["Math.clz32", mathClz32],
+  ["Math.cos", mathCos],
+  ["Math.cosh", mathCosh],
+  ["Math.exp", mathExp],
+  ["Math.expm1", mathExpm1],
+  ["Math.floor", mathFloor],
+  ["Math.fround", mathFround],
+  ["Math.hypot", mathHypot],
+  ["Math.imul", mathImul],
+  ["Math.log", mathLog],
+  ["Math.log10", mathLog10],
+  ["Math.log1p", mathLog1p],
+  ["Math.log2", mathLog2],
+  ["Math.max", mathMax],
+  ["Math.min", mathMin],
+  ["Math.pow", mathPow],
+  ["Math.random", mathRandom],
+  ["Math.round", mathRound],
+  ["Math.sign", mathSign],
+  ["Math.sin", mathSin],
+  ["Math.sinh", mathSinh],
+  ["Math.sqrt", mathSqrt],
+  ["Math.tan", mathTan],
+  ["Math.tanh", mathTanh],
+  ["Math.trunc", mathTrunc],
+  ["Math.E", mathE],
+  ["Math.LN10", mathLn10],
+  ["Math.LN2", mathLn2],
+  ["Math.LOG10E", mathLog10e],
+  ["Math.LOG2E", mathLog23],
+  ["Math.PI", mathPi],
+  ["Math.SQRT1_2", mathSqrt12],
+  ["Math.SQRT2", mathSqrt2]
+];
+function mathAbs(...astArgs) {
+  assertArgumentCount(astArgs.length, 1);
+  assertNumberNode(astArgs[0]);
+  const x = astArgs[0].value;
+  const result = Math.abs(x);
+  return toAst(result);
+}
+function mathAcos(...astArgs) {
+  assertArgumentCount(astArgs.length, 1);
+  assertNumberNode(astArgs[0]);
+  const x = astArgs[0].value;
+  const result = Math.acos(x);
+  return toAst(result);
+}
+function mathAcosh(...astArgs) {
+  assertArgumentCount(astArgs.length, 1);
+  assertNumberNode(astArgs[0]);
+  const x = astArgs[0].value;
+  const result = Math.acosh(x);
+  return toAst(result);
+}
+function mathAsin(...astArgs) {
+  assertArgumentCount(astArgs.length, 1);
+  assertNumberNode(astArgs[0]);
+  const x = astArgs[0].value;
+  const result = Math.asin(x);
+  return toAst(result);
+}
+function mathAsinh(...astArgs) {
+  assertArgumentCount(astArgs.length, 1);
+  assertNumberNode(astArgs[0]);
+  const x = astArgs[0].value;
+  const result = Math.asinh(x);
+  return toAst(result);
+}
+function mathAtan(...astArgs) {
+  assertArgumentCount(astArgs.length, 1);
+  assertNumberNode(astArgs[0]);
+  const x = astArgs[0].value;
+  const result = Math.atan(x);
+  return toAst(result);
+}
+function mathAtan2(...astArgs) {
+  assertArgumentCount(astArgs.length, 2);
+  assertNumberNode(astArgs[0]);
+  assertNumberNode(astArgs[1]);
+  const y = astArgs[0].value;
+  const x = astArgs[1].value;
+  const result = Math.atan2(y, x);
+  return toAst(result);
+}
+function mathAtanh(...astArgs) {
+  assertArgumentCount(astArgs.length, 1);
+  assertNumberNode(astArgs[0]);
+  const x = astArgs[0].value;
+  const result = Math.atanh(x);
+  return toAst(result);
+}
+function mathCbrt(...astArgs) {
+  assertArgumentCount(astArgs.length, 1);
+  assertNumberNode(astArgs[0]);
+  const x = astArgs[0].value;
+  const result = Math.cbrt(x);
+  return toAst(result);
+}
+function mathCeil(...astArgs) {
+  assertArgumentCount(astArgs.length, 1);
+  assertNumberNode(astArgs[0]);
+  const x = astArgs[0].value;
+  const result = Math.ceil(x);
+  return toAst(result);
+}
+function mathClz32(...astArgs) {
+  assertArgumentCount(astArgs.length, 1);
+  assertNumberNode(astArgs[0]);
+  const x = astArgs[0].value;
+  const result = Math.clz32(x);
+  return toAst(result);
+}
+function mathCos(...astArgs) {
+  assertArgumentCount(astArgs.length, 1);
+  assertNumberNode(astArgs[0]);
+  const x = astArgs[0].value;
+  const result = Math.cos(x);
+  return toAst(result);
+}
+function mathCosh(...astArgs) {
+  assertArgumentCount(astArgs.length, 1);
+  assertNumberNode(astArgs[0]);
+  const x = astArgs[0].value;
+  const result = Math.cosh(x);
+  return toAst(result);
+}
+function mathExp(...astArgs) {
+  assertArgumentCount(astArgs.length, 1);
+  assertNumberNode(astArgs[0]);
+  const x = astArgs[0].value;
+  const result = Math.exp(x);
+  return toAst(result);
+}
+function mathExpm1(...astArgs) {
+  assertArgumentCount(astArgs.length, 1);
+  assertNumberNode(astArgs[0]);
+  const x = astArgs[0].value;
+  const result = Math.expm1(x);
+  return toAst(result);
+}
+function mathFloor(...astArgs) {
+  assertArgumentCount(astArgs.length, 1);
+  assertNumberNode(astArgs[0]);
+  const x = astArgs[0].value;
+  const result = Math.floor(x);
+  return toAst(result);
+}
+function mathFround(...astArgs) {
+  assertArgumentCount(astArgs.length, 1);
+  assertNumberNode(astArgs[0]);
+  const x = astArgs[0].value;
+  const result = Math.fround(x);
+  return toAst(result);
+}
+function mathHypot(...astArgs) {
+  assertSequentialValues(astArgs, NumberNode);
+  const values = astArgs.map(unwrapNumberNode);
+  const result = Math.hypot(...values);
+  return toAst(result);
+}
+function mathImul(...astArgs) {
+  assertArgumentCount(astArgs.length, 2);
+  assertNumberNode(astArgs[0]);
+  assertNumberNode(astArgs[1]);
+  const a = astArgs[0].value;
+  const b = astArgs[1].value;
+  const result = Math.imul(a, b);
+  return toAst(result);
+}
+function mathLog(...astArgs) {
+  assertArgumentCount(astArgs.length, 1);
+  assertNumberNode(astArgs[0]);
+  const x = astArgs[0].value;
+  const result = Math.log(x);
+  return toAst(result);
+}
+function mathLog10(...astArgs) {
+  assertArgumentCount(astArgs.length, 1);
+  assertNumberNode(astArgs[0]);
+  const x = astArgs[0].value;
+  const result = Math.log10(x);
+  return toAst(result);
+}
+function mathLog1p(...astArgs) {
+  assertArgumentCount(astArgs.length, 1);
+  assertNumberNode(astArgs[0]);
+  const x = astArgs[0].value;
+  const result = Math.log1p(x);
+  return toAst(result);
+}
+function mathLog2(...astArgs) {
+  assertArgumentCount(astArgs.length, 1);
+  assertNumberNode(astArgs[0]);
+  const x = astArgs[0].value;
+  const result = Math.log2(x);
+  return toAst(result);
+}
+function mathMax(...astArgs) {
+  assertSequentialValues(astArgs, NumberNode);
+  const values = astArgs.map(unwrapNumberNode);
+  const result = Math.max(...values);
+  return toAst(result);
+}
+function mathMin(...astArgs) {
+  assertSequentialValues(astArgs, NumberNode);
+  const values = astArgs.map(unwrapNumberNode);
+  const result = Math.min(...values);
+  return toAst(result);
+}
+function mathPow(...astArgs) {
+  if (astArgs.length === 2 && isNumberNode(astArgs[0]) && isNumberNode(astArgs[1])) {
+    const base = astArgs[0].value;
+    const exponent = astArgs[1].value;
+    const result = base ** exponent;
+    return toAst(result);
+  }
+  throw new TypeError('Invalid arguments to "Math.pow"');
+}
+function mathRandom(...astArgs) {
+  if (astArgs.length === 0) {
+    const result = Math.random();
+    return toAst(result);
+  }
+  throw new TypeError('Invalid arguments to "Math.random"');
+}
+function mathRound(...astArgs) {
+  assertArgumentCount(astArgs.length, 1);
+  assertNumberNode(astArgs[0]);
+  const x = astArgs[0].value;
+  const result = Math.round(x);
+  return toAst(result);
+}
+function mathSign(...astArgs) {
+  assertArgumentCount(astArgs.length, 1);
+  assertNumberNode(astArgs[0]);
+  const x = astArgs[0].value;
+  const result = Math.sign(x);
+  return toAst(result);
+}
+function mathSin(...astArgs) {
+  assertArgumentCount(astArgs.length, 1);
+  assertNumberNode(astArgs[0]);
+  const x = astArgs[0].value;
+  const result = Math.sin(x);
+  return toAst(result);
+}
+function mathSinh(...astArgs) {
+  assertArgumentCount(astArgs.length, 1);
+  assertNumberNode(astArgs[0]);
+  const x = astArgs[0].value;
+  const result = Math.sinh(x);
+  return toAst(result);
+}
+function mathSqrt(...astArgs) {
+  assertArgumentCount(astArgs.length, 1);
+  assertNumberNode(astArgs[0]);
+  const x = astArgs[0].value;
+  const result = Math.sqrt(x);
+  return toAst(result);
+}
+function mathTan(...astArgs) {
+  assertArgumentCount(astArgs.length, 1);
+  assertNumberNode(astArgs[0]);
+  const x = astArgs[0].value;
+  const result = Math.tan(x);
+  return toAst(result);
+}
+function mathTanh(...astArgs) {
+  assertArgumentCount(astArgs.length, 1);
+  assertNumberNode(astArgs[0]);
+  const x = astArgs[0].value;
+  const result = Math.tanh(x);
+  return toAst(result);
+}
+function mathTrunc(...astArgs) {
+  assertArgumentCount(astArgs.length, 1);
+  assertNumberNode(astArgs[0]);
+  const x = astArgs[0].value;
+  const result = Math.trunc(x);
+  return toAst(result);
+}
+function mathE(...astArgs) {
+  if (astArgs.length === 0) {
+    const result = Math.E;
+    return toAst(result);
+  }
+  throw new TypeError('Invalid arguments to "Math.E"');
+}
+function mathLn10(...astArgs) {
+  if (astArgs.length === 0) {
+    const result = Math.LN10;
+    return toAst(result);
+  }
+  throw new TypeError('Invalid arguments to "Math.LN10"');
+}
+function mathLn2(...astArgs) {
+  if (astArgs.length === 0) {
+    const result = Math.LN2;
+    return toAst(result);
+  }
+  throw new TypeError('Invalid arguments to "Math.LN2"');
+}
+function mathLog10e(...astArgs) {
+  if (astArgs.length === 0) {
+    const result = Math.LOG10E;
+    return toAst(result);
+  }
+  throw new TypeError('Invalid arguments to "Math.LOG10E"');
+}
+function mathLog23(...astArgs) {
+  if (astArgs.length === 0) {
+    const result = Math.LOG2E;
+    return toAst(result);
+  }
+  throw new TypeError('Invalid arguments to "Math.LOG2E"');
+}
+function mathPi(...astArgs) {
+  if (astArgs.length === 0) {
+    const result = Math.PI;
+    return toAst(result);
+  }
+  throw new TypeError('Invalid arguments to "Math.PI"');
+}
+function mathSqrt12(...astArgs) {
+  if (astArgs.length === 0) {
+    const result = Math.SQRT1_2;
+    return toAst(result);
+  }
+  throw new TypeError('Invalid arguments to "Math.SQRT1_2"');
+}
+function mathSqrt2(...astArgs) {
+  if (astArgs.length === 0) {
+    const result = Math.SQRT2;
+    return toAst(result);
+  }
+  throw new TypeError('Invalid arguments to "Math.SQRT2"');
+}
+
+// src/ensemble/interop/js/number.ts
+var numberFunctions = [
+  ["Number", newNumber],
+  ["Number.isFinite", numberIsFinite],
+  ["Number.isInteger", numberIsInteger],
+  ["Number.isNaN", numberIsNaN],
+  ["Number.isSafeInteger", numberIsSafeInteger],
+  ["Number.parseFloat", numberParseFloat],
+  ["Number.parseInt", numberParseInt],
+  ["Number.prototype.toExponential", numberPrototypeToExponential],
+  ["Number.prototype.toFixed", numberPrototypeToFixed],
+  ["Number.prototype.toPrecision", numberPrototypeToPrecision],
+  ["Number.prototype.toString", numberPrototypeToString],
+  // Constants
+  ["Number.EPSILON", numberEpsilon],
+  ["Number.MAX_SAFE_INTEGER", numberMaxSafeInteger],
+  ["Number.MAX_VALUE", numberMaxValue],
+  ["Number.MIN_SAFE_INTEGER", numberMinSafeInteger],
+  ["Number.MIN_VALUE", numberMinValue],
+  ["Number.NaN", numberNaN],
+  ["Number.NEGATIVE_INFINITY", numberNegativeInfinity],
+  ["Number.POSITIVE_INFINITY", numberPositiveInfinity]
+];
+function newNumber(...astArgs) {
+  if (astArgs.length === 1 && isAstNode(astArgs[0])) {
+    const value = astArgs[0].value;
+    const result = Number(value);
+    return toAst(result);
+  }
+  throw new TypeError('Invalid arguments to "Number"');
+}
+function numberIsFinite(...astArgs) {
+  if (astArgs.length === 1 && isAstNode(astArgs[0])) {
+    const value = astArgs[0].value;
+    const result = Number.isFinite(value);
+    return toAst(result);
+  }
+  throw new TypeError('Invalid arguments to "Number.isFinite"');
+}
+function numberIsInteger(...astArgs) {
+  if (astArgs.length === 1 && isAstNode(astArgs[0])) {
+    const value = astArgs[0].value;
+    const result = Number.isInteger(value);
+    return toAst(result);
+  }
+  throw new TypeError('Invalid arguments to "Number.isInteger"');
+}
+function numberIsNaN(...astArgs) {
+  if (astArgs.length === 1 && isAstNode(astArgs[0])) {
+    const value = astArgs[0].value;
+    const result = Number.isNaN(value);
+    return toAst(result);
+  }
+  throw new TypeError('Invalid arguments to "Number.isNaN"');
+}
+function numberIsSafeInteger(...astArgs) {
+  if (astArgs.length === 1 && isAstNode(astArgs[0])) {
+    const value = astArgs[0].value;
+    const result = Number.isSafeInteger(value);
+    return toAst(result);
+  }
+  throw new TypeError('Invalid arguments to "Number.isSafeInteger"');
+}
+function numberParseFloat(...astArgs) {
+  assertArgumentCount(astArgs.length, 1);
+  assertStringNode(astArgs[0]);
+  const stringValue = unwrapStringNode(astArgs[0]);
+  const result = Number.parseFloat(stringValue);
+  return toAst(result);
+}
+function numberParseInt(...astArgs) {
+  assertVariableArgumentCount(astArgs.length, 1, 2);
+  assertStringNode(astArgs[0]);
+  const string = astArgs[0].value;
+  if (astArgs.length === 2) {
+    assertNumberNode(astArgs[1]);
+    const radix = astArgs[1].value;
+    const result2 = Number.parseInt(string, radix);
+    return createNumberNode(result2);
+  }
+  const result = Number.parseInt(string);
+  return createNumberNode(result);
+}
+function numberEpsilon(...astArgs) {
+  if (astArgs.length === 0) {
+    const result = Number.EPSILON;
+    return toAst(result);
+  }
+  throw new TypeError('Invalid arguments to "Number.EPSILON"');
+}
+function numberMaxSafeInteger(...astArgs) {
+  if (astArgs.length === 0) {
+    const result = Number.MAX_SAFE_INTEGER;
+    return toAst(result);
+  }
+  throw new TypeError('Invalid arguments to "Number.MAX_SAFE_INTEGER"');
+}
+function numberMaxValue(...astArgs) {
+  if (astArgs.length === 0) {
+    const result = Number.MAX_VALUE;
+    return toAst(result);
+  }
+  throw new TypeError('Invalid arguments to "Number.MAX_VALUE"');
+}
+function numberMinSafeInteger(...astArgs) {
+  if (astArgs.length === 0) {
+    const result = Number.MIN_SAFE_INTEGER;
+    return toAst(result);
+  }
+  throw new TypeError('Invalid arguments to "Number.MIN_SAFE_INTEGER"');
+}
+function numberMinValue(...astArgs) {
+  if (astArgs.length === 0) {
+    const result = Number.MIN_VALUE;
+    return toAst(result);
+  }
+  throw new TypeError('Invalid arguments to "Number.MIN_VALUE"');
+}
+function numberNaN(...astArgs) {
+  if (astArgs.length === 0) {
+    const result = Number.NaN;
+    return toAst(result);
+  }
+  throw new TypeError('Invalid arguments to "Number.NaN"');
+}
+function numberNegativeInfinity(...astArgs) {
+  if (astArgs.length === 0) {
+    const result = Number.NEGATIVE_INFINITY;
+    return toAst(result);
+  }
+  throw new TypeError('Invalid arguments to "Number.NEGATIVE_INFINITY"');
+}
+function numberPositiveInfinity(...astArgs) {
+  if (astArgs.length === 0) {
+    const result = Number.POSITIVE_INFINITY;
+    return toAst(result);
+  }
+  throw new TypeError('Invalid arguments to "Number.POSITIVE_INFINITY"');
+}
+function numberPrototypeToExponential(...astArgs) {
+  assertVariableArgumentCount(astArgs.length, 1, 2);
+  assertNumberNode(astArgs[0]);
+  if (astArgs.length === 2) {
+    assertNumberNode(astArgs[1]);
+    const digits = astArgs[1].value;
+    const result2 = astArgs[0].value.toExponential(digits);
+    return createStringNode(result2);
+  }
+  const result = astArgs[0].value.toExponential();
+  return createStringNode(result);
+}
+function numberPrototypeToFixed(...astArgs) {
+  assertVariableArgumentCount(astArgs.length, 1, 2);
+  assertNumberNode(astArgs[0]);
+  if (astArgs.length === 2) {
+    assertNumberNode(astArgs[1]);
+    const digits = astArgs[1].value;
+    const result2 = astArgs[0].value.toFixed(digits);
+    return createStringNode(result2);
+  }
+  const result = astArgs[0].value.toFixed();
+  return createStringNode(result);
+}
+function numberPrototypeToPrecision(...astArgs) {
+  assertVariableArgumentCount(astArgs.length, 1, 2);
+  assertNumberNode(astArgs[0]);
+  if (astArgs.length === 2) {
+    assertNumberNode(astArgs[1]);
+    const digits = astArgs[1].value;
+    const result2 = astArgs[0].value.toPrecision(digits);
+    return createStringNode(result2);
+  }
+  const result = astArgs[0].value.toPrecision();
+  return createStringNode(result);
+}
+function numberPrototypeToString(...astArgs) {
+  assertVariableArgumentCount(astArgs.length, 1, 2);
+  assertNumberNode(astArgs[0]);
+  if (astArgs.length === 2) {
+    assertNumberNode(astArgs[1]);
+    const radix = astArgs[1].value;
+    const result2 = astArgs[0].value.toString(radix);
+    return createStringNode(result2);
+  }
+  const result = astArgs[0].value.toString();
+  return createStringNode(result);
+}
+
+// src/ensemble/interop/js/operator.ts
+var operators = [
+  // ["===", core.eq],
+  // ["!==", notEqualTo],
+  // ["??", nullishCoalesce],
+  // ["**", power],
+  // ["%", remainder],
+  // [">>", rightShift],
+  // ["<<", leftShift],
+  // [">>>", unsignedRightShift],
+  // ["/&", bitwiseAnd],
+  // ["/|", bitwiseOr],
+  // ["/^", bitwiseXor],
+  // ["/~", bitwiseNot],
+  // ["&&", and],
+  // ["||", or],
+  // ["!", not],
+  // ["++", increment],
+  // ["--", decrement],
+  ["typeof", typeOf],
+  ["instanceof", instanceOf],
+  // ["not-equal", notEqualTo],
+  ["neq", notEqualTo],
+  ["nullish", nullishCoalesce],
+  ["power", power],
+  ["remainder", remainder],
+  ["rshift", rightShift],
+  ["lshift", leftShift],
+  ["rshift-unsigned", unsignedRightShift],
+  ["bit-and", bitwiseAnd],
+  ["bit-or", bitwiseOr],
+  ["bit-xor", bitwiseXor],
+  ["bit-not", bitwiseNot],
+  ["and", and],
+  ["or", or],
+  ["not", not],
+  ["increment", increment],
+  ["decrement", decrement]
+];
+function and(...args) {
+  const useJavaScriptTruthiness = true;
+  for (const arg of args) {
+    const isTruthy = isAstTruthy(arg, useJavaScriptTruthiness);
+    if (!isTruthy) {
+      return createBooleanNode(false);
+    }
+  }
+  return createBooleanNode(true);
+}
+function or(...args) {
+  for (const arg of args) {
+    const isTruthy = isAstTruthy(arg);
+    if (isTruthy) {
+      return createBooleanNode(true);
+    }
+  }
+  return createBooleanNode(false);
+}
+function remainder(a, b) {
+  if (isNumberNode(a) && isNumberNode(b)) {
+    return createNumberNode((a.value % b.value + b.value) % b.value);
+  }
+  throw new TypeError("not a number");
+}
+function bitwiseAnd(a, b) {
+  if (isNumberNode(a) && isNumberNode(b)) {
+    return createNumberNode(a.value & b.value);
+  }
+  throw new TypeError("not a number");
+}
+function bitwiseOr(a, b) {
+  if (isNumberNode(a) && isNumberNode(b)) {
+    return createNumberNode(a.value | b.value);
+  }
+  throw new TypeError("not a number");
+}
+function bitwiseXor(a, b) {
+  if (isNumberNode(a) && isNumberNode(b)) {
+    return createNumberNode(a.value ^ b.value);
+  }
+  throw new TypeError("not a number");
+}
+function bitwiseNot(a) {
+  if (isNumberNode(a)) {
+    return createNumberNode(~a.value);
+  }
+  throw new TypeError("not a number");
+}
+function leftShift(a, b) {
+  if (isNumberNode(a) && isNumberNode(b)) {
+    return createNumberNode(a.value << b.value);
+  }
+  throw new TypeError("not a number");
+}
+function rightShift(a, b) {
+  if (isNumberNode(a) && isNumberNode(b)) {
+    return createNumberNode(a.value >> b.value);
+  }
+  throw new TypeError("not a number");
+}
+function unsignedRightShift(a, b) {
+  if (isNumberNode(a) && isNumberNode(b)) {
+    return createNumberNode(a.value >>> b.value);
+  }
+  throw new TypeError("not a number");
+}
+function not(a) {
+  return createBooleanNode(!a.value);
+}
+function notEqualTo(...args) {
+  assertArgumentCount(args.length, 2);
+  const bool = isEqualTo(args[0], args[1]);
+  return createBooleanNode(!bool.value);
+}
+function increment(...args) {
+  assertVariableArgumentCount(args.length, 1, 2);
+  assertNumberNode(args[0]);
+  let affix = "postfix";
+  if (args[1] !== void 0) {
+    assertStringNode(args[1]);
+    if (args[1].value !== "prefix" && args[1].value !== "postfix") {
+      throw new TypeError(
+        `Invalid affix ${String(args[1].value)}. The affix must be "prefix" or "postfix"`
+      );
+    }
+    affix = args[1].value;
+  }
+  if (affix === "postfix") {
+    return createVectorNode([
+      createNumberNode(args[0].value + 1),
+      createNumberNode(args[0].value)
+    ]);
+  }
+  if (affix === "prefix") {
+    return createVectorNode([
+      createNumberNode(args[0].value + 1),
+      createNumberNode(args[0].value + 1)
+    ]);
+  }
+  throw new Error("Unhandled error in decrement");
+}
+function decrement(...args) {
+  assertVariableArgumentCount(args.length, 1, 2);
+  assertNumberNode(args[0]);
+  let affix = "postfix";
+  if (args[1] !== void 0) {
+    assertStringNode(args[1]);
+    if (args[1].value !== "prefix" && args[1].value !== "postfix") {
+      throw new TypeError(
+        `Invalid affix ${String(args[1].value)}. The affix must be "prefix" or "postfix"`
+      );
+    }
+    affix = args[1].value;
+  }
+  if (affix === "postfix") {
+    return createVectorNode([
+      createNumberNode(args[0].value - 1),
+      createNumberNode(args[0].value)
+    ]);
+  }
+  if (affix === "prefix") {
+    return createVectorNode([
+      createNumberNode(args[0].value - 1),
+      createNumberNode(args[0].value - 1)
+    ]);
+  }
+  throw new Error("Unhandled error in decrement");
+}
+function typeOf(...args) {
+  assertArgumentCount(args.length, 2);
+  assertAstNode(args[0]);
+  assertStringNode(args[1]);
+  const obj = typeof args[0].value;
+  if (obj !== "bigint" && obj !== "boolean" && obj !== "function" && obj !== "number" && obj !== "object" && obj !== "string" && obj !== "symbol" && obj !== "undefined") {
+    throw new Error(
+      `Invalid type: "${args[1].value}". Type must be one of bigint, boolean, function, number, object, string, symbol, or undefined`
+    );
+  }
+  return createBooleanNode(obj === args[1].value);
+}
+function instanceOf(...args) {
+  assertArgumentCount(args.length, 2);
+  assertAstNode(args[0]);
+  assertStringNode(args[1]);
+  const value = args[0];
+  const type = args[1].value;
+  let instance = void 0;
+  if (type === "AstNode" || type === "AtomNode" || type === "BooleanNode" || type === "ErrorNode" || type === "FunctionNode" || type === "KeywordNode" || type === "ListNode" || type === "MapNode" || type === "NilNode" || type === "NumberNode" || type === "StringNode" || type === "SymbolNode" || type === "VectorNode") {
+    instance = types_exports[args[1].value];
+  } else if (Object.hasOwn(globalThis, args[1].value)) {
+    instance = globalThis[args[1].value];
+  } else {
+    throw new TypeError(`Unknown instance: "${args[1].value}"`);
+  }
+  return createBooleanNode(value instanceof instance);
+}
+function nullishCoalesce(a, b) {
+  return a.value == null ? b : a;
+}
+function power(base, exponent) {
+  if (isNumberNode(base) && isNumberNode(exponent)) {
+    return createNumberNode(base.value ** exponent.value);
+  }
+  throw new TypeError("not a number");
+}
+
+// src/ensemble/interop/js/regexp.ts
+var regExpFunctions = [
+  ["RegExp.new", newRegExp],
+  ["RegExp.prototype.exec", execRegExp],
+  ["RegExp.prototype.test", testRegExp]
+];
+function newRegExp(...astArgs) {
+  assertVariableArgumentCount(astArgs.length, 1, 2);
+  assertStringNode(astArgs[0]);
+  const pattern = astArgs[0].value;
+  if (astArgs.length === 2) {
+    assertStringNode(astArgs[1]);
+    const flags = astArgs[1].value;
+    const regexp2 = new RegExp(pattern, flags);
+    return createAtomNode(regexp2);
+  }
+  const regexp = new RegExp(pattern);
+  return createAtomNode(regexp);
+}
+function execRegExp(...astArgs) {
+  assertArgumentCount(astArgs.length, 2);
+  assertAtomNode(astArgs[0]);
+  const regexp = astArgs[0].value;
+  assertRegExp(regexp);
+  assertStringNode(astArgs[1]);
+  const stringValue = astArgs[1].value;
+  const result = regexp.exec(stringValue);
+  return result ? createVectorNode(result.map(toAst)) : createNilNode();
+}
+function testRegExp(...astArgs) {
+  assertArgumentCount(astArgs.length, 2);
+  assertAtomNode(astArgs[0]);
+  assertRegExp(astArgs[0].value);
+  assertStringNode(astArgs[1]);
+  const result = astArgs[0].value.test(astArgs[1].value);
+  return createBooleanNode(result);
+}
+
+// src/ensemble/interop/js/string.ts
+var stringFunctions = [
+  ["String", core_default.printUnescapedString],
+  ["String.fromCharCode", stringFromCharCode],
+  ["String.fromCodePoint", stringFromCodePoint],
+  ["String.prototype.at", stringAt],
+  ["String.prototype.charAt", stringAt],
+  ["String.prototype.charCodeAt", stringCodePointAt],
+  ["String.prototype.codePointAt", stringCodePointAt],
+  ["String.prototype.concat", stringConcat],
+  ["String.prototype.endsWith", stringEndsWith],
+  ["String.prototype.includes", stringIncludes],
+  ["String.prototype.indexOf", stringIndexOf],
+  ["String.prototype.isWellFormed", stringIsWellFormed],
+  ["String.prototype.lastIndexOf", stringLastIndexOf],
+  ["String.prototype.length", stringLength],
+  ["String.prototype.localeCompare", stringLocaleCompare],
+  ["String.prototype.match", stringMatch],
+  ["String.prototype.matchAll", stringMatchAll],
+  ["String.prototype.normalize", stringNormalize],
+  ["String.prototype.padEnd", stringPadEnd],
+  ["String.prototype.padStart", stringPadStart],
+  ["String.prototype.repeat", stringRepeat],
+  ["String.prototype.replace", stringReplace],
+  ["String.prototype.replaceAll", stringReplaceAll],
+  ["String.prototype.search", stringSearch],
+  ["String.prototype.slice", stringSlice],
+  ["String.prototype.split", stringSplit],
+  ["String.prototype.startsWith", stringStartsWith],
+  ["String.prototype.toLocaleLowerCase", stringToLocaleLowerCase],
+  ["String.prototype.toLocaleUpperCase", stringToLocaleUpperCase],
+  ["String.prototype.toLowerCase", stringToLowerCase],
+  ["String.prototype.toUpperCase", stringToUpperCase],
+  ["String.prototype.toWellFormed", stringToWellFormed],
+  ["String.prototype.trim", stringTrim],
+  ["String.prototype.trimEnd", stringTrimEnd],
+  ["String.prototype.trimStart", stringTrimStart],
+  ["String.raw", stringRaw]
+];
+function stringFromCharCode(...astArgs) {
+  assertArgumentCount(astArgs.length, 1);
+  assertVectorNode(astArgs[0]);
+  assertSequentialValues(
+    astArgs[0].value,
+    NumberNode
+  );
+  const codeUnits = astArgs[0].value.map(unwrapNumberNode);
+  const result = String.fromCharCode(...codeUnits);
+  return createStringNode(result);
+}
+function stringFromCodePoint(...astArgs) {
+  assertSequentialValues(astArgs, NumberNode);
+  const codePoints = astArgs.map(unwrapNumberNode);
+  const result = String.fromCodePoint(...codePoints);
+  return createStringNode(result);
+}
+function stringAt(...astArgs) {
+  assertArgumentCount(astArgs.length, 2);
+  assertStringNode(astArgs[0]);
+  assertNumberNode(astArgs[1]);
+  const result = String.prototype.at.call(astArgs[0].value, astArgs[1].value);
+  return result === void 0 ? createNilNode() : createStringNode(result);
+}
+function stringCodePointAt(...astArgs) {
+  assertArgumentCount(astArgs.length, 2);
+  assertStringNode(astArgs[0]);
+  assertNumberNode(astArgs[1]);
+  const result = String.prototype.codePointAt.call(
+    astArgs[0].value,
+    astArgs[1].value
+  );
+  return result === void 0 ? createNilNode() : createNumberNode(result);
+}
+function stringConcat(...astArgs) {
+  assertMinimumArgumentCount(astArgs.length, 2);
+  assertSequentialValues(astArgs, StringNode);
+  const context = astArgs[0].value;
+  const strings = astArgs.slice(1).map(unwrapStringNode);
+  const result = String.prototype.concat.call(context, ...strings);
+  return createStringNode(result);
+}
+function stringEndsWith(...astArgs) {
+  assertVariableArgumentCount(astArgs.length, 2, 3);
+  assertStringNode(astArgs[0]);
+  assertStringNode(astArgs[1]);
+  if (astArgs.length === 3) {
+    assertNumberNode(astArgs[2]);
+  }
+  const context = astArgs[0].value;
+  const searchString = astArgs[1].value;
+  const length2 = astArgs.length === 3 ? astArgs[2].value : void 0;
+  const result = String.prototype.endsWith.call(context, searchString, length2);
+  return toAst(result);
+}
+function stringIncludes(...astArgs) {
+  assertVariableArgumentCount(astArgs.length, 2, 3);
+  assertStringNode(astArgs[0]);
+  assertStringNode(astArgs[1]);
+  if (astArgs.length === 3) {
+    assertNumberNode(astArgs[2]);
+  }
+  const context = astArgs[0].value;
+  const searchString = astArgs[1].value;
+  const position = astArgs.length === 3 ? astArgs[2].value : void 0;
+  const result = String.prototype.includes.call(
+    context,
+    searchString,
+    position
+  );
+  return toAst(result);
+}
+function stringIndexOf(...astArgs) {
+  assertVariableArgumentCount(astArgs.length, 2, 3);
+  assertStringNode(astArgs[0]);
+  assertStringNode(astArgs[1]);
+  if (astArgs.length === 3) {
+    assertNumberNode(astArgs[2]);
+  }
+  const context = astArgs[0].value;
+  const searchString = astArgs[1].value;
+  const position = astArgs.length === 3 ? astArgs[2].value : void 0;
+  const result = String.prototype.indexOf.call(context, searchString, position);
+  return toAst(result);
+}
+function stringIsWellFormed(...astArgs) {
+  assertArgumentCount(astArgs.length, 1);
+  assertStringNode(astArgs[0]);
+  const context = astArgs[0].value;
+  const result = String.prototype.isWellFormed.call(context);
+  return toAst(result);
+}
+function stringLastIndexOf(...astArgs) {
+  assertVariableArgumentCount(astArgs.length, 2, 3);
+  assertStringNode(astArgs[0]);
+  assertStringNode(astArgs[1]);
+  if (astArgs.length === 3) {
+    assertNumberNode(astArgs[2]);
+  }
+  const context = astArgs[0].value;
+  const searchString = astArgs[1].value;
+  const position = astArgs.length === 3 ? astArgs[2].value : void 0;
+  const result = String.prototype.lastIndexOf.call(
+    context,
+    searchString,
+    position
+  );
+  return toAst(result);
+}
+function stringLength(...astArgs) {
+  assertArgumentCount(astArgs.length, 1);
+  assertAstNode(astArgs[0]);
+  const context = astArgs[0].value;
+  const result = context.length;
+  return toAst(result);
+}
+function stringLocaleCompare(...astArgs) {
+  assertVariableArgumentCount(astArgs.length, 2, 4);
+  assertStringNode(astArgs[0]);
+  assertStringNode(astArgs[1]);
+  const context = astArgs[0].value;
+  const that = astArgs[1].value;
+  let locales = void 0;
+  let options = void 0;
+  if (astArgs.length > 2) {
+    const localesArg = astArgs[2];
+    if (isStringNode(localesArg)) {
+      locales = localesArg.value;
+    } else if (isVectorNode(localesArg)) {
+      assertSequentialValues(
+        localesArg.value,
+        StringNode
+      );
+      locales = localesArg.value.map(unwrapStringNode);
+    } else {
+      assertNilNode(localesArg);
+      locales = void 0;
+    }
+  }
+  if (astArgs.length > 3) {
+    const optionsArg = astArgs[3];
+    assertMapNode(optionsArg);
+    options = unwrapMapNode(optionsArg);
+  }
+  const result = String.prototype.localeCompare.call(
+    context,
+    that,
+    locales,
+    options
+  );
+  return toAst(result);
+}
+function stringMatch(...astArgs) {
+  assertArgumentCount(astArgs.length, 2);
+  assertStringNode(astArgs[0]);
+  assertAtomNode(astArgs[1]);
+  assertRegExp(astArgs[1].value);
+  const context = astArgs[0].value;
+  const regexp = astArgs[1].value;
+  const result = String.prototype.match.call(context, regexp);
+  return toAst(result);
+}
+function stringMatchAll(...astArgs) {
+  assertArgumentCount(astArgs.length, 2);
+  assertStringNode(astArgs[0]);
+  assertAtomNode(astArgs[1]);
+  assertRegExp(astArgs[1].value);
+  const context = astArgs[0].value;
+  const regexp = astArgs[1].value;
+  const result = String.prototype.matchAll.call(context, regexp);
+  return toAst(result);
+}
+function stringNormalize(...astArgs) {
+  assertVariableArgumentCount(astArgs.length, 1, 2);
+  assertAstNode(astArgs[0]);
+  if (astArgs.length === 2) {
+    assertStringNode(astArgs[1]);
+  }
+  const context = astArgs[0].value;
+  const form = astArgs.length === 2 ? astArgs[1].value : void 0;
+  const result = String.prototype.normalize.call(context, form);
+  return toAst(result);
+}
+function stringPadEnd(...astArgs) {
+  assertVariableArgumentCount(astArgs.length, 2, 3);
+  assertAstNode(astArgs[0]);
+  assertNumberNode(astArgs[1]);
+  if (astArgs.length === 3) {
+    assertStringNode(astArgs[2]);
+  }
+  const context = astArgs[0].value;
+  const maxLength = astArgs[1].value;
+  const fillString = astArgs.length === 3 ? astArgs[2].value : void 0;
+  const result = String.prototype.padEnd.call(context, maxLength, fillString);
+  return toAst(result);
+}
+function stringPadStart(...astArgs) {
+  assertVariableArgumentCount(astArgs.length, 2, 3);
+  assertAstNode(astArgs[0]);
+  assertNumberNode(astArgs[1]);
+  if (astArgs.length === 3) {
+    assertStringNode(astArgs[2]);
+  }
+  const context = astArgs[0].value;
+  const maxLength = astArgs[1].value;
+  const fillString = astArgs.length === 3 ? astArgs[2].value : void 0;
+  const result = String.prototype.padStart.call(context, maxLength, fillString);
+  return toAst(result);
+}
+function stringRepeat(...astArgs) {
+  assertArgumentCount(astArgs.length, 2);
+  assertStringNode(astArgs[0]);
+  assertNumberNode(astArgs[1]);
+  const context = astArgs[0].value;
+  const count = astArgs[1].value;
+  const result = String.prototype.repeat.call(context, count);
+  return toAst(result);
+}
+function stringReplace(...astArgs) {
+  assertArgumentCount(astArgs.length, 3);
+  assertStringNode(astArgs[0]);
+  let pattern = "";
+  if (isStringNode(astArgs[1])) {
+    pattern = astArgs[1].value;
+  } else {
+    assertAtomNode(astArgs[1]);
+    assertRegExp(astArgs[1].value);
+    pattern = astArgs[1].value;
+  }
+  let replacer;
+  if (isStringNode(astArgs[2])) {
+    replacer = astArgs[2].value;
+  } else {
+    throw new Error(
+      "Function replacers are not implemented for String.prototype.replace"
+    );
+  }
+  const context = astArgs[0].value;
+  const result = context.replace(pattern, replacer);
+  return toAst(result);
+}
+function stringReplaceAll(...astArgs) {
+  assertArgumentCount(astArgs.length, 3);
+  assertStringNode(astArgs[0]);
+  let pattern = "";
+  if (isStringNode(astArgs[1])) {
+    pattern = astArgs[1].value;
+  } else {
+    assertAtomNode(astArgs[1]);
+    assertRegExp(astArgs[1].value);
+    pattern = astArgs[1].value;
+  }
+  let replacer;
+  if (isStringNode(astArgs[2])) {
+    replacer = astArgs[2].value;
+  } else {
+    throw new Error(
+      "Function replacers are not implemented for String.prototype.replaceAll"
+    );
+  }
+  const context = astArgs[0].value;
+  const result = context.replaceAll(pattern, replacer);
+  return toAst(result);
+}
+function stringSearch(...astArgs) {
+  assertArgumentCount(astArgs.length, 2);
+  assertStringNode(astArgs[0]);
+  assertAtomNode(astArgs[1]);
+  assertRegExp(astArgs[1].value);
+  const context = astArgs[0].value;
+  const regexp = astArgs[1].value;
+  const result = String.prototype.search.call(context, regexp);
+  return toAst(result);
+}
+function stringSlice(...astArgs) {
+  assertVariableArgumentCount(astArgs.length, 1, 3);
+  assertAstNode(astArgs[0]);
+  if (astArgs.length > 1) {
+    assertNumberNode(astArgs[1]);
+  }
+  if (astArgs.length > 2) {
+    assertNumberNode(astArgs[2]);
+  }
+  const context = astArgs[0].value;
+  const start = astArgs.length > 1 ? astArgs[1].value : void 0;
+  const end = astArgs.length > 2 ? astArgs[2].value : void 0;
+  const result = String.prototype.slice.call(context, start, end);
+  return toAst(result);
+}
+function stringSplit(...astArgs) {
+  assertVariableArgumentCount(astArgs.length, 2, 3);
+  assertStringNode(astArgs[0]);
+  assertStringNode(astArgs[1]);
+  if (astArgs.length === 3) {
+    assertNumberNode(astArgs[2]);
+  }
+  const context = astArgs[0].value;
+  const separator = astArgs[1].value;
+  const limit = astArgs.length === 3 ? astArgs[2].value : void 0;
+  const result = context.split(separator, limit);
+  return toAst(result);
+}
+function stringStartsWith(...astArgs) {
+  assertVariableArgumentCount(astArgs.length, 2, 3);
+  assertAstNode(astArgs[0]);
+  assertStringNode(astArgs[1]);
+  if (astArgs.length === 3) {
+    assertNumberNode(astArgs[2]);
+  }
+  const context = astArgs[0].value;
+  const searchString = astArgs[1].value;
+  const position = astArgs.length > 2 ? astArgs[2].value : void 0;
+  const result = String.prototype.startsWith.call(
+    context,
+    searchString,
+    position
+  );
+  return toAst(result);
+}
+function stringToLocaleLowerCase(...astArgs) {
+  assertVariableArgumentCount(astArgs.length, 1, 2);
+  assertAstNode(astArgs[0]);
+  if (astArgs.length === 2) {
+    if (!isNilNode(astArgs[1])) {
+      assertStringNode(astArgs[1]);
+    }
+  }
+  const context = astArgs[0].value;
+  const locales = astArgs.length === 2 && !isNilNode(astArgs[1]) ? astArgs[1].value : void 0;
+  const result = String.prototype.toLocaleLowerCase.call(context, locales);
+  return toAst(result);
+}
+function stringToLocaleUpperCase(...astArgs) {
+  assertVariableArgumentCount(astArgs.length, 1, 2);
+  assertAstNode(astArgs[0]);
+  if (astArgs.length === 2) {
+    if (!isNilNode(astArgs[1])) {
+      assertStringNode(astArgs[1]);
+    }
+  }
+  const context = astArgs[0].value;
+  const locales = astArgs.length === 2 && !isNilNode(astArgs[1]) ? astArgs[1].value : void 0;
+  const result = String.prototype.toLocaleUpperCase.call(context, locales);
+  return toAst(result);
+}
+function stringToLowerCase(...astArgs) {
+  assertArgumentCount(astArgs.length, 1);
+  assertAstNode(astArgs[0]);
+  const context = astArgs[0].value;
+  const result = String.prototype.toLowerCase.call(context);
+  return toAst(result);
+}
+function stringToUpperCase(...astArgs) {
+  assertArgumentCount(astArgs.length, 1);
+  assertAstNode(astArgs[0]);
+  const context = astArgs[0].value;
+  const result = String.prototype.toUpperCase.call(context);
+  return toAst(result);
+}
+function stringToWellFormed(...astArgs) {
+  assertArgumentCount(astArgs.length, 1);
+  assertAstNode(astArgs[0]);
+  const context = astArgs[0].value;
+  const result = String.prototype.toWellFormed.call(context);
+  return toAst(result);
+}
+function stringTrim(...astArgs) {
+  assertArgumentCount(astArgs.length, 1);
+  assertAstNode(astArgs[0]);
+  const context = astArgs[0].value;
+  const result = String.prototype.trim.call(context);
+  return toAst(result);
+}
+function stringTrimEnd(...astArgs) {
+  assertArgumentCount(astArgs.length, 1);
+  assertAstNode(astArgs[0]);
+  const context = astArgs[0].value;
+  const result = String.prototype.trimEnd.call(context);
+  return toAst(result);
+}
+function stringTrimStart(...astArgs) {
+  assertArgumentCount(astArgs.length, 1);
+  assertAstNode(astArgs[0]);
+  const context = astArgs[0].value;
+  const result = String.prototype.trimStart.call(context);
+  return toAst(result);
+}
+function stringRaw(...astArgs) {
+  assertArgumentCount(astArgs.length, 2);
+  assertMapNode(astArgs[0]);
+  assertVectorNode(astArgs[1]);
+  const strings = unwrapMapNode(astArgs[0]);
+  const substitutions = astArgs[1].value;
+  const result = String.raw(strings, ...substitutions);
+  return toAst(result);
+}
+
+// src/ensemble/interop/js/symbol.ts
+var symbolFunctions = [
+  ["Symbol", symbolConstructor],
+  ["Symbol.for", symbolFor],
+  ["Symbol.keyFor", symbolKeyFor]
+];
+function symbolConstructor(...astArgs) {
+  assertVariableArgumentCount(astArgs.length, 0, 1);
+  if (astArgs.length === 1) {
+    assertStringNode(astArgs[0]);
+  }
+  const description = astArgs.length === 1 ? astArgs[0].value : void 0;
+  const result = Symbol(description);
+  return createAtomNode(result);
+}
+function symbolFor(...astArgs) {
+  assertArgumentCount(astArgs.length, 1);
+  assertStringNode(astArgs[0]);
+  const key = astArgs[0].value;
+  const result = Symbol.for(key);
+  return createAtomNode(result);
+}
+function symbolKeyFor(...astArgs) {
+  assertArgumentCount(astArgs.length, 1);
+  assertAtomNode(astArgs[0]);
+  assertSymbol(astArgs[0].value);
+  const sym = astArgs[0].value;
+  const result = Symbol.keyFor(sym);
+  return result ? createStringNode(result) : createNilNode();
+}
+
+// src/ensemble/interop/js.ts
+var nsValues2 = [
+  ...arrayFunctions,
+  ...booleanFunctions,
+  ...builtInFunctions,
+  ...operators,
+  ...dateFunctions,
+  ...errorFunctions,
+  ...functionFunctions,
+  ...mapFunctions,
+  ...mathFunctions,
+  ...numberFunctions,
+  ...regExpFunctions,
+  ...stringFunctions,
+  ...symbolFunctions
+];
+var ns3 = /* @__PURE__ */ new Map();
+for (const [sym, fn] of nsValues2) {
+  ns3.set(createSymbolNode(sym), createFunctionNode(fn));
+  if (sym.includes(".prototype.")) {
+    const withPrototypeAlias = sym.replace(".prototype.", "::");
+    ns3.set(
+      createSymbolNode(withPrototypeAlias),
+      createFunctionNode(fn)
+    );
+  } else if (sym.includes(".prototype[")) {
+    const withPrototypeAlias = sym.replace(".prototype[", "::[");
+    ns3.set(
+      createSymbolNode(withPrototypeAlias),
+      createFunctionNode(fn)
+    );
+  }
+}
+
+// src/ensemble/interop/js/dom.ts
+var ns4 = /* @__PURE__ */ new Map();
+var nsValues3 = [
+  ["CustomEvent::new", customEventProtoNew],
+  ["CustomEvent::prototype", customEventProtoProto],
+  ["CustomEvent.detail", customEventDetail],
+  ["CustomEvent::initCustomEvent", customEventProtoInitCustomEvent],
+  ["Document::new", documentProtoNew],
+  ["Document::prototype", documentProtoProto],
+  ["Document::parseHTMLUnsafe", documentProtoParseHTMLUnsafe],
+  ["Document.URL", documentURL],
+  ["Document.alinkColor", documentAlinkColor],
+  ["Document.all", documentAll],
+  ["Document.anchors", documentAnchors],
+  ["Document.applets", documentApplets],
+  ["Document.bgColor", documentBgColor],
+  ["Document.body", documentBody],
+  ["Document.characterSet", documentCharacterSet],
+  ["Document.charset", documentCharset],
+  ["Document.compatMode", documentCompatMode],
+  ["Document.contentType", documentContentType],
+  ["Document.cookie", documentCookie],
+  ["Document.currentScript", documentCurrentScript],
+  ["Document.defaultView", documentDefaultView],
+  ["Document.designMode", documentDesignMode],
+  ["Document.dir", documentDir],
+  ["Document.doctype", documentDoctype],
+  ["Document.documentElement", documentDocumentElement],
+  ["Document.documentURI", documentDocumentURI],
+  ["Document.domain", documentDomain],
+  ["Document.embeds", documentEmbeds],
+  ["Document.fgColor", documentFgColor],
+  ["Document.forms", documentForms],
+  ["Document.fragmentDirective", documentFragmentDirective],
+  ["Document.fullscreen", documentFullscreen],
+  ["Document.fullscreenEnabled", documentFullscreenEnabled],
+  ["Document.head", documentHead],
+  ["Document.hidden", documentHidden],
+  ["Document.images", documentImages],
+  ["Document.implementation", documentImplementation],
+  ["Document.inputEncoding", documentInputEncoding],
+  ["Document.lastModified", documentLastModified],
+  ["Document.linkColor", documentLinkColor],
+  ["Document.links", documentLinks],
+  ["Document.onfullscreenchange", documentOnfullscreenchange],
+  ["Document.onfullscreenerror", documentOnfullscreenerror],
+  ["Document.onpointerlockchange", documentOnpointerlockchange],
+  ["Document.onpointerlockerror", documentOnpointerlockerror],
+  ["Document.onreadystatechange", documentOnreadystatechange],
+  ["Document.onvisibilitychange", documentOnvisibilitychange],
+  ["Document.ownerDocument", documentOwnerDocument],
+  ["Document.pictureInPictureEnabled", documentPictureInPictureEnabled],
+  ["Document.plugins", documentPlugins],
+  ["Document.readyState", documentReadyState],
+  ["Document.referrer", documentReferrer],
+  ["Document.rootElement", documentRootElement],
+  ["Document.scripts", documentScripts],
+  ["Document.scrollingElement", documentScrollingElement],
+  ["Document.timeline", documentTimeline],
+  ["Document.title", documentTitle],
+  ["Document.visibilityState", documentVisibilityState],
+  ["Document.vlinkColor", documentVlinkColor],
+  ["Document::adoptNode", documentProtoAdoptNode],
+  ["Document::captureEvents", documentProtoCaptureEvents],
+  ["Document::caretPositionFromPoint", documentProtoCaretPositionFromPoint],
+  ["Document::caretRangeFromPoint", documentProtoCaretRangeFromPoint],
+  ["Document::clear", documentProtoClear],
+  ["Document::close", documentProtoClose],
+  ["Document::createAttribute", documentProtoCreateAttribute],
+  ["Document::createAttributeNS", documentProtoCreateAttributeNS],
+  ["Document::createCDATASection", documentProtoCreateCDATASection],
+  ["Document::createComment", documentProtoCreateComment],
+  ["Document::createDocumentFragment", documentProtoCreateDocumentFragment],
+  ["Document::createElement", documentProtoCreateElement],
+  ["Document::createElementNS", documentProtoCreateElementNS],
+  ["Document::createEvent", documentProtoCreateEvent],
+  ["Document::createNodeIterator", documentProtoCreateNodeIterator],
+  [
+    "Document::createProcessingInstruction",
+    documentProtoCreateProcessingInstruction
+  ],
+  ["Document::createRange", documentProtoCreateRange],
+  ["Document::createTextNode", documentProtoCreateTextNode],
+  ["Document::createTreeWalker", documentProtoCreateTreeWalker],
+  ["Document::execCommand", documentProtoExecCommand],
+  ["Document::exitFullscreen", documentProtoExitFullscreen],
+  ["Document::exitPictureInPicture", documentProtoExitPictureInPicture],
+  ["Document::exitPointerLock", documentProtoExitPointerLock],
+  ["Document::getElementById", documentProtoGetElementById],
+  ["Document::getElementsByClassName", documentProtoGetElementsByClassName],
+  ["Document::getElementsByName", documentProtoGetElementsByName],
+  ["Document::getElementsByTagName", documentProtoGetElementsByTagName],
+  ["Document::getElementsByTagNameNS", documentProtoGetElementsByTagNameNS],
+  ["Document::getSelection", documentProtoGetSelection],
+  ["Document::hasFocus", documentProtoHasFocus],
+  ["Document::hasStorageAccess", documentProtoHasStorageAccess],
+  ["Document::importNode", documentProtoImportNode],
+  ["Document::open", documentProtoOpen],
+  ["Document::queryCommandEnabled", documentProtoQueryCommandEnabled],
+  ["Document::queryCommandIndeterm", documentProtoQueryCommandIndeterm],
+  ["Document::queryCommandState", documentProtoQueryCommandState],
+  ["Document::queryCommandSupported", documentProtoQueryCommandSupported],
+  ["Document::queryCommandValue", documentProtoQueryCommandValue],
+  ["Document::releaseEvents", documentProtoReleaseEvents],
+  ["Document::requestStorageAccess", documentProtoRequestStorageAccess],
+  ["Document::startViewTransition", documentProtoStartViewTransition],
+  ["Document::write", documentProtoWrite],
+  ["Document::writeln", documentProtoWriteln],
+  ["Document::addEventListener", documentProtoAddEventListener],
+  ["Document::removeEventListener", documentProtoRemoveEventListener],
+  ["DocumentFragment::new", documentFragmentProtoNew],
+  ["DocumentFragment::prototype", documentFragmentProtoProto],
+  ["DocumentFragment.ownerDocument", documentFragmentOwnerDocument],
+  ["DocumentFragment::getElementById", documentFragmentProtoGetElementById],
+  ["DocumentTimeline::new", documentTimelineProtoNew],
+  ["DocumentTimeline::prototype", documentTimelineProtoProto],
+  ["DocumentType::new", documentTypeProtoNew],
+  ["DocumentType::prototype", documentTypeProtoProto],
+  ["DocumentType.name", documentTypeName],
+  ["DocumentType.ownerDocument", documentTypeOwnerDocument],
+  ["DocumentType.publicId", documentTypePublicId],
+  ["DocumentType.systemId", documentTypeSystemId],
+  ["DocumentFragment::new", documentFragmentProtoNew],
+  ["DocumentFragment::prototype", documentFragmentProtoProto],
+  ["DocumentFragment.ownerDocument", documentFragmentOwnerDocument],
+  ["DocumentFragment::getElementById", documentFragmentProtoGetElementById],
+  ["Element::new", elementProtoNew],
+  ["Element::prototype", elementProtoProto],
+  ["Element.attributes", elementAttributes],
+  ["Element.classList", elementClassList],
+  ["Element.className", elementClassName],
+  ["Element.clientHeight", elementClientHeight],
+  ["Element.clientLeft", elementClientLeft],
+  ["Element.clientTop", elementClientTop],
+  ["Element.clientWidth", elementClientWidth],
+  ["Element.currentCSSZoom", elementCurrentCSSZoom],
+  ["Element.id", elementId],
+  ["Element.innerHTML", elementInnerHTML],
+  ["Element.localName", elementLocalName],
+  ["Element.namespaceURI", elementNamespaceURI],
+  ["Element.onfullscreenchange", elementOnfullscreenchange],
+  ["Element.onfullscreenerror", elementOnfullscreenerror],
+  ["Element.outerHTML", elementOuterHTML],
+  ["Element.ownerDocument", elementOwnerDocument],
+  ["Element.part", elementPart],
+  ["Element.prefix", elementPrefix],
+  ["Element.scrollHeight", elementScrollHeight],
+  ["Element.scrollLeft", elementScrollLeft],
+  ["Element.scrollTop", elementScrollTop],
+  ["Element.scrollWidth", elementScrollWidth],
+  ["Element.shadowRoot", elementShadowRoot],
+  ["Element.slot", elementSlot],
+  ["Element.tagName", elementTagName],
+  ["Element::attachShadow", elementProtoAttachShadow],
+  ["Element::checkVisibility", elementProtoCheckVisibility],
+  ["Element::closest", elementProtoClosest],
+  ["Element::computedStyleMap", elementProtoComputedStyleMap],
+  ["Element::getAttribute", elementProtoGetAttribute],
+  ["Element::getAttributeNS", elementProtoGetAttributeNS],
+  ["Element::getAttributeNames", elementProtoGetAttributeNames],
+  ["Element::getAttributeNode", elementProtoGetAttributeNode],
+  ["Element::getAttributeNodeNS", elementProtoGetAttributeNodeNS],
+  ["Element::getBoundingClientRect", elementProtoGetBoundingClientRect],
+  ["Element::getClientRects", elementProtoGetClientRects],
+  ["Element::getElementsByClassName", elementProtoGetElementsByClassName],
+  ["Element::getElementsByTagName", elementProtoGetElementsByTagName],
+  ["Element::getElementsByTagNameNS", elementProtoGetElementsByTagNameNS],
+  ["Element::getHTML", elementProtoGetHTML],
+  ["Element::hasAttribute", elementProtoHasAttribute],
+  ["Element::hasAttributeNS", elementProtoHasAttributeNS],
+  ["Element::hasAttributes", elementProtoHasAttributes],
+  ["Element::hasPointerCapture", elementProtoHasPointerCapture],
+  ["Element::insertAdjacentElement", elementProtoInsertAdjacentElement],
+  ["Element::insertAdjacentHTML", elementProtoInsertAdjacentHTML],
+  ["Element::insertAdjacentText", elementProtoInsertAdjacentText],
+  ["Element::matches", elementProtoMatches],
+  ["Element::releasePointerCapture", elementProtoReleasePointerCapture],
+  ["Element::removeAttribute", elementProtoRemoveAttribute],
+  ["Element::removeAttributeNS", elementProtoRemoveAttributeNS],
+  ["Element::removeAttributeNode", elementProtoRemoveAttributeNode],
+  ["Element::requestFullscreen", elementProtoRequestFullscreen],
+  ["Element::requestPointerLock", elementProtoRequestPointerLock],
+  ["Element::scroll", elementProtoScroll],
+  ["Element::scrollBy", elementProtoScrollBy],
+  ["Element::scrollIntoView", elementProtoScrollIntoView],
+  ["Element::scrollTo", elementProtoScrollTo],
+  ["Element::setAttribute", elementProtoSetAttribute],
+  ["Element::setAttributeNS", elementProtoSetAttributeNS],
+  ["Element::setAttributeNode", elementProtoSetAttributeNode],
+  ["Element::setAttributeNodeNS", elementProtoSetAttributeNodeNS],
+  ["Element::setHTMLUnsafe", elementProtoSetHTMLUnsafe],
+  ["Element::setPointerCapture", elementProtoSetPointerCapture],
+  ["Element::toggleAttribute", elementProtoToggleAttribute],
+  ["Element::webkitMatchesSelector", elementProtoWebkitMatchesSelector],
+  ["Element::addEventListener", elementProtoAddEventListener],
+  ["Element::removeEventListener", elementProtoRemoveEventListener],
+  ["Event::new", eventProtoNew],
+  ["Event::prototype", eventProtoProto],
+  ["Event::NONE", eventProtoNONE],
+  ["Event::CAPTURING_PHASE", eventProtoCAPTURINGPHASE],
+  ["Event::AT_TARGET", eventProtoATTARGET],
+  ["Event::BUBBLING_PHASE", eventProtoBUBBLINGPHASE],
+  ["Event.bubbles", eventBubbles],
+  ["Event.cancelBubble", eventCancelBubble],
+  ["Event.cancelable", eventCancelable],
+  ["Event.composed", eventComposed],
+  ["Event.currentTarget", eventCurrentTarget],
+  ["Event.defaultPrevented", eventDefaultPrevented],
+  ["Event.eventPhase", eventEventPhase],
+  ["Event.isTrusted", eventIsTrusted],
+  ["Event.returnValue", eventReturnValue],
+  ["Event.srcElement", eventSrcElement],
+  ["Event.target", eventTarget],
+  ["Event.timeStamp", eventTimeStamp],
+  ["Event.type", eventType],
+  ["Event.NONE", eventNONE],
+  ["Event.CAPTURING_PHASE", eventCAPTURINGPHASE],
+  ["Event.AT_TARGET", eventATTARGET],
+  ["Event.BUBBLING_PHASE", eventBUBBLINGPHASE],
+  ["Event::composedPath", eventProtoComposedPath],
+  ["Event::initEvent", eventProtoInitEvent],
+  ["Event::preventDefault", eventProtoPreventDefault],
+  ["Event::stopImmediatePropagation", eventProtoStopImmediatePropagation],
+  ["Event::stopPropagation", eventProtoStopPropagation],
+  ["EventTarget::new", eventTargetProtoNew],
+  ["EventTarget::prototype", eventTargetProtoProto],
+  ["EventTarget::addEventListener", eventTargetProtoAddEventListener],
+  ["EventTarget::dispatchEvent", eventTargetProtoDispatchEvent],
+  ["EventTarget::removeEventListener", eventTargetProtoRemoveEventListener]
+];
+for (const [sym, fn] of nsValues3) {
+  ns4.set(createSymbolNode(sym), createFunctionNode(fn));
+}
+function customEventProtoNew(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function customEventProtoProto(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function customEventDetail(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function customEventProtoInitCustomEvent(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentProtoNew(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentProtoProto(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentProtoParseHTMLUnsafe(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentURL(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentAlinkColor(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentAll(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentAnchors(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentApplets(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentBgColor(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentBody(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentCharacterSet(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentCharset(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentCompatMode(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentContentType(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentCookie(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentCurrentScript(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentDefaultView(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentDesignMode(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentDir(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentDoctype(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentDocumentElement(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentDocumentURI(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentDomain(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentEmbeds(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentFgColor(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentForms(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentFragmentDirective(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentFullscreen(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentFullscreenEnabled(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentHead(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentHidden(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentImages(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentImplementation(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentInputEncoding(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentLastModified(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentLinkColor(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentLinks(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentOnfullscreenchange(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentOnfullscreenerror(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentOnpointerlockchange(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentOnpointerlockerror(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentOnreadystatechange(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentOnvisibilitychange(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentOwnerDocument(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentPictureInPictureEnabled(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentPlugins(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentReadyState(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentReferrer(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentRootElement(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentScripts(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentScrollingElement(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentTimeline(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentTitle(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentVisibilityState(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentVlinkColor(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentProtoAdoptNode(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentProtoCaptureEvents(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentProtoCaretPositionFromPoint(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentProtoCaretRangeFromPoint(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentProtoClear(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentProtoClose(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentProtoCreateAttribute(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentProtoCreateAttributeNS(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentProtoCreateCDATASection(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentProtoCreateComment(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentProtoCreateDocumentFragment(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentProtoCreateElement(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentProtoCreateElementNS(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentProtoCreateEvent(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentProtoCreateNodeIterator(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentProtoCreateProcessingInstruction(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentProtoCreateRange(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentProtoCreateTextNode(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentProtoCreateTreeWalker(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentProtoExecCommand(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentProtoExitFullscreen(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentProtoExitPictureInPicture(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentProtoExitPointerLock(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentProtoGetElementById(...args) {
+  assertArgumentCount(args.length, 1);
+  assertStringNode(args[0]);
+  const value = Document.prototype.getElementById.call(document, args[0].value);
+  return value ? createAtomNode(value) : createNilNode();
+}
+function documentProtoGetElementsByClassName(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentProtoGetElementsByName(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentProtoGetElementsByTagName(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentProtoGetElementsByTagNameNS(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentProtoGetSelection(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentProtoHasFocus(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentProtoHasStorageAccess(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentProtoImportNode(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentProtoOpen(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentProtoQueryCommandEnabled(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentProtoQueryCommandIndeterm(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentProtoQueryCommandState(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentProtoQueryCommandSupported(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentProtoQueryCommandValue(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentProtoReleaseEvents(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentProtoRequestStorageAccess(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentProtoStartViewTransition(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentProtoWrite(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentProtoWriteln(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentProtoAddEventListener(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentProtoRemoveEventListener(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentTimelineProtoNew(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentTimelineProtoProto(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentTypeName(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentTypeOwnerDocument(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentTypePublicId(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentTypeSystemId(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentFragmentProtoNew(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentFragmentProtoProto(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentFragmentOwnerDocument(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentFragmentProtoGetElementById(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentTypeProtoNew(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function documentTypeProtoProto(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementProtoNew(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementProtoProto(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementAttributes(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementClassList(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementClassName(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementClientHeight(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementClientLeft(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementClientTop(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementClientWidth(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementCurrentCSSZoom(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementId(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementInnerHTML(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementLocalName(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementNamespaceURI(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementOnfullscreenchange(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementOnfullscreenerror(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementOuterHTML(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementOwnerDocument(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementPart(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementPrefix(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementScrollHeight(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementScrollLeft(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementScrollTop(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementScrollWidth(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementShadowRoot(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementSlot(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementTagName(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementProtoAttachShadow(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementProtoCheckVisibility(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementProtoClosest(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementProtoComputedStyleMap(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementProtoGetAttribute(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementProtoGetAttributeNS(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementProtoGetAttributeNames(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementProtoGetAttributeNode(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementProtoGetAttributeNodeNS(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementProtoGetBoundingClientRect(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementProtoGetClientRects(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementProtoGetElementsByClassName(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementProtoGetElementsByTagName(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementProtoGetElementsByTagNameNS(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementProtoGetHTML(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementProtoHasAttribute(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementProtoHasAttributeNS(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementProtoHasAttributes(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementProtoHasPointerCapture(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementProtoInsertAdjacentElement(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementProtoInsertAdjacentHTML(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementProtoInsertAdjacentText(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementProtoMatches(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementProtoReleasePointerCapture(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementProtoRemoveAttribute(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementProtoRemoveAttributeNS(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementProtoRemoveAttributeNode(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementProtoRequestFullscreen(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementProtoRequestPointerLock(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementProtoScroll(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementProtoScrollBy(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementProtoScrollIntoView(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementProtoScrollTo(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementProtoSetAttribute(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementProtoSetAttributeNS(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementProtoSetAttributeNode(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementProtoSetAttributeNodeNS(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementProtoSetHTMLUnsafe(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementProtoSetPointerCapture(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementProtoToggleAttribute(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementProtoWebkitMatchesSelector(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementProtoAddEventListener(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function elementProtoRemoveEventListener(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function eventProtoNew(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function eventProtoProto(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function eventProtoNONE(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function eventProtoCAPTURINGPHASE(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function eventProtoATTARGET(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function eventProtoBUBBLINGPHASE(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function eventBubbles(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function eventCancelBubble(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function eventCancelable(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function eventComposed(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function eventCurrentTarget(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function eventDefaultPrevented(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function eventEventPhase(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function eventIsTrusted(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function eventReturnValue(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function eventSrcElement(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function eventTarget(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function eventTimeStamp(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function eventType(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function eventNONE(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function eventCAPTURINGPHASE(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function eventATTARGET(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function eventBUBBLINGPHASE(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function eventProtoComposedPath(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function eventProtoInitEvent(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function eventProtoPreventDefault(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function eventProtoStopImmediatePropagation(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function eventProtoStopPropagation(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function eventTargetProtoNew(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function eventTargetProtoProto(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function eventTargetProtoAddEventListener(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function eventTargetProtoDispatchEvent(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+function eventTargetProtoRemoveEventListener(...args) {
+  assertArgumentCount(args.length, 1);
+  return createNilNode();
+}
+
+// src/ensemble/lib.ts
+function assertTryCatch(a) {
+  assertListNode(a);
+  assertVariableArgumentCount(a.value.length, 2, 3);
+  const symbolNode = a.value[0];
+  assertSymbolNode(symbolNode);
+  if (symbolNode.value !== "try" && symbolNode.value !== "try*") {
+    throw new Error("use `try` or `try*` in try/catch expressions");
+  }
+  assertAstNode(a.value[1]);
+  if (a.value[2]) {
+    assertListNode(a.value[2]);
+    assertArgumentCount(a.value[2].value.length, 3);
+    assertSymbolNode(a.value[2].value[0]);
+    const catchNode = a.value[2].value[0];
+    if (catchNode.value !== "catch" && catchNode.value !== "catch*") {
+      throw new Error("use `catch` or `catch*` in try/catch expressions");
+    }
+    assertSymbolNode(a.value[2].value[1]);
+    assertAstNode(a.value[2].value[2]);
+  }
+}
+function assertDef(a) {
+  assertListNode(a);
+  assertArgumentCount(a.value.length, 3);
+  assertSymbolNode(a.value[0]);
+  const symbolNode = a.value[0];
+  if (symbolNode.value !== "def!" && symbolNode.value !== "globalThis" && symbolNode.value !== "var") {
+    throw new Error("use `def!`, `globalThis`, or `var` in def! expressions");
+  }
+  assertMapKeyNode(a.value[1]);
+  assertAstNode(a.value[2]);
+}
+function assertLet(a) {
+  assertListNode(a);
+  assertArgumentCount(a.value.length, 3);
+  assertSymbolNode(a.value[0]);
+  const symbolNode = a.value[0];
+  if (symbolNode.value !== "let*" && symbolNode.value !== "let" && symbolNode.value !== "const") {
+    throw new Error("use `let*`, `let`, or `const` in let* expressions");
+  }
+  assertSequential(a.value[1]);
+  assertAstNode(a.value[2]);
+  assertEvenArgumentCount(a.value[1].value.length);
+  for (let i = 0; i < a.value[1].value.length; i += 2) {
+    assertSymbolNode(a.value[1].value[i]);
+    assertAstNode(a.value[1].value[i + 1]);
+  }
+}
+function assertQuote(a) {
+  assertListNode(a);
+  assertArgumentCount(a.value.length, 2);
+  assertSymbolNode(a.value[0]);
+  assertSymWithValue(a.value[0], "quote");
+  assertAstNode(a.value[1]);
+}
+function assertQuasiQuoteExpand(a) {
+  const symbol2 = "quasiquoteexpand";
+  assertListNode(a);
+  assertArgumentCount(a.value.length, 2);
+  assertSymbolNode(a.value[0]);
+  assertSymWithValue(a.value[0], symbol2);
+  assertAstNode(a.value[1]);
+}
+function assertQuasiQuote(a) {
+  const symbol2 = "quasiquote";
+  assertListNode(a);
+  assertArgumentCount(a.value.length, 2);
+  assertSymbolNode(a.value[0]);
+  assertSymWithValue(a.value[0], symbol2);
+  assertAstNode(a.value[1]);
+}
+function assertDefMacro(a) {
+  const symbol2 = "defmacro!";
+  assertListNode(a);
+  assertArgumentCount(a.value.length, 3);
+  assertSymbolNode(a.value[0]);
+  assertSymWithValue(a.value[0], symbol2);
+  assertMapKeyNode(a.value[1]);
+  assertAstNode(a.value[2]);
+}
+function assertDo(a) {
+  const symbol2 = "do";
+  assertListNode(a);
+  assertMinimumArgumentCount(a.value.length, 1);
+  assertSymbolNode(a.value[0]);
+  assertSymWithValue(a.value[0], symbol2);
+  for (const node2 of a.value.slice(1)) {
+    assertAstNode(node2);
+  }
+}
+function assertIf(a) {
+  const symbol2 = "if";
+  assertListNode(a);
+  assertVariableArgumentCount(a.value.length, 3, 4);
+  assertSymbolNode(a.value[0]);
+  assertSymWithValue(a.value[0], symbol2);
+  assertAstNode(a.value[1]);
+  assertAstNode(a.value[2]);
+  if (isDefined(a.value[3])) {
+    assertAstNode(a.value[3]);
+  }
+}
+function assertFn(a) {
+  assertListNode(a);
+  assertArgumentCount(a.value.length, 3);
+  assertSymbolNode(a.value[0]);
+  const symbolNode = a.value[0];
+  if (!["fn*", "function", "=>"].includes(symbolNode.value)) {
+    throw new Error("use `fn*`, `function`, of `=>` in fn* expressions");
+  }
+  assertSequential(a.value[1]);
+  assertSequentialValues(
+    a.value[1].value,
+    SymbolNode
+  );
+  assertAstNode(a.value[2]);
+}
+function read(malCode) {
+  const ast = readString(malCode);
+  return ast;
+}
+function quasiQuote(node2) {
+  const isQuotableNode = isMapNode(node2) || isSymbolNode(node2);
+  if (isQuotableNode) {
+    return createListNode([createSymbolNode("quote"), node2]);
+  }
+  if (!isSequentialNode(node2)) {
+    return node2;
+  }
+  const firstValueIsUnquote = listStartsWithSymbol(node2, "unquote");
+  if (firstValueIsUnquote) {
+    return node2.value[1];
+  }
+  let result = createListNode([]);
+  for (let i = node2.value.length - 1; i >= 0; i--) {
+    const element = node2.value[i];
+    result = listStartsWithSymbol(element, "splice-unquote") ? createListNode([
+      createSymbolNode("concat"),
+      element.value[1],
+      result
+    ]) : createListNode([
+      createSymbolNode("cons"),
+      quasiQuote(element),
+      result
+    ]);
+  }
+  if (isVectorNode(node2)) {
+    result = createListNode([createSymbolNode("vec"), result]);
+  }
+  return result;
+}
+function isMacroCall(ast, appEnv) {
+  if (!isListNode(ast) || !(ast.value[0] instanceof SymbolNode)) {
+    return false;
+  }
+  const symbol2 = ast.value[0];
+  const foundEnv = appEnv.findEnv(symbol2);
+  if (!isDefined(foundEnv)) {
+    return false;
+  }
+  const fn = foundEnv.get(symbol2);
+  if (!isFunctionNode(fn)) {
+    return false;
+  }
+  return fn.isMacro;
+}
+function macroExpand(ast, appEnv) {
+  let resultAst = ast;
+  while (isMacroCall(resultAst, appEnv)) {
+    const list2 = resultAst;
+    const symbol2 = list2.value[0];
+    const fn = appEnv.get(symbol2);
+    resultAst = fn.value(...list2.value.slice(1));
+  }
+  return resultAst;
+}
+function evaluateAst(node2, appEnv) {
+  if (isSymbolNode(node2)) {
+    return appEnv.get(node2);
+  }
+  if (isVectorNode(node2)) {
+    const evaluated = node2.value.map((v) => evaluate(v, appEnv));
+    return createVectorNode(evaluated);
+  }
+  if (isListNode(node2)) {
+    const evaluated = node2.value.map((v) => evaluate(v, appEnv));
+    return createListNode(evaluated);
+  }
+  if (isMapNode(node2)) {
+    const evaluated = /* @__PURE__ */ new Map();
+    for (const [key, value] of node2.value.entries()) {
+      evaluated.set(key, evaluate(value, appEnv));
+    }
+    return createMapNode(evaluated);
+  }
+  if (isDomNode(node2)) {
+    const tagName = node2.value;
+    const attributes = Array.from(node2.attributes).reduce(
+      (map, [key, value]) => map.set(key, evaluate(value, appEnv)),
+      /* @__PURE__ */ new Map()
+    );
+    const children = node2.children.map((child) => evaluate(child, appEnv));
+    return createDomNode(tagName, attributes, children);
+  }
+  return node2;
+}
+function evaluate(node2, appEnv) {
+  for (; ; ) {
+    if (isListNode(node2) === false) {
+      return evaluateAst(node2, appEnv);
+    }
+    if (node2.value.length === 0) {
+      return node2;
+    }
+    node2 = macroExpand(node2, appEnv);
+    if (isListNode(node2) === false) {
+      return evaluateAst(node2, appEnv);
+    }
+    if (node2.value.length === 0) {
+      return node2;
+    }
+    const symbolValue = isSymbolNode(node2.value[0]) ? node2.value[0].value : "goto_default_clause";
+    let result;
+    switch (symbolValue) {
+      // "`var` statements and function declarations at the top level of
+      // a script create properties of the global object."
+      // https://developer.mozilla.org/en-US/docs/Glossary/Global_object
+      case "var":
+      case "def!": {
+        result = evaluateDef(node2, appEnv);
+        break;
+      }
+      // "On the other hand, let and const declarations never create
+      // properties of the global object."
+      // https://developer.mozilla.org/en-US/docs/Glossary/Global_object
+      case "let":
+      case "const":
+      case "let*": {
+        result = evaluateLet(node2, appEnv);
+        break;
+      }
+      case "quote": {
+        result = evaluateQuote(node2, appEnv);
+        break;
+      }
+      // Only for testing quasiquote
+      case "quasiquoteexpand": {
+        result = evaluateQuasiQuoteExpand(node2, appEnv);
+        break;
+      }
+      case "quasiquote": {
+        result = evaluateQuasiQuote(node2, appEnv);
+        break;
+      }
+      case "defmacro!": {
+        result = evaluateDefMacro(node2, appEnv);
+        break;
+      }
+      case "macroexpand": {
+        result = returnResult(macroExpand(node2.value[1], appEnv));
+        break;
+      }
+      case "try":
+      case "try*": {
+        result = evaluateTry(node2, appEnv);
+        break;
+      }
+      case "do": {
+        result = evaluateDo(node2, appEnv);
+        break;
+      }
+      case "if": {
+        result = evaluateIf(node2, appEnv);
+        break;
+      }
+      case "=>":
+      case "function":
+      case "fn*": {
+        result = evaluateFn(node2, appEnv);
+        break;
+      }
+      default: {
+        result = evaluateApply(node2, appEnv);
+      }
+    }
+    if (result.return) {
+      return result.return;
+    }
+    node2 = result.continue.ast;
+    appEnv = result.continue.env;
+  }
+}
+function evaluateDef(node2, appEnv) {
+  assertDef(node2);
+  const variableName = node2.value[1];
+  const variableValue = node2.value[2];
+  const evaluatedValue = evaluate(variableValue, appEnv);
+  return returnResult(appEnv.set(variableName, evaluatedValue));
+}
+function evaluateLet(node2, appEnv) {
+  assertLet(node2);
+  const bindings = node2.value[1];
+  const bindingsCount = bindings.value.length;
+  const letEnv = new Env(appEnv);
+  for (let i = 0; i < bindingsCount; i += 2) {
+    const varName = bindings.value[i];
+    const varExpr = bindings.value[i + 1];
+    const varValue = evaluate(varExpr, letEnv);
+    letEnv.set(varName, varValue);
+  }
+  return continueResult(node2.value[2], letEnv);
+}
+function evaluateQuote(node2, _) {
+  assertQuote(node2);
+  return returnResult(node2.value[1]);
+}
+function evaluateQuasiQuoteExpand(node2, _env) {
+  assertQuasiQuoteExpand(node2);
+  return returnResult(quasiQuote(node2.value[1]));
+}
+function evaluateQuasiQuote(node2, appEnv) {
+  assertQuasiQuote(node2);
+  const resultAst = quasiQuote(node2.value[1]);
+  return continueResult(resultAst, appEnv);
+}
+function evaluateDefMacro(node2, appEnv) {
+  assertDefMacro(node2);
+  const variableName = node2.value[1];
+  const variableValue = node2.value[2];
+  const evaluatedValue = evaluate(variableValue, appEnv);
+  const copiedValue = copy(evaluatedValue);
+  if (isFunctionNode(copiedValue)) {
+    copiedValue.isMacro = true;
+  }
+  return returnResult(appEnv.set(variableName, copiedValue));
+}
+function evaluateDo(node2, appEnv) {
+  assertDo(node2);
+  let lastResult = createNilNode();
+  for (let i = 1; i < node2.value.length; i++) {
+    lastResult = evaluate(node2.value[i], appEnv);
+  }
+  return { continue: { ast: lastResult, env: appEnv }, return: void 0 };
+}
+function evaluateTry(node2, appEnv) {
+  assertTryCatch(node2);
+  try {
+    return {
+      return: evaluate(node2.value[1], appEnv),
+      continue: void 0
+    };
+  } catch (error) {
+    if (!node2.value[2]) {
+      throw error;
+    }
+    const sym = node2.value[2].value[1];
+    const list2 = node2.value[2].value[2];
+    let message;
+    if (isErrorNode(error)) {
+      message = error;
+    } else if (error instanceof Error) {
+      message = createStringNode(error.message);
+    } else {
+      message = createStringNode(JSON.stringify(error));
+    }
+    const caught = createErrorNode(message);
+    const errorEnv = new Env(appEnv, [sym], [caught]);
+    return { return: evaluate(list2, errorEnv), continue: void 0 };
+  }
+}
+function evaluateIf(node2, appEnv) {
+  assertIf(node2);
+  const condition = node2.value[1];
+  const result = evaluate(condition, appEnv);
+  if (result.value !== false && result.value !== null) {
+    const thenExpr = node2.value[2];
+    return continueResult(thenExpr, appEnv);
+  }
+  if (node2.value[3] !== void 0) {
+    const elseExpr = node2.value[3];
+    return continueResult(elseExpr, appEnv);
+  }
+  return returnResult(createNilNode());
+}
+function evaluateFn(node2, appEnv) {
+  assertFn(node2);
+  const parameters = node2.value[1].value;
+  const bodyExpr = node2.value[2];
+  const outerEnv = appEnv;
+  const closureMeta = {
+    ast: bodyExpr,
+    env: outerEnv,
+    parameters
+  };
+  const fn = createFunctionNode(
+    (...args) => {
+      const fnEnv = new Env(outerEnv, parameters, args);
+      return evaluate(bodyExpr, fnEnv);
+    },
+    closureMeta
+  );
+  return returnResult(fn);
+}
+function evaluateApply(node2, appEnv) {
+  const evaluatedList = evaluateAst(node2, appEnv);
+  assertListNode(evaluatedList);
+  const fn = evaluatedList.value[0];
+  if (isFunctionNode(fn)) {
+    const args = evaluatedList.value.slice(1);
+    if (fn.closureMeta) {
+      const ast = fn.closureMeta.ast;
+      const fnEnv = new Env(
+        fn.closureMeta.env,
+        fn.closureMeta.parameters,
+        args
+      );
+      return { continue: { ast, env: fnEnv }, return: void 0 };
+    }
+    const called = fn.value(...args);
+    return { return: called, continue: void 0 };
+  }
+  return { return: fn, continue: void 0 };
+}
+function print(value) {
+  return printString(value, true);
+}
+function rep(input, appEnv) {
+  return print(evaluate(read(input), appEnv));
+}
+function initEnv() {
+  const replEnv = new Env(void 0);
+  for (const [coreSymbol, coreFunc] of core_default.ns.entries()) {
+    replEnv.set(coreSymbol, coreFunc);
+  }
+  for (const [jsSymbol, jsFunc] of ns3.entries()) {
+    replEnv.set(jsSymbol, jsFunc);
+  }
+  for (const [htmlSymbol, htmlFunc] of ns2.entries()) {
+    replEnv.set(htmlSymbol, htmlFunc);
+  }
+  for (const [domSymbol, domFunc] of ns4.entries()) {
+    replEnv.set(domSymbol, domFunc);
+  }
+  replEnv.set(
+    createSymbolNode("eval"),
+    createFunctionNode((...args) => {
+      assertArgumentCount(args.length, 1);
+      return evaluate(args[0], replEnv);
+    })
+  );
+  replEnv.set(
+    createSymbolNode("dump"),
+    createFunctionNode((..._args) => {
+      const serialized = replEnv.serialize();
+      console.log(printString(serialized, true));
+      return createNilNode();
+    })
+  );
+  rep("(def! not (fn* (a) (if a false true)))", replEnv);
+  rep(
+    `(defmacro! cond
       (fn* (& xs)
        (if (gt (count xs) 0) (list 'if (first xs)
                                   (if (gt (count xs) 1) (nth xs 1)
                                       (throw "odd number of forms to cond"))
-                                  (cons 'cond (rest (rest xs)))))))`,e),e}var Jo="user> ";function Yo(e,t){let o=null;try{o=re.open(t,"w"),o!==null&&o.puts(e)}catch(s){throw o!==null&&o.close(),new Error(`Error writing to file: ${s}`)}}function lt(...e){n(e.length,1);let t=e[0];l(t);let o=Xo(t.value);return o==null?N():d(o)}function Ho(...e){n(e.length,1),l(e[0]);let t=[],[o,s]=Qo.readdir(e[0].value);if(+s>0)throw new Error(`Error reading directory: ${s}`);for(let r of o)r==="."||r===".."||t.push(d(r));return m(t)}function Ze(...e){n(e.length,1);let t=e[0];l(t);let o=re.loadFile(t.value);if(o===null)throw new Error("No such file or directory. xxx");return d(o)}function dt(...e){n(e.length,2);let t=e[0];l(t);let o=e[1];return l(o),Yo(o.value,t.value),N()}function Xo(e=Jo){re.out.puts(e);let t=re.in.getline()?.trim();console.log(t),console.log(e)}function*Zo(e=Jo){for(;;){re.out.puts(e);let t=re.in.getline()?.trim();t&&(yield t)}}function es(e){return function(...o){n(o.length,1),l(o[0]);let s=Ze(o[0]);l(s);let r=new ne(e),i=le(`(do ${s.value})
-nil`,r);return d(i)}}function ts(){let e=zo(),t=es(e),o=[["readFile",Ze],["slurp",Ze],["load-file",t],["import",t],["readln",lt],["prompt",lt],["readir",Ho],["spit",dt],["writeFile",dt]];for(let[s,r]of o)e.set(S(s),k(r));return e}function os(e=""){return e.replace(/\\/g,"/")}async function mi(...e){let t=ts(),o=os(e[0]),s=e.slice(1).map(r=>d(r));if(t.set(S("*ARGV*"),g(s)),t.set(S("*host-language*"),d("Ensemble")),o){le(`(import "${o}")`,t);return}le('(println (str "Welcome to " *host-language* "! Press Ctrl/Cmd+C to exit."))',t);for await(let r of Zo("user> "))if(!(r===""||r===null))try{let i=le(r,t);console.log(i)}catch(i){X(i)?console.log(`error: ${q(i,!1)}`):i instanceof Error&&console.log(i)}}var ss={displayPrompt:Xo,initMain:ts,loadFileWithEnv:es,main:mi,readir:Ho,readline:Zo,readln:lt,rep:le,slurp:Ze,spit:dt,toPosixPath:os,writeToFile:Yo};ss.main(...scriptArgs);
+                                  (cons 'cond (rest (rest xs)))))))`,
+    replEnv
+  );
+  return replEnv;
+}
+export {
+  assertDef,
+  assertDefMacro,
+  assertDo,
+  assertFn,
+  assertIf,
+  assertLet,
+  assertQuasiQuote,
+  assertQuasiQuoteExpand,
+  assertQuote,
+  assertTryCatch,
+  evaluate,
+  evaluateApply,
+  evaluateAst,
+  evaluateDef,
+  evaluateDefMacro,
+  evaluateDo,
+  evaluateFn,
+  evaluateIf,
+  evaluateLet,
+  evaluateQuasiQuote,
+  evaluateQuasiQuoteExpand,
+  evaluateQuote,
+  evaluateTry,
+  initEnv,
+  isMacroCall,
+  macroExpand,
+  print,
+  quasiQuote,
+  read,
+  rep
+};

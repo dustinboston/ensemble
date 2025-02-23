@@ -1,0 +1,87 @@
+<console.log
+  <!doctype>
+  <html {lang="en"}
+    <head
+      // <meta {charset: "UTF-8"}>
+      // <meta {name: "viewport" content: "width=device-width, initial-scale=1.0"}>    
+      <title "Todos">
+      <style nil {
+        "body"{
+          font-family: "Arial, sans-serif";
+          margin: 0;
+          padding: 0;
+        }
+        "h1, h2, form, div, output" {
+          text-align: "center";
+          margin-top: "20px";
+        }
+        "input[type=text]" {
+          padding: "10px";
+          width: "300px";
+          font-size: "16px";
+        }
+        "button[type=submit]" {
+          padding: "10px";
+          font-size: "16px";
+        }
+        "button[type=button]" {
+          padding: "10px";
+          font-size: "16px";
+          margin: "5px";
+        }
+        "ul" {
+          list-style-type: "none";
+          padding: 0;
+        }
+        "li" {
+          padding: "10px";
+          border-bottom: "1px solid #ccc";
+        }
+        "input[type=checkbox]" {
+          margin-right: "10px";
+        }
+        "span[contenteditable=true]" {
+          outline: "none";
+        }         
+      }>>
+    <body 
+      <h1 "Todos">
+      <form {id="addTodo" method="get"}
+        <input {type="text" placeholder="What needs to be done?" name="todo"}>
+        <button {type="submit"} "Add">>
+      
+      <form {id="filter"}
+          <label <input {type="radio" name="filterBy"}> "All">
+          <label <input {type="radio" name="filterBy"}> "Active">
+          <label <input {type="radio" name="filterBy"}> "Completed">>
+
+      <output {id="output"}
+        <h2 <span {id="numTasks"} "0"> "tasks remaining">
+        <ul {id="todoList"}>>
+
+      <template {id="todoItem"}
+        <li
+          <input {type="checkbox"}>
+          <span {contenteditable=true}>
+          <button {type="button"} "Delete">>>
+
+      <script {type="module"}
+        <do <console.log "Hello, world!">
+          <const [
+              form = <Document::getElementById "addTodo">
+              todoList = <Document::getElementById "todoList">
+              template = <Document::getElementById "todoItem">
+              numTasks = <Document::getElementById "numTasks">
+              tasks = []
+              filter = "All"
+            ]
+            <<. form "addEventListener"> "submit" 
+              <function (event) 
+                <event.preventDefault>
+                <const [
+                    input = <<. event "target.querySelector"> "input[type=text]">
+                    text = <<. input "value.trim">>
+                  ]              
+                  <if <neq text "">
+                    <Array::push tasks {text: text, completed: false}>                  
+                    <console.log tasks>>>>>>>>>>>

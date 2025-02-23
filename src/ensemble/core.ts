@@ -11,8 +11,6 @@ export const ns = new Map<types.MapKeyNode, types.FunctionNode>();
 const nsValues: Array<[string, types.Closure]> = [
 	// ["=", eq],
 	["eq", eq],
-	["equals", eq],
-	["equal", eq],
 
 	["throw", throwError],
 	["nil?", isNil],
@@ -56,10 +54,10 @@ const nsValues: Array<[string, types.Closure]> = [
 	// ["greater-than", gt],
 	["gte", gte],
 	// ["greater-than-equal", gte],
-	["add", add],
-	["subtract", subtract],
-	["multiply", multiply],
-	["divide", divide],
+	["add", add], // sum
+	["subtract", subtract], // difference, dif
+	["multiply", multiply], // product, prod
+	["divide", divide], // quotient, quot
 
 	["time-ms", timeMs],
 
@@ -104,6 +102,8 @@ const nsValues: Array<[string, types.Closure]> = [
 	["deref", deref],
 	["reset!", reset],
 	["swap!", swap],
+
+	[".", getProp],
 ];
 
 for (const [sym, fn] of nsValues) {
@@ -543,11 +543,11 @@ export function length(...args: types.AstNode[]): types.AstNode {
 
 	if (types.isMapNode(args[0])) {
 		return types.createNumberNode(args[0].value.size);
-	} else if (types.isSequentialNode(args[0])) {
-		return types.createNumberNode(args[0].value.length);
-	} else {
-		throw new TypeError("Invalid argument type");
 	}
+	if (types.isSequentialNode(args[0])) {
+		return types.createNumberNode(args[0].value.length);
+	}
+	throw new TypeError("Invalid argument type");
 }
 
 /**
@@ -1164,19 +1164,46 @@ export function switchCase(...args: types.AstNode[]): types.AstNode {
 	return defaultClause.value();
 }
 
-// function getProp(node: types.MapNode, keyPath: types.StringNode): types.AstNode {
-//   const obj = types.toJs(node) as Record<string, any>;
-//   const path = keyPath.value;
+/**
+ * nullish coalescing is built in to the language.
+ * @param node
+ * @param keyPath
+ * @returns
+ */
+function getProp(...args: types.AstNode[]): types.AstNode {
+	console.log("getProp", JSON.stringify(args));
+	types.assertMinimumArgumentCount(args.length, 2);
+	types.assertAstNode(args[0]);
+	types.assertStringNode(args[1]);
 
-//   const result = path.split('.').reduce((current, key) => {
-//     if (current && key in current) {
-//       return current[key];
-//     }
-//     return undefined;
-//   }, obj);
+	const path = args[1].value;
+	let obj = null;
 
-//   return types.toAst(result);
-// }
+	const value = args[0].value;
+
+	if (Array.isArray(value)) {
+		obj = value;
+	} else if (value instanceof Map) {
+		obj = Object.fromEntries(value);
+	} else if (value instanceof Set) {
+		obj = Array.from(value);
+	} else if (value !== null && typeof value === "object") {
+		obj = value;
+	}
+
+	if (obj === null) {
+		return types.createNilNode();
+	}
+
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+	const result = path.split(".").reduce<any>((current, key) => {
+		if (current && key in current) {
+			return current[key];
+		}
+	}, obj);
+
+	return types.toAst(result);
+}
 
 export default {
 	add,

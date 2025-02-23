@@ -18,15 +18,13 @@ export const operators: Array<[string, types.Closure]> = [
 	// ["!", not],
 	// ["++", increment],
 	// ["--", decrement],
-	// ["typeof", typeOf],
-	// ["instanceof", instanceOf],
+	["typeof", typeOf],
+	["instanceof", instanceOf],
 
 	// ["not-equal", notEqualTo],
 	["neq", notEqualTo],
 	["nullish", nullishCoalesce],
-	// ["pow", power],
 	["power", power],
-	// ["mod", remainder],
 	["remainder", remainder],
 	["rshift", rightShift],
 	["lshift", leftShift],
@@ -38,10 +36,8 @@ export const operators: Array<[string, types.Closure]> = [
 	["and", and],
 	["or", or],
 	["not", not],
-	["inc", increment],
-	// ["increment", increment],
-	["dec", decrement],
-	// ["decrement", decrement],
+	["increment", increment],
+	["decrement", decrement],
 ];
 
 /**

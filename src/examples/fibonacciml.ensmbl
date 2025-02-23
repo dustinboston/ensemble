@@ -8,33 +8,26 @@
 // ## The equation in JavaScript
 //
 //     this.sqrt5 = Math.sqrt<5>;
-//     this.phi = <<1 + this.sqrt5> / 2>;
-//     this.psi = <<1 - this.sqrt5> / 2>;
+//     this.phi = ((1 + this.sqrt5) / 2);
+//     this.psi = ((1 - this.sqrt5) / 2);
 //     this.binet = n => Math.round<<<this.phi ** n> - <this.psi ** n>> / this.sqrt5>;
 //     console.log<binet<7>>; // 13
 //
 // ## The equivalent in Ensemble
 //
 //     <var sqrt5 <Math.sqrt 5>>
-//     <var phi <divide <add 1 sqrt5> 2>>
-//     <var psi <divide <substract 1 sqrt5> 2>>
-//     <var binet <function <n> <Math.round <divide <substract <power phi n> <power psi n>> sqrt5>>>>
+//     <var phi </ <+ 1 sqrt5> 2>>
+//     <var psi </ <- 1 sqrt5> 2>>
+//     <var binet <function <n> <Math.round </ <- <** phi n> <** psi n>> sqrt5>>>>
 //     <console.log <binet 7>> // 13
 //
 // ## Ensemble in one expression
 
-<var binet
-  <function <n> 
-    <const [
-        sqrt5 <Math.sqrt 5>
-        phi <divide <add 1 sqrt5> 2>
-        psi <divide <subtract 1 sqrt5> 2>
-      ]
-      <Math.round 
-        <divide 
-          <subtract 
-            <power phi n> 
-            <power psi n>> 
-          sqrt5>>>>>
+<var binet 
+     <function <n> 
+               <const [sqrt5 <Math.sqrt 5>,
+                       phi <divide <add 1 sqrt5> 2>,
+                       psi <divide <subtract 1 sqrt5> 2>]
+                      <Math.round <divide <subtract <power phi n> <power psi n>> sqrt5>>>>>
 
 <console.log <binet 7>>

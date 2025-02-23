@@ -108,14 +108,12 @@ export function printHtml(ast: types.AstNode, printReadably = false): string {
 
 		let attributes = "";
 		if (ast.attributes.size > 0) {
-			attributes =
-				" " +
-				Array.from(ast.attributes)
-					.map(([key, value]) => {
-						if (key === "style") return printInlineCss(value, printReadably);
-						return `${types.getBareMapKey(key)}="${printHtml(value, printReadably)}"`;
-					})
-					.join(" ");
+			attributes = ` ${Array.from(ast.attributes)
+				.map(([key, value]) => {
+					if (key === "style") return printInlineCss(value, printReadably);
+					return `${types.getBareMapKey(key)}="${printHtml(value, printReadably)}"`;
+				})
+				.join(" ")}`;
 		}
 
 		if (isSelfClosing) return `<${tagName}${attributes} />`;
@@ -194,7 +192,7 @@ export function printHtml(ast: types.AstNode, printReadably = false): string {
 }
 
 /**
- * Prints Ensemble to JavaScript
+ * Prints Ensemble so that it can be interpreted at runtime
  * @param ast - The AST node to be converted
  * @param printReadably - "readably" means new lines are visible
  * @returns A JavaScript representation of the AST
@@ -204,57 +202,13 @@ export function printJavaScript(
 	ast: types.AstNode,
 	printReadably = false,
 ): string {
-	if (types.isDomNode(ast)) {
-		const element = `(const el = document.createElement("${ast.value}"); document.body.appendChild(el);)`;
-		return element;
-	}
+	const en = printString(ast, true);
+	const js = `
+	import { rep, initEnv } from '../../bin/ensemble.js';
+	rep(\`${en}\`, initEnv());	
+	`;
 
-	if (types.isListNode(ast)) {
-		const serialized = ast.value;
-		const fn = serialized[0];
-		const args = serialized.slice(1);
-		return `(${fn.value}(${args.map((v) => printJavaScript(v)).join(", ")}))`;
-	}
-
-	if (types.isVectorNode(ast)) {
-		const serialized = ast.value.map((v) => printJavaScript(v)).join(",");
-		return `[${serialized}]`;
-	}
-
-	if (types.isFunctionNode(ast)) {
-		const body = ast.value.toString();
-		return `(${body})`;
-	}
-
-	if (
-		types.isStringNode(ast) ||
-		types.isKeywordNode(ast) ||
-		types.isSymbolNode(ast)
-	) {
-		return `"${ast.value}"`;
-	}
-
-	if (types.isBooleanNode(ast) || types.isNumberNode(ast)) {
-		return String(ast.value);
-	}
-
-	if (types.isMapNode(ast)) {
-		const serialized = Object.entries(ast.value)
-			.map(([key, value]) => {
-				// Keys in JavaScript objects are usually strings
-				const jsKey = /^[a-zA-Z_$][0-9a-zA-Z_$]*$/.test(key) ? key : `"${key}"`;
-				const jsValue = printJavaScript(value, printReadably);
-				return `${jsKey}: ${jsValue}`;
-			})
-			.join(", ");
-		return `{${serialized}}`;
-	}
-
-	if (types.isNilNode(ast)) {
-		return "null";
-	}
-
-	return "/* javascript */";
+	return js;
 }
 
 /**
