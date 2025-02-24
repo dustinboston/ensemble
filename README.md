@@ -141,6 +141,8 @@ root
 
 ### Prerequisites
 
+You'll need NodeJS, QuickJS, and Make.
+
 #### Install NodeJS
 
 1. [Download and Install NodeJS][NodeJS].
@@ -155,54 +157,33 @@ root
 ### Building Ensemble
 
 The following commands will build the Ensemble interpreter as a standalone 
-JavaScript file (using ESBuild) and the standalone executable using QuickJS-NG. 
-QuickJS-NG is a fork of the QuickJS JavaScript engine that is actively maintained.
+JavaScript file (using ESBuild and QuickJS).
 
-Run the build script from the root of the project:
-
-- **Windows**
-  ```powershell
-  Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-  .\bin\build.ps1
-  ```
-- **Linux**
-  ```bash
-  ./bin/build.sh
-  ```
+```bash
+make
+```
 
 ### Running Unit and Integration Tests
 
 To start the unit and integration tests, run the test script from the root of the project.
 
-- **Windows**
-  ```powershell
-  Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-  .\bin\test.ps1
-  ```
-- **Linux**
-  ```bash
-  ./bin/test.sh
-  ```
+```bash
+make test-unit-fun
+```
 
 **Note About Parallel Testing** 
-It is not possible to run the tests in parallel at the moment because there 
-when this code was ported from Deno to QuickJS there were tests with steps.
-These tests were not modified during conversion and remain order-dependent.  
+It is not possible to run the tests in parallel at the moment because when this 
+code was ported from Deno to QuickJS there were tests with steps. These tests 
+were not modified during conversion and remain order-dependent.  
 
 ### Running End-to-End Tests
 
 1. [Download and Install Python][Python] 
-2. Run the test_e2e script from the root of the project.
+2. Run the following from the root of the project.
 
-- **Windows**
-  ```powershell
-  Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-  .\bin\test_e2e.ps1
-  ```
-- **Linux**
-  ```bash
-  ./bin/test_e2e.sh
-  ```  
+```bash
+make test-e2e
+```
 
 ## Standards
 
@@ -210,10 +191,6 @@ These tests were not modified during conversion and remain order-dependent.
 - [Making TypeScript Truly "Strongly Typed"][Zemskov]
 - [The power of 10: rules for developing safety-critical code][Holzman]
 - [JPL Institutional Coding Standard for the C Programming Language][JPL]
-
-## JSON Schema
-
-<https://www.jsongenerator.io/schema>
 
 ## Credits
 
