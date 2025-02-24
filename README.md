@@ -6,10 +6,14 @@ in a Lisp-like like language with HTML style syntax.
 ## Syntax
 
 ```ensemble
-(var fibonacci (function (n)
-  (if (<= n 1) n 
-    (+ (fibonacci (- n 1)) 
-       (fibonacci (- n 2))))));
+<var binet 
+  <function <n> 
+    <const [sqrt5 <Math.sqrt 5>,
+        phi <divide <add 1 sqrt5> 2>,
+        psi <divide <subtract 1 sqrt5> 2>]
+      <Math.round <divide <subtract <power phi n> <power psi n>> sqrt5>>>>>
+
+<console.log <binet 7>>
 ```
 
 ## Usage
