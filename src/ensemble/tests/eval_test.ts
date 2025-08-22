@@ -3,27 +3,27 @@ import runner from "./test_runner.ts";
 
 runner.test("EVAL: Should add", () => {
 	const env = initEnv();
-	runner.assert(rep("(+ 1 2))", env), "3");
+	runner.assert(rep("(add 1 2)", env), "3");
 });
 
 runner.test("EVAL: Should multiply", () => {
 	const env = initEnv();
-	runner.assert(rep("(+ 5 (* 2 3)))", env), "11");
+	runner.assert(rep("(add 5 (multiply 2 3))", env), "11");
 });
 
 runner.test("EVAL: Should subtract", () => {
 	const env = initEnv();
-	runner.assert(rep("(- (+ 5 (* 2 3)) 3))", env), "8");
+	runner.assert(rep("(subtract (add 5 (multiply 2 3)) 3)", env), "8");
 });
 
 runner.test("EVAL: Should divide", () => {
 	const env = initEnv();
-	runner.assert(rep("(/ (- (+ 5 (* 2 3)) 3) 4))", env), "2");
+	runner.assert(rep("(divide (subtract (add 5 (multiply 2 3)) 3) 4)", env), "2");
 });
 
 runner.test("EVAL: Should evaluate bigger numbers", () => {
 	const env = initEnv();
-	runner.assert(rep("(/ (- (+ 515 (* 87 311)) 302) 27)", env), "1010");
+	runner.assert(rep("(divide (subtract (add 515 (multiply 87 311)) 302) 27)", env), "1010");
 });
 
 runner.test("EVAL: Should throw an error with no return value", () => {
@@ -44,12 +44,12 @@ runner.test("EVAL: Should return an empty array", () => {
 
 runner.test("EVAL: Should evaluate arrays", () => {
 	const env = initEnv();
-	runner.assert(rep("[1 2 (+ 1 2)]", env), "[1 2 3]");
+	runner.assert(rep("[1 2 (add 1 2)]", env), "[1 2 3]");
 });
 
 runner.test("EVAL: Should evaluate object literals", () => {
 	const env = initEnv();
-	runner.assert(rep("{ a: (+ 7 8) }", env), "{a: 15}");
+	runner.assert(rep("{ a: (add 7 8) }", env), "{a: 15}");
 });
 
 runner.test("EVAL: Should return an empty object literal", () => {

@@ -39,11 +39,28 @@ export function printString(ast: types.AstNode, printReadably = false): string {
 
 	const atom = ast;
 	if (types.isAtomNode(atom)) {
-		return `(atom ${printString(atom.value)})`;
+		if (types.isAstNode(atom.value)) {
+			return `(atom ${printString(atom.value)})`;
+		}
+
+		if (atom.value instanceof HTMLElement) {
+			const domNode = types.createDomNodeFromHtmlElement(atom.value);
+			return `(atom (element ${printString(domNode)}))`;
+		}
+
+		if (atom.value instanceof Event) {
+			const event = atom.value.type;
+			return `(atom (event ${event})))`;
+		}
+
+		return `(atom #<js ${typeof atom.value}>)`;
 	}
 
 	if (types.isErrorNode(ast)) {
-		return printString(ast.value, printReadably);
+		const cause = ast.cause ? ast.cause : types.createNilNode();
+		const type = ast.name.value;
+		const message = `<str "${type}: [${cause.line}:${cause.column}]" ${printString(ast.value, printReadably)}>`;
+		return `<error ${message}>`;
 	}
 
 	if (types.isFunctionNode(ast)) {
@@ -74,7 +91,11 @@ export function printString(ast: types.AstNode, printReadably = false): string {
 		return "nil";
 	}
 
-	throw new Error(`unmatched object ${JSON.stringify(ast)}`);
+	throw types.createErrorNode(
+		`Expected type of ${types.validTypesString} but got ${JSON.stringify(ast)}`,
+		types.ErrorTypes.TypeError,
+		ast,
+	);
 }
 
 const selfClosingTags: Set<string> = new Set([
@@ -188,7 +209,11 @@ export function printHtml(ast: types.AstNode, printReadably = false): string {
 		return "nil";
 	}
 
-	throw new Error(`unmatched object ${JSON.stringify(ast)}`);
+	throw types.createErrorNode(
+		`Expected type of ${types.validTypesString} but got ${JSON.stringify(ast)}`,
+		types.ErrorTypes.TypeError,
+		ast,
+	);
 }
 
 /**
@@ -203,10 +228,11 @@ export function printJavaScript(
 	printReadably = false,
 ): string {
 	const en = printString(ast, true);
+
 	const js = `
-	import { rep, initEnv } from '../../bin/ensemble.js';
-	rep(\`${en}\`, initEnv());	
-	`;
+import { rep, initEnv } from '../../bin/ensemble.js';
+rep(\`${en}\`, initEnv());
+`;
 
 	return js;
 }
@@ -273,7 +299,11 @@ export function printCss(ast: types.AstNode, printReadably = false): string {
 		return "";
 	}
 
-	throw new Error("unmatched object");
+	throw types.createErrorNode(
+		`Expected type of ${types.validTypesString} but got ${JSON.stringify(ast)}`,
+		types.ErrorTypes.TypeError,
+		ast,
+	);
 }
 
 export function printStyleTag(

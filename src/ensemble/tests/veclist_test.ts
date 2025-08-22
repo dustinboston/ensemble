@@ -77,7 +77,7 @@ runner.test(
 	() => {
 		const sharedEnv = initEnv();
 
-		rep("(def! a (list 1 2))", sharedEnv);
+		rep("(var a (list 1 2))", sharedEnv);
 
 		runner.test("VECLIST: symbols are evaluated within vecs", () => {
 			runner.assert(
@@ -140,8 +140,8 @@ runner.test("VECLIST: Testing nth, first and rest functions with lists", () => {
 	runner.test(
 		"VECLIST: redefining a variable using nth function returns the correct value",
 		() => {
-			rep('(def! x "x") (def! x (nth (list 1 2) 2))', sharedEnv);
-			runner.assert(rep("x", sharedEnv), printString(new StringNode('"x"')));
+			rep('(var x "x") (var x (nth (list 1 2) 2))', sharedEnv);
+			runner.assert(rep("x", sharedEnv), printString(new StringNode("x"), true));
 		},
 	);
 
@@ -242,7 +242,7 @@ runner.test("VECLIST: Testing nth, first, rest with vectors", () => {
 	runner.test(
 		"VECLIST: redefining a variable using nth function in a vector returns the correct value",
 		() => {
-			rep('(def! x "x") (def! x (nth [1 2] 2))', sharedEnv);
+			rep('(var x "x") (var x (nth [1 2] 2))', sharedEnv);
 			runner.assert(
 				rep("x", sharedEnv),
 				printString(new StringNode("x"), true),

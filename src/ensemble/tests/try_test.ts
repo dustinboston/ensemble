@@ -35,7 +35,7 @@ runner.test("TRY: Testing try*/catch*", () => {
 
 	runner.test("Evaluating try* without error", () => {
 		runner.assert(
-			rep("(try* 123 (catch* e 456))", sharedEnv),
+			rep("(try 123 (catch e 456))", sharedEnv),
 			printString(new NumberNode(123), true),
 		);
 	});
@@ -51,7 +51,7 @@ runner.test("TRY: Testing try*/catch*", () => {
 
 		try {
 			runner.assert(
-				rep('(try* abc (catch* exc (prn "exc is:" exc)))', sharedEnv),
+				rep('(try abc (catch exc (prn "exc is:" exc)))', sharedEnv),
 				printString(new NilNode(), true),
 			);
 		} finally {
@@ -59,7 +59,7 @@ runner.test("TRY: Testing try*/catch*", () => {
 		}
 
 		runner.assert(calls, 1);
-		runner.assert(args[0], `"exc is:" "'abc' not found"`);
+		runner.assert(args[0], `"exc is:" <error <str "Error: [0:0]" <error <str "ReferenceError: [0:3]" "The variable name 'abc' has not been declared.">>>>`);
 	});
 
 	runner.test("Evaluating try* with function call to undefined symbol", () => {
@@ -73,7 +73,7 @@ runner.test("TRY: Testing try*/catch*", () => {
 
 		try {
 			runner.assert(
-				rep('(try* (abc 1 2) (catch* exc (prn "exc is:" exc)))', sharedEnv),
+				rep('(try (abc 1 2) (catch exc (prn "exc is:" exc)))', sharedEnv),
 				printString(new NilNode(), true),
 			);
 		} finally {
@@ -81,7 +81,7 @@ runner.test("TRY: Testing try*/catch*", () => {
 		}
 
 		runner.assert(calls, 1);
-		runner.assert(args[0], `"exc is:" "'abc' not found"`);
+		runner.assert(args[0], `"exc is:" <error <str "Error: [0:0]" <error <str "ReferenceError: [0:4]" "The variable name 'abc' has not been declared.">>>>`);
 	});
 });
 
@@ -99,7 +99,7 @@ runner.test("TRY: Make sure error from core can be caught", () => {
 
 		try {
 			runner.assert(
-				rep('(try* (nth () 1) (catch* exc (prn "exc is:" exc)))', sharedEnv),
+				rep('(try (nth () 1) (catch exc (prn "exc is:" exc)))', sharedEnv),
 				printString(new NilNode(), true),
 			);
 		} finally {
@@ -107,7 +107,7 @@ runner.test("TRY: Make sure error from core can be caught", () => {
 		}
 
 		runner.assert(calls, 1);
-		runner.assert(args[0], '"exc is:" "out of range"');
+		runner.assert(args[0], '"exc is:" <error <str "Error: [0:0]" <error <str "RangeError: [0:0]" "Expected an nth index greater than zero and less than 0 but got 1 out of range">>>>');
 	});
 
 	runner.test("TRY: Catching thrown exception", () => {
@@ -122,7 +122,7 @@ runner.test("TRY: Make sure error from core can be caught", () => {
 		try {
 			runner.assert(
 				rep(
-					'(try* (throw "my exception") (catch* exc (do (prn "exc:" exc) 7)))',
+					'(try (throw "my exception") (catch exc (do (prn "exc:" exc) 7)))',
 					sharedEnv,
 				),
 				printString(new NumberNode(7), true),
@@ -132,7 +132,7 @@ runner.test("TRY: Make sure error from core can be caught", () => {
 		}
 
 		runner.assert(calls, 1);
-		runner.assert(args[0], '"exc:" "my exception"');
+		runner.assert(args[0], '"exc:" <error <str "Error: [0:0]" <error <str "Error: [0:0]" "my exception">>>>');
 	});
 });
 
@@ -142,7 +142,7 @@ runner.test("TRY: Test that exception handlers get restored correctly", () => {
 	runner.test("Restoring exception handlers", () => {
 		runner.assert(
 			rep(
-				'(try* (do (try* "t1" (catch* e "c1")) (throw "e1")) (catch* e "c2"))',
+				'(try (do (try "t1" (catch e "c1")) (throw "e1")) (catch e "c2"))',
 				sharedEnv,
 			),
 			printString(new StringNode("c2"), true),
@@ -152,7 +152,7 @@ runner.test("TRY: Test that exception handlers get restored correctly", () => {
 	runner.test("Testing nested try*/catch*", () => {
 		runner.assert(
 			rep(
-				'(try* (try* (throw "e1") (catch* e (throw "e2"))) (catch* e "c2"))',
+				'(try (try (throw "e1") (catch e (throw "e2"))) (catch e "c2"))',
 				sharedEnv,
 			),
 			printString(new StringNode("c2"), true),
@@ -164,8 +164,8 @@ runner.test("TRY: Test that throw is a function", () => {
 	const sharedEnv = initEnv();
 	runner.test("Throwing inside map", () => {
 		runner.assert(
-			rep('(try* (map throw (list "my err")) (catch* exc exc))', sharedEnv),
-			printString(new StringNode("my err"), true),
+			rep('(try (map throw (list "my err")) (catch exc exc))', sharedEnv),
+			'<error <str "Error: [0:0]" <error <str "Error: [0:0]" "my err">>>>',
 		);
 	});
 });
@@ -176,7 +176,7 @@ runner.test("TRY: Testing try* without catch*", () => {
 	runner.test("Evaluating try* without catch*", () => {
 		let threw = false;
 		try {
-			rep("(try* xyz)", sharedEnv);
+			rep("(try xyz)", sharedEnv);
 		} catch (e) {
 			threw = true;
 		}
@@ -199,7 +199,7 @@ runner.test("TRY: Testing throwing non-strings", () => {
 		try {
 			runner.assert(
 				rep(
-					'(try* (throw (list 1 2 3)) (catch* exc (do (prn "err:" exc) 7)))',
+					'(try (throw (list 1 2 3)) (catch exc (do (prn "err:" exc) 7))))',
 					sharedEnv,
 				),
 				printString(new NumberNode(7), true),
@@ -209,7 +209,7 @@ runner.test("TRY: Testing throwing non-strings", () => {
 		}
 
 		runner.assert(calls, 1);
-		runner.assert(args[0], '"err:" (1 2 3)');
+		runner.assert(args[0], '"err:" <error <str "Error: [0:0]" <error <str "Error: [0:0]" (1 2 3)>>>>');
 	});
 });
 

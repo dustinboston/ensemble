@@ -29,7 +29,7 @@ runner.test("CORE: Testing is? functions", () => {
 
 	runner.test("CORE: isSymbol with quoted symbol should be true", () => {
 		runner.assert(
-			rep("(symbol? 'abc)", sharedEnv),
+			rep('(symbol? (quote abc))', sharedEnv),
 			printString(new BooleanNode(true), true),
 		);
 	});
@@ -96,14 +96,14 @@ runner.test("CORE: Testing apply", () => {
 
 	runner.test("CORE: apply should work on a list", () => {
 		runner.assert(
-			rep("(apply + (list 2 3))", sharedEnv),
+			rep("(apply add (list 2 3))", sharedEnv),
 			printString(new NumberNode(5), true),
 		);
 	});
 
 	runner.test("CORE: apply should apply to all proceeding expressions", () => {
 		runner.assert(
-			rep("(apply + 4 (list 5))", sharedEnv),
+			rep("(apply add 4 (list 5))", sharedEnv),
 			printString(new NumberNode(9), true),
 		);
 	});
@@ -164,7 +164,7 @@ runner.test("CORE: Testing apply", () => {
 
 	runner.test("CORE: should apply isSymbol to a list", () => {
 		runner.assert(
-			rep("(apply symbol? (list (quote two)))", sharedEnv),
+			rep('(apply symbol? (list (quote two)))', sharedEnv),
 			printString(new BooleanNode(true), true),
 		);
 	});
@@ -177,7 +177,7 @@ runner.test("CORE: Testing apply with fn* special forms", () => {
 		"CORE: should apply a function (fn*) special form to a list",
 		() => {
 			runner.assert(
-				rep("(apply (fn* (a b) (+ a b)) (list 2 3))", sharedEnv),
+				rep("(apply (fn* (a b) (add a b)) (list 2 3))", sharedEnv),
 				printString(new NumberNode(5), true),
 			);
 		},
@@ -187,7 +187,7 @@ runner.test("CORE: Testing apply with fn* special forms", () => {
 		"CORE: should apply a function (fn*) special form to all proceeding expressions",
 		() => {
 			runner.assert(
-				rep("(apply (fn* (a b) (+ a b)) 4 (list 5))", sharedEnv),
+				rep("(apply (fn* (a b) (add a b)) 4 (list 5))", sharedEnv),
 				printString(new NumberNode(9), true),
 			);
 		},
@@ -196,8 +196,8 @@ runner.test("CORE: Testing apply with fn* special forms", () => {
 
 runner.test("CORE: Testing map function", () => {
 	const sharedEnv = initEnv();
-	rep("(def! nums (list 1 2 3))", sharedEnv);
-	rep("(def! double (fn* (a) (* 2 a)))", sharedEnv);
+	rep("(var nums (list 1 2 3))", sharedEnv);
+	rep("(var double (fn* (a) (multiply 2 a)))", sharedEnv);
 
 	runner.test("CORE: double function should double a number", () => {
 		runner.assert(
@@ -240,7 +240,7 @@ runner.test("CORE: Testing map function", () => {
 		"CORE: mapping a function over an empty list should produce an empty list",
 		() => {
 			runner.assert(
-				rep("(= () (map str ()))", sharedEnv),
+				rep("(eq () (map str ()))", sharedEnv),
 				printString(new BooleanNode(true), true),
 			);
 		},
@@ -259,7 +259,7 @@ runner.test("CORE: Testing symbol and keyword functions", () => {
 
 	runner.test("CORE: isSymbol should return true for a symbol", () => {
 		runner.assert(
-			rep("(symbol? 'abc)", sharedEnv),
+			rep('(symbol? (quote abc))', sharedEnv),
 			printString(new BooleanNode(true), true),
 		);
 	});
@@ -290,7 +290,7 @@ runner.test("CORE: Testing symbol and keyword functions", () => {
 
 	runner.test("CORE: isKeyword should return false for a quoted symbol", () => {
 		runner.assert(
-			rep("(keyword? 'abc)", sharedEnv),
+			rep('(keyword? (quote abc))', sharedEnv),
 			printString(new BooleanNode(false), true),
 		);
 	});
@@ -379,7 +379,7 @@ runner.test("CORE: Testing apply with vectors", () => {
 		"CORE: apply should work with all proceeding arguments, including vectors",
 		() => {
 			runner.assert(
-				rep("(apply + 4 [5])", sharedEnv),
+				rep("(apply add 4 [5])", sharedEnv),
 				printString(new NumberNode(9), true),
 			);
 		},
@@ -423,7 +423,7 @@ runner.test("CORE: Testing apply with fn* and vectors", () => {
 
 	runner.test("CORE: should apply fn* to vectors", () => {
 		runner.assert(
-			rep("(apply (fn* (a b) (+ a b)) [2 3])", sharedEnv),
+			rep("(apply (fn* (a b) (add a b)) [2 3])", sharedEnv),
 			printString(new NumberNode(5), true),
 		);
 	});
@@ -432,7 +432,7 @@ runner.test("CORE: Testing apply with fn* and vectors", () => {
 		"CORE: should apply fn* to all proceeding arguments, including vectors",
 		() => {
 			runner.assert(
-				rep("(apply (fn* (a b) (+ a b)) 4 [5])", sharedEnv),
+				rep("(apply (fn* (a b) (add a b)) 4 [5])", sharedEnv),
 				printString(new NumberNode(9), true),
 			);
 		},
@@ -451,7 +451,7 @@ runner.test("CORE: Testing vector functions", () => {
 
 	runner.test("CORE: isVector should return false for a quoted list", () => {
 		runner.assert(
-			rep("(vector? '(12 13))", sharedEnv),
+			rep("(vector? (list 12 13))", sharedEnv),
 			printString(new BooleanNode(false), true),
 		);
 	});
@@ -474,7 +474,7 @@ runner.test("CORE: Testing vector functions", () => {
 		"CORE: an empty vector should be equal to a vector created without arguments",
 		() => {
 			runner.assert(
-				rep("(= [] (vector))", sharedEnv),
+				rep("(eq [] (vector))", sharedEnv),
 				printString(new BooleanNode(true), true),
 			);
 		},

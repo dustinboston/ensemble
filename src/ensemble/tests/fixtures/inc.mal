@@ -1,0 +1,4 @@
+(var inc1 (fn* (a) (add 1 a)))
+(var inc2 (fn* (a) (add 2 a)))
+(var inc3 (fn* (a)
+  (add 3 a)))

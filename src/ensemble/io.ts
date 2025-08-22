@@ -113,12 +113,10 @@ export function spit(...args: types.AstNode[]): types.AstNode {
 	return types.createNilNode();
 }
 
-export function displayPrompt(promptText = defaultPrompt): void {
+export function displayPrompt(promptText = defaultPrompt): string | null {
 	std.out.puts(promptText);
 	const input = std.in.getline()?.trim();
-
-	console.log(input);
-	console.log(promptText);
+	return input || null;
 }
 
 /**
@@ -184,11 +182,9 @@ export function loadFileWithEnv(appEnv: env.Env) {
 		const text = slurp(args[0]);
 		types.assertStringNode(text);
 
-		// Create a new environment for evaluating the loaded file
-		const fileEnv = new env.Env(appEnv); //New Env based on appEnv
-
-		const result = rep(`(do ${text.value})\nnil`, fileEnv);
-		return types.createStringNode(result);
+		// Evaluate the file content in the same environment so definitions persist
+		rep(`(do ${text.value})`, appEnv);
+		return types.createNilNode();
 	};
 }
 
@@ -269,8 +265,10 @@ export async function main(...args: string[]) {
 			console.log(result);
 		} catch (error: unknown) {
 			if (types.isErrorNode(error)) {
-				console.log(`error: ${printer.printString(error, false)}`);
+				console.log(printer.printString(error, false));
 			} else if (error instanceof Error) {
+				console.log(error);
+			} else {
 				console.log(error);
 			}
 		}

@@ -42,16 +42,74 @@ import * as types from "../../types.ts";
 
 export const ns = new Map<types.MapKeyNode, types.FunctionNode>();
 
-// TODO: Implement forEach and reduceRight
 export const nsValues: Array<[string, types.Closure]> = [
+	// Shorthand properties
+	["add-event-listener", addEventListener],
+	["prevent-default", eventProtoPreventDefault],
+	["get-element-by-id", getElementById],
+	["query-selector", querySelector],
+	["set-attribute", elementProtoSetAttribute],
+	["get-attribute", elementProtoGetAttribute],
+
+	// Custom Event
 	["CustomEvent::new", customEventProtoNew],
 	["CustomEvent::prototype", customEventProtoProto],
 	["CustomEvent.detail", customEventDetail],
 	["CustomEvent::initCustomEvent", customEventProtoInitCustomEvent],
+
+	// Document
+	["Document::addEventListener", documentProtoAddEventListener],
+	["Document::adoptNode", documentProtoAdoptNode],
+	["Document::captureEvents", documentProtoCaptureEvents],
+	["Document::caretPositionFromPoint", documentProtoCaretPositionFromPoint],
+	["Document::caretRangeFromPoint", documentProtoCaretRangeFromPoint],
+	["Document::clear", documentProtoClear],
+	["Document::close", documentProtoClose],
+	["Document::createAttribute", documentProtoCreateAttribute],
+	["Document::createAttributeNS", documentProtoCreateAttributeNS],
+	["Document::createCDATASection", documentProtoCreateCDATASection],
+	["Document::createComment", documentProtoCreateComment],
+	["Document::createDocumentFragment", documentProtoCreateDocumentFragment],
+	["Document::createElement", documentProtoCreateElement],
+	["Document::createElementNS", documentProtoCreateElementNS],
+	["Document::createEvent", documentProtoCreateEvent],
+	["Document::createNodeIterator", documentProtoCreateNodeIterator],
+	[
+		"Document::createProcessingInstruction",
+		documentProtoCreateProcessingInstruction,
+	],
+	["Document::createRange", documentProtoCreateRange],
+	["Document::createTextNode", documentProtoCreateTextNode],
+	["Document::createTreeWalker", documentProtoCreateTreeWalker],
+	["Document::execCommand", documentProtoExecCommand],
+	["Document::exitFullscreen", documentProtoExitFullscreen],
+	["Document::exitPictureInPicture", documentProtoExitPictureInPicture],
+	["Document::exitPointerLock", documentProtoExitPointerLock],
+	["Document::getElementById", documentProtoGetElementById],
+	["Document::getElementsByClassName", documentProtoGetElementsByClassName],
+	["Document::getElementsByName", documentProtoGetElementsByName],
+	["Document::getElementsByTagName", documentProtoGetElementsByTagName],
+	["Document::getElementsByTagNameNS", documentProtoGetElementsByTagNameNS],
+	["Document::getSelection", documentProtoGetSelection],
+	["Document::hasFocus", documentProtoHasFocus],
+	["Document::hasStorageAccess", documentProtoHasStorageAccess],
+	["Document::importNode", documentProtoImportNode],
 	["Document::new", documentProtoNew],
-	["Document::prototype", documentProtoProto],
+	["Document::open", documentProtoOpen],
 	["Document::parseHTMLUnsafe", documentProtoParseHTMLUnsafe],
-	["Document.URL", documentURL],
+	["Document::prototype", documentProtoProto],
+	["Document::queryCommandEnabled", documentProtoQueryCommandEnabled],
+	["Document::queryCommandIndeterm", documentProtoQueryCommandIndeterm],
+	["Document::queryCommandState", documentProtoQueryCommandState],
+	["Document::queryCommandSupported", documentProtoQueryCommandSupported],
+	["Document::queryCommandValue", documentProtoQueryCommandValue],
+	["Document::querySelector", documentProtoQuerySelector],
+	["Document::releaseEvents", documentProtoReleaseEvents],
+	["Document::removeEventListener", documentProtoRemoveEventListener],
+	["Document::requestStorageAccess", documentProtoRequestStorageAccess],
+	["Document::startViewTransition", documentProtoStartViewTransition],
+	["Document::write", documentProtoWrite],
+	["Document::writeln", documentProtoWriteln],
 	["Document.alinkColor", documentAlinkColor],
 	["Document.all", documentAll],
 	["Document.anchors", documentAnchors],
@@ -101,60 +159,18 @@ export const nsValues: Array<[string, types.Closure]> = [
 	["Document.scrollingElement", documentScrollingElement],
 	["Document.timeline", documentTimeline],
 	["Document.title", documentTitle],
+	["Document.URL", documentURL],
 	["Document.visibilityState", documentVisibilityState],
 	["Document.vlinkColor", documentVlinkColor],
-	["Document::adoptNode", documentProtoAdoptNode],
-	["Document::captureEvents", documentProtoCaptureEvents],
-	["Document::caretPositionFromPoint", documentProtoCaretPositionFromPoint],
-	["Document::caretRangeFromPoint", documentProtoCaretRangeFromPoint],
-	["Document::clear", documentProtoClear],
-	["Document::close", documentProtoClose],
-	["Document::createAttribute", documentProtoCreateAttribute],
-	["Document::createAttributeNS", documentProtoCreateAttributeNS],
-	["Document::createCDATASection", documentProtoCreateCDATASection],
-	["Document::createComment", documentProtoCreateComment],
-	["Document::createDocumentFragment", documentProtoCreateDocumentFragment],
-	["Document::createElement", documentProtoCreateElement],
-	["Document::createElementNS", documentProtoCreateElementNS],
-	["Document::createEvent", documentProtoCreateEvent],
-	["Document::createNodeIterator", documentProtoCreateNodeIterator],
-	[
-		"Document::createProcessingInstruction",
-		documentProtoCreateProcessingInstruction,
-	],
-	["Document::createRange", documentProtoCreateRange],
-	["Document::createTextNode", documentProtoCreateTextNode],
-	["Document::createTreeWalker", documentProtoCreateTreeWalker],
-	["Document::execCommand", documentProtoExecCommand],
-	["Document::exitFullscreen", documentProtoExitFullscreen],
-	["Document::exitPictureInPicture", documentProtoExitPictureInPicture],
-	["Document::exitPointerLock", documentProtoExitPointerLock],
-	["Document::getElementById", documentProtoGetElementById],
-	["Document::getElementsByClassName", documentProtoGetElementsByClassName],
-	["Document::getElementsByName", documentProtoGetElementsByName],
-	["Document::getElementsByTagName", documentProtoGetElementsByTagName],
-	["Document::getElementsByTagNameNS", documentProtoGetElementsByTagNameNS],
-	["Document::getSelection", documentProtoGetSelection],
-	["Document::hasFocus", documentProtoHasFocus],
-	["Document::hasStorageAccess", documentProtoHasStorageAccess],
-	["Document::importNode", documentProtoImportNode],
-	["Document::open", documentProtoOpen],
-	["Document::queryCommandEnabled", documentProtoQueryCommandEnabled],
-	["Document::queryCommandIndeterm", documentProtoQueryCommandIndeterm],
-	["Document::queryCommandState", documentProtoQueryCommandState],
-	["Document::queryCommandSupported", documentProtoQueryCommandSupported],
-	["Document::queryCommandValue", documentProtoQueryCommandValue],
-	["Document::releaseEvents", documentProtoReleaseEvents],
-	["Document::requestStorageAccess", documentProtoRequestStorageAccess],
-	["Document::startViewTransition", documentProtoStartViewTransition],
-	["Document::write", documentProtoWrite],
-	["Document::writeln", documentProtoWriteln],
-	["Document::addEventListener", documentProtoAddEventListener],
-	["Document::removeEventListener", documentProtoRemoveEventListener],
+
+	// DocumentFragment
+	["DocumentFragment::getElementById", documentFragmentProtoGetElementById],
 	["DocumentFragment::new", documentFragmentProtoNew],
 	["DocumentFragment::prototype", documentFragmentProtoProto],
 	["DocumentFragment.ownerDocument", documentFragmentOwnerDocument],
-	["DocumentFragment::getElementById", documentFragmentProtoGetElementById],
+	["DocumentFragment::querySelector", documentFragmentProtoQuerySelector],
+
+	// DocumentTimeline
 	["DocumentTimeline::new", documentTimelineProtoNew],
 	["DocumentTimeline::prototype", documentTimelineProtoProto],
 	["DocumentType::new", documentTypeProtoNew],
@@ -163,13 +179,54 @@ export const nsValues: Array<[string, types.Closure]> = [
 	["DocumentType.ownerDocument", documentTypeOwnerDocument],
 	["DocumentType.publicId", documentTypePublicId],
 	["DocumentType.systemId", documentTypeSystemId],
-	["DocumentFragment::new", documentFragmentProtoNew],
-	["DocumentFragment::prototype", documentFragmentProtoProto],
-	["DocumentFragment.ownerDocument", documentFragmentOwnerDocument],
-	["DocumentFragment::getElementById", documentFragmentProtoGetElementById],
 
+	// Element
+	["Element::addEventListener", elementProtoAddEventListener],
+	["Element::attachShadow", elementProtoAttachShadow],
+	["Element::checkVisibility", elementProtoCheckVisibility],
+	["Element::closest", elementProtoClosest],
+	["Element::computedStyleMap", elementProtoComputedStyleMap],
+	["Element::getAttribute", elementProtoGetAttribute],
+	["Element::getAttributeNames", elementProtoGetAttributeNames],
+	["Element::getAttributeNode", elementProtoGetAttributeNode],
+	["Element::getAttributeNodeNS", elementProtoGetAttributeNS],
+	["Element::getAttributeNS", elementProtoGetAttributeNS],
+	["Element::getBoundingClientRect", elementProtoGetBoundingClientRect],
+	["Element::getClientRects", elementProtoGetClientRects],
+	["Element::getElementsByClassName", elementProtoGetElementsByClassName],
+	["Element::getElementsByTagName", elementProtoGetElementsByTagName],
+	["Element::getElementsByTagNameNS", elementProtoGetElementsByTagNameNS],
+	["Element::getHTML", elementProtoGetHTML],
+	["Element::hasAttribute", elementProtoHasAttribute],
+	["Element::hasAttributeNS", elementProtoHasAttributeNS],
+	["Element::hasAttributes", elementProtoHasAttributes],
+	["Element::hasPointerCapture", elementProtoHasPointerCapture],
+	["Element::insertAdjacentElement", elementProtoInsertAdjacentElement],
+	["Element::insertAdjacentHTML", elementProtoInsertAdjacentHTML],
+	["Element::insertAdjacentText", elementProtoInsertAdjacentText],
+	["Element::matches", elementProtoMatches],
 	["Element::new", elementProtoNew],
 	["Element::prototype", elementProtoProto],
+	["Element::querySelector", elementProtoQuerySelector],
+	["Element::releasePointerCapture", elementProtoReleasePointerCapture],
+	["Element::removeAttribute", elementProtoRemoveAttribute],
+	["Element::removeAttributeNode", elementProtoRemoveAttributeNode],
+	["Element::removeAttributeNS", elementProtoRemoveAttributeNS],
+	["Element::removeEventListener", elementProtoRemoveEventListener],
+	["Element::requestFullscreen", elementProtoRequestFullscreen],
+	["Element::requestPointerLock", elementProtoRequestPointerLock],
+	["Element::scroll", elementProtoScroll],
+	["Element::scrollBy", elementProtoScrollBy],
+	["Element::scrollIntoView", elementProtoScrollIntoView],
+	["Element::scrollTo", elementProtoScrollTo],
+	["Element::setAttribute", elementProtoSetAttribute],
+	["Element::setAttributeNode", elementProtoSetAttributeNode],
+	["Element::setAttributeNodeNS", elementProtoSetAttributeNodeNS],
+	["Element::setAttributeNS", elementProtoSetAttributeNS],
+	["Element::setHTMLUnsafe", elementProtoSetHTMLUnsafe],
+	["Element::setPointerCapture", elementProtoSetPointerCapture],
+	["Element::toggleAttribute", elementProtoToggleAttribute],
+	["Element::webkitMatchesSelector", elementProtoWebkitMatchesSelector],
 	["Element.attributes", elementAttributes],
 	["Element.classList", elementClassList],
 	["Element.className", elementClassName],
@@ -195,77 +252,38 @@ export const nsValues: Array<[string, types.Closure]> = [
 	["Element.shadowRoot", elementShadowRoot],
 	["Element.slot", elementSlot],
 	["Element.tagName", elementTagName],
-	["Element::attachShadow", elementProtoAttachShadow],
-	["Element::checkVisibility", elementProtoCheckVisibility],
-	["Element::closest", elementProtoClosest],
-	["Element::computedStyleMap", elementProtoComputedStyleMap],
-	["Element::getAttribute", elementProtoGetAttribute],
-	["Element::getAttributeNS", elementProtoGetAttributeNS],
-	["Element::getAttributeNames", elementProtoGetAttributeNames],
-	["Element::getAttributeNode", elementProtoGetAttributeNode],
-	["Element::getAttributeNodeNS", elementProtoGetAttributeNodeNS],
-	["Element::getBoundingClientRect", elementProtoGetBoundingClientRect],
-	["Element::getClientRects", elementProtoGetClientRects],
-	["Element::getElementsByClassName", elementProtoGetElementsByClassName],
-	["Element::getElementsByTagName", elementProtoGetElementsByTagName],
-	["Element::getElementsByTagNameNS", elementProtoGetElementsByTagNameNS],
-	["Element::getHTML", elementProtoGetHTML],
-	["Element::hasAttribute", elementProtoHasAttribute],
-	["Element::hasAttributeNS", elementProtoHasAttributeNS],
-	["Element::hasAttributes", elementProtoHasAttributes],
-	["Element::hasPointerCapture", elementProtoHasPointerCapture],
-	["Element::insertAdjacentElement", elementProtoInsertAdjacentElement],
-	["Element::insertAdjacentHTML", elementProtoInsertAdjacentHTML],
-	["Element::insertAdjacentText", elementProtoInsertAdjacentText],
-	["Element::matches", elementProtoMatches],
-	["Element::releasePointerCapture", elementProtoReleasePointerCapture],
-	["Element::removeAttribute", elementProtoRemoveAttribute],
-	["Element::removeAttributeNS", elementProtoRemoveAttributeNS],
-	["Element::removeAttributeNode", elementProtoRemoveAttributeNode],
-	["Element::requestFullscreen", elementProtoRequestFullscreen],
-	["Element::requestPointerLock", elementProtoRequestPointerLock],
-	["Element::scroll", elementProtoScroll],
-	["Element::scrollBy", elementProtoScrollBy],
-	["Element::scrollIntoView", elementProtoScrollIntoView],
-	["Element::scrollTo", elementProtoScrollTo],
-	["Element::setAttribute", elementProtoSetAttribute],
-	["Element::setAttributeNS", elementProtoSetAttributeNS],
-	["Element::setAttributeNode", elementProtoSetAttributeNode],
-	["Element::setAttributeNodeNS", elementProtoSetAttributeNodeNS],
-	["Element::setHTMLUnsafe", elementProtoSetHTMLUnsafe],
-	["Element::setPointerCapture", elementProtoSetPointerCapture],
-	["Element::toggleAttribute", elementProtoToggleAttribute],
-	["Element::webkitMatchesSelector", elementProtoWebkitMatchesSelector],
-	["Element::addEventListener", elementProtoAddEventListener],
-	["Element::removeEventListener", elementProtoRemoveEventListener],
-	["Event::new", eventProtoNew],
-	["Event::prototype", eventProtoProto],
-	["Event::NONE", eventProtoNONE],
-	["Event::CAPTURING_PHASE", eventProtoCAPTURINGPHASE],
+
+	// Event
 	["Event::AT_TARGET", eventProtoATTARGET],
 	["Event::BUBBLING_PHASE", eventProtoBUBBLINGPHASE],
+	["Event::CAPTURING_PHASE", eventProtoCAPTURINGPHASE],
+	["Event::composedPath", eventProtoComposedPath],
+	["Event::initEvent", eventProtoInitEvent],
+	["Event::new", eventProtoNew],
+	["Event::NONE", eventProtoNONE],
+	["Event::preventDefault", eventProtoPreventDefault],
+	["Event::prototype", eventProtoProto],
+	["Event::stopImmediatePropagation", eventProtoStopImmediatePropagation],
+	["Event::stopPropagation", eventProtoStopPropagation],
+	["Event.AT_TARGET", eventATTARGET],
 	["Event.bubbles", eventBubbles],
-	["Event.cancelBubble", eventCancelBubble],
+	["Event.BUBBLING_PHASE", eventBUBBLINGPHASE],
 	["Event.cancelable", eventCancelable],
+	["Event.cancelBubble", eventCancelBubble],
+	["Event.CAPTURING_PHASE", eventCAPTURINGPHASE],
 	["Event.composed", eventComposed],
 	["Event.currentTarget", eventCurrentTarget],
 	["Event.defaultPrevented", eventDefaultPrevented],
 	["Event.eventPhase", eventEventPhase],
 	["Event.isTrusted", eventIsTrusted],
+	["Event.NONE", eventNONE],
 	["Event.returnValue", eventReturnValue],
 	["Event.srcElement", eventSrcElement],
 	["Event.target", eventTarget],
 	["Event.timeStamp", eventTimeStamp],
 	["Event.type", eventType],
-	["Event.NONE", eventNONE],
-	["Event.CAPTURING_PHASE", eventCAPTURINGPHASE],
-	["Event.AT_TARGET", eventATTARGET],
-	["Event.BUBBLING_PHASE", eventBUBBLINGPHASE],
-	["Event::composedPath", eventProtoComposedPath],
-	["Event::initEvent", eventProtoInitEvent],
-	["Event::preventDefault", eventProtoPreventDefault],
-	["Event::stopImmediatePropagation", eventProtoStopImmediatePropagation],
-	["Event::stopPropagation", eventProtoStopPropagation],
+
+	// EventTarget
 	["EventTarget::new", eventTargetProtoNew],
 	["EventTarget::prototype", eventTargetProtoProto],
 	["EventTarget::addEventListener", eventTargetProtoAddEventListener],
@@ -277,6 +295,42 @@ for (const [sym, fn] of nsValues) {
 	ns.set(types.createSymbolNode(sym), types.createFunctionNode(fn));
 }
 
+// MARK: Shorthand Events
+export function getElementById(...args: types.AstNode[]): types.AstNode {
+	types.assertVariableArgumentCount(args.length, 1, 2);
+
+	if (args[0].value instanceof DocumentFragment) {
+		return documentFragmentProtoGetElementById(...args);
+	}
+
+	return documentProtoGetElementById(...args);
+}
+
+export function querySelector(...args: types.AstNode[]): types.AstNode {
+	types.assertVariableArgumentCount(args.length, 1, 2);
+
+	if (args.length === 1 && args[0].value instanceof Document) {
+		return documentProtoQuerySelector(...args);
+	}
+
+	types.assertAtomNode(args[0]);
+
+	if (args.length === 2 && args[0].value instanceof DocumentFragment) {
+		return documentFragmentProtoQuerySelector(...args);
+	}
+
+	if (args.length === 2 && args[0].value instanceof Element) {
+		return elementProtoQuerySelector(...args);
+	}
+
+	throw types.createErrorNode(
+		"querySelector expects a Document, DocumentFragment or Element as the first parameter.",
+		types.ErrorTypes.TypeError,
+		args[0],
+	);
+}
+
+// MARK: Longhand Events
 export function customEventProtoNew(...args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
@@ -683,7 +737,9 @@ export function documentProtoGetElementById(
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	types.assertStringNode(args[0]);
+
 	const value = Document.prototype.getElementById.call(document, args[0].value);
+
 	return value ? types.createAtomNode(value) : types.createNilNode();
 }
 
@@ -767,6 +823,25 @@ export function documentProtoQueryCommandValue(
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
+
+export function documentProtoQuerySelector(
+	...args: types.AstNode[]
+): types.AstNode {
+	types.assertArgumentCount(args.length, 1);
+	types.assertStringNode(args[0]);
+
+	const value = Document.prototype.querySelector.call(document, args[0].value);
+
+	return value ? types.createAtomNode(value) : types.createNilNode();
+}
+
+// export function documentQuerySelectorAll(
+// 	...args: types.AstNode[]
+// ): types.AstNode {
+// 	types.assertArgumentCount(args.length, 1);
+// 	return types.createNilNode();
+// }
+
 export function documentProtoReleaseEvents(
 	...args: types.AstNode[]
 ): types.AstNode {
@@ -796,9 +871,21 @@ export function documentProtoWriteln(...args: types.AstNode[]): types.AstNode {
 export function documentProtoAddEventListener(
 	...args: types.AstNode[]
 ): types.AstNode {
-	types.assertArgumentCount(args.length, 1);
+	types.assertArgumentCount(args.length, 2);
+	types.assertStringNode(args[0]);
+	types.assertFunctionNode(args[1]);
+
+	Document.prototype.addEventListener.call(
+		document,
+		args[0].value,
+		(event: Event) => {
+			args[1].value(types.createAtomNode(event));
+		},
+	);
+
 	return types.createNilNode();
 }
+
 export function documentProtoRemoveEventListener(
 	...args: types.AstNode[]
 ): types.AstNode {
@@ -847,6 +934,30 @@ export function documentFragmentProtoProto(
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
+
+export function documentFragmentProtoQuerySelector(
+	...args: types.AstNode[]
+): types.AstNode {
+	types.assertArgumentCount(args.length, 2);
+	types.assertAtomNode(args[0]);
+	types.assertStringNode(args[1]);
+
+	if (!(args[0].value instanceof DocumentFragment)) {
+		throw types.createErrorNode(
+			"querySelector expects a DocumentFragment as the first parameter.",
+			types.ErrorTypes.TypeError,
+			args[0],
+		);
+	}
+
+	const value = DocumentFragment.prototype.querySelector.call(
+		args[0].value,
+		args[1].value,
+	);
+
+	return value ? types.createAtomNode(value) : types.createNilNode();
+}
+
 export function documentFragmentOwnerDocument(
 	...args: types.AstNode[]
 ): types.AstNode {
@@ -857,8 +968,17 @@ export function documentFragmentProtoGetElementById(
 	...args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
-	return types.createNilNode();
+	types.assertStringNode(args[0]);
+	types.assertAtomNode(args[1]);
+
+	const element = DocumentFragment.prototype.getElementById.call(
+		args[0].value,
+		args[1].value,
+	);
+
+	return element ? types.createAtomNode(element) : types.createNilNode();
 }
+
 export function documentTypeProtoNew(...args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
@@ -877,6 +997,30 @@ export function elementProtoProto(...args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
+
+export function elementProtoQuerySelector(
+	...args: types.AstNode[]
+): types.AstNode {
+	types.assertArgumentCount(args.length, 2);
+	types.assertAtomNode(args[0]);
+	types.assertStringNode(args[1]);
+
+	if (!(args[0].value instanceof Element)) {
+		throw types.createErrorNode(
+			"querySelector expects an Element as the first parameter.",
+			types.ErrorTypes.TypeError,
+			args[0],
+		);
+	}
+
+	const value = Element.prototype.querySelector.call(
+		args[0].value,
+		args[1].value,
+	);
+
+	return value ? types.createAtomNode(value) : types.createNilNode();
+}
+
 export function elementAttributes(...args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
@@ -1006,14 +1150,16 @@ export function elementProtoComputedStyleMap(
 export function elementProtoGetAttribute(
 	...args: types.AstNode[]
 ): types.AstNode {
-	types.assertArgumentCount(args.length, 1);
-	return types.createNilNode();
-}
-export function elementProtoGetAttributeNS(
-	...args: types.AstNode[]
-): types.AstNode {
-	types.assertArgumentCount(args.length, 1);
-	return types.createNilNode();
+	types.assertArgumentCount(args.length, 2);
+	types.assertAtomNode(args[0]);
+	types.assertStringNode(args[1]);
+
+	const value = Element.prototype.getAttribute.call(
+		args[0].value,
+		args[1].value,
+	);
+
+	return value ? types.createStringNode(value) : types.createNilNode();
 }
 export function elementProtoGetAttributeNames(
 	...args: types.AstNode[]
@@ -1027,7 +1173,8 @@ export function elementProtoGetAttributeNode(
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function elementProtoGetAttributeNodeNS(
+
+export function elementProtoGetAttributeNS(
 	...args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
@@ -1170,7 +1317,17 @@ export function elementProtoScrollTo(...args: types.AstNode[]): types.AstNode {
 export function elementProtoSetAttribute(
 	...args: types.AstNode[]
 ): types.AstNode {
-	types.assertArgumentCount(args.length, 1);
+	types.assertArgumentCount(args.length, 3);
+	types.assertAtomNode(args[0]);
+	types.assertStringNode(args[1]);
+	types.assertStringNode(args[2]);
+
+	Element.prototype.setAttribute.call(
+		args[0].value,
+		args[1].value,
+		args[2].value,
+	);
+
 	return types.createNilNode();
 }
 export function elementProtoSetAttributeNS(
@@ -1218,7 +1375,27 @@ export function elementProtoWebkitMatchesSelector(
 export function elementProtoAddEventListener(
 	...args: types.AstNode[]
 ): types.AstNode {
-	types.assertArgumentCount(args.length, 1);
+	types.assertArgumentCount(args.length, 3);
+	types.assertAtomNode(args[0]);
+	types.assertStringNode(args[1]);
+	types.assertFunctionNode(args[2]);
+
+	if (!(args[0].value instanceof Element)) {
+		throw types.createErrorNode(
+			"addEventListener expects an Element as the first parameter.",
+			types.ErrorTypes.TypeError,
+			args[0],
+		);
+	}
+
+	Element.prototype.addEventListener.call(
+		args[0].value,
+		args[1].value,
+		(event: Event) => {
+			args[2].value(types.createAtomNode(event));
+		},
+	);
+
 	return types.createNilNode();
 }
 export function elementProtoRemoveEventListener(
@@ -1337,6 +1514,17 @@ export function eventProtoPreventDefault(
 	...args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
+	types.assertAtomNode(args[0]);
+
+	if (!(args[0].value instanceof Event)) {
+		throw types.createErrorNode(
+			"preventDefault expects an Event as the first parameter.",
+			types.ErrorTypes.TypeError,
+			args[0],
+		);
+	}
+
+	Event.prototype.preventDefault.call(args[0].value);
 	return types.createNilNode();
 }
 export function eventProtoStopImmediatePropagation(
@@ -1359,12 +1547,56 @@ export function eventTargetProtoProto(...args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
+
+export function addEventListener(...args: types.AstNode[]): types.AstNode {
+	types.assertVariableArgumentCount(args.length, 2, 3);
+
+	if (args[0].value instanceof Document) {
+		return documentProtoAddEventListener(...args);
+	}
+
+	if (args[0].value instanceof EventTarget) {
+		return eventTargetProtoAddEventListener(...args);
+	}
+
+	if (args[0].value instanceof Element) {
+		return elementProtoAddEventListener(...args);
+	}
+
+	throw types.createErrorNode(
+		"addEventListener expects an Document, Element, or EventTarget as the first parameter.",
+		types.ErrorTypes.TypeError,
+		args[0],
+	);
+}
+
 export function eventTargetProtoAddEventListener(
 	...args: types.AstNode[]
 ): types.AstNode {
-	types.assertArgumentCount(args.length, 1);
+	types.assertArgumentCount(args.length, 3);
+	types.assertAtomNode(args[0]);
+	types.assertStringNode(args[1]);
+	types.assertFunctionNode(args[2]);
+
+	if (!(args[0].value instanceof EventTarget)) {
+		throw types.createErrorNode(
+			"addEventListener expects an EventTarget as the first parameter.",
+			types.ErrorTypes.TypeError,
+			args[0],
+		);
+	}
+
+	EventTarget.prototype.addEventListener.call(
+		args[0].value,
+		args[1].value,
+		(event: Event) => {
+			args[2].value(types.createAtomNode(event));
+		},
+	);
+
 	return types.createNilNode();
 }
+
 export function eventTargetProtoDispatchEvent(
 	...args: types.AstNode[]
 ): types.AstNode {

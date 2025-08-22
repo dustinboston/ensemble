@@ -346,11 +346,11 @@ runner.test(
 	},
 );
 
-runner.test("evaluate(): should handle 'def!' correctly", () => {
+runner.test("evaluate(): should handle 'var' correctly", () => {
 	const env = new Env();
 	const result = evaluate(
 		createListNode([
-			createSymbolNode("def!"),
+			createSymbolNode("var"),
 			createSymbolNode("a"),
 			createNumberNode(1),
 		]),
@@ -359,11 +359,11 @@ runner.test("evaluate(): should handle 'def!' correctly", () => {
 	runner.assert(isNumberNode(result), true);
 });
 
-runner.test("evaluate(): should handle 'let*' correctly", () => {
+runner.test("evaluate(): should handle 'const' correctly", () => {
 	const env = new Env();
 	const result = evaluate(
 		createListNode([
-			createSymbolNode("let*"),
+			createSymbolNode("const"),
 			createListNode([]),
 			createNumberNode(1),
 		]),
@@ -443,10 +443,10 @@ runner.test("evaluate(): should handle 'macroexpand' correctly", () => {
 	runner.assert(isNumberNode(result), true);
 });
 
-runner.test("evaluate(): should handle 'try*' correctly", () => {
+runner.test("evaluate(): should handle 'try' correctly", () => {
 	const env = new Env();
 	const result = evaluate(
-		createListNode([createSymbolNode("try*"), createNumberNode(1)]),
+		createListNode([createSymbolNode("try"), createNumberNode(1)]),
 		env,
 	);
 	runner.assert(isNumberNode(result), true);
@@ -510,7 +510,7 @@ runner.test("evaluateDef(): should define a global variable", () => {
 	const variableName = createSymbolNode("y");
 	const variableValue = createNumberNode(3);
 	const ast = createListNode([
-		createSymbolNode("def!"),
+		createSymbolNode("var"),
 		variableName,
 		variableValue,
 	]);
@@ -547,7 +547,7 @@ runner.test("evaluateLet(): should define variables in a new scope", () => {
 
 	const bindings = createListNode([varName1, varValue1, varName2, varValue2]);
 	const body = createSymbolNode("a");
-	const ast = createListNode([createSymbolNode("let*"), bindings, body]);
+	const ast = createListNode([createSymbolNode("const"), bindings, body]);
 
 	const result = evaluateLet(ast, env);
 
@@ -562,7 +562,7 @@ runner.test("evaluateLet(): allows shadowing", () => {
 	env.set(createSymbolNode("a"), createNumberNode(2));
 	const bindings = createListNode([createSymbolNode("a"), createNumberNode(3)]);
 	const body = createSymbolNode("a");
-	const ast = createListNode([createSymbolNode("let*"), bindings, body]);
+	const ast = createListNode([createSymbolNode("const"), bindings, body]);
 
 	const result = evaluateLet(ast, env);
 	const newEnv = result.continue?.env;
@@ -757,7 +757,7 @@ runner.test(
 );
 
 runner.test("evaluateTry(): evaluates without errors", () => {
-	const ast = createListNode([createSymbolNode("try*"), createNumberNode(42)]);
+	const ast = createListNode([createSymbolNode("try"), createNumberNode(42)]);
 	const env = new Env();
 	const result = evaluateTry(ast, env);
 	runner.assert(result.return, createNumberNode(42));
@@ -765,13 +765,13 @@ runner.test("evaluateTry(): evaluates without errors", () => {
 
 runner.test("evaluateTry(): catches thrown error and handles it", () => {
 	const ast = createListNode([
-		createSymbolNode("try*"),
+		createSymbolNode("try"),
 		createListNode([
 			createSymbolNode("custom-throw"),
 			createStringNode("we shouldnt be here"),
 		]),
 		createListNode([
-			createSymbolNode("catch*"),
+			createSymbolNode("catch"),
 			createSymbolNode("e"),
 			createListNode([createSymbolNode("str"), createStringNode("caught!")]),
 		]),
@@ -789,13 +789,13 @@ runner.test("evaluateTry(): catches thrown error and handles it", () => {
 
 runner.test("evaluateTry(): catches native error and handles it", () => {
 	const ast = createListNode([
-		createSymbolNode("try*"),
+		createSymbolNode("try"),
 		createListNode([
 			createSymbolNode("throw-native"),
 			createStringNode("native error!"),
 		]),
 		createListNode([
-			createSymbolNode("catch*"),
+			createSymbolNode("catch"),
 			createSymbolNode("e"),
 			createListNode([createSymbolNode("str"), createStringNode("caught!")]),
 		]),
@@ -1053,7 +1053,7 @@ runner.test("evaluateApply(): throws error for non-list input", () => {
 
 runner.test("initEnv(): initEnv initializes the core functions", () => {
 	const env = initEnv();
-	runner.assert(typeof env.get(createSymbolNode("+")).value, "function");
+	runner.assert(typeof env.get(createSymbolNode("add")).value, "function");
 });
 
 runner.test("initEnv(): initEnv initializes eval function", () => {

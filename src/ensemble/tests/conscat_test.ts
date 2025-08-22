@@ -55,7 +55,7 @@ runner.test("Cons/Concat: Testing cons function", async () => {
 runner.test("Cons/Concat: Testing def + cons", async () => {
 	const sharedEnv = initEnv();
 
-	rep("(def! a (list 2 3))", sharedEnv);
+	rep("(var a (list 2 3))", sharedEnv);
 
 	runner.test("Cons/Concat: cons a number and a symbol", () => {
 		runner.assert(
@@ -142,7 +142,7 @@ runner.test("Cons/Concat: Testing concat function", async () => {
 		"Cons/Concat: an empty list is equivalent to a concat of nothing",
 		() => {
 			runner.assert(
-				rep("(= () (concat))", sharedEnv),
+				rep("(eq () (concat))", sharedEnv),
 				printString(new BooleanNode(true), true),
 			);
 		},
@@ -152,8 +152,8 @@ runner.test("Cons/Concat: Testing concat function", async () => {
 runner.test("Cons/Concat: Testing concat + def!", () => {
 	const sharedEnv = initEnv();
 
-	rep("(def! a (list 1 2))", sharedEnv);
-	rep("(def! b (list 3 4))", sharedEnv);
+	rep("(var a (list 1 2))", sharedEnv);
+	rep("(var b (list 3 4))", sharedEnv);
 
 	runner.test("Cons/Concat: concat evaluated symbols and lists", () => {
 		runner.assert(

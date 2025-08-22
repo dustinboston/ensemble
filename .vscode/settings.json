@@ -21,5 +21,8 @@
     80
   ],
   "editor.tabSize": 2,
-  "editor.useTabStops": false
+  "editor.useTabStops": false,
+  "[html]": {
+    "editor.defaultFormatter": "vscode.html-language-features"
+  }
 }

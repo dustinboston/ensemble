@@ -105,23 +105,18 @@ runner.test("readln(): should read line and return string", () => {
 	const input = types.createStringNode("%");
 	const expected = types.createStringNode('"foobar"');
 
-	let calls = 0;
-	let args: unknown[] = [];
-	const oldPrompt = cli.displayPrompt;
-	cli.displayPrompt = (..._args) => {
-		calls++;
-		args = _args;
-		return '"foobar"';
-	};
+	// Mock std.in.getline and std.out.puts to avoid actual I/O
+	const originalGetline = std.in.getline;
+	const originalPuts = std.out.puts;
+	std.in.getline = () => '"foobar"';
+	std.out.puts = () => {};
 
 	try {
 		runner.assert(readln(input), expected);
 	} finally {
-		cli.displayPrompt = oldPrompt;
+		std.in.getline = originalGetline;
+		std.out.puts = originalPuts;
 	}
-
-	runner.assert(calls, 0);
-	runner.assert(args, [input.value]);
 });
 
 runner.test(
@@ -130,23 +125,18 @@ runner.test(
 		const input = types.createStringNode("%");
 		const expected = types.createNilNode();
 
-		let calls = 0;
-		let args: unknown[] = [];
-		const oldPrompt = cli.displayPrompt;
-		cli.displayPrompt = (..._args) => {
-			calls++;
-			args = _args;
-			return null;
-		};
+		// Mock std.in.getline and std.out.puts to avoid actual I/O
+		const originalGetline = std.in.getline;
+		const originalPuts = std.out.puts;
+		std.in.getline = () => undefined;
+		std.out.puts = () => {};
 
 		try {
 			runner.assert(readln(input), expected);
 		} finally {
-			cli.displayPrompt = oldPrompt;
+			std.in.getline = originalGetline;
+			std.out.puts = originalPuts;
 		}
-
-		runner.assert(calls, 0);
-		runner.assert(args, [input.value]);
 	},
 );
 

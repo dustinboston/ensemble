@@ -15,7 +15,7 @@ runner.test(
 	"ARRAY INTEROP: Array.from with vector and mapping function",
 	() => {
 		runner.assert(
-			rep("(Array.from [1 2 3] (function (x) (* x 2)))", replEnv),
+			rep("(Array.from [1 2 3] (function (x) (multiply x 2)))", replEnv),
 			"[2 4 6]",
 		);
 	},
@@ -104,7 +104,7 @@ runner.test("ARRAY INTEROP: Array.prototype.flat", () => {
 
 runner.test("ARRAY INTEROP: Array.prototype.flatMap", () => {
 	runner.assert(
-		rep("(Array::flatMap [1 2] (function (x) [(* x 2) (* x 3)]))", replEnv),
+		rep("(Array::flatMap [1 2] (function (x) [(multiply x 2) (multiply x 3)]))", replEnv),
 		"[2 3 4 6]",
 	);
 });
@@ -127,7 +127,7 @@ runner.test("ARRAY INTEROP: Array.prototype.keys", () => {
 
 runner.test("ARRAY INTEROP: Array.prototype.map", () => {
 	runner.assert(
-		rep("(Array::map [1 2 3] (function (x) (* x 2)))", replEnv),
+		rep("(Array::map [1 2 3] (function (x) (multiply x 2)))", replEnv),
 		"[2 4 6]",
 	);
 });
@@ -162,7 +162,7 @@ runner.test("ARRAY INTEROP: Array.prototype.slice", () => {
 
 runner.test("ARRAY INTEROP: Array.prototype.sort", () => {
 	runner.assert(
-		rep("(Array::sort [3 1 2] (function (a b) (- a b)))", replEnv),
+		rep("(Array::sort [3 1 2] (function (a b) (subtract a b)))", replEnv),
 		"[1 2 3]",
 	);
 });
@@ -177,7 +177,7 @@ runner.test("ARRAY INTEROP: Array.prototype.toReversed", () => {
 
 runner.test("ARRAY INTEROP: Array.prototype.toSorted", () => {
 	runner.assert(
-		rep("(Array::toSorted [3 1 2] (function (a b) (- a b)))", replEnv),
+		rep("(Array::toSorted [3 1 2] (function (a b) (subtract a b)))", replEnv),
 		"[1 2 3]",
 	);
 });

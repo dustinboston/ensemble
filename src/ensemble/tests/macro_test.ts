@@ -15,12 +15,12 @@ runner.test(`MACRO: Testing ' (quote) reader macro`, () => {
 	const sharedEnv = initEnv();
 
 	runner.test("MACRO: the quote macro works with numbers", () => {
-		runner.assert(rep(`'7`, sharedEnv), printString(new NumberNode(7), true));
+		runner.assert(rep(`(quote 7)`, sharedEnv), printString(new NumberNode(7), true));
 	});
 
 	runner.test("MACRO: the quote macro works with lists", () => {
 		runner.assert(
-			rep(`'(1 2 3)`, sharedEnv),
+			rep(`(quote (1 2 3))`, sharedEnv),
 			printString(
 				new ListNode([new NumberNode(1), new NumberNode(2), new NumberNode(3)]),
 				true,
@@ -30,7 +30,7 @@ runner.test(`MACRO: Testing ' (quote) reader macro`, () => {
 
 	runner.test("MACRO: the quote macro works with nested lists", () => {
 		runner.assert(
-			rep(`'(1 2 (3 4))`, sharedEnv),
+			rep(`(quote (1 2 (3 4)))`, sharedEnv),
 			printString(
 				new ListNode([
 					new NumberNode(1),
@@ -47,12 +47,12 @@ runner.test("MACRO: Testing ` (quasiquote) reader macro", () => {
 	const sharedEnv = initEnv();
 
 	runner.test("MACRO: the quasiquote macro returns numbers", () => {
-		runner.assert(rep("`7", sharedEnv), printString(new NumberNode(7), true));
+		runner.assert(rep("(quasiquote 7)", sharedEnv), printString(new NumberNode(7), true));
 	});
 
 	runner.test("MACRO: the quasiquote macro returns lists", () => {
 		runner.assert(
-			rep("`(1 2 3)", sharedEnv),
+			rep("(quasiquote (1 2 3))", sharedEnv),
 			printString(
 				new ListNode([new NumberNode(1), new NumberNode(2), new NumberNode(3)]),
 				true,
@@ -62,7 +62,7 @@ runner.test("MACRO: Testing ` (quasiquote) reader macro", () => {
 
 	runner.test("MACRO: the quasiquote macro returns nested lists", () => {
 		runner.assert(
-			rep("`(1 2 (3 4))", sharedEnv),
+			rep("(quasiquote (1 2 (3 4)))", sharedEnv),
 			printString(
 				new ListNode([
 					new NumberNode(1),
@@ -76,7 +76,7 @@ runner.test("MACRO: Testing ` (quasiquote) reader macro", () => {
 
 	runner.test("MACRO: the quasiquote macro returns a list of nil", () => {
 		runner.assert(
-			rep("`(nil)", sharedEnv),
+			rep("(quasiquote (nil))", sharedEnv),
 			printString(new ListNode([new NilNode()]), true),
 		);
 	});
@@ -89,7 +89,7 @@ runner.test("MACRO: Testing ~ (unquote) reader macro", () => {
 		"MACRO: the unquote macro can be used with the quasiquote macro",
 		() => {
 			runner.assert(
-				rep("`~7", sharedEnv),
+				rep("(quasiquote (unquote 7))", sharedEnv),
 				printString(new NumberNode(7), true),
 			);
 		},
@@ -97,7 +97,7 @@ runner.test("MACRO: Testing ~ (unquote) reader macro", () => {
 
 	runner.test("MACRO: defining a variable to test the unquote macro", () => {
 		runner.assert(
-			rep("(def! a 8)", sharedEnv),
+			rep("(var a 8)", sharedEnv),
 			printString(new NumberNode(8), true),
 		);
 	});
@@ -106,7 +106,7 @@ runner.test("MACRO: Testing ~ (unquote) reader macro", () => {
 		"MACRO: the unquote macro will unquote symbols in the a list",
 		() => {
 			runner.assert(
-				rep("`(1 ~a 3)", sharedEnv),
+				rep("(quasiquote (1 (unquote a) 3))", sharedEnv),
 				printString(
 					new ListNode([
 						new NumberNode(1),
@@ -123,7 +123,7 @@ runner.test("MACRO: Testing ~ (unquote) reader macro", () => {
 		"MACRO: define another variable to test the unquote macro",
 		() => {
 			runner.assert(
-				rep(`(def! b '(1 "b" "d"))`, sharedEnv),
+				rep(`(var b (quote (1 "b" "d")))`, sharedEnv),
 				printString(
 					new ListNode([
 						new NumberNode(1),
@@ -138,7 +138,7 @@ runner.test("MACRO: Testing ~ (unquote) reader macro", () => {
 
 	runner.test("MACRO: the quasiquote macro returns an unevaluated list", () => {
 		runner.assert(
-			rep("`(1 b 3)", sharedEnv),
+			rep("(quasiquote (1 b 3))", sharedEnv),
 			printString(
 				new ListNode([
 					new NumberNode(1),
@@ -154,7 +154,7 @@ runner.test("MACRO: Testing ~ (unquote) reader macro", () => {
 		"MACRO: the unquote macro unquotes a value in a list and evaluates it",
 		() => {
 			runner.assert(
-				rep("`(1 ~b 3)", sharedEnv),
+				rep("(quasiquote (1 (unquote b) 3))", sharedEnv),
 				printString(
 					new ListNode([
 						new NumberNode(1),
@@ -177,7 +177,7 @@ runner.test("MACRO: Testing ~@ (splice-unquote) reader macro", () => {
 
 	runner.test("MACRO: define a variable for testing splice-unquote", () => {
 		runner.assert(
-			rep(`(def! c '(1 "b" "d"))`, sharedEnv),
+			rep(`(var c (quote (1 "b" "d")))`, sharedEnv),
 			printString(
 				new ListNode([
 					new NumberNode(1),
@@ -193,7 +193,7 @@ runner.test("MACRO: Testing ~@ (splice-unquote) reader macro", () => {
 		`MACRO: quasiquote macro returns a list with "c" unevaluated`,
 		() => {
 			runner.assert(
-				rep("`(1 c 3)", sharedEnv),
+				rep("(quasiquote (1 c 3))", sharedEnv),
 				printString(
 					new ListNode([
 						new NumberNode(1),
@@ -210,7 +210,7 @@ runner.test("MACRO: Testing ~@ (splice-unquote) reader macro", () => {
 		"MACRO: the splice-unquote macro unquotes a value and injects it in-place",
 		() => {
 			runner.assert(
-				rep("`(1 ~@c 3)", sharedEnv),
+				rep("(quasiquote (1 (splice-unquote c) 3))", sharedEnv),
 				printString(
 					new ListNode([
 						new NumberNode(1),
@@ -229,11 +229,11 @@ runner.test("MACRO: Testing ~@ (splice-unquote) reader macro", () => {
 runner.test("MACRO: Testing unquote with vectors", () => {
 	const sharedEnv = initEnv();
 
-	rep("(def! a 8)", sharedEnv);
+	rep("(var a 8)", sharedEnv);
 
 	runner.test("MACRO: the unquote macro works insdide of a vector", () => {
 		runner.assert(
-			rep("`[~a]", sharedEnv),
+			rep("(quasiquote [(unquote a)])", sharedEnv),
 			printString(new VectorNode([new NumberNode(8)])),
 		);
 	});
@@ -242,7 +242,7 @@ runner.test("MACRO: Testing unquote with vectors", () => {
 		"MACRO: the unquote macro works inside of a list inside of a vector",
 		() => {
 			runner.assert(
-				rep("`[(~a)]", sharedEnv),
+				rep("(quasiquote [((unquote a))])", sharedEnv),
 				printString(new VectorNode([new ListNode([new NumberNode(8)])]), true),
 			);
 		},
@@ -252,7 +252,7 @@ runner.test("MACRO: Testing unquote with vectors", () => {
 		"MACRO: the unquote macro works inside of a vector inside of quasiquoted list",
 		() => {
 			runner.assert(
-				rep("`([~a])", sharedEnv),
+				rep("(quasiquote ([(unquote a)]))", sharedEnv),
 				printString(new ListNode([new VectorNode([new NumberNode(8)])]), true),
 			);
 		},
@@ -260,7 +260,7 @@ runner.test("MACRO: Testing unquote with vectors", () => {
 
 	runner.test("MACRO: unquote works in a quasi-quoted vector", () => {
 		runner.assert(
-			rep("`[a ~a a]", sharedEnv),
+			rep("(quasiquote [a (unquote a) a])", sharedEnv),
 			printString(
 				new VectorNode([
 					new SymbolNode("a"),
@@ -276,7 +276,7 @@ runner.test("MACRO: Testing unquote with vectors", () => {
 		"MACRO: unquote works in a vector inside of a quasi-quoted list",
 		() => {
 			runner.assert(
-				rep("`([a ~a a])", sharedEnv),
+				rep("(quasiquote ([a (unquote a) a]))", sharedEnv),
 				printString(
 					new ListNode([
 						new VectorNode([
@@ -295,7 +295,7 @@ runner.test("MACRO: Testing unquote with vectors", () => {
 		"MACRO: unquote in a list inside of a quasi-quoted vector",
 		() => {
 			runner.assert(
-				rep("`[(a ~a a)]", sharedEnv),
+				rep("(quasiquote [(a (unquote a) a)])", sharedEnv),
 				printString(
 					new VectorNode([
 						new ListNode([
@@ -317,7 +317,7 @@ runner.test("MACRO: Testing splice-unquote with vectors", () => {
 		"MACRO: define a symbol to test complex splice-unquote expressions",
 		() => {
 			runner.assert(
-				rep(`(def! c '(1 "b" "d"))`, sharedEnv),
+				rep(`(var c (quote (1 "b" "d")))`, sharedEnv),
 				printString(
 					new ListNode([
 						new NumberNode(1),
@@ -332,7 +332,7 @@ runner.test("MACRO: Testing splice-unquote with vectors", () => {
 
 	runner.test("MACRO: you can splice-unquote inside of a vector", () => {
 		runner.assert(
-			rep("`[~@c]", sharedEnv),
+			rep("(quasiquote [(splice-unquote c)])", sharedEnv),
 			printString(
 				new VectorNode([
 					new NumberNode(1),
@@ -348,7 +348,7 @@ runner.test("MACRO: Testing splice-unquote with vectors", () => {
 		"MACRO: you can splice-unquote inside of a list inside of a vector with evaluation",
 		() => {
 			runner.assert(
-				rep("`[(~@c)]", sharedEnv),
+				rep("(quasiquote [((splice-unquote c))])", sharedEnv),
 				printString(
 					new VectorNode([
 						new ListNode([
@@ -367,7 +367,7 @@ runner.test("MACRO: Testing splice-unquote with vectors", () => {
 		"MACRO: you can splice-unquote inside of a vector inside of a list with evaluation",
 		() => {
 			runner.assert(
-				rep("`([~@c])", sharedEnv),
+				rep("(quasiquote ([(splice-unquote c)]))", sharedEnv),
 				printString(
 					new ListNode([
 						new VectorNode([
@@ -386,7 +386,7 @@ runner.test("MACRO: Testing splice-unquote with vectors", () => {
 		"MACRO: splice-unquote a symbol in a vec with multiple values",
 		() => {
 			runner.assert(
-				rep("`[1 ~@c 3]", sharedEnv),
+				rep("(quasiquote [1 (splice-unquote c) 3])", sharedEnv),
 				printString(
 					new VectorNode([
 						new NumberNode(1),
@@ -405,7 +405,7 @@ runner.test("MACRO: Testing splice-unquote with vectors", () => {
 		"MACRO: splice-unquote a symbol in a vec with multiple values inside of a list",
 		() => {
 			runner.assert(
-				rep("`([1 ~@c 3])", sharedEnv),
+				rep("(quasiquote ([1 (splice-unquote c) 3]))", sharedEnv),
 				printString(
 					new ListNode([
 						new VectorNode([
@@ -426,7 +426,7 @@ runner.test("MACRO: Testing splice-unquote with vectors", () => {
 		"MACRO: splice-unquote a symbol in a list with multiple values inside of a vec",
 		() => {
 			runner.assert(
-				rep("`[(1 ~@c 3)]", sharedEnv),
+				rep("(quasiquote [(1 (splice-unquote c) 3)])", sharedEnv),
 				printString(
 					new VectorNode([
 						new ListNode([
@@ -469,7 +469,7 @@ runner.test("MACRO: Testing trivial macros", () => {
 
 runner.test("MACRO: Testing unless macro", () => {
 	const sharedEnv = initEnv();
-	rep("(defmacro! unless (fn* (pred a b) `(if ~pred ~b ~a)))", sharedEnv);
+	rep("(defmacro! unless (fn* (pred a b) (quasiquote (if (unquote pred) (unquote b) (unquote a)))))", sharedEnv);
 
 	runner.test(`MACRO: 'unless' macro with false predicate`, () => {
 		runner.assert(
@@ -489,7 +489,7 @@ runner.test("MACRO: Testing unless macro", () => {
 runner.test("MACRO: Testing unless2 macro", () => {
 	const sharedEnv = initEnv();
 	rep(
-		`(defmacro! unless2 (fn* (pred a b) (list 'if (list 'not pred) a b)))`,
+		`(defmacro! unless2 (fn* (pred a b) (list (quote if) (list (quote not) pred) a b)))`,
 		sharedEnv,
 	);
 
@@ -520,7 +520,7 @@ runner.test("MACRO: Testing macroexpand", () => {
 	});
 
 	runner.test(`MACRO: Macroexpand 'unless' macro`, () => {
-		rep("(defmacro! unless (fn* (pred a b) `(if ~pred ~b ~a)))", sharedEnv);
+		rep("(defmacro! unless (fn* (pred a b) (quasiquote (if (unquote pred) (unquote b) (unquote a)))))", sharedEnv);
 		runner.assert(
 			rep("(macroexpand (unless PRED A B))", sharedEnv),
 			printString(
@@ -537,7 +537,7 @@ runner.test("MACRO: Testing macroexpand", () => {
 
 	runner.test(`MACRO: Macroexpand 'unless2' macro`, () => {
 		rep(
-			`(defmacro! unless2 (fn* (pred a b) (list 'if (list 'not pred) a b)))`,
+			`(defmacro! unless2 (fn* (pred a b) (list (quote if) (list (quote not) pred) a b)))`,
 			sharedEnv,
 		);
 		runner.assert(
@@ -576,14 +576,14 @@ runner.test("MACRO: Testing evaluation of macro result", () => {
 
 	runner.test("MACRO: Evaluate macro result with let* binding", () => {
 		runner.assert(
-			rep("(let* (a 123) (macroexpand (identity a)))", sharedEnv),
+			rep("(const (a 123) (macroexpand (identity a)))", sharedEnv),
 			printString(new SymbolNode("a"), true),
 		);
 	});
 
 	runner.test("MACRO: Evaluate macro result directly", () => {
 		runner.assert(
-			rep("(let* (a 123) (identity a))", sharedEnv),
+			rep("(const (a 123) (identity a))", sharedEnv),
 			printString(new NumberNode(123), true),
 		);
 	});
@@ -602,7 +602,7 @@ runner.test("MACRO: Test that macros do not break quasiquote", () => {
 
 	runner.test("MACRO: Ensure quasiquote works with macros", () => {
 		runner.assert(
-			rep("`(1)", sharedEnv),
+			rep("(quasiquote (1))", sharedEnv),
 			printString(new ListNode([new NumberNode(1)]), true),
 		);
 	});
@@ -613,14 +613,14 @@ runner.test(`MACRO: Testing "not" macro function`, () => {
 
 	runner.test(`MACRO: Test 'not' macro with true condition`, () => {
 		runner.assert(
-			rep("(not (= 1 1))", sharedEnv),
+			rep("(not (eq 1 1))", sharedEnv),
 			printString(new BooleanNode(false), true),
 		);
 	});
 
 	runner.test(`MACRO: Test 'not' macro with false condition`, () => {
 		runner.assert(
-			rep("(not (= 1 2))", sharedEnv),
+			rep("(not (eq 1 2))", sharedEnv),
 			printString(new BooleanNode(true), true),
 		);
 	});
@@ -721,7 +721,7 @@ runner.test("MACRO: Testing cond macro", () => {
 
 	runner.test(`MACRO: Evaluate cond with true condition before "else"`, () => {
 		runner.assert(
-			rep(`(cond false 7 (= 2 2) 8 "else" 9)`, sharedEnv),
+			rep(`(cond false 7 (eq 2 2) 8 "else" 9)`, sharedEnv),
 			printString(new NumberNode(8), true),
 		);
 	});
@@ -742,7 +742,7 @@ runner.test("MACRO: Testing EVAL in let*", () => {
 
 	runner.test("MACRO: Evaluate cond inside let* binding", () => {
 		runner.assert(
-			rep(`(let* (x (cond false "no" true "yes")) x)`, sharedEnv),
+			rep(`(const (x (cond false "no" true "yes")) x)`, sharedEnv),
 			printString(new StringNode("yes"), true),
 		);
 	});
@@ -753,7 +753,7 @@ runner.test("MACRO: Testing EVAL in vector let*", () => {
 
 	runner.test("MACRO: Evaluate cond inside vector let* binding", () => {
 		runner.assert(
-			rep(`(let* [x (cond false "no" true "yes")] x)`, sharedEnv),
+			rep(`(const [x (cond false "no" true "yes")] x)`, sharedEnv),
 			printString(new StringNode("yes"), true),
 		);
 	});
@@ -762,7 +762,7 @@ runner.test("MACRO: Testing EVAL in vector let*", () => {
 runner.test("MACRO: Test that macros use closures", () => {
 	const sharedEnv = initEnv();
 
-	rep("(def! x 2)", sharedEnv);
+	rep("(var x 2)", sharedEnv);
 	rep("(defmacro! a (fn* [] x))", sharedEnv);
 
 	runner.test("MACRO: Macro uses outer x", () => {
@@ -771,7 +771,7 @@ runner.test("MACRO: Test that macros use closures", () => {
 
 	runner.test("MACRO: Macro uses outer x despite inner x binding", () => {
 		runner.assert(
-			rep("(let* (x 3) (a))", sharedEnv),
+			rep("(const (x 3) (a))", sharedEnv),
 			printString(new NumberNode(2), true),
 		);
 	});

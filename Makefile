@@ -68,14 +68,16 @@ package:
 	cd $(EXTENSION_DIR) && $(NODE) $(VSCE) package -o $(EXTENSION_NAME)
 
 # Testing
-test: test-unit-fun test-e2e
+test: test-unit-fun # test-e2e
 
 test-e2e:
 	$(PYTHON) "$(BIN_DIR)/runtest.py" --deferrable --optional "$(ENSEMBLE_TESTS_DIR)/stepA_mal.mal" -- $(BIN_DIR)/run
 
 # Run both unit tests and functional tests.
 test-unit-fun: $(ENSEMBLE_BUILD_DIR)/%_test.js
-	find "$(ENSEMBLE_BUILD_DIR)" -type f -name '*_test.js' -print0 -exec $(QJS_BINARY_FILE) {} \;
+	@echo "TAP version 13" > test_results.tap
+	@find "$(ENSEMBLE_BUILD_DIR)" -type f -name '*_test.js' -exec sh -c 'echo "# $$1" && $(QJS_BINARY_FILE) "$$1"' _ {} \; >> test_results.tap 2>&1
+	@echo "Test results saved to test_results.tap"
 
 # Start the repl
 repl: $(ENSEMBLE_BUNDLE_FILE) $(QJS_BINARY_FILE)

@@ -57,7 +57,7 @@ runner.test("printString(): should correctly print atom type", () => {
 runner.test("printString(): should correctly print error type", () => {
 	runner.assert(
 		printString(createErrorNode(createStringNode("message"))),
-		"message",
+		"<error <str \"Error: [0:0]\" message>>",
 	);
 });
 

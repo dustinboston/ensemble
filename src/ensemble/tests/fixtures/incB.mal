@@ -1,0 +1,6 @@
+// A comment in a file
+(var inc4 (fn* (a) (add 4 a)))
+(var inc5 (fn* (a)  // a comment after code
+  (add 5 a)))
+
+// ending comment without final new line

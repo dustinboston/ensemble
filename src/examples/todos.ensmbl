@@ -2,86 +2,61 @@
   <!doctype>
   <html {lang="en"}
     <head
-      // <meta {charset: "UTF-8"}>
-      // <meta {name: "viewport" content: "width=device-width, initial-scale=1.0"}>    
+      // <meta {charset="UTF-8"}>
+      // <meta {name="viewport" content="width=device-width, initial-scale=1.0"}>    
       <title "Todos">
       <style nil {
-        "body"{
-          font-family: "Arial, sans-serif";
-          margin: 0;
-          padding: 0;
-        }
-        "h1, h2, form, div, output" {
-          text-align: "center";
-          margin-top: "20px";
-        }
-        "input[type=text]" {
-          padding: "10px";
-          width: "300px";
-          font-size: "16px";
-        }
-        "button[type=submit]" {
-          padding: "10px";
-          font-size: "16px";
-        }
-        "button[type=button]" {
-          padding: "10px";
-          font-size: "16px";
-          margin: "5px";
-        }
-        "ul" {
-          list-style-type: "none";
-          padding: 0;
-        }
-        "li" {
-          padding: "10px";
-          border-bottom: "1px solid #ccc";
-        }
-        "input[type=checkbox]" {
-          margin-right: "10px";
-        }
-        "span[contenteditable=true]" {
-          outline: "none";
-        }         
+        "body" {font-family="Arial, sans-serif" margin=0 padding=0}
+        "h1, h2, form, div, output" {text-align="center" margin-top="20px"}
+        "input[type=text]" {padding="10px" width="300px" font-size="16px"}
+        "button[type=submit]" {padding="10px" font-size="16px"}
+        "button[type=button]" {padding="10px" font-size="16px" margin="5px"}
+        "ul" {list-style-type="none" padding=0}
+        "li" {padding="10px" border-bottom="1px solid #ccc"}
+        "input[type=checkbox]" {margin-right="10px"}
+        "span[contenteditable=true]" {outline="none"}
       }>>
     <body 
       <h1 "Todos">
-      <form {id="addTodo" method="get"}
-        <input {type="text" placeholder="What needs to be done?" name="todo"}>
+      <form {id="add-todo"}
+        <input {type="text" name="new-todo" placeholder="What needs to be done?"}>
         <button {type="submit"} "Add">>
       
       <form {id="filter"}
-          <label <input {type="radio" name="filterBy"}> "All">
-          <label <input {type="radio" name="filterBy"}> "Active">
-          <label <input {type="radio" name="filterBy"}> "Completed">>
+          <label <input {type="radio" name="filter-by"}> "All">
+          <label <input {type="radio" name="filter-by"}> "Active">
+          <label <input {type="radio" name="filter-by"}> "Completed">>
 
-      <output {id="output"}
-        <h2 <span {id="numTasks"} "0"> "tasks remaining">
-        <ul {id="todoList"}>>
+      <h2 <span {id="num-tasks"} "0"> "tasks remaining">
+      <output {id="output"}>
 
-      <template {id="todoItem"}
-        <li
-          <input {type="checkbox"}>
-          <span {contenteditable=true}>
-          <button {type="button"} "Delete">>>
+      <template {id="todo-item-template"}
+        <form
+          <input {type="checkbox" name="completed"}>
+          <input {type="text" name="todo"}>
+          <button {type="button"} "Submit">>>
 
       <script {type="module"}
-        <do <console.log "Hello, world!">
-          <const [
-              form = <Document::getElementById "addTodo">
-              todoList = <Document::getElementById "todoList">
-              template = <Document::getElementById "todoItem">
-              numTasks = <Document::getElementById "numTasks">
-              tasks = []
-              filter = "All"
-            ]
-            <<. form "addEventListener"> "submit" 
-              <function (event) 
-                <event.preventDefault>
+        <quote <
+          <var todos <atom [{text="Code todo example", completed=false}]>>
+          <var filter <atom "All">>
+          <var output>
+
+          <var create-todo <function <text> {text=text completed=false}>>
+          <var add-todo <function [current-todos todo-text] <conj current-todos <create-todo todo-text>>>>
+          <var clear-input <function <input-element> <set-attribute input-element "value" "">>>
+
+          <const [todo-form <get-element-by-id "add-todo">]
+            <add-event-listener todo-form "submit" <function <event> 
+              <do 
+                <prevent-default event> 
                 <const [
-                    input = <<. event "target.querySelector"> "input[type=text]">
-                    text = <<. input "value.trim">>
-                  ]              
-                  <if <neq text "">
-                    <Array::push tasks {text: text, completed: false}>                  
-                    <console.log tasks>>>>>>>>>>>
+                    input = <. event "target.new-todo">
+                    todo-text = <trim <. input "value">>
+                  ]
+                  <if <neq todo-text "">
+                    <do 
+                      <swap! todos <function [x y] <add-todo x y>> todo-text>
+                      <console.log "Added todo" todos>>
+                    <console.log "Empty todo">>>>>>>>>>>>>
+                  

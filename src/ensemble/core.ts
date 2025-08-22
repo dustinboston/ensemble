@@ -37,27 +37,14 @@ const nsValues: Array<[string, types.Closure]> = [
 	["trim", trim],
 
 	// Operators
-	// ["<", lt],
-	// ["<=", lte],
-	// [">", gt],
-	// [">=", gte],
-	// ["+", add],
-	// ["-", subtract],
-	// ["*", multiply],
-	// ["/", divide],
-
 	["lt", lt],
-	// ["less-than", lt],
 	["lte", lte],
-	// ["less-than-equal", lte],
 	["gt", gt],
-	// ["greater-than", gt],
 	["gte", gte],
-	// ["greater-than-equal", gte],
-	["add", add], // sum
-	["subtract", subtract], // difference, dif
-	["multiply", multiply], // product, prod
-	["divide", divide], // quotient, quot
+	["add", add],
+	["subtract", subtract],
+	["multiply", multiply],
+	["divide", divide],
 
 	["time-ms", timeMs],
 
@@ -79,7 +66,7 @@ const nsValues: Array<[string, types.Closure]> = [
 
 	// Arrays
 	["concat", concat],
-	["conj", conj],
+	["conj", conj], // Similar to ...
 	["cons", cons],
 	["count", length],
 	["empty?", empty],
@@ -231,9 +218,11 @@ export function readString(...args: types.AstNode[]): types.AstNode {
  */
 export function trim(...args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
-	const string_ = args[0];
-	types.assertStringNode(string_);
-	return types.createStringNode(string_.value.trim());
+	const value = args[0].value;
+	// types.assertStringNode(string_);
+	return value
+		? types.createStringNode(value.trim())
+		: types.createStringNode("");
 }
 
 /**
@@ -243,11 +232,7 @@ export function trim(...args: types.AstNode[]): types.AstNode {
  * @example (< (2 1)) ;=>true
  */
 export function lt(...args: types.AstNode[]): types.AstNode {
-	types.assertArgumentCount(
-		args.length,
-		2,
-		`\nargs: ${JSON.stringify(args, null, "  ")}`,
-	);
+	types.assertArgumentCount(args.length, 2);
 	const a = args[0];
 	types.assertNumberNode(a);
 	const b = args[1];
@@ -451,17 +436,23 @@ export function vec(...args: types.AstNode[]): types.AstNode {
  */
 export function nth(...args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 2);
-	if (types.isSequentialNode(args[0]) && types.isNumberNode(args[1])) {
-		const index = args[1].value;
-		const list = args[0];
-		const length = args[0].value.length;
-		if (length > 0 && index < length) {
-			const value: types.AstNode = list.value[index];
-			return value;
-		}
+	types.assertSequential(args[0]);
+	types.assertNumberNode(args[1]);
+
+	const index = args[1].value;
+	const list = args[0];
+	const length = args[0].value.length;
+
+	if (length > 0 && index < length) {
+		const value: types.AstNode = list.value[index];
+		return value;
 	}
 
-	throw new Error("out of range");
+	throw types.createErrorNode(
+		`Expected an nth index greater than zero and less than ${length} but got ${index} out of range`,
+		types.ErrorTypes.RangeError,
+		index,
+	);
 }
 
 /**
@@ -544,10 +535,16 @@ export function length(...args: types.AstNode[]): types.AstNode {
 	if (types.isMapNode(args[0])) {
 		return types.createNumberNode(args[0].value.size);
 	}
+
 	if (types.isSequentialNode(args[0])) {
 		return types.createNumberNode(args[0].value.length);
 	}
-	throw new TypeError("Invalid argument type");
+
+	throw types.createErrorNode(
+		`Expected a length argument of type null, map, list, or vector but got ${value.kind}`,
+		types.ErrorTypes.TypeError,
+		value,
+	);
 }
 
 /**
@@ -611,35 +608,23 @@ export function reset(...args: types.AstNode[]): types.AstNode {
 
 /**
  * `swap` Swap an Atoms' value with the result of the function.
- * @description The function is called with the Atoms' value as the first \
+ * @description The function is called with the Atoms' value as the first
  * argument, and any specified optional parameters after.
- * @param args - [types.Atom, types.Func, ...types.Ast[]]
- * - args[0]: types.Atom - the node that will have its value swapped
- * - args[1]: types.Func  - a function that returns an types.Ast node
- * - ...rest: types.Ast[]  - additional parameters to the function.
+ * @param args [types.Atom, types.Func, ...types.Ast[]]
+ *   - args[0]: types.Atom - the node that will have its value swapped
+ *   - args[1]: types.Func  - a function that returns a types.Ast node
+ *   - ...rest: types.Ast[]  - additional parameters to the function.
  * @returns Types.Ast - The Atoms' new value.
  * @example (swap! a (fn* (a) (* 2 a))) ;=>12
  */
 export function swap(...args: types.AstNode[]): types.AstNode {
 	types.assertMinimumArgumentCount(args.length, 2);
+	types.assertAtomNode(args[0]);
+	types.assertFunctionNode(args[1]);
 
 	const atom = args[0];
-	types.assertAtomNode(atom);
-
 	const fn = args[1];
-	types.assertFunctionNode(fn);
-
 	const rest = args.slice(2);
-
-	// TODO: Coerce JS values into AstNodes?
-	// let value: types.AstNode;
-	// if (atom.value instanceof types.AstNode) {
-	// 	value = atom.value;
-	// } else {
-	// 	value = types.toAst(atom.value);
-	// }
-	// atom.value = fn.value(value, ...rest);
-	// return value;
 
 	atom.value = fn.value(atom.value, ...rest);
 	return atom.value;
@@ -1171,7 +1156,6 @@ export function switchCase(...args: types.AstNode[]): types.AstNode {
  * @returns
  */
 function getProp(...args: types.AstNode[]): types.AstNode {
-	console.log("getProp", JSON.stringify(args));
 	types.assertMinimumArgumentCount(args.length, 2);
 	types.assertAstNode(args[0]);
 	types.assertStringNode(args[1]);
@@ -1197,12 +1181,14 @@ function getProp(...args: types.AstNode[]): types.AstNode {
 
 	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	const result = path.split(".").reduce<any>((current, key) => {
-		if (current && key in current) {
+		if (current[key] !== undefined) {
 			return current[key];
 		}
 	}, obj);
 
-	return types.toAst(result);
+	// const astNode = types.toAst(result);
+	const astNode = types.createAtomNode(result);
+	return astNode;
 }
 
 export default {

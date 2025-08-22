@@ -115,7 +115,7 @@ runner.test("MAP: Testing map function with vectors", () => {
 	const sharedEnv = initEnv();
 	runner.test("MAP: Applying a function to double elements of a vector", () => {
 		runner.assert(
-			rep("(map (fn* (a) (* 2 a)) [1 2 3])", sharedEnv),
+			rep("(map (fn* (a) (multiply 2 a)) [1 2 3])", sharedEnv),
 			printString(
 				new ListNode([new NumberNode(2), new NumberNode(4), new NumberNode(6)]),
 				true,
@@ -150,7 +150,7 @@ runner.test("MAP: Testing isMap", () => {
 	);
 	runner.test("MAP: Checking if an empty list is identified as a map", () => {
 		runner.assert(
-			rep("(map? '())", sharedEnv),
+			rep("(map? (quote ()))", sharedEnv),
 			printString(new BooleanNode(false), true),
 		);
 	});
@@ -162,7 +162,7 @@ runner.test("MAP: Testing isMap", () => {
 	});
 	runner.test("MAP: Checking if a symbol is identified as a map", () => {
 		runner.assert(
-			rep("(map? 'abc)", sharedEnv),
+			rep("(map? (quote abc))", sharedEnv),
 			printString(new BooleanNode(false), true),
 		);
 	});
@@ -212,7 +212,7 @@ runner.test("MAP: Testing hash-maps", () => {
 
 	runner.test("MAP: Defining an empty hash-map", () => {
 		runner.assert(
-			rep("(def! hm1 (hash-map))", sharedEnv),
+			rep("(var hm1 (hash-map))", sharedEnv),
 			printString(new MapNode(), true),
 		);
 	});
@@ -265,7 +265,7 @@ runner.test("MAP: Testing hash-maps", () => {
 		"MAP: Associating a key-value pair in a hash-map and defining it",
 		() => {
 			runner.assert(
-				rep('(def! hm2 (assoc hm1 "a" 1))', sharedEnv),
+				rep('(var hm2 (assoc hm1 "a" 1))', sharedEnv),
 				printString(new MapNode(new Map([['"a"', new NumberNode(1)]])), true),
 			);
 		},
@@ -316,7 +316,7 @@ runner.test("MAP: Testing hash-maps", () => {
 	});
 	runner.test("MAP: Checking equality of empty keys list in hash-map", () => {
 		runner.assert(
-			rep("(= () (keys hm1))", sharedEnv),
+			rep("(eq () (keys hm1))", sharedEnv),
 			printString(new BooleanNode(true), true),
 		);
 	});
@@ -343,7 +343,7 @@ runner.test("MAP: Testing hash-maps", () => {
 	});
 	runner.test("MAP: Checking equality of empty values list in hash-map", () => {
 		runner.assert(
-			rep("(= () (vals hm1))", sharedEnv),
+			rep("(eq () (vals hm1))", sharedEnv),
 			printString(new BooleanNode(true), true),
 		);
 	});
@@ -429,7 +429,7 @@ runner.test("MAP: Testing keywords as hash-map keys", () => {
 
 runner.test("MAP: Testing whether assoc updates properly", () => {
 	const sharedEnv = initEnv();
-	rep("(def! hm4 (assoc {a: 1 b: 2} a: 3 c: 1))", sharedEnv);
+	rep("(var hm4 (assoc {a: 1 b: 2} a: 3 c: 1))", sharedEnv);
 
 	runner.test("MAP: Verifying updated value for key a:", () => {
 		runner.assert(
@@ -483,7 +483,7 @@ runner.test("MAP: Additional str and pr-str tests", () => {
 
 	runner.test("MAP: Concatenating various types with str", () => {
 		runner.assert(
-			rep(`(str true "." false "." nil "." keyw: "." 'symb)`, sharedEnv),
+			rep(`(str true "." false "." nil "." keyw: "." (quote symb))`, sharedEnv),
 			printString(new StringNode("true.false.nil.keyw:.symb"), true),
 		);
 	});
@@ -497,7 +497,7 @@ runner.test("MAP: Additional str and pr-str tests", () => {
 
 	runner.test("MAP: Printing various types with pr-str", () => {
 		runner.assert(
-			rep(`(pr-str true "." false "." nil "." keyw: "." 'symb)`, sharedEnv),
+			rep(`(pr-str true "." false "." nil "." keyw: "." (quote symb))`, sharedEnv),
 			printString(
 				new StringNode('true "." false "." nil "." keyw: "." symb'),
 				true,
@@ -508,10 +508,10 @@ runner.test("MAP: Additional str and pr-str tests", () => {
 	runner.test(
 		"MAP: Checking if str output for hash-map matches expected formats",
 		() => {
-			rep('(def! s (str {abc: "val1" def: "val2"}))', sharedEnv);
+			rep('(var s (str {abc: "val1" def: "val2"}))', sharedEnv);
 			runner.assert(
 				rep(
-					'(cond (= s "{abc: val1 def: val2}") true (= s "{def: val2 abc: val1}") true)',
+					'(cond (eq s "{abc: val1 def: val2}") true (eq s "{def: val2 abc: val1}") true)',
 					sharedEnv,
 				),
 				printString(new BooleanNode(true), true),
@@ -522,10 +522,10 @@ runner.test("MAP: Additional str and pr-str tests", () => {
 	runner.test(
 		"MAP: Checking if pr-str output for hash-map matches expected formats",
 		() => {
-			rep('(def! p (pr-str {abc: "val1" def: "val2"}))', sharedEnv);
+			rep('(var p (pr-str {abc: "val1" def: "val2"}))', sharedEnv);
 			runner.assert(
 				rep(
-					'(cond (= p "{abc: \\"val1\\" def: \\"val2\\"}") true (= p "{def: \\"val2\\" abc: \\"val1\\"}") true) ',
+					'(cond (eq p "{abc: \\"val1\\" def: \\"val2\\"}") true (eq p "{def: \\"val2\\" abc: \\"val1\\"}") true) ',
 					sharedEnv,
 				),
 				printString(new BooleanNode(true), true),
@@ -537,9 +537,9 @@ runner.test("MAP: Additional str and pr-str tests", () => {
 runner.test("MAP: Testing dissoc", () => {
 	const sharedEnv = initEnv();
 
-	rep("(def! hm1 (hash-map))", sharedEnv);
-	rep('(def! hm2 (assoc hm1 "a" 1))', sharedEnv);
-	rep('(def! hm3 (assoc hm2 "b" 2))', sharedEnv);
+	rep("(var hm1 (hash-map))", sharedEnv);
+	rep('(var hm2 (assoc hm1 "a" 1))', sharedEnv);
+	rep('(var hm3 (assoc hm2 "b" 2))', sharedEnv);
 
 	runner.test("MAP: Counting keys in hash-map after dissoc", () => {
 		runner.assert(
@@ -604,12 +604,12 @@ runner.test("MAP: Testing dissoc", () => {
 runner.test("MAP: Testing equality of hash-maps", () => {
 	const sharedEnv = initEnv();
 
-	rep("(def! hm1 (hash-map))", sharedEnv);
-	rep('(def! hm2 (assoc hm1 "a" 1))', sharedEnv);
+	rep("(var hm1 (hash-map))", sharedEnv);
+	rep('(var hm2 (assoc hm1 "a" 1))', sharedEnv);
 
 	runner.test("MAP: Checking equality of two empty hash-maps", () => {
 		runner.assert(
-			rep("(= {} {})", sharedEnv),
+			rep("(eq {} {})", sharedEnv),
 			printString(new BooleanNode(true), true),
 		);
 	});
@@ -618,7 +618,7 @@ runner.test("MAP: Testing equality of hash-maps", () => {
 		"MAP: Checking equality of empty hash-map and hash-map function",
 		() => {
 			runner.assert(
-				rep("(= {} (hash-map))", sharedEnv),
+				rep("(eq {} (hash-map))", sharedEnv),
 				printString(new BooleanNode(true), true),
 			);
 		},
@@ -628,7 +628,7 @@ runner.test("MAP: Testing equality of hash-maps", () => {
 		"MAP: Checking equality of two hash-maps with the same key-value pairs in different orders",
 		() => {
 			runner.assert(
-				rep("(= {a: 11 b: 22} (hash-map b: 22 a: 11))", sharedEnv),
+				rep("(eq {a: 11 b: 22} (hash-map b: 22 a: 11))", sharedEnv),
 				printString(new BooleanNode(true), true),
 			);
 		},
@@ -638,7 +638,7 @@ runner.test("MAP: Testing equality of hash-maps", () => {
 		"MAP: Checking equality of two hash-maps with nested vectors as values",
 		() => {
 			runner.assert(
-				rep("(= {a: 11 b: [22 33]} (hash-map b: [22 33] a: 11))", sharedEnv),
+				rep("(eq {a: 11 b: [22 33]} (hash-map b: [22 33] a: 11))", sharedEnv),
 				printString(new BooleanNode(true), true),
 			);
 		},
@@ -648,7 +648,7 @@ runner.test("MAP: Testing equality of hash-maps", () => {
 		"MAP: Checking equality of two hash-maps with nested hash-maps as values",
 		() => {
 			runner.assert(
-				rep("(= {a: 11 b: {c: 33}} (hash-map b: {c: 33} a: 11))", sharedEnv),
+				rep("(eq {a: 11 b: {c: 33}} (hash-map b: {c: 33} a: 11))", sharedEnv),
 				printString(new BooleanNode(true), true),
 			);
 		},
@@ -658,7 +658,7 @@ runner.test("MAP: Testing equality of hash-maps", () => {
 		"MAP: Checking inequality of two hash-maps with different values for the same keys",
 		() => {
 			runner.assert(
-				rep("(= {a: 11 b: 22} (hash-map b: 23 a: 11))", sharedEnv),
+				rep("(eq {a: 11 b: 22} (hash-map b: 23 a: 11))", sharedEnv),
 				printString(new BooleanNode(false), true),
 			);
 		},
@@ -668,7 +668,7 @@ runner.test("MAP: Testing equality of hash-maps", () => {
 		"MAP: Checking inequality of two hash-maps where one is missing a key",
 		() => {
 			runner.assert(
-				rep("(= {a: 11 b: 22} (hash-map a: 11))", sharedEnv),
+				rep("(eq {a: 11 b: 22} (hash-map a: 11))", sharedEnv),
 				printString(new BooleanNode(false), true),
 			);
 		},
@@ -678,7 +678,7 @@ runner.test("MAP: Testing equality of hash-maps", () => {
 		"MAP: Checking equality of hash-maps with vectors and lists as values",
 		() => {
 			runner.assert(
-				rep("(= {a: [11 22]} {a: (list 11 22)})", sharedEnv),
+				rep("(eq {a: [11 22]} {a: (list 11 22)})", sharedEnv),
 				printString(new BooleanNode(true), true),
 			);
 		},
@@ -688,7 +688,7 @@ runner.test("MAP: Testing equality of hash-maps", () => {
 		"MAP: Checking inequality of a hash-map and a list with same elements",
 		() => {
 			runner.assert(
-				rep("(= {a: 11 b: 22} (list a: 11 b: 22))", sharedEnv),
+				rep("(eq {a: 11 b: 22} (list a: 11 b: 22))", sharedEnv),
 				printString(new BooleanNode(false), true),
 			);
 		},
@@ -698,7 +698,7 @@ runner.test("MAP: Testing equality of hash-maps", () => {
 		"MAP: Checking inequality of an empty hash-map and an empty vector",
 		() => {
 			runner.assert(
-				rep("(= {} [])", sharedEnv),
+				rep("(eq {} [])", sharedEnv),
 				printString(new BooleanNode(false), true),
 			);
 		},
@@ -708,7 +708,7 @@ runner.test("MAP: Testing equality of hash-maps", () => {
 		"MAP: Checking inequality of an empty vector and an empty hash-map",
 		() => {
 			runner.assert(
-				rep("(= [] {})", sharedEnv),
+				rep("(eq [] {})", sharedEnv),
 				printString(new BooleanNode(false), true),
 			);
 		},
@@ -734,7 +734,7 @@ runner.test("MAP: Testing equality of hash-maps", () => {
 
 runner.test("MAP: Testing that hashmaps don't alter function ast", () => {
 	const sharedEnv = initEnv();
-	rep("(def! bar (fn* [a] {foo: (get a foo:)}))", sharedEnv);
+	rep("(var bar (fn* [a] {foo: (get a foo:)}))", sharedEnv);
 	rep("(bar {foo: (fn* [x] x)})", sharedEnv);
 	rep("(bar {foo: 3})", sharedEnv);
 

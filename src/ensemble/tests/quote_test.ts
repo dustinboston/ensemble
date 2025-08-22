@@ -180,7 +180,7 @@ runner.test("QUOTE: Testing unquote", () => {
 
 	runner.test("QUOTE: define a variable to test unquoting", () => {
 		runner.assert(
-			rep("(def! a 8)", sharedEnv),
+			rep("(var a 8)", sharedEnv),
 			printString(new NumberNode(8), true),
 		);
 	});
@@ -231,7 +231,7 @@ runner.test("QUOTE: Testing unquote", () => {
 
 	runner.test("QUOTE: define a symbol with a quoted list for testing", () => {
 		runner.assert(
-			rep('(def! b (quote (1 "b" "d")))', sharedEnv),
+			rep('(var b (quote (1 "b" "d")))', sharedEnv),
 			printString(
 				new ListNode([
 					new NumberNode(1),
@@ -297,7 +297,7 @@ runner.test("QUOTE: Quasiquote and environments", () => {
 
 	runner.test("QUOTE: unquote works with a variable defined with let*", () => {
 		runner.assert(
-			rep("(let* (x 0) (quasiquote (unquote x)))", sharedEnv),
+			rep("(const (x 0) (quasiquote (unquote x)))", sharedEnv),
 			printString(new NumberNode(0), true),
 		);
 	});
@@ -310,7 +310,7 @@ runner.test("QUOTE: Testing splice-unquote", () => {
 		'QUOTE: define a symbol, "c", with a quoted list for testing',
 		() => {
 			runner.assert(
-				rep('(def! c (quote (1 "b" "d")))', sharedEnv),
+				rep('(var c (quote (1 "b" "d")))', sharedEnv),
 				printString(
 					new ListNode([
 						new NumberNode(1),
@@ -414,7 +414,7 @@ runner.test("QUOTE: Testing symbol equality", () => {
 		"QUOTE: two quoted lists with the same contents are equal",
 		() => {
 			runner.assert(
-				rep("(= (quote abc) (quote abc))", sharedEnv),
+				rep("(eq (quote abc) (quote abc))", sharedEnv),
 				printString(new BooleanNode(true), true),
 			);
 		},
@@ -424,7 +424,7 @@ runner.test("QUOTE: Testing symbol equality", () => {
 		"QUOTE: two quoted lists with different contents are not equal",
 		() => {
 			runner.assert(
-				rep("(= (quote abc) (quote abcd))", sharedEnv),
+				rep("(eq (quote abc) (quote abcd))", sharedEnv),
 				printString(new BooleanNode(false), true),
 			);
 		},
@@ -432,7 +432,7 @@ runner.test("QUOTE: Testing symbol equality", () => {
 
 	runner.test("QUOTE: quote does not 'stringify' symbols", () => {
 		runner.assert(
-			rep('(= (quote abc) "abc")', sharedEnv),
+			rep('(eq (quote abc) "abc")', sharedEnv),
 			printString(new BooleanNode(false), true),
 		);
 	});
@@ -441,7 +441,7 @@ runner.test("QUOTE: Testing symbol equality", () => {
 		"QUOTE: quote doesn 'stringify' symbols at the end of a list",
 		() => {
 			runner.assert(
-				rep('(= "abc" (quote abc))', sharedEnv),
+				rep('(eq "abc" (quote abc))', sharedEnv),
 				printString(new BooleanNode(false), true),
 			);
 		},
@@ -449,21 +449,21 @@ runner.test("QUOTE: Testing symbol equality", () => {
 
 	runner.test("QUOTE: str stringifies a quoted value", () => {
 		runner.assert(
-			rep('(= "abc" (str (quote abc)))', sharedEnv),
+			rep('(eq "abc" (str (quote abc)))', sharedEnv),
 			printString(new BooleanNode(true), true),
 		);
 	});
 
 	runner.test("QUOTE: quote does not attempt to evaluate symbols", () => {
 		runner.assert(
-			rep("(= (quote abc) nil)", sharedEnv),
+			rep("(eq (quote abc) nil)", sharedEnv),
 			printString(new BooleanNode(false), true),
 		);
 	});
 
 	runner.test("QUOTE: nil has no effect on quoting", () => {
 		runner.assert(
-			rep("(= nil (quote abc))", sharedEnv),
+			rep("(eq nil (quote abc))", sharedEnv),
 			printString(new BooleanNode(false), true),
 		);
 	});
@@ -571,7 +571,7 @@ runner.test("QUOTE: Testing quasiquote with vectors", () => {
 		"QUOTE: define a symbol to test complex macro expressions",
 		() => {
 			runner.assert(
-				rep("(def! a 8)", sharedEnv),
+				rep("(var a 8)", sharedEnv),
 				printString(new NumberNode(8), true),
 			);
 		},
@@ -581,7 +581,7 @@ runner.test("QUOTE: Testing quasiquote with vectors", () => {
 		"QUOTE: quasiquote returns a vector without evaluating symbols",
 		() => {
 			runner.assert(
-				rep("`[1 a 3]", sharedEnv),
+				rep("(quasiquote [1 a 3])", sharedEnv),
 				printString(
 					new VectorNode([
 						new NumberNode(1),
@@ -622,7 +622,7 @@ runner.test("QUOTE: Misplaced unquote or splice-unquote", () => {
 
 	runner.test("QUOTE: unquote does nothing as the last argument", () => {
 		runner.assert(
-			rep("`(0 unquote)", sharedEnv),
+			rep("(quasiquote (0 unquote))", sharedEnv),
 			printString(
 				new ListNode([new NumberNode(0), new SymbolNode("unquote")]),
 				true,
@@ -632,7 +632,7 @@ runner.test("QUOTE: Misplaced unquote or splice-unquote", () => {
 
 	runner.test("QUOTE: splice-unquote does nothing as the last argument", () => {
 		runner.assert(
-			rep("`(0 splice-unquote)", sharedEnv),
+			rep("(quasiquote (0 splice-unquote))", sharedEnv),
 			printString(
 				new ListNode([new NumberNode(0), new SymbolNode("splice-unquote")]),
 				true,
@@ -644,7 +644,7 @@ runner.test("QUOTE: Misplaced unquote or splice-unquote", () => {
 		"QUOTE: unquote is not evaluated within a quasi-quoted vector",
 		() => {
 			runner.assert(
-				rep("`[unquote 0]", sharedEnv),
+				rep("(quasiquote [unquote 0])", sharedEnv),
 				printString(
 					new VectorNode([new SymbolNode("unquote"), new NumberNode(0)]),
 					true,
@@ -657,7 +657,7 @@ runner.test("QUOTE: Misplaced unquote or splice-unquote", () => {
 		"QUOTE: splice-unquote is not evaluated within a quasi-quoted vector",
 		() => {
 			runner.assert(
-				rep("`[splice-unquote 0]", sharedEnv),
+				rep("(quasiquote [splice-unquote 0])", sharedEnv),
 				printString(
 					new VectorNode([new SymbolNode("splice-unquote"), new NumberNode(0)]),
 					true,

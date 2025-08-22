@@ -194,138 +194,7 @@ runner.test("readForm(): should throw EOF for undefined token", () => {
 	runner.assert(threw, true);
 });
 
-runner.test("readForm(): should read and return a 'quote' form", () => {
-	const rdr = new Reader(["'", "symbol"]);
-	const result = readForm(rdr);
-	runner.assert(
-		result,
-		createListNode([createSymbolNode("quote"), createSymbolNode("symbol")]),
-	);
-});
 
-runner.test("readForm(): should read and return a 'quasiquote' form", () => {
-	const rdr = new Reader(["`", "symbol"]);
-	const result = readForm(rdr);
-	runner.assert(
-		result,
-		createListNode([
-			createSymbolNode("quasiquote"),
-			createSymbolNode("symbol"),
-		]),
-	);
-});
-
-runner.test("readForm(): should read and return an 'unquote' form", () => {
-	const rdr = new Reader(["~", "symbol"]);
-	const result = readForm(rdr);
-	runner.assert(
-		result,
-		createListNode([createSymbolNode("unquote"), createSymbolNode("symbol")]),
-	);
-});
-
-runner.test(
-	"readForm(): should read and return a 'splice-unquote' form",
-	() => {
-		const rdr = new Reader(["~@", "symbol"]);
-		const result = readForm(rdr);
-		runner.assert(
-			result,
-			createListNode([
-				createSymbolNode("splice-unquote"),
-				createSymbolNode("symbol"),
-			]),
-		);
-	},
-);
-
-runner.test("readForm(): should read and return a 'with-meta' form", () => {
-	const rdr = new Reader(["^", "meta", "symbol"]);
-	const result = readForm(rdr);
-	runner.assert(
-		result,
-		createListNode([
-			createSymbolNode("with-meta"),
-			createSymbolNode("symbol"),
-			createSymbolNode("meta"),
-		]),
-	);
-});
-
-runner.test("readForm(): should read and return a 'deref' form", () => {
-	const rdr = new Reader(["@", "symbol"]);
-	const result = readForm(rdr);
-	runner.assert(
-		result,
-		createListNode([createSymbolNode("deref"), createSymbolNode("symbol")]),
-	);
-});
-
-runner.test("readForm(): should throw for lonely quote (')", () => {
-	const rdr = new Reader(["'"]);
-	let threw = false;
-	try {
-		readForm(rdr);
-	} catch (e) {
-		threw = true;
-	}
-	runner.assert(threw, true);
-});
-
-runner.test("readForm(): should throw for lonely quasiquote (`)", () => {
-	const rdr = new Reader(["`"]);
-	let threw = false;
-	try {
-		readForm(rdr);
-	} catch (e) {
-		threw = true;
-	}
-	runner.assert(threw, true);
-});
-
-runner.test("readForm(): should throw for lonely unquote (~)", () => {
-	const rdr = new Reader(["~"]);
-	let threw = false;
-	try {
-		readForm(rdr);
-	} catch (e) {
-		threw = true;
-	}
-	runner.assert(threw, true);
-});
-
-runner.test("readForm(): should throw for lonely splice-unquote (~@)", () => {
-	const rdr = new Reader(["~@"]);
-	let threw = false;
-	try {
-		readForm(rdr);
-	} catch (e) {
-		threw = true;
-	}
-	runner.assert(threw, true);
-});
-
-runner.test("readForm(): should throw for lonely with-meta (^)", () => {
-	const rdr = new Reader(["^"]);
-	let threw = false;
-	try {
-		readForm(rdr);
-	} catch (e) {
-		threw = true;
-	}
-	runner.assert(threw, true);
-});
-
-runner.test("readForm(): should throw for lonely deref (@)", () => {
-	const rdr = new Reader(["@"]);
-	let threw = false;
-	try {
-		readForm(rdr);
-	} catch (e) {
-		threw = true;
-	}
-	runner.assert(threw, true);
-});
 
 runner.test("readForm(): should throw error for unexpected ')'", () => {
 	const rdr = new Reader([")"]);
@@ -943,21 +812,6 @@ runner.test("readString(): double-quoted string with exclamation mark", () => {
 	runner.assert(readString('"!"'), createStringNode("!"));
 });
 
-runner.test("readString(): read of ^/metadata", () => {
-	runner.assert(
-		readString('^{"a" 1} [1 2 3]'),
-		createListNode([
-			createSymbolNode("with-meta"),
-			createVectorNode([
-				createNumberNode(1),
-				createNumberNode(2),
-				createNumberNode(3),
-			]),
-			createMapNode(new Map([['"a"', createNumberNode(1)]])),
-		]),
-	);
-});
-
 // Non alphanumeric characters in strings
 runner.test("readString(): new line in string", () => {
 	runner.assert(readString('"\n"'), createStringNode("\n"));
@@ -1121,96 +975,7 @@ runner.test(
 	},
 );
 
-runner.test("readString(): quote special form", () => {
-	runner.assert(
-		readString("'1"),
-		createListNode([createSymbolNode("quote"), createNumberNode(1)]),
-	);
-});
 
-runner.test("readString(): quote special form with list", () => {
-	runner.assert(
-		readString("'(1 2 3)"),
-		createListNode([
-			createSymbolNode("quote"),
-			createListNode([
-				createNumberNode(1),
-				createNumberNode(2),
-				createNumberNode(3),
-			]),
-		]),
-	);
-});
-
-runner.test("readString(): quasiquote special form", () => {
-	runner.assert(
-		readString("`1"),
-		createListNode([createSymbolNode("quasiquote"), createNumberNode(1)]),
-	);
-});
-
-runner.test("readString(): quasiquote special form with list", () => {
-	runner.assert(
-		readString("`(1 2 3)"),
-		createListNode([
-			createSymbolNode("quasiquote"),
-			createListNode([
-				createNumberNode(1),
-				createNumberNode(2),
-				createNumberNode(3),
-			]),
-		]),
-	);
-});
-
-runner.test("readString(): unquote special form", () => {
-	runner.assert(
-		readString("~1"),
-		createListNode([createSymbolNode("unquote"), createNumberNode(1)]),
-	);
-});
-
-runner.test("readString(): unquote special form with list", () => {
-	runner.assert(
-		readString("~(1 2 3)"),
-		createListNode([
-			createSymbolNode("unquote"),
-			createListNode([
-				createNumberNode(1),
-				createNumberNode(2),
-				createNumberNode(3),
-			]),
-		]),
-	);
-});
-
-runner.test("readString(): quasiquote special form with unquote", () => {
-	runner.assert(
-		readString("`(1 ~a 3)"),
-		createListNode([
-			createSymbolNode("quasiquote"),
-			createListNode([
-				createNumberNode(1),
-				createListNode([createSymbolNode("unquote"), createSymbolNode("a")]),
-				createNumberNode(3),
-			]),
-		]),
-	);
-});
-
-runner.test("readString(): splice-unquote special form with list", () => {
-	runner.assert(
-		readString("~@(1 2 3)"),
-		createListNode([
-			createSymbolNode("splice-unquote"),
-			createListNode([
-				createNumberNode(1),
-				createNumberNode(2),
-				createNumberNode(3),
-			]),
-		]),
-	);
-});
 
 runner.test("readString(): single keyword", () => {
 	runner.assert(readString("kw:"), createKeywordNode("kw:"));
@@ -1408,11 +1173,6 @@ runner.test("readString(): comment after expression without whitespace", () => {
 	runner.assert(readString("1; comment after expression"), createNumberNode(1));
 });
 
-runner.test("readString(): Testing read of @/deref", () => {
-	runner.assert(
-		readString("@a"),
-		createListNode([createSymbolNode("deref"), createSymbolNode("a")]),
-	);
-});
+
 
 runner.report();

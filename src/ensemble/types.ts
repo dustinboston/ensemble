@@ -6,64 +6,50 @@
 
 import type { Env } from "./env.ts";
 
+const NODE_TYPES_TEXT =
+	"atom, boolean, DOM, error, function, keyword, list, map, null, number, string, symbol, or vector";
+
 // MARK: TYPES
 // =============================================================================
 
 /**
  * All of the possible types that an AstNode can be.
  */
-export type AstNode =
-	| AtomNode
-	| BooleanNode
-	| DomNode
-	| ErrorNode
-	| FunctionNode
-	// | JsNode<SupportedJsTypes>
-	| KeywordNode
-	| ListNode
-	| MapNode
-	| NilNode
-	| NumberNode
-	| StringNode
-	| SymbolNode
-	| VectorNode;
+// export type AstNode =
+// 	| AtomNode
+// 	| BooleanNode
+// 	| DomNode
+// 	| ErrorNode
+// 	| FunctionNode
+// 	| KeywordNode
+// 	| ListNode
+// 	| MapNode
+// 	| NilNode
+// 	| NumberNode
+// 	| StringNode
+// 	| SymbolNode
+// 	| VectorNode;
 
-/**
- * Defines a union of JavaScript types that can be used with JsNode.
- *
- * @remarks
- * This type alias is used to specify a set of JavaScript types that are supported by JsNode. It ensures that only types that we can handle are specified.
- *
- * @example
- * ```typescript
- * const dateValue = new Date();
- * new JsNode(dateValue); // No type error
- *
- * const stringValue: SupportedJsTypes = "Hello"; // Type error: string is not assignable to SupportedJsTypes
- * ```
- */
-// type SupportedJsTypes<U extends object = object, V extends unknown = unknown> =
-//   | bigint
-//   | Date
-//   | RegExp
-//   | Set<U>
-//   | WeakMap<U, V>
-//   | WeakSet<U>
-//   | ArrayBuffer
-//   | SharedArrayBuffer
-//   | DataView
-//   | Int8Array
-//   | Uint8Array
-//   | Uint8ClampedArray
-//   | Int16Array
-//   | Uint16Array
-//   | Int32Array
-//   | Uint32Array
-//   | Float32Array
-//   | Float64Array
-//   | BigInt64Array
-//   | BigUint64Array
-//   | BigUint64Array;
+export abstract class AstNode {
+	static readonly kind: string;
+	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+	abstract value: any;
+
+	line = 0;
+	column = 0;
+
+	abstract get kind(): string;
+
+	setPosition(line = 0, column = 0) {
+		this.line = line;
+		this.column = column;
+		return this;
+	}
+
+	getPosition() {
+		return { line: this.line, column: this.column };
+	}
+}
 
 /**
  * Defines the actual function that FunctionNode wraps.
@@ -142,7 +128,6 @@ type TypeClass =
 	| typeof DomNode
 	| typeof ErrorNode
 	| typeof FunctionNode
-	// | typeof JsNode
 	| typeof KeywordNode
 	| typeof ListNode
 	| typeof MapNode
@@ -160,10 +145,17 @@ type TypeClass =
  * A data class which represents a part of the AST.
  * @param value - The data that this class represents.
  */
-export class AtomNode {
-	kind = "AtomNode";
+export class AtomNode extends AstNode {
+	static readonly kind = "Atom";
+
+	get kind() {
+		return AtomNode.kind;
+	}
+
 	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-	constructor(public value: any) {}
+	constructor(public value: any) {
+		super();
+	}
 }
 
 /**
@@ -171,9 +163,16 @@ export class AtomNode {
  * A data class which represents a part of the AST.
  * @param value - The data that this class represents.
  */
-export class BooleanNode {
-	kind = "BooleanNode";
-	constructor(public value: boolean) {}
+export class BooleanNode extends AstNode {
+	static readonly kind = "Boolean";
+
+	get kind() {
+		return BooleanNode.kind;
+	}
+
+	constructor(public value: boolean) {
+		super();
+	}
 }
 
 /**
@@ -181,43 +180,53 @@ export class BooleanNode {
  * A data class which represents a part of the AST.
  * @param value - The data that this class represents.
  */
-export class DomNode {
-	kind = "DomNode";
+export class DomNode extends AstNode {
+	static readonly kind = "DOM";
+	line = 0;
+	column = 0;
 	// domNode: HTMLElement | null = null;
+
+	get kind(): string {
+		return DomNode.kind;
+	}
+
 	constructor(
 		public value: string, // The tag name
 		public attributes: Map<string, AstNode> = new Map<string, AstNode>(), // TODO: Change to MapNode
 		public children: AstNode[] = [],
 		public metadata?: AstNode, // WAS = createNilNode(),
 	) {
-		// this.domNode = document.createElement(value);
-		// this.attributes.forEach((value, key) => this.domNode?.setAttribute(key, String(unwrap(value))));
-		// this.children.forEach((child) => {
-		//   const unwrapped = unwrap(child);
-		//   if (unwrapped instanceof HTMLElement) {
-		//     this.domNode?.appendChild(unwrapped);
-		//   }
-		// });
+		super();
 	}
 }
 
-type ErrorTypes =
-	| "Error"
-	| "AggregateError"
-	| "RangeError"
-	| "ReferenceError"
-	| "SyntaxError"
-	| "TypeError"
-	| "URIError";
+// type ErrorTypes =
+// 	| "Error"
+// 	| "AggregateError"
+// 	| "RangeError"
+// 	| "ReferenceError"
+// 	| "SyntaxError"
+// 	| "TypeError"
+// 	| "URIError";
 
-const errorTypes = [
-	"Error",
-	"AggregateError",
-	"RangeError",
-	"ReferenceError",
-	"SyntaxError",
-	"TypeError",
-	"URIError",
+export enum ErrorTypes {
+	Error = "Error",
+	AggregateError = "AggregateError",
+	RangeError = "RangeError",
+	ReferenceError = "ReferenceError",
+	SyntaxError = "SyntaxError",
+	TypeError = "TypeError",
+	URIError = "URIError",
+}
+
+const errorTypes: ErrorTypes[] = [
+	ErrorTypes.Error,
+	ErrorTypes.AggregateError,
+	ErrorTypes.RangeError,
+	ErrorTypes.ReferenceError,
+	ErrorTypes.SyntaxError,
+	ErrorTypes.TypeError,
+	ErrorTypes.URIError,
 ];
 
 export type NameStringNode = StringNode & {
@@ -229,10 +238,15 @@ export type NameStringNode = StringNode & {
  * A data class which represents a part of the AST.
  * @param value - The data that this class represents.
  */
-export class ErrorNode {
-	kind = "ErrorNode";
+export class ErrorNode extends AstNode {
+	static readonly kind = "Error";
+
 	name: StringNode = createStringNode("Error");
 	cause?: AstNode;
+
+	get kind() {
+		return ErrorNode.kind;
+	}
 
 	static isErrorName(name: StringNode): name is NameStringNode {
 		const value = name.value;
@@ -241,26 +255,42 @@ export class ErrorNode {
 
 	static assertErrorName(name: StringNode): asserts name is NameStringNode {
 		if (!ErrorNode.isErrorName(name)) {
-			throw new TypeError(
+			throw createErrorNode(
 				"Error type must be 'Error', 'AggregateError', 'RangeError', 'ReferenceError', 'SyntaxError', 'TypeError', or 'URIError'.",
+				ErrorTypes.TypeError,
+				name,
 			);
 		}
 	}
 
 	/**
-	 * @param value - message
+	 * Creates a new ErrorNode.
+	 * @param value - The error message. Can be of any AstNode type.
+	 * @param name - A JavaScript error type, i.e. "Error", "TypeError", etc.
+	 * @param source - The AstNode that caused the error. Should include line no.
 	 */
 	constructor(
 		public value: AstNode,
 		name?: NameStringNode,
-		cause: AstNode = createNilNode(),
+		source: AstNode = createNilNode(),
 	) {
+		super();
+
 		if (name !== undefined && ErrorNode.isErrorName(name)) {
 			this.name = name;
 		}
-		if (cause !== undefined) {
-			this.cause = cause;
+		if (source !== undefined) {
+			this.cause = source;
 		}
+	}
+
+	toString() {
+		const cause = this.cause ? this.cause : createNilNode();
+		const type = this.name.value;
+		// Import printString to properly format the value
+		const valueStr = isStringNode(this.value) ? this.value.value : String(this.value);
+		const message = `<str "${type}: [${cause.line}:${cause.column}]" ${valueStr}>`;
+		return `<error ${message}>`;
 	}
 }
 
@@ -273,14 +303,21 @@ export class ErrorNode {
  * @param isMacro - Whether the function is a macro.
  * @param metadata - Additional data to associate with this node.
  */
-export class FunctionNode {
-	kind = "FunctionNode";
+export class FunctionNode extends AstNode {
+	static readonly kind = "Function";
+
+	get kind() {
+		return FunctionNode.kind;
+	}
+
 	constructor(
 		public value: Closure,
 		public closureMeta?: ClosureMetadata,
 		public isMacro = false,
 		public metadata?: AstNode, // WAS = createNilNode(),
-	) {}
+	) {
+		super();
+	}
 }
 
 /**
@@ -288,9 +325,15 @@ export class FunctionNode {
  * A data class which represents a part of the AST.
  * @param value - The data that this class represents.
  */
-export class KeywordNode {
-	kind = "KeywordNode";
+export class KeywordNode extends AstNode {
+	static readonly kind = "Keyword";
+
+	get kind() {
+		return KeywordNode.kind;
+	}
+
 	constructor(private _value: string) {
+		super();
 		this._value = _value.replaceAll(":", "");
 	}
 
@@ -312,29 +355,43 @@ export class KeywordNode {
  * A data class which represents a part of the AST.
  * @param value - The data that this class represents.
  */
-export class ListNode {
-	kind = "ListNode";
+export class ListNode extends AstNode {
+	static readonly kind = "List";
+
+	get kind() {
+		return ListNode.kind;
+	}
+
 	constructor(
 		public value: AstNode[],
 		public metadata?: AstNode, // WAS = createNilNode()
-	) {}
+	) {
+		super();
+	}
 }
 
 /**
  * MapNode class
  * A data class which represents a part of the AST.
  * @description The Map value stores MapKeys as strings.
- * - A KeywordNode is stored as ':key'
+ * - A KeywordNode is stored as 'key='
  * - A StringNode is stored as '"str"'
  * - And a SymbolNode is stored as 'sym'.
  * @param value - The data that this class represents.
  */
-export class MapNode {
-	kind = "MapNode";
+export class MapNode extends AstNode {
+	static readonly kind = "Map";
+
+	get kind() {
+		return MapNode.kind;
+	}
+
 	constructor(
 		public value: Map<string, AstNode> = new Map<string, AstNode>(),
 		public metadata?: AstNode, // WAS = createNilNode()
-	) {}
+	) {
+		super();
+	}
 }
 
 /**
@@ -342,9 +399,16 @@ export class MapNode {
  * A data class which represents a part of the AST.
  * @param value - The data that this class represents.
  */
-export class NilNode {
-	kind = "NilNode";
-	constructor(public value: unknown = null) {}
+export class NilNode extends AstNode {
+	static readonly kind = "Null";
+
+	get kind() {
+		return NilNode.kind;
+	}
+
+	constructor(public value: unknown = null) {
+		super();
+	}
 }
 
 /**
@@ -352,10 +416,17 @@ export class NilNode {
  * A data class which represents a part of the AST.
  * @param value - The data that this class represents.
  */
-export class NumberNode {
-	kind = "NumberNode";
+export class NumberNode extends AstNode {
+	static readonly kind = "Number";
+
+	get kind() {
+		return NumberNode.kind;
+	}
+
 	// TODO: Add support for BigInt, e.g. value: number | bigint and handle internally
-	constructor(public value: number) {}
+	constructor(public value: number) {
+		super();
+	}
 }
 
 /**
@@ -363,9 +434,16 @@ export class NumberNode {
  * A data class which represents a part of the AST.
  * @param value - The data that this class represents.
  */
-export class SymbolNode {
-	kind = "SymbolNode";
-	constructor(public value: string) {}
+export class SymbolNode extends AstNode {
+	static readonly kind = "Symbol";
+
+	get kind() {
+		return SymbolNode.kind;
+	}
+
+	constructor(public value: string) {
+		super();
+	}
 }
 
 /**
@@ -373,9 +451,16 @@ export class SymbolNode {
  * A data class which represents a part of the AST.
  * @param value - The data that this class represents.
  */
-export class StringNode {
-	kind = "StringNode";
-	constructor(public value: string) {}
+export class StringNode extends AstNode {
+	static readonly kind = "String";
+
+	get kind() {
+		return StringNode.kind;
+	}
+
+	constructor(public value: string) {
+		super();
+	}
 }
 
 /**
@@ -383,23 +468,20 @@ export class StringNode {
  * A data class which represents a part of the AST.
  * @param value - The data that this class represents.
  */
-export class VectorNode<T extends AstNode = AstNode> {
-	kind = "VectorNode";
+export class VectorNode<T extends AstNode = AstNode> extends AstNode {
+	static readonly kind = "Vector";
+
+	get kind() {
+		return VectorNode.kind;
+	}
+
 	constructor(
 		public value: T[],
 		public metadata?: AstNode, // WAS = createNilNode()
-	) {}
+	) {
+		super();
+	}
 }
-
-/**
- * JsNode class
- * A wrapper for native JavaScript data types that we do not want to expose in Ensemble.
- * @param value - The data that this class represents.
- */
-// export class JsNode<T extends SupportedJsTypes> {
-//   constructor(public value: T) {
-//   }
-// }
 
 // MARK: ASSERTION FNS
 // =============================================================================
@@ -415,7 +497,7 @@ export function assertDomNode(
 	node: unknown,
 ): asserts node is DomNode & { value: string } {
 	if (!isDomNode(node)) {
-		throw new TypeError("Invalid DomNode");
+		throw createInvalidElementError(node);
 	}
 }
 
@@ -430,7 +512,7 @@ export function assertAstNode(
 	node: unknown,
 ): asserts node is AstNode & { value: AstNode } {
 	if (!isAstNode(node)) {
-		throw new TypeError("Invalid AstNode");
+		throw createInvalidElementError(node);
 	}
 }
 
@@ -443,7 +525,7 @@ export function assertAstNode(
  */
 export function assertAtomNode(node: unknown): asserts node is AtomNode {
 	if (!isAtomNode(node)) {
-		throw new TypeError("Invalid AtomNode");
+		throw createInvalidElementError(node);
 	}
 }
 
@@ -458,7 +540,7 @@ export function assertBooleanNode(
 	node: unknown,
 ): asserts node is BooleanNode & { value: boolean } {
 	if (!isBooleanNode(node)) {
-		throw new TypeError("Invalid BooleanNode");
+		throw createInvalidElementError(node);
 	}
 }
 
@@ -473,7 +555,7 @@ export function assertMapNode(
 	node: unknown,
 ): asserts node is MapNode & { value: Map<string, AstNode> } {
 	if (!isMapNode(node)) {
-		throw new TypeError("Invalid MapNode");
+		throw createInvalidElementError(node);
 	}
 }
 
@@ -488,7 +570,7 @@ export function assertErrorNode(
 	node: unknown,
 ): asserts node is ErrorNode & { value: AstNode } {
 	if (!isErrorNode(node)) {
-		throw new TypeError("Invalid ErrorNode");
+		throw createInvalidElementError(node);
 	}
 }
 
@@ -503,7 +585,7 @@ export function assertFunctionNode(
 	node: unknown,
 ): asserts node is FunctionNode & { value: Closure } {
 	if (!isFunctionNode(node)) {
-		throw new TypeError("Invalid FunctionNode");
+		throw createInvalidElementError(node);
 	}
 }
 
@@ -518,7 +600,7 @@ export function assertKeywordNode(
 	node: unknown,
 ): asserts node is KeywordNode & { value: `${string}:` } {
 	if (!isKeywordNode(node)) {
-		throw new TypeError("Invalid KeywordNode");
+		throw createInvalidElementError(node);
 	}
 }
 
@@ -533,7 +615,7 @@ export function assertListNode(
 	node: unknown,
 ): asserts node is ListNode & { value: AstNode[] } {
 	if (!isListNode(node)) {
-		throw new TypeError("Invalid ListNode");
+		throw createInvalidElementError(node);
 	}
 }
 
@@ -548,7 +630,7 @@ export function assertNilNode(
 	node: unknown,
 ): asserts node is NilNode & { value: null } {
 	if (!isNilNode(node)) {
-		throw new TypeError("Invalid NilNode");
+		throw createInvalidElementError(node);
 	}
 }
 
@@ -563,7 +645,7 @@ export function assertNumberNode(
 	node: unknown,
 ): asserts node is NumberNode & { value: number } {
 	if (!isNumberNode(node)) {
-		throw new TypeError("Invalid NumberNode");
+		throw createInvalidElementError(node);
 	}
 }
 
@@ -578,7 +660,7 @@ export function assertStringNode(
 	node: unknown,
 ): asserts node is StringNode & { value: string } {
 	if (!isStringNode(node)) {
-		throw new TypeError("Invalid StringNode");
+		throw createInvalidElementError(node);
 	}
 }
 
@@ -593,7 +675,7 @@ export function assertSymbolNode(
 	node: unknown,
 ): asserts node is SymbolNode & { value: string } {
 	if (!isSymbolNode(node)) {
-		throw new TypeError("Invalid SymbolNode");
+		throw createInvalidElementError(node);
 	}
 }
 
@@ -608,19 +690,22 @@ export function assertVectorNode(
 	node: unknown,
 ): asserts node is VectorNode & { value: AstNode[] } {
 	if (!isVectorNode(node)) {
-		throw new TypeError("Invalid VectorNode");
+		throw createInvalidElementError(node);
 	}
 }
 
 export function assertRegExp(value: unknown): asserts value is RegExp {
 	if (!(value instanceof RegExp)) {
-		throw new Error("Expected a RegExp object.");
+		throw createErrorNode(
+			"Expected a regular expression.",
+			ErrorTypes.TypeError,
+		);
 	}
 }
 
 export function assertSymbol(value: unknown): asserts value is symbol {
 	if (typeof value !== "symbol") {
-		throw new Error("Expected a Symbol object.");
+		throw createErrorNode("Expected a symbol.", ErrorTypes.TypeError);
 	}
 }
 
@@ -637,6 +722,17 @@ export function createDomNode(
 	metadata?: AstNode,
 ): DomNode {
 	return new DomNode(value, attributes, children, metadata);
+}
+
+export function createDomNodeFromHtmlElement(element: HTMLElement) {
+	const value = element.tagName.toLowerCase();
+	const attributes: Map<string, AstNode> = new Map();
+	for (const name of element.getAttributeNames()) {
+		const attr = element.getAttribute(name);
+		attributes.set(name, attr ? createStringNode(attr) : createNilNode());
+	}
+	const domNode = new DomNode(value, attributes);
+	return domNode;
 }
 
 /**
@@ -666,23 +762,35 @@ export function createMapNode(
 
 /**
  * Factory function to create a ErrorNode.
+ * Creates a new ErrorNode.
+ * @param value - The error message. Can be of any AstNode type.
+ * @param name - A JavaScript error type, i.e. "Error", "TypeError", etc.
+ * @param source - The AstNode that caused the error. Should include line no.
  */
 export function createErrorNode(
-	value: AstNode,
-	type?: NameStringNode,
-	cause?: AstNode,
+	value: string | AstNode = "Error",
+	type: ErrorTypes = ErrorTypes.Error,
+	source: AstNode | unknown = createNilNode(),
 ): ErrorNode {
-	assertAstNode(value);
-	return new ErrorNode(value, type, cause);
+	const message = typeof value === "string" ? createStringNode(value) : value;
+	const nameNode = createStringNode(type) as NameStringNode;
+	const sourceNode = isAstNode(source) ? source : createNilNode();
+	return new ErrorNode(message, nameNode, sourceNode);
 }
 
-/**
- * Factory function to create a FunctionNode.
- */
+export function createInvalidElementError(astNode?: unknown): ErrorNode {
+	const invalid = isAstNode(astNode)
+		? `Invalid ${astNode.kind} element`
+		: "Invalid element";
+
+	const error = createErrorNode(invalid, ErrorTypes.TypeError, astNode);
+	return error;
+}
+
 export function createFunctionNode(
 	value: Closure,
-	closureMeta?: ClosureMetadata | undefined,
-	isMacro?: boolean,
+	closureMeta?: ClosureMetadata,
+	isMacro = false,
 	metadata?: AstNode,
 ): FunctionNode {
 	return new FunctionNode(value, closureMeta, isMacro, metadata);
@@ -773,7 +881,6 @@ export function isAstNode(node: unknown): node is AstNode {
 		isDomNode(node) ||
 		isErrorNode(node) ||
 		isFunctionNode(node) ||
-		// isJsNode(node) ||
 		isKeywordNode(node) ||
 		isListNode(node) ||
 		isMapNode(node) ||
@@ -886,7 +993,7 @@ export function isKeywordNode(
 export function isListNode(
 	node: unknown,
 ): node is ListNode & { value: AstNode[] } {
-	return node instanceof ListNode && node.value.every(isAstNode);
+	return node instanceof ListNode; //  && node.value.every(isAstNode);
 }
 
 /**
@@ -949,49 +1056,6 @@ export function isVectorNode(node: unknown): node is VectorNode {
 // ============================================================================
 
 /**
- * Checks if a value is one of the supported JavaScript types.
- *
- * @remarks
- * This function is used to verify if a given value matches any of the predefined supported JavaScript types. It ensures type safety and consistency when working with these types.
- *
- * @param value - The value to check.
- * @returns True if the value is one of the supported JavaScript types, else false.
- *
- * @example
- * ```typescript
- * const isSupported = isJsNodeSupportedType(new Date());
- * console.log(isSupported); // Outputs: true
- *
- * const isNotSupported = isJsNodeSupportedType("Hello");
- * console.log(isNotSupported); // Outputs: false
- * ```
- */
-// export function isJsNodeSupportedType(value: unknown): value is SupportedJsTypes {
-//   return (
-//     value instanceof Date ||
-//     value instanceof RegExp ||
-//     value instanceof Set ||
-//     value instanceof WeakMap ||
-//     value instanceof WeakSet ||
-//     value instanceof ArrayBuffer ||
-//     value instanceof SharedArrayBuffer ||
-//     value instanceof DataView ||
-//     value instanceof Int8Array ||
-//     value instanceof Uint8Array ||
-//     value instanceof Uint8ClampedArray ||
-//     value instanceof Int16Array ||
-//     value instanceof Uint16Array ||
-//     value instanceof Int32Array ||
-//     value instanceof Uint32Array ||
-//     value instanceof Float32Array ||
-//     value instanceof Float64Array ||
-//     value instanceof BigInt64Array ||
-//     value instanceof BigUint64Array ||
-//     typeof value === 'bigint'
-//   );
-// }
-
-/**
  * Checks if two objects have the same prototype.
  * @param object1 - The first object to compare.
  * @param object2 - The second object to compare.
@@ -1011,7 +1075,11 @@ export function isSameClass<T, U>(object1: T, object2: U): boolean {
  */
 export function assertEq(a: AstNode, b: AstNode): void {
 	if (!isEqualTo(a, b)) {
-		throw new Error("Values are not equal");
+		throw createErrorNode(
+			"Expected values to be equal but got unequal values",
+			ErrorTypes.TypeError,
+			a,
+		);
 	}
 }
 
@@ -1023,7 +1091,11 @@ export function assertEq(a: AstNode, b: AstNode): void {
  */
 export function assertDefined<T>(object: unknown): asserts object is T {
 	if (object === undefined) {
-		throw new Error("Value is undefined");
+		throw createErrorNode(
+			"Expected value to be defined but got an undefined value",
+			ErrorTypes.TypeError,
+			isAstNode(object) ? object : createNilNode(),
+		);
 	}
 }
 
@@ -1037,7 +1109,11 @@ export function assertUndefined<T>(
 	object: unknown,
 ): asserts object is undefined {
 	if (object !== undefined) {
-		throw new Error("Value is not undefined");
+		throw createErrorNode(
+			"Expected value to be undefined but got a defined value",
+			ErrorTypes.TypeError,
+			isAstNode(object) ? object : createNilNode(),
+		);
 	}
 }
 
@@ -1049,9 +1125,14 @@ export function assertUndefined<T>(
  */
 export function assertNullOrUndefined<T>(
 	object: unknown,
+	astNode: AstNode,
 ): asserts object is undefined {
 	if (object !== undefined && object !== null) {
-		throw new Error("Value is not null or undefined");
+		throw createErrorNode(
+			"Expected value to be null or undefined but got a defined value",
+			ErrorTypes.TypeError,
+			astNode,
+		);
 	}
 }
 
@@ -1073,7 +1154,11 @@ export function isDefined<T>(object: unknown): object is T {
  */
 export function assertTrue(object: unknown): asserts object is true {
 	if (object === false) {
-		throw new Error("Value is not true");
+		throw createErrorNode(
+			"Expected value to be true but got false",
+			ErrorTypes.TypeError,
+			isAstNode(object) ? object : createNilNode(),
+		);
 	}
 }
 
@@ -1138,21 +1223,31 @@ export function assertSequential<T extends ListNode | VectorNode>(
 	value: unknown,
 ): asserts value is T {
 	if (!isListNode(value) && !isVectorNode(value)) {
-		throw new TypeError("Invalid sequential type");
+		const kind = isAstNode(value) ? value.kind : "unknown";
+		throw createErrorNode(
+			`Expected a list or vector type but got ${kind.toLowerCase()}`,
+			ErrorTypes.TypeError,
+			isAstNode(value) ? value : createNilNode(),
+		);
 	}
 }
 
 /**
- * Asserts that a value can be used as a key in a dictionary.
+ * Asserts that a value can be used as a key in a map.
  * @param value - The value to assert the key type for.
- * @throws Throws an error if the value cannot be used as a dictionary key.
- * @example assertDictKey(dictKeyCandidate) // no output if valid, error if not
+ * @throws Throws an error if the value cannot be used as a map key.
+ * @example assertMapKeyNode(mapKey) // no output if valid, error if not
  */
 export function assertMapKeyNode<T extends MapKeyNode>(
 	value: unknown,
 ): asserts value is T {
 	if (!(isStringNode(value) || isSymbolNode(value) || isKeywordNode(value))) {
-		throw new TypeError("Invalid dictionary key");
+		const kind = isAstNode(value) ? value.kind : "unknown";
+		throw createErrorNode(
+			`Expected a map key of type string, symbol, or keyword but got ${kind}`,
+			ErrorTypes.TypeError,
+			isAstNode(value) ? value : createNilNode(),
+		);
 	}
 }
 
@@ -1184,7 +1279,12 @@ export function assertMetadataType(
 		!isMapNode(value) &&
 		!isDomNode(value)
 	) {
-		throw new TypeError("Invalid metadata type");
+		const kind = isAstNode(value) ? value.kind : "unknown";
+		throw createErrorNode(
+			`Expected a metadata type of function, list, vector or map but got ${kind}`,
+			ErrorTypes.TypeError,
+			isAstNode(value) ? value : createNilNode(),
+		);
 	}
 }
 
@@ -1198,15 +1298,12 @@ export function assertMetadataType(
 export function assertArgumentCount(
 	actualCount: number,
 	expectedCount: number,
-	optionalMessage?: string,
+	astNode: AstNode = createNilNode(),
 ): void {
 	if (actualCount !== expectedCount) {
-		let message = `Wanted ${expectedCount} arguments but got ${actualCount}`;
-		if (optionalMessage) {
-			message += ` ${optionalMessage}`;
-		}
-
-		throw new Error(message);
+		const suffix = expectedCount - actualCount === 1 ? "" : "s";
+		const message = `Expected ${expectedCount} argument${suffix} but got ${actualCount}`;
+		throw createErrorNode(message, ErrorTypes.TypeError, astNode);
 	}
 }
 
@@ -1222,9 +1319,11 @@ export function assertVariableArgumentCount(
 	actualCount: number,
 	minExpectedCount: number,
 	maxExpectedCount: number,
+	astNode: AstNode = createNilNode(),
 ): void {
 	if (actualCount < minExpectedCount || actualCount > maxExpectedCount) {
-		throw new Error("Unexpected number of arguments");
+		const message = `Expected between ${minExpectedCount} and ${maxExpectedCount} arguments but got ${actualCount}`;
+		throw createErrorNode(message, ErrorTypes.TypeError, astNode);
 	}
 }
 
@@ -1241,9 +1340,11 @@ export function assertVariableArgumentCount(
 export function assertMinimumArgumentCount(
 	actualCount: number,
 	minExpectedCount: number,
+	astNode: AstNode = createNilNode(),
 ): void {
 	if (actualCount < minExpectedCount) {
-		throw new Error("Unexpected minimum number of arguments");
+		const message = `Expected at least ${minExpectedCount} arguments but got ${actualCount}`;
+		throw createErrorNode(message, ErrorTypes.TypeError, astNode);
 	}
 }
 
@@ -1254,9 +1355,16 @@ export function assertMinimumArgumentCount(
  * @example assertEvenArgumentCount(4); // No error thrown
  * @example assertEvenArgumentCount(3); // Error: Uneven number of arguments
  */
-export function assertEvenArgumentCount(maybeEven: number): void {
+export function assertEvenArgumentCount(
+	maybeEven: number,
+	astNode: AstNode = createNilNode(),
+): void {
 	if (maybeEven % 2 !== 0) {
-		throw new Error("Uneven number of arguments");
+		throw createErrorNode(
+			"Expected an even number of arguments but got an uneven amount.",
+			ErrorTypes.TypeError,
+			astNode,
+		);
 	}
 }
 
@@ -1277,7 +1385,12 @@ export function assertSequentialValues<ReturnType extends AstNode>(
 ): asserts sequentialValues is ReturnType[] {
 	for (const p of sequentialValues) {
 		if (!(p instanceof typeClass)) {
-			throw new TypeError("All values must be of the same type");
+			const kind = isAstNode(p) ? p.kind : "unknown";
+			throw createErrorNode(
+				`Expected all values to be of type ${typeClass.kind}, but got ${kind}`,
+				ErrorTypes.TypeError,
+				sequentialValues[0] ? sequentialValues[0] : createNilNode(),
+			);
 		}
 	}
 }
@@ -1287,7 +1400,12 @@ export function assertIsOneOf<R extends AstNode>(
 	typeClasses: TypeClass[],
 ): asserts astNode is R {
 	if (!typeClasses.some((typeClass) => astNode instanceof typeClass)) {
-		throw new TypeError("Invalid type");
+		const kinds = typeClasses.map((typeClass) => typeClass.kind).join(", ");
+		throw createErrorNode(
+			`Expected one of type ${kinds} but got an invalid type`,
+			ErrorTypes.TypeError,
+			astNode,
+		);
 	}
 }
 
@@ -1353,6 +1471,13 @@ export function isEqualTo(a: AstNode, b: AstNode): BooleanNode {
 		return createBooleanNode(true);
 	}
 
+	if (isAtomNode(a) && isAtomNode(b)) {
+		if (isAstNode(a.value) && isAstNode(b.value)) {
+			return isEqualTo(a.value, b.value);
+		}
+		return createBooleanNode(a.value === b.value);
+	}
+
 	if (!isSameClass(a, b)) {
 		return createBooleanNode(false);
 	}
@@ -1394,7 +1519,10 @@ export function listStartsWithSymbol(
  */
 export function assertEqual<T = string>(actual: T, expected: T): void {
 	if (actual !== expected) {
-		throw new Error(`Unexpected value '${actual}', wanted ${expected}`);
+		throw createErrorNode(
+			`Expected a value of ${expected} but got ${actual}`,
+			ErrorTypes.Error,
+		);
 	}
 }
 
@@ -1412,7 +1540,10 @@ export function assertGreaterThanEqual<T = string>(
 	expected: T,
 ): void {
 	if (actual >= expected) {
-		throw new Error("Unexpected value");
+		throw createErrorNode(
+			`Expected value to be greater than or equal to ${expected} but got ${actual}`,
+			ErrorTypes.Error,
+		);
 	}
 }
 
@@ -1472,34 +1603,6 @@ export function returnResult(ast: AstNode): ReturnResult {
 		return: ast,
 	};
 }
-
-/**
- * Prepends an AST node to an array of AST nodes.
- * @description Adds an AST node to the beginning of an array of AST nodes,
- * returning a new array.
- * @param acc - The accumulator array to which the AST node should be prepended.
- * @param curr - The AST node to prepend to the accumulator array.
- * @returns Arr - A new array with the AST node prepended.
- * @example prepend(accArray, astNode); // Prepend astNode to accArray
- */
-export const prepend = (acc: AstNode[], curr: AstNode): AstNode[] => [
-	curr,
-	...acc,
-];
-
-/**
- * Appends an AST node to an array of AST nodes.
- * @description Adds an AST node to the end of an array of AST nodes,
- * returning a new array.
- * @param acc - The accumulator array to which the AST node should be appended.
- * @param curr - The AST node to append to the accumulator array.
- * @returns Arr - A new array with the AST node appended.
- * @example append(accArray, astNode); // Append astNode to accArray
- */
-export const append = (acc: AstNode[], curr: AstNode): AstNode[] => [
-	...acc,
-	curr,
-];
 
 // MARK: COPY
 
@@ -1565,7 +1668,13 @@ export function copy(ast: AstNode): AstNode {
 		return copyDomNode(ast);
 	}
 
-	throw new Error("Unmatched object");
+	const nodeTypes =
+		"atom, boolean, map, DOM, error, functiom, keyword, list, null, number, string, symbol, or vector";
+	throw createErrorNode(
+		`Expected a value of type ${nodeTypes}, but did not find a match.`,
+		ErrorTypes.TypeError,
+		ast,
+	);
 }
 
 /**
@@ -1883,7 +1992,7 @@ export function convertStringToMapKey(key: string): MapKeyNode {
 export function getBareMapKey(key: string | MapKeyNode): string {
 	const value = isMapKeyNode(key) ? key.value : key;
 
-	if (value.startsWith(":") || value.endsWith(":")) {
+	if (value.endsWith(":")) {
 		return value.replaceAll(":", "");
 	}
 
@@ -2043,7 +2152,11 @@ export function unwrap(ast: AstNode) {
 		return unwrapVectorNode(ast);
 	}
 
-	throw new Error("Could not unwrap object.");
+	throw createErrorNode(
+		`Could not unwrap value. Expected a value of type ${NODE_TYPES_TEXT}, but did not find a match.`,
+		ErrorTypes.TypeError,
+		ast,
+	);
 }
 
 export function unwrapAtomNode(ast: AtomNode): unknown {
@@ -2110,81 +2223,8 @@ export function unwrapVectorNode(ast: VectorNode): unknown[] {
 	return ast.value.map(unwrap);
 }
 
-// // TODO: Rename toJs to unwrap, unwrapJs, or unwrapAstNode
-// /**
-//  * Converts an abstract syntax tree (AST) node to its corresponding JavaScript representation.
-//  * @param ast - The AST node to convert.
-//  * @returns The JavaScript representation of the AST node.
-//  * @throws Will throw an error if the AST node type is unmatched.
-//  */
-// export function toJs<T extends AstNode = AstNode>(
-//   ast: T,
-// ): T['value'] { // AllReturnableJsTypes
-//   if (isAtomNode(ast)) {
-//     return toJs(ast.value);
-//   }
-
-//   if (isBooleanNode(ast)) {
-//     return ast.value;
-//   }
-
-//   if (isMapNode(ast)) {
-//     const obj: Record<string, T['value']> = {};
-//     for (const [key, value] of ast.value.entries()) {
-//       obj[key] = toJs(value);
-//     }
-
-//     return obj;
-//   }
-
-//   if (isErrorNode(ast)) {
-//     if (isStringNode(ast.value)) {
-//       return new Error(ast.value.value);
-//     } else {
-//       return new Error(String(ast.value));
-//     }
-//   }
-
-//   if (isFunctionNode(ast)) {
-//     return ((...args: AllReturnableJsTypes[]) => toJs(ast.value(...args.map(toAst))));
-//   }
-
-//   if (isKeywordNode(ast)) {
-//     return ast.value;
-//   }
-
-//   if (isListNode(ast)) {
-//     return ast.value.map(toJs);
-//   }
-
-//   if (isNilNode(ast)) {
-//     return null;
-//   }
-
-//   if (isNumberNode(ast)) {
-//     return ast.value;
-//   }
-
-//   if (isStringNode(ast)) {
-//     return ast.value;
-//   }
-
-//   if (isSymbolNode(ast)) {
-//     return ast.value;
-//   }
-
-//   if (isVectorNode(ast)) {
-//     return ast.value.map((n) => toJs(n));
-//   }
-
-//   // if (isJsNode(ast)) {
-//   //   return ast.value;
-//   // }
-
-//   throw new TypeError(
-//     `Could not convert '${JSON.stringify(ast)}' to JavaScript`,
-//   );
-// }
+export const validTypesString =
+	"array, boolean, error, function, keyword, map, null, number, object, string, symbol, or undefined";
 
 /**
  * Translate JavaScript primitive values into Ast's.
@@ -2241,10 +2281,6 @@ export function toAst(input: unknown): AstNode {
 		}
 
 		case "object": {
-			// if (isJsNodeSupportedType(input)) {
-			//   return createJsNode(input);
-			// }
-
 			if (input instanceof Error) {
 				return createErrorNode(createStringNode(input.message));
 			}
@@ -2283,7 +2319,9 @@ export function toAst(input: unknown): AstNode {
 		default: {
 			const coercedUnknown = String(input);
 			return createErrorNode(
-				createStringNode(`unknown type ${coercedUnknown}`),
+				createStringNode(
+					`Expected value of type ${validTypesString} but got unknown type ${coercedUnknown}`,
+				),
 			);
 		}
 	}

@@ -15,7 +15,7 @@ import runner from "./test_runner.ts";
 
 runner.test("FILE: Execute the program in a sub process", () => {
 	runner.assert(
-		rep("(+ 1 2)", initMain()),
+		rep("(add 1 2)", initMain()),
 		printString(new NumberNode(3), true),
 	);
 });
@@ -32,8 +32,8 @@ runner.test(
 
 runner.test("FILE: Testing read-string with nil", () => {
 	runner.assert(
-		rep('(= nil (read-string "nil"))', initMain()),
-		printString(new BooleanNode(true)),
+		rep('(eq nil (read-string "nil"))', initMain()),
+		printString(new BooleanNode(true), true),
 	);
 });
 
@@ -71,7 +71,7 @@ runner.test("FILE: Testing read-string with comment only", () => {
 
 runner.test("FILE: Testing eval with addition expression", () => {
 	runner.assert(
-		rep('(eval (read-string "(+ 2 3)"))', initMain()),
+		rep('(eval (read-string "(add 2 3)"))', initMain()),
 		printString(new NumberNode(5), true),
 	);
 });
@@ -80,13 +80,13 @@ runner.test("FILE: Testing slurp with file content", () => {
 	const sharedEnv = initMain();
 
 	runner.assert(
-		rep('(slurp "./tests/fixtures/test.txt")', sharedEnv),
+		rep('(slurp "./src/ensemble/tests/fixtures/test.txt")', sharedEnv),
 		printString(new StringNode("A line of text\n"), true),
 	);
 
 	runner.test("FILE: Testing slurp with file content loaded twice", () => {
 		runner.assert(
-			rep('(slurp "./tests/fixtures/test.txt")', initMain()),
+			rep('(slurp "./src/ensemble/tests/fixtures/test.txt")', initMain()),
 			printString(new StringNode("A line of text\n"), true),
 		);
 	});
@@ -95,7 +95,7 @@ runner.test("FILE: Testing slurp with file content", () => {
 runner.test("FILE: Testing load-file and function definitions", () => {
 	const sharedEnv = initMain();
 	runner.assert(
-		rep('(load-file "./tests/fixtures/inc.mal")', sharedEnv),
+		rep('(load-file "./src/ensemble/tests/fixtures/inc.mal")', sharedEnv),
 		printString(new NilNode(), true),
 	);
 
@@ -118,12 +118,12 @@ runner.test("FILE: Testing atom creation and operations", () => {
 	const sharedEnv = initMain();
 
 	runner.assert(
-		rep('(load-file "./tests/fixtures/inc.mal")', sharedEnv),
+		rep('(load-file "./src/ensemble/tests/fixtures/inc.mal")', sharedEnv),
 		printString(new NilNode(), true),
 	);
 
 	runner.assert(
-		rep("(def! a (atom 2))", sharedEnv),
+		rep("(var a (atom 2))", sharedEnv),
 		printString(new AtomNode(new NumberNode(2)), true),
 	);
 
@@ -176,64 +176,64 @@ runner.test("FILE: Testing atom creation and operations", () => {
 		);
 	});
 
-	runner.test("FILE: Testing swap! with * function on atom", () => {
+	runner.test("FILE: Testing swap! with multiply function on atom", () => {
 		runner.assert(
-			rep("(swap! a (fn* (a) (* 2 a)))", sharedEnv),
+			rep("(swap! a (fn* (a) (multiply 2 a)))", sharedEnv),
 			printString(new NumberNode(12), true),
 		);
 	});
 
 	runner.test("FILE: Testing swap! with fn* and extra args on atom", () => {
 		runner.assert(
-			rep("(swap! a (fn* (a b) (* a b)) 10)", sharedEnv),
+			rep("(swap! a (fn* (a b) (multiply a b)) 10)", sharedEnv),
 			printString(new NumberNode(120), true),
 		);
 	});
 
 	runner.test("FILE: Testing swap! with addition function on atom", () => {
 		runner.assert(
-			rep("(swap! a + 3)", sharedEnv),
+			rep("(swap! a add 3)", sharedEnv),
 			printString(new NumberNode(123), true),
 		);
 	});
 
 	runner.test("FILE: Testing swap!/closure interaction", () => {
-		rep("(def! inc-it (fn* (a) (+ 1 a)))", sharedEnv);
-		rep("(def! atm (atom 7))", sharedEnv);
-		rep("(def! f (fn* () (swap! atm inc-it)))", sharedEnv);
+		rep("(var inc-it (fn* (a) (add 1 a)))", sharedEnv);
+		rep("(var atm (atom 7))", sharedEnv);
+		rep("(var f (fn* () (swap! atm inc-it)))", sharedEnv);
 
 		runner.assert(rep("(f)", sharedEnv), printString(new NumberNode(8), true));
 	});
 
 	runner.test("FILE: Testing whether closures retain atoms", () => {
-		rep("(def! g (let* (atm (atom 0)) (fn* () (deref atm))))", sharedEnv);
-		rep("(def! atm (atom 1))", sharedEnv);
+		rep("(var g (const (atm (atom 0)) (fn* () (deref atm))))", sharedEnv);
+		rep("(var atm (atom 1))", sharedEnv);
 
 		runner.assert(rep("(g)", sharedEnv), printString(new NumberNode(0), true));
 	});
 
 	runner.test("FILE: Testing deref using @ reader macro", () => {
-		rep("(def! atm (atom 9))", sharedEnv);
-		runner.assert(rep("@atm", sharedEnv), printString(new NumberNode(9), true));
+		rep("(var atm (atom 9))", sharedEnv);
+		runner.assert(rep("(deref atm)", sharedEnv), printString(new NumberNode(9), true));
 	});
 });
 
 runner.test("FILE: Testing vector params not broken by TCO", () => {
 	const sharedEnv = initMain();
-	rep("(def! g (fn* [] 78))", sharedEnv);
+	rep("(var g (fn* [] 78))", sharedEnv);
 	runner.assert(rep("(g)", sharedEnv), printString(new NumberNode(78), true));
 });
 
 runner.test("FILE: Testing vector params with argument", () => {
 	const sharedEnv = initMain();
-	rep("(def! g (fn* [a] (+ a 78)))", sharedEnv);
+	rep("(var g (fn* [a] (add a 78)))", sharedEnv);
 	runner.assert(rep("(g 3)", sharedEnv), printString(new NumberNode(81), true));
 });
 
 runner.test("FILE: Testing large computations", () => {
 	const sharedEnv = initMain();
 	runner.assert(
-		rep('(load-file "./tests/fixtures/computations.mal")', sharedEnv),
+		rep('(load-file "./src/ensemble/tests/fixtures/computations.mal")', sharedEnv),
 		printString(new NilNode(), true),
 	);
 
@@ -270,7 +270,7 @@ runner.test(
 	() => {
 		runner.assert(
 			rep(
-				'(let* (b 12) (do (eval (read-string "(def! aa 7)")) aa ))',
+				'(const (b 12) (do (eval (read-string "(var aa 7)")) aa ))',
 				initMain(),
 			),
 			printString(new NumberNode(7), true),
@@ -281,7 +281,7 @@ runner.test(
 runner.test("FILE: Testing comments in file", () => {
 	const sharedEnv = initMain();
 	runner.assert(
-		rep('(load-file "./tests/fixtures/incB.mal")\n(inc4 7)', sharedEnv),
+		rep('(load-file "./src/ensemble/tests/fixtures/incB.mal")', sharedEnv),
 		printString(new NilNode(), true),
 	);
 
@@ -303,7 +303,7 @@ runner.test("FILE: Testing comments in file", () => {
 runner.test("FILE: Testing map literal across multiple lines in a file", () => {
 	const sharedEnv = initMain();
 	runner.assert(
-		rep('(load-file "./tests/fixtures/incC.mal")', sharedEnv),
+		rep('(load-file "./src/ensemble/tests/fixtures/incC.mal")', sharedEnv),
 		printString(new NilNode(), true),
 	);
 
@@ -318,7 +318,7 @@ runner.test("FILE: Testing map literal across multiple lines in a file", () => {
 runner.test("FILE: Checking eval does not use local environments", () => {
 	const sharedEnv = initMain();
 	runner.assert(
-		rep("(def! a 1)", sharedEnv),
+		rep("(var a 1)", sharedEnv),
 		printString(new NumberNode(1), true),
 	);
 
@@ -326,7 +326,7 @@ runner.test("FILE: Checking eval does not use local environments", () => {
 		"FILE: A variable defined within eval should not overwrite a global with the same name",
 		() => {
 			runner.assert(
-				rep('(let* (a 2) (eval (read-string "a")))', sharedEnv),
+				rep('(const (a 2) (eval (read-string "a")))', sharedEnv),
 				printString(new NumberNode(1), true),
 			);
 		},

@@ -34,7 +34,7 @@ export class Reader {
 	 * the starting point in the token stream.
 	 * @param tokens - An array of strings representing the tokens derived
 	 * 	from source code string.
-	 * @param pos - The initial position in the token stream. Defaults to 0.
+	 * @param position - The initial position in the token stream. Defaults to 0.
 	 * @example
 	 * ```typescript
 	 * const reader = new Reader(tokenize("(+ 1 2)"));
@@ -42,26 +42,20 @@ export class Reader {
 	 */
 	constructor(
 		public tokens: string[],
-		private pos = 0,
+		public position = 0,
 	) {}
 
 	// Retrieves the next token and advances the position.
-	next = () => this.tokens[this.pos++];
+	next = () => this.tokens[this.position++];
 
 	// Peeks at the current token without advancing the position.
-	peek = () => this.tokens[this.pos];
+	peek = () => this.tokens[this.position];
 
 	context = () => {
-		const start = this.pos - 10;
-		const end = this.pos + 10;
+		const start = this.position - 10; // Show 10 tokens before the current position
+		const end = this.position + 10; // Show 10 tokens after the current position
 		return this.tokens.slice(start, end).join(" ");
 	};
-}
-
-function formatError(error: string | Error, reader: Reader): string {
-	const message = error instanceof Error ? error.message : error;
-	const context = reader.context();
-	return `Error: ${message}\n  on line ${reader.line} near "${context}"`;
 }
 
 /**
@@ -144,28 +138,11 @@ export function readString(code: string): types.AstNode {
 export function readForm(rdr: Reader): types.AstNode {
 	const token = rdr.peek();
 	if (token === undefined) {
-		throw new Error("EOF");
+		throw types
+			.createErrorNode("EOF", types.ErrorTypes.SyntaxError)
+			.setPosition(rdr.line, rdr.position);
 	}
 
-	/**
-	 * Helper for creating special forms.
-	 * @param symbol - A symbol to start the new list.
-	 * @param meta - Meta, if specified, will be added to the end of the list.
-	 * @returns A list with the result of calling readForm and optionally meta.
-	 * @example makeForm('`')
-	 */
-	function makeForm(symbol: string, meta?: types.AstNode): types.ListNode {
-		return types.createListNode([
-			types.createSymbolNode(symbol),
-			readForm(rdr),
-			...(meta ? [meta] : []),
-		]);
-	}
-
-	// TODO: Decide if we want to support this.
-	// The special forms would still be available and it would free up several
-	// characters that are used in javascript. Specifically the ~ and ^, but
-	// also potentiall the @. However, some tests would need to be updated.
 	switch (token) {
 		case "\n":
 		case "\r\n": {
@@ -175,43 +152,13 @@ export function readForm(rdr: Reader): types.AstNode {
 			return readForm(rdr);
 		}
 
-		case "'": {
-			rdr.next();
-			return makeForm("quote");
-		}
-
-		case "`": {
-			rdr.next();
-			return makeForm("quasiquote");
-		}
-
-		case "~": {
-			rdr.next();
-			return makeForm("unquote");
-		}
-
-		case "~@": {
-			rdr.next();
-			return makeForm("splice-unquote");
-		}
-
-		case "^": {
-			rdr.next();
-			const meta = readForm(rdr);
-			return makeForm("with-meta", meta);
-		}
-
-		case "@": {
-			rdr.next();
-			return makeForm("deref");
-		}
-
 		case ")":
 		case "]":
 		case "}":
 		case ">": {
-			const error = formatError(`unexpected '${token}'`, rdr);
-			throw new Error(error);
+			throw types
+				.createErrorNode(`Unexpected '${token}'`, types.ErrorTypes.SyntaxError)
+				.setPosition(rdr.line, rdr.position);
 		}
 
 		case "(": {
@@ -254,41 +201,51 @@ export function readAtom(rdr: Reader): types.AstNode {
 	const token = rdr.next();
 
 	if (token === undefined) {
-		throw new Error("unexpected EOF");
+		throw types
+			.createErrorNode("Unexpected end of file", types.ErrorTypes.SyntaxError)
+			.setPosition(rdr.line, rdr.position);
 	}
 
-	if (token === "nil") {
-		return types.createNilNode();
+	if (token === "nil" || token === "null") {
+		return types.createNilNode().setPosition(rdr.line, rdr.position);
 	}
 
 	if (token === "false") {
-		return types.createBooleanNode(false);
+		return types.createBooleanNode(false).setPosition(rdr.line, rdr.position);
 	}
 
 	if (token === "true") {
-		return types.createBooleanNode(true);
+		return types.createBooleanNode(true).setPosition(rdr.line, rdr.position);
 	}
 
 	if (numberRegex.test(token)) {
-		return types.createNumberNode(Number.parseFloat(token));
+		return types
+			.createNumberNode(Number.parseFloat(token))
+			.setPosition(rdr.line, rdr.position);
 	}
 
 	if (stringRegex.test(token)) {
-		const unescaped = types.createStringNode(unescapeString(token));
+		const unescaped = types
+			.createStringNode(unescapeString(token))
+			.setPosition(rdr.line, rdr.position);
 		return unescaped;
 	}
 
 	// TODO: Add support for trailing colons.
 	if (token.startsWith(":") || token.endsWith(":")) {
-		return types.createKeywordNode(token);
+		return types.createKeywordNode(token).setPosition(rdr.line, rdr.position);
 	}
 
 	if (token.startsWith('"')) {
-		const error = formatError("expected '\"', got EOF", rdr);
-		throw new Error(error);
+		throw types
+			.createErrorNode(
+				"Expected '\"' but got end of file",
+				types.ErrorTypes.SyntaxError,
+			)
+			.setPosition(rdr.line, rdr.position);
 	}
 
-	return types.createSymbolNode(token);
+	return types.createSymbolNode(token).setPosition(rdr.line, rdr.position);
 }
 
 /**
@@ -336,8 +293,12 @@ export function readSequence(
 	while (true) {
 		const token = rdr.peek();
 		if (token === undefined) {
-			const error = formatError(`expected '${end}', got EOF`, rdr);
-			throw new Error(error);
+			throw types
+				.createErrorNode(
+					`expected '${end}', got EOF`,
+					types.ErrorTypes.SyntaxError,
+				)
+				.setPosition(rdr.line, rdr.position);
 		}
 
 		if (token === end) {
@@ -351,29 +312,35 @@ export function readSequence(
 	switch (end) {
 		case ">":
 		case ")": {
-			return types.createListNode(astNodes);
+			return types.createListNode(astNodes).setPosition(rdr.line, rdr.position);
 		}
 
 		case "]": {
-			return types.createVectorNode(astNodes);
+			return types
+				.createVectorNode(astNodes)
+				.setPosition(rdr.line, rdr.position);
 		}
 
 		case "}": {
-			const dict = types.createMapNode();
+			const map = types.createMapNode().setPosition(rdr.line, rdr.position);
 			for (let i = 0; i < astNodes.length; i += 2) {
 				const key = astNodes[i];
 				types.assertMapKeyNode(key);
 				const value = astNodes[i + 1];
 				const keyString = types.convertMapKeyToString(key);
-				dict.value.set(keyString, value);
+				map.value.set(keyString, value);
 			}
 
-			return dict;
+			return map;
 		}
 
 		default: {
-			const error = formatError(`unknown end value: ${end}`, rdr);
-			throw new Error(error);
+			throw types
+				.createErrorNode(
+					`unknown end value: ${end}`,
+					types.ErrorTypes.SyntaxError,
+				)
+				.setPosition(rdr.line, rdr.position);
 		}
 	}
 }

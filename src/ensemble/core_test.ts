@@ -72,7 +72,7 @@ runner.test("printUnescapedStringToScreen(): logs the unescaped string", () => {
 		console.log = oldLog;
 	}
 
-	runner.assert(args, ['"abc\\ndef\\nghi"']);
+	runner.assert(args, ["abc\ndef\nghi"]);
 	runner.assert(calls, 1);
 });
 

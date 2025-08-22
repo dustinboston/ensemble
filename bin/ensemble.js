@@ -7,10 +7,12 @@ var __export = (target, all) => {
 // src/ensemble/types.ts
 var types_exports = {};
 __export(types_exports, {
+  AstNode: () => AstNode,
   AtomNode: () => AtomNode,
   BooleanNode: () => BooleanNode,
   DomNode: () => DomNode,
   ErrorNode: () => ErrorNode,
+  ErrorTypes: () => ErrorTypes,
   FunctionNode: () => FunctionNode,
   KeywordNode: () => KeywordNode,
   ListNode: () => ListNode,
@@ -20,7 +22,6 @@ __export(types_exports, {
   StringNode: () => StringNode,
   SymbolNode: () => SymbolNode,
   VectorNode: () => VectorNode,
-  append: () => append,
   assertArgumentCount: () => assertArgumentCount,
   assertAstNode: () => assertAstNode,
   assertAtomNode: () => assertAtomNode,
@@ -74,8 +75,10 @@ __export(types_exports, {
   createAtomNode: () => createAtomNode,
   createBooleanNode: () => createBooleanNode,
   createDomNode: () => createDomNode,
+  createDomNodeFromHtmlElement: () => createDomNodeFromHtmlElement,
   createErrorNode: () => createErrorNode,
   createFunctionNode: () => createFunctionNode,
+  createInvalidElementError: () => createInvalidElementError,
   createKeywordNode: () => createKeywordNode,
   createListNode: () => createListNode,
   createMapNode: () => createMapNode,
@@ -115,7 +118,6 @@ __export(types_exports, {
   listStartsWithSymbol: () => listStartsWithSymbol,
   mapFlat: () => mapFlat,
   normalizeWhitespace: () => normalizeWhitespace,
-  prepend: () => prepend,
   returnResult: () => returnResult,
   setMapElement: () => setMapElement,
   slash: () => slash,
@@ -135,83 +137,145 @@ __export(types_exports, {
   unwrapNumberNode: () => unwrapNumberNode,
   unwrapStringNode: () => unwrapStringNode,
   unwrapSymbolNode: () => unwrapSymbolNode,
-  unwrapVectorNode: () => unwrapVectorNode
+  unwrapVectorNode: () => unwrapVectorNode,
+  validTypesString: () => validTypesString
 });
-var AtomNode = class {
+var NODE_TYPES_TEXT = "atom, boolean, DOM, error, function, keyword, list, map, null, number, string, symbol, or vector";
+var AstNode = class {
+  static kind;
+  line = 0;
+  column = 0;
+  setPosition(line = 0, column = 0) {
+    this.line = line;
+    this.column = column;
+    return this;
+  }
+  getPosition() {
+    return { line: this.line, column: this.column };
+  }
+};
+var AtomNode = class _AtomNode extends AstNode {
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   constructor(value) {
+    super();
     this.value = value;
   }
-  kind = "AtomNode";
+  static kind = "Atom";
+  get kind() {
+    return _AtomNode.kind;
+  }
 };
-var BooleanNode = class {
+var BooleanNode = class _BooleanNode extends AstNode {
   constructor(value) {
+    super();
     this.value = value;
   }
-  kind = "BooleanNode";
+  static kind = "Boolean";
+  get kind() {
+    return _BooleanNode.kind;
+  }
 };
-var DomNode = class {
-  // domNode: HTMLElement | null = null;
+var DomNode = class _DomNode extends AstNode {
   constructor(value, attributes = /* @__PURE__ */ new Map(), children = [], metadata) {
+    super();
     this.value = value;
     this.attributes = attributes;
     this.children = children;
     this.metadata = metadata;
   }
-  kind = "DomNode";
+  static kind = "DOM";
+  line = 0;
+  column = 0;
+  // domNode: HTMLElement | null = null;
+  get kind() {
+    return _DomNode.kind;
+  }
 };
+var ErrorTypes = /* @__PURE__ */ ((ErrorTypes2) => {
+  ErrorTypes2["Error"] = "Error";
+  ErrorTypes2["AggregateError"] = "AggregateError";
+  ErrorTypes2["RangeError"] = "RangeError";
+  ErrorTypes2["ReferenceError"] = "ReferenceError";
+  ErrorTypes2["SyntaxError"] = "SyntaxError";
+  ErrorTypes2["TypeError"] = "TypeError";
+  ErrorTypes2["URIError"] = "URIError";
+  return ErrorTypes2;
+})(ErrorTypes || {});
 var errorTypes = [
-  "Error",
-  "AggregateError",
-  "RangeError",
-  "ReferenceError",
-  "SyntaxError",
-  "TypeError",
-  "URIError"
+  "Error" /* Error */,
+  "AggregateError" /* AggregateError */,
+  "RangeError" /* RangeError */,
+  "ReferenceError" /* ReferenceError */,
+  "SyntaxError" /* SyntaxError */,
+  "TypeError" /* TypeError */,
+  "URIError" /* URIError */
 ];
-var ErrorNode = class _ErrorNode {
+var ErrorNode = class _ErrorNode extends AstNode {
   /**
-   * @param value - message
+   * Creates a new ErrorNode.
+   * @param value - The error message. Can be of any AstNode type.
+   * @param name - A JavaScript error type, i.e. "Error", "TypeError", etc.
+   * @param source - The AstNode that caused the error. Should include line no.
    */
-  constructor(value, name, cause = createNilNode()) {
+  constructor(value, name, source = createNilNode()) {
+    super();
     this.value = value;
     if (name !== void 0 && _ErrorNode.isErrorName(name)) {
       this.name = name;
     }
-    if (cause !== void 0) {
-      this.cause = cause;
+    if (source !== void 0) {
+      this.cause = source;
     }
   }
-  kind = "ErrorNode";
+  static kind = "Error";
   name = createStringNode("Error");
   cause;
+  get kind() {
+    return _ErrorNode.kind;
+  }
   static isErrorName(name) {
     const value = name.value;
     return errorTypes.includes(value);
   }
   static assertErrorName(name) {
     if (!_ErrorNode.isErrorName(name)) {
-      throw new TypeError(
-        "Error type must be 'Error', 'AggregateError', 'RangeError', 'ReferenceError', 'SyntaxError', 'TypeError', or 'URIError'."
+      throw createErrorNode(
+        "Error type must be 'Error', 'AggregateError', 'RangeError', 'ReferenceError', 'SyntaxError', 'TypeError', or 'URIError'.",
+        "TypeError" /* TypeError */,
+        name
       );
     }
   }
+  toString() {
+    const cause = this.cause ? this.cause : createNilNode();
+    const type = this.name || "Error";
+    const message = `<str "${type}: [${cause.line}:${cause.column}]" ${this.value}>`;
+    return `<error ${message}>`;
+  }
 };
-var FunctionNode = class {
+var FunctionNode = class _FunctionNode extends AstNode {
   constructor(value, closureMeta, isMacro2 = false, metadata) {
+    super();
     this.value = value;
     this.closureMeta = closureMeta;
     this.isMacro = isMacro2;
     this.metadata = metadata;
   }
-  kind = "FunctionNode";
+  static kind = "Function";
+  get kind() {
+    return _FunctionNode.kind;
+  }
 };
-var KeywordNode = class {
+var KeywordNode = class _KeywordNode extends AstNode {
   constructor(_value) {
+    super();
     this._value = _value;
     this._value = _value.replaceAll(":", "");
   }
-  kind = "KeywordNode";
+  static kind = "Keyword";
+  get kind() {
+    return _KeywordNode.kind;
+  }
   get value() {
     return `${this._value}:`;
   }
@@ -222,134 +286,175 @@ var KeywordNode = class {
     return this._value;
   }
 };
-var ListNode = class {
+var ListNode = class _ListNode extends AstNode {
   constructor(value, metadata) {
+    super();
     this.value = value;
     this.metadata = metadata;
   }
-  kind = "ListNode";
+  static kind = "List";
+  get kind() {
+    return _ListNode.kind;
+  }
 };
-var MapNode = class {
+var MapNode = class _MapNode extends AstNode {
   constructor(value = /* @__PURE__ */ new Map(), metadata) {
+    super();
     this.value = value;
     this.metadata = metadata;
   }
-  kind = "MapNode";
+  static kind = "Map";
+  get kind() {
+    return _MapNode.kind;
+  }
 };
-var NilNode = class {
+var NilNode = class _NilNode extends AstNode {
   constructor(value = null) {
+    super();
     this.value = value;
   }
-  kind = "NilNode";
+  static kind = "Null";
+  get kind() {
+    return _NilNode.kind;
+  }
 };
-var NumberNode = class {
+var NumberNode = class _NumberNode extends AstNode {
   // TODO: Add support for BigInt, e.g. value: number | bigint and handle internally
   constructor(value) {
+    super();
     this.value = value;
   }
-  kind = "NumberNode";
+  static kind = "Number";
+  get kind() {
+    return _NumberNode.kind;
+  }
 };
-var SymbolNode = class {
+var SymbolNode = class _SymbolNode extends AstNode {
   constructor(value) {
+    super();
     this.value = value;
   }
-  kind = "SymbolNode";
+  static kind = "Symbol";
+  get kind() {
+    return _SymbolNode.kind;
+  }
 };
-var StringNode = class {
+var StringNode = class _StringNode extends AstNode {
   constructor(value) {
+    super();
     this.value = value;
   }
-  kind = "StringNode";
+  static kind = "String";
+  get kind() {
+    return _StringNode.kind;
+  }
 };
-var VectorNode = class {
+var VectorNode = class _VectorNode extends AstNode {
   constructor(value, metadata) {
+    super();
     this.value = value;
     this.metadata = metadata;
   }
-  kind = "VectorNode";
+  static kind = "Vector";
+  get kind() {
+    return _VectorNode.kind;
+  }
 };
 function assertDomNode(node2) {
   if (!isDomNode(node2)) {
-    throw new TypeError("Invalid DomNode");
+    throw createInvalidElementError(node2);
   }
 }
 function assertAstNode(node2) {
   if (!isAstNode(node2)) {
-    throw new TypeError("Invalid AstNode");
+    throw createInvalidElementError(node2);
   }
 }
 function assertAtomNode(node2) {
   if (!isAtomNode(node2)) {
-    throw new TypeError("Invalid AtomNode");
+    throw createInvalidElementError(node2);
   }
 }
 function assertBooleanNode(node2) {
   if (!isBooleanNode(node2)) {
-    throw new TypeError("Invalid BooleanNode");
+    throw createInvalidElementError(node2);
   }
 }
 function assertMapNode(node2) {
   if (!isMapNode(node2)) {
-    throw new TypeError("Invalid MapNode");
+    throw createInvalidElementError(node2);
   }
 }
 function assertErrorNode(node2) {
   if (!isErrorNode(node2)) {
-    throw new TypeError("Invalid ErrorNode");
+    throw createInvalidElementError(node2);
   }
 }
 function assertFunctionNode(node2) {
   if (!isFunctionNode(node2)) {
-    throw new TypeError("Invalid FunctionNode");
+    throw createInvalidElementError(node2);
   }
 }
 function assertKeywordNode(node2) {
   if (!isKeywordNode(node2)) {
-    throw new TypeError("Invalid KeywordNode");
+    throw createInvalidElementError(node2);
   }
 }
 function assertListNode(node2) {
   if (!isListNode(node2)) {
-    throw new TypeError("Invalid ListNode");
+    throw createInvalidElementError(node2);
   }
 }
 function assertNilNode(node2) {
   if (!isNilNode(node2)) {
-    throw new TypeError("Invalid NilNode");
+    throw createInvalidElementError(node2);
   }
 }
 function assertNumberNode(node2) {
   if (!isNumberNode(node2)) {
-    throw new TypeError("Invalid NumberNode");
+    throw createInvalidElementError(node2);
   }
 }
 function assertStringNode(node2) {
   if (!isStringNode(node2)) {
-    throw new TypeError("Invalid StringNode");
+    throw createInvalidElementError(node2);
   }
 }
 function assertSymbolNode(node2) {
   if (!isSymbolNode(node2)) {
-    throw new TypeError("Invalid SymbolNode");
+    throw createInvalidElementError(node2);
   }
 }
 function assertVectorNode(node2) {
   if (!isVectorNode(node2)) {
-    throw new TypeError("Invalid VectorNode");
+    throw createInvalidElementError(node2);
   }
 }
 function assertRegExp(value) {
   if (!(value instanceof RegExp)) {
-    throw new Error("Expected a RegExp object.");
+    throw createErrorNode(
+      "Expected a regular expression.",
+      "TypeError" /* TypeError */
+    );
   }
 }
 function assertSymbol(value) {
   if (typeof value !== "symbol") {
-    throw new Error("Expected a Symbol object.");
+    throw createErrorNode("Expected a symbol.", "TypeError" /* TypeError */);
   }
 }
 function createDomNode(value, attributes, children, metadata) {
   return new DomNode(value, attributes, children, metadata);
+}
+function createDomNodeFromHtmlElement(element) {
+  const value = element.tagName.toLowerCase();
+  const attributes = /* @__PURE__ */ new Map();
+  for (const name of element.getAttributeNames()) {
+    const attr = element.getAttribute(name);
+    attributes.set(name, attr ? createStringNode(attr) : createNilNode());
+  }
+  const domNode = new DomNode(value, attributes);
+  return domNode;
 }
 function createAtomNode(value) {
   return new AtomNode(value);
@@ -360,11 +465,19 @@ function createBooleanNode(value) {
 function createMapNode(value, metadata) {
   return new MapNode(value, metadata);
 }
-function createErrorNode(value, type, cause) {
-  assertAstNode(value);
-  return new ErrorNode(value, type, cause);
+function createErrorNode(value = "Error", type = "Error" /* Error */, source = createNilNode()) {
+  const message = typeof value === "string" ? createStringNode(value) : value;
+  const nameNode = createStringNode(type);
+  const sourceNode = isAstNode(source) ? source : createNilNode();
+  return new ErrorNode(message, nameNode, sourceNode);
 }
-function createFunctionNode(value, closureMeta, isMacro2, metadata) {
+function createInvalidElementError(astNode) {
+  const invalid = isAstNode(astNode) ? `Invalid ${astNode.kind} element` : "Invalid element";
+  const error = createErrorNode(invalid, "TypeError" /* TypeError */, astNode);
+  console.log(invalid, JSON.stringify(error));
+  return error;
+}
+function createFunctionNode(value, closureMeta, isMacro2 = false, metadata) {
   return new FunctionNode(value, closureMeta, isMacro2, metadata);
 }
 function createKeywordNode(value) {
@@ -392,8 +505,7 @@ function isDomNode(node2) {
   return node2 instanceof DomNode;
 }
 function isAstNode(node2) {
-  return isAtomNode(node2) || isBooleanNode(node2) || isDomNode(node2) || isErrorNode(node2) || isFunctionNode(node2) || // isJsNode(node) ||
-  isKeywordNode(node2) || isListNode(node2) || isMapNode(node2) || isNilNode(node2) || isNumberNode(node2) || isStringNode(node2) || isSymbolNode(node2) || isVectorNode(node2);
+  return isAtomNode(node2) || isBooleanNode(node2) || isDomNode(node2) || isErrorNode(node2) || isFunctionNode(node2) || isKeywordNode(node2) || isListNode(node2) || isMapNode(node2) || isNilNode(node2) || isNumberNode(node2) || isStringNode(node2) || isSymbolNode(node2) || isVectorNode(node2);
 }
 function isAtomNode(node2) {
   return node2 instanceof AtomNode;
@@ -414,7 +526,7 @@ function isKeywordNode(node2) {
   return node2 instanceof KeywordNode && typeof node2.value === "string" && node2.value.endsWith(":");
 }
 function isListNode(node2) {
-  return node2 instanceof ListNode && node2.value.every(isAstNode);
+  return node2 instanceof ListNode;
 }
 function isNilNode(node2) {
   return node2 instanceof NilNode && node2.value === null;
@@ -436,22 +548,38 @@ function isSameClass(object1, object2) {
 }
 function assertEq(a, b) {
   if (!isEqualTo(a, b)) {
-    throw new Error("Values are not equal");
+    throw createErrorNode(
+      "Expected values to be equal but got unequal values",
+      "TypeError" /* TypeError */,
+      a
+    );
   }
 }
 function assertDefined(object) {
   if (object === void 0) {
-    throw new Error("Value is undefined");
+    throw createErrorNode(
+      "Expected value to be defined but got an undefined value",
+      "TypeError" /* TypeError */,
+      isAstNode(object) ? object : createNilNode()
+    );
   }
 }
 function assertUndefined(object) {
   if (object !== void 0) {
-    throw new Error("Value is not undefined");
+    throw createErrorNode(
+      "Expected value to be undefined but got a defined value",
+      "TypeError" /* TypeError */,
+      isAstNode(object) ? object : createNilNode()
+    );
   }
 }
-function assertNullOrUndefined(object) {
+function assertNullOrUndefined(object, astNode) {
   if (object !== void 0 && object !== null) {
-    throw new Error("Value is not null or undefined");
+    throw createErrorNode(
+      "Expected value to be null or undefined but got a defined value",
+      "TypeError" /* TypeError */,
+      astNode
+    );
   }
 }
 function isDefined(object) {
@@ -459,7 +587,11 @@ function isDefined(object) {
 }
 function assertTrue(object) {
   if (object === false) {
-    throw new Error("Value is not true");
+    throw createErrorNode(
+      "Expected value to be true but got false",
+      "TypeError" /* TypeError */,
+      isAstNode(object) ? object : createNilNode()
+    );
   }
 }
 function isAstTruthy(a, useJavaScriptTruthiness = false) {
@@ -487,12 +619,22 @@ function isSequentialNode(value) {
 }
 function assertSequential(value) {
   if (!isListNode(value) && !isVectorNode(value)) {
-    throw new TypeError("Invalid sequential type");
+    const kind = isAstNode(value) ? value.kind : "unknown";
+    throw createErrorNode(
+      `Expected a list or vector type but got ${kind.toLowerCase()}`,
+      "TypeError" /* TypeError */,
+      isAstNode(value) ? value : createNilNode()
+    );
   }
 }
 function assertMapKeyNode(value) {
   if (!(isStringNode(value) || isSymbolNode(value) || isKeywordNode(value))) {
-    throw new TypeError("Invalid dictionary key");
+    const kind = isAstNode(value) ? value.kind : "unknown";
+    throw createErrorNode(
+      `Expected a map key of type string, symbol, or keyword but got ${kind}`,
+      "TypeError" /* TypeError */,
+      isAstNode(value) ? value : createNilNode()
+    );
   }
 }
 function isMapKeyNode(value) {
@@ -500,43 +642,62 @@ function isMapKeyNode(value) {
 }
 function assertMetadataType(value) {
   if (!isFunctionNode(value) && !isListNode(value) && !isVectorNode(value) && !isMapNode(value) && !isDomNode(value)) {
-    throw new TypeError("Invalid metadata type");
+    const kind = isAstNode(value) ? value.kind : "unknown";
+    throw createErrorNode(
+      `Expected a metadata type of function, list, vector or map but got ${kind}`,
+      "TypeError" /* TypeError */,
+      isAstNode(value) ? value : createNilNode()
+    );
   }
 }
-function assertArgumentCount(actualCount, expectedCount, optionalMessage) {
+function assertArgumentCount(actualCount, expectedCount, astNode = createNilNode()) {
   if (actualCount !== expectedCount) {
-    let message = `Wanted ${expectedCount} arguments but got ${actualCount}`;
-    if (optionalMessage) {
-      message += ` ${optionalMessage}`;
-    }
-    throw new Error(message);
+    const suffix = expectedCount - actualCount === 1 ? "" : "s";
+    const message = `Expected ${expectedCount} argument${suffix} but got ${actualCount}`;
+    throw createErrorNode(message, "TypeError" /* TypeError */, astNode);
   }
 }
-function assertVariableArgumentCount(actualCount, minExpectedCount, maxExpectedCount) {
+function assertVariableArgumentCount(actualCount, minExpectedCount, maxExpectedCount, astNode = createNilNode()) {
   if (actualCount < minExpectedCount || actualCount > maxExpectedCount) {
-    throw new Error("Unexpected number of arguments");
+    const message = `Expected between ${minExpectedCount} and ${maxExpectedCount} arguments but got ${actualCount}`;
+    throw createErrorNode(message, "TypeError" /* TypeError */, astNode);
   }
 }
-function assertMinimumArgumentCount(actualCount, minExpectedCount) {
+function assertMinimumArgumentCount(actualCount, minExpectedCount, astNode = createNilNode()) {
   if (actualCount < minExpectedCount) {
-    throw new Error("Unexpected minimum number of arguments");
+    const message = `Expected at least ${minExpectedCount} arguments but got ${actualCount}`;
+    throw createErrorNode(message, "TypeError" /* TypeError */, astNode);
   }
 }
-function assertEvenArgumentCount(maybeEven) {
+function assertEvenArgumentCount(maybeEven, astNode = createNilNode()) {
   if (maybeEven % 2 !== 0) {
-    throw new Error("Uneven number of arguments");
+    throw createErrorNode(
+      "Expected an even number of arguments but got an uneven amount.",
+      "TypeError" /* TypeError */,
+      astNode
+    );
   }
 }
 function assertSequentialValues(sequentialValues, typeClass) {
   for (const p of sequentialValues) {
     if (!(p instanceof typeClass)) {
-      throw new TypeError("All values must be of the same type");
+      const kind = isAstNode(p) ? p.kind : "unknown";
+      throw createErrorNode(
+        `Expected all values to be of type ${typeClass.kind}, but got ${kind}`,
+        "TypeError" /* TypeError */,
+        sequentialValues[0] ? sequentialValues[0] : createNilNode()
+      );
     }
   }
 }
 function assertIsOneOf(astNode, typeClasses) {
   if (!typeClasses.some((typeClass) => astNode instanceof typeClass)) {
-    throw new TypeError("Invalid type");
+    const kinds = typeClasses.map((typeClass) => typeClass.kind).join(", ");
+    throw createErrorNode(
+      `Expected one of type ${kinds} but got an invalid type`,
+      "TypeError" /* TypeError */,
+      astNode
+    );
   }
 }
 function isTypedVector(sequentialValues, typeClass) {
@@ -585,12 +746,18 @@ function listStartsWithSymbol(listNode, symbolValue) {
 }
 function assertEqual(actual, expected) {
   if (actual !== expected) {
-    throw new Error(`Unexpected value '${actual}', wanted ${expected}`);
+    throw createErrorNode(
+      `Expected a value of ${expected} but got ${actual}`,
+      "Error" /* Error */
+    );
   }
 }
 function assertGreaterThanEqual(actual, expected) {
   if (actual >= expected) {
-    throw new Error("Unexpected value");
+    throw createErrorNode(
+      `Expected value to be greater than or equal to ${expected} but got ${actual}`,
+      "Error" /* Error */
+    );
   }
 }
 function assertSymWithValue(sym, value) {
@@ -608,14 +775,6 @@ function returnResult(ast) {
     return: ast
   };
 }
-var prepend = (acc, curr) => [
-  curr,
-  ...acc
-];
-var append = (acc, curr) => [
-  ...acc,
-  curr
-];
 function copy(ast) {
   if (isAtomNode(ast)) {
     return copyAtomNode(ast);
@@ -656,7 +815,12 @@ function copy(ast) {
   if (isDomNode(ast)) {
     return copyDomNode(ast);
   }
-  throw new Error("Unmatched object");
+  const nodeTypes = "atom, boolean, map, DOM, error, functiom, keyword, list, null, number, string, symbol, or vector";
+  throw createErrorNode(
+    `Expected a value of type ${nodeTypes}, but did not find a match.`,
+    "TypeError" /* TypeError */,
+    ast
+  );
 }
 function copyAtomNode(a) {
   return createAtomNode(copy(a.value));
@@ -762,7 +926,7 @@ function convertStringToMapKey(key) {
 }
 function getBareMapKey(key) {
   const value = isMapKeyNode(key) ? key.value : key;
-  if (value.startsWith(":") || value.endsWith(":")) {
+  if (value.endsWith(":")) {
     return value.replaceAll(":", "");
   }
   if (value.startsWith('"') && value.endsWith('"')) {
@@ -831,7 +995,11 @@ function unwrap(ast) {
   if (isVectorNode(ast)) {
     return unwrapVectorNode(ast);
   }
-  throw new Error("Could not unwrap object.");
+  throw createErrorNode(
+    `Could not unwrap value. Expected a value of type ${NODE_TYPES_TEXT}, but did not find a match.`,
+    "TypeError" /* TypeError */,
+    ast
+  );
 }
 function unwrapAtomNode(ast) {
   return unwrap(ast.value);
@@ -877,6 +1045,7 @@ function unwrapSymbolNode(ast) {
 function unwrapVectorNode(ast) {
   return ast.value.map(unwrap);
 }
+var validTypesString = "array, boolean, error, function, keyword, map, null, number, object, string, symbol, or undefined";
 function toAst(input) {
   if (isAstNode(input)) {
     return input;
@@ -947,7 +1116,9 @@ function toAst(input) {
     default: {
       const coercedUnknown = String(input);
       return createErrorNode(
-        createStringNode(`unknown type ${coercedUnknown}`)
+        createStringNode(
+          `Expected value of type ${validTypesString} but got unknown type ${coercedUnknown}`
+        )
       );
     }
   }
@@ -971,10 +1142,24 @@ function printString(ast, printReadably = false) {
   }
   const atom2 = ast;
   if (isAtomNode(atom2)) {
-    return `(atom ${printString(atom2.value)})`;
+    if (isAstNode(atom2.value)) {
+      return `(atom ${printString(atom2.value)})`;
+    }
+    if (atom2.value instanceof HTMLElement) {
+      const domNode = createDomNodeFromHtmlElement(atom2.value);
+      return `(atom (element ${printString(domNode)}))`;
+    }
+    if (atom2.value instanceof Event) {
+      const event = atom2.value.type;
+      return `(atom (event ${event})))`;
+    }
+    return `(atom #<js ${typeof atom2.value}>)`;
   }
   if (isErrorNode(ast)) {
-    return printString(ast.value, printReadably);
+    const cause = ast.cause ? ast.cause : createNilNode();
+    const type = ast.name || "Error";
+    const message = `<str "${type}: [${cause.line}:${cause.column}]" ${printString(ast.value, printReadably)}>`;
+    return `<error ${message}>`;
   }
   if (isFunctionNode(ast)) {
     return "#<fn>";
@@ -994,7 +1179,11 @@ function printString(ast, printReadably = false) {
   if (isNilNode(ast)) {
     return "nil";
   }
-  throw new Error(`unmatched object ${JSON.stringify(ast)}`);
+  throw createErrorNode(
+    `Expected type of ${validTypesString} but got ${JSON.stringify(ast)}`,
+    "TypeError" /* TypeError */,
+    ast
+  );
 }
 var selfClosingTags = /* @__PURE__ */ new Set([
   "area",
@@ -1074,14 +1263,18 @@ ${body.join(" ")}`;
   if (isNilNode(ast)) {
     return "nil";
   }
-  throw new Error(`unmatched object ${JSON.stringify(ast)}`);
+  throw createErrorNode(
+    `Expected type of ${validTypesString} but got ${JSON.stringify(ast)}`,
+    "TypeError" /* TypeError */,
+    ast
+  );
 }
 function printJavaScript(ast, printReadably = false) {
   const en = printString(ast, true);
   const js = `
-	import { rep, initEnv } from '../../bin/ensemble.js';
-	rep(\`${en}\`, initEnv());	
-	`;
+import { rep, initEnv } from '../../bin/ensemble.js';
+rep(\`${en}\`, initEnv());
+`;
   return js;
 }
 function printCss(ast, printReadably = false) {
@@ -1119,7 +1312,11 @@ function printCss(ast, printReadably = false) {
   if (isBooleanNode(ast) || isAtomNode(ast) || isFunctionNode(ast) || isDomNode(ast) || isNilNode(ast)) {
     return "";
   }
-  throw new Error("unmatched object");
+  throw createErrorNode(
+    `Expected type of ${validTypesString} but got ${JSON.stringify(ast)}`,
+    "TypeError" /* TypeError */,
+    ast
+  );
 }
 function printStyleTag(ast, printReadably = false) {
   return printCss(ast, printReadably);
@@ -1145,33 +1342,27 @@ var Reader = class {
    * the starting point in the token stream.
    * @param tokens - An array of strings representing the tokens derived
    * 	from source code string.
-   * @param pos - The initial position in the token stream. Defaults to 0.
+   * @param position - The initial position in the token stream. Defaults to 0.
    * @example
    * ```typescript
    * const reader = new Reader(tokenize("(+ 1 2)"));
    * ```
    */
-  constructor(tokens, pos = 0) {
+  constructor(tokens, position = 0) {
     this.tokens = tokens;
-    this.pos = pos;
+    this.position = position;
   }
   line = 0;
   // Retrieves the next token and advances the position.
-  next = () => this.tokens[this.pos++];
+  next = () => this.tokens[this.position++];
   // Peeks at the current token without advancing the position.
-  peek = () => this.tokens[this.pos];
+  peek = () => this.tokens[this.position];
   context = () => {
-    const start = this.pos - 10;
-    const end = this.pos + 10;
+    const start = this.position - 10;
+    const end = this.position + 10;
     return this.tokens.slice(start, end).join(" ");
   };
 };
-function formatError(error, reader) {
-  const message = error instanceof Error ? error.message : error;
-  const context = reader.context();
-  return `Error: ${message}
-  on line ${reader.line} near "${context}"`;
-}
 function tokenize(code) {
   const matches = [...code.matchAll(tokenRegex)].filter(
     (match) => !match[1].startsWith(";") && !match[1].startsWith("//") && match[1] !== ""
@@ -1193,14 +1384,7 @@ function readString(code) {
 function readForm(rdr) {
   const token = rdr.peek();
   if (token === void 0) {
-    throw new Error("EOF");
-  }
-  function makeForm(symbol2, meta2) {
-    return createListNode([
-      createSymbolNode(symbol2),
-      readForm(rdr),
-      ...meta2 ? [meta2] : []
-    ]);
+    throw createErrorNode("EOF", "SyntaxError" /* SyntaxError */).setPosition(rdr.line, rdr.position);
   }
   switch (token) {
     case "\n":
@@ -1209,37 +1393,11 @@ function readForm(rdr) {
       rdr.next();
       return readForm(rdr);
     }
-    case "'": {
-      rdr.next();
-      return makeForm("quote");
-    }
-    case "`": {
-      rdr.next();
-      return makeForm("quasiquote");
-    }
-    case "~": {
-      rdr.next();
-      return makeForm("unquote");
-    }
-    case "~@": {
-      rdr.next();
-      return makeForm("splice-unquote");
-    }
-    case "^": {
-      rdr.next();
-      const meta2 = readForm(rdr);
-      return makeForm("with-meta", meta2);
-    }
-    case "@": {
-      rdr.next();
-      return makeForm("deref");
-    }
     case ")":
     case "]":
     case "}":
     case ">": {
-      const error = formatError(`unexpected '${token}'`, rdr);
-      throw new Error(error);
+      throw createErrorNode(`Unexpected '${token}'`, "SyntaxError" /* SyntaxError */).setPosition(rdr.line, rdr.position);
     }
     case "(": {
       return readSequence(rdr, ")");
@@ -1261,32 +1419,34 @@ function readForm(rdr) {
 function readAtom(rdr) {
   const token = rdr.next();
   if (token === void 0) {
-    throw new Error("unexpected EOF");
+    throw createErrorNode("Unexpected end of file", "SyntaxError" /* SyntaxError */).setPosition(rdr.line, rdr.position);
   }
-  if (token === "nil") {
-    return createNilNode();
+  if (token === "nil" || token === "null") {
+    return createNilNode().setPosition(rdr.line, rdr.position);
   }
   if (token === "false") {
-    return createBooleanNode(false);
+    return createBooleanNode(false).setPosition(rdr.line, rdr.position);
   }
   if (token === "true") {
-    return createBooleanNode(true);
+    return createBooleanNode(true).setPosition(rdr.line, rdr.position);
   }
   if (numberRegex.test(token)) {
-    return createNumberNode(Number.parseFloat(token));
+    return createNumberNode(Number.parseFloat(token)).setPosition(rdr.line, rdr.position);
   }
   if (stringRegex.test(token)) {
-    const unescaped = createStringNode(unescapeString(token));
+    const unescaped = createStringNode(unescapeString(token)).setPosition(rdr.line, rdr.position);
     return unescaped;
   }
   if (token.startsWith(":") || token.endsWith(":")) {
-    return createKeywordNode(token);
+    return createKeywordNode(token).setPosition(rdr.line, rdr.position);
   }
   if (token.startsWith('"')) {
-    const error = formatError(`expected '"', got EOF`, rdr);
-    throw new Error(error);
+    throw createErrorNode(
+      `Expected '"' but got end of file`,
+      "SyntaxError" /* SyntaxError */
+    ).setPosition(rdr.line, rdr.position);
   }
-  return createSymbolNode(token);
+  return createSymbolNode(token).setPosition(rdr.line, rdr.position);
 }
 function unescapeString(token) {
   return token.slice(1, -1).replaceAll(/\\(.)/g, (_, c) => c === "n" ? "\n" : c);
@@ -1297,8 +1457,10 @@ function readSequence(rdr, end) {
   while (true) {
     const token = rdr.peek();
     if (token === void 0) {
-      const error = formatError(`expected '${end}', got EOF`, rdr);
-      throw new Error(error);
+      throw createErrorNode(
+        `expected '${end}', got EOF`,
+        "SyntaxError" /* SyntaxError */
+      ).setPosition(rdr.line, rdr.position);
     }
     if (token === end) {
       rdr.next();
@@ -1309,25 +1471,27 @@ function readSequence(rdr, end) {
   switch (end) {
     case ">":
     case ")": {
-      return createListNode(astNodes);
+      return createListNode(astNodes).setPosition(rdr.line, rdr.position);
     }
     case "]": {
-      return createVectorNode(astNodes);
+      return createVectorNode(astNodes).setPosition(rdr.line, rdr.position);
     }
     case "}": {
-      const dict = createMapNode();
+      const map = createMapNode().setPosition(rdr.line, rdr.position);
       for (let i = 0; i < astNodes.length; i += 2) {
         const key = astNodes[i];
         assertMapKeyNode(key);
         const value = astNodes[i + 1];
         const keyString = convertMapKeyToString(key);
-        dict.value.set(keyString, value);
+        map.value.set(keyString, value);
       }
-      return dict;
+      return map;
     }
     default: {
-      const error = formatError(`unknown end value: ${end}`, rdr);
-      throw new Error(error);
+      throw createErrorNode(
+        `unknown end value: ${end}`,
+        "SyntaxError" /* SyntaxError */
+      ).setPosition(rdr.line, rdr.position);
     }
   }
 }
@@ -1359,30 +1523,14 @@ var nsValues = [
   ["string?", isString],
   ["trim", trim],
   // Operators
-  // ["<", lt],
-  // ["<=", lte],
-  // [">", gt],
-  // [">=", gte],
-  // ["+", add],
-  // ["-", subtract],
-  // ["*", multiply],
-  // ["/", divide],
   ["lt", lt],
-  // ["less-than", lt],
   ["lte", lte],
-  // ["less-than-equal", lte],
   ["gt", gt],
-  // ["greater-than", gt],
   ["gte", gte],
-  // ["greater-than-equal", gte],
   ["add", add],
-  // sum
   ["subtract", subtract],
-  // difference, dif
   ["multiply", multiply],
-  // product, prod
   ["divide", divide],
-  // quotient, quot
   ["time-ms", timeMs],
   // Maps
   ["assoc", assoc],
@@ -1401,6 +1549,7 @@ var nsValues = [
   // Arrays
   ["concat", concat],
   ["conj", conj],
+  // Similar to ...
   ["cons", cons],
   ["count", length],
   ["empty?", empty],
@@ -1457,17 +1606,11 @@ function readString2(...args) {
 }
 function trim(...args) {
   assertArgumentCount(args.length, 1);
-  const string_ = args[0];
-  assertStringNode(string_);
-  return createStringNode(string_.value.trim());
+  const value = args[0].value;
+  return value ? createStringNode(value.trim()) : createStringNode("");
 }
 function lt(...args) {
-  assertArgumentCount(
-    args.length,
-    2,
-    `
-args: ${JSON.stringify(args, null, "  ")}`
-  );
+  assertArgumentCount(args.length, 2);
   const a = args[0];
   assertNumberNode(a);
   const b = args[1];
@@ -1562,16 +1705,20 @@ function vec(...args) {
 }
 function nth(...args) {
   assertArgumentCount(args.length, 2);
-  if (isSequentialNode(args[0]) && isNumberNode(args[1])) {
-    const index = args[1].value;
-    const list2 = args[0];
-    const length2 = args[0].value.length;
-    if (length2 > 0 && index < length2) {
-      const value = list2.value[index];
-      return value;
-    }
+  assertSequential(args[0]);
+  assertNumberNode(args[1]);
+  const index = args[1].value;
+  const list2 = args[0];
+  const length2 = args[0].value.length;
+  if (length2 > 0 && index < length2) {
+    const value = list2.value[index];
+    return value;
   }
-  throw new Error("out of range");
+  throw createErrorNode(
+    `Expected an nth index greater than zero and less than ${length2} but got ${index} out of range`,
+    "RangeError" /* RangeError */,
+    index
+  );
 }
 function firstNodeInList(...args) {
   assertArgumentCount(args.length, 1);
@@ -1612,7 +1759,11 @@ function length(...args) {
   if (isSequentialNode(args[0])) {
     return createNumberNode(args[0].value.length);
   }
-  throw new TypeError("Invalid argument type");
+  throw createErrorNode(
+    `Expected an length argument of type null, map, list, or vector but got ${value.kind}`,
+    "TypeError" /* TypeError */,
+    value
+  );
 }
 function atom(...args) {
   assertArgumentCount(args.length, 1);
@@ -1640,10 +1791,10 @@ function reset(...args) {
 }
 function swap(...args) {
   assertMinimumArgumentCount(args.length, 2);
+  assertAtomNode(args[0]);
+  assertFunctionNode(args[1]);
   const atom2 = args[0];
-  assertAtomNode(atom2);
   const fn = args[1];
-  assertFunctionNode(fn);
   const rest2 = args.slice(2);
   atom2.value = fn.value(atom2.value, ...rest2);
   return atom2.value;
@@ -1880,7 +2031,6 @@ function switchCase(...args) {
   return defaultClause.value();
 }
 function getProp(...args) {
-  console.log("getProp", JSON.stringify(args));
   assertMinimumArgumentCount(args.length, 2);
   assertAstNode(args[0]);
   assertStringNode(args[1]);
@@ -1900,11 +2050,12 @@ function getProp(...args) {
     return createNilNode();
   }
   const result = path.split(".").reduce((current, key) => {
-    if (current && key in current) {
+    if (current[key] !== void 0) {
       return current[key];
     }
   }, obj);
-  return toAst(result);
+  const astNode = createAtomNode(result);
+  return astNode;
 }
 var core_default = {
   add,
@@ -2066,12 +2217,16 @@ var Env = class {
   get(key) {
     const foundEnv = this.findEnv(key);
     if (foundEnv === void 0) {
-      throw new Error(`'${key.value}' not found`);
+      throw createErrorNode(
+        `The variable name '${key.value}' has not been declared.`,
+        "ReferenceError" /* ReferenceError */,
+        key
+      );
     }
     const keyString = convertMapKeyToString(key);
-    const dictValue = foundEnv.value.get(keyString);
-    assertDefined(dictValue);
-    return dictValue;
+    const mapValue = foundEnv.value.get(keyString);
+    assertDefined(mapValue);
+    return mapValue;
   }
 };
 
@@ -2242,41 +2397,41 @@ var arrayFunctions = [
   ["Array.from", arrayFrom],
   ["Array.isArray", arrayIsArray],
   ["Array.of", arrayFrom],
-  ["Array.prototype.at", arrayAt],
-  ["Array.prototype.concat", arrayConcat],
-  ["Array.prototype.copyWithin", arrayCopyWithin],
-  ["Array.prototype.entries", arrayEntries],
-  ["Array.prototype.every", arrayEvery],
-  ["Array.prototype.fill", arrayFill],
-  ["Array.prototype.filter", arrayFilter],
-  ["Array.prototype.find", arrayFind],
-  ["Array.prototype.findIndex", arrayFindIndex],
-  ["Array.prototype.findLast", arrayFindLast],
-  ["Array.prototype.findLastIndex", arrayFindLastIndex],
-  ["Array.prototype.flat", arrayFlat],
-  ["Array.prototype.flatMap", arrayFlatMap],
-  ["Array.prototype.includes", arrayIncludes],
-  ["Array.prototype.indexOf", arrayIndexOf],
-  ["Array.prototype.join", arrayJoin],
-  ["Array.prototype.keys", arrayKeys],
-  ["Array.prototype.length", arrayLength],
-  ["Array.prototype.map", arrayMap],
-  ["Array.prototype.pop", arrayLast],
-  ["Array.prototype.push", arrayPush],
-  ["Array.prototype.reduce", arrayReduce],
-  ["Array.prototype.reverse", arrayToReversed],
-  ["Array.prototype.shift", arrayFirst],
-  ["Array.prototype.slice", arraySlice],
-  ["Array.prototype.some", arraySome],
-  ["Array.prototype.sort", arrayToSorted],
-  ["Array.prototype.splice", arrayToSpliced],
-  ["Array.prototype.toReversed", arrayToReversed],
-  ["Array.prototype.toSorted", arrayToSorted],
-  ["Array.prototype.toSpliced", arrayToSpliced],
-  ["Array.prototype.unshift", arrayUnshift],
+  ["Array::at", arrayAt],
+  ["Array::concat", arrayConcat],
+  ["Array::copyWithin", arrayCopyWithin],
+  ["Array::entries", arrayEntries],
+  ["Array::every", arrayEvery],
+  ["Array::fill", arrayFill],
+  ["Array::filter", arrayFilter],
+  ["Array::find", arrayFind],
+  ["Array::findIndex", arrayFindIndex],
+  ["Array::findLast", arrayFindLast],
+  ["Array::findLastIndex", arrayFindLastIndex],
+  ["Array::flat", arrayFlat],
+  ["Array::flatMap", arrayFlatMap],
+  ["Array::includes", arrayIncludes],
+  ["Array::indexOf", arrayIndexOf],
+  ["Array::join", arrayJoin],
+  ["Array::keys", arrayKeys],
+  ["Array::length", arrayLength],
+  ["Array::map", arrayMap],
+  ["Array::pop", arrayLast],
+  ["Array::push", arrayPush],
+  ["Array::reduce", arrayReduce],
+  ["Array::reverse", arrayToReversed],
+  ["Array::shift", arrayFirst],
+  ["Array::slice", arraySlice],
+  ["Array::some", arraySome],
+  ["Array::sort", arrayToSorted],
+  ["Array::splice", arrayToSpliced],
+  ["Array::toReversed", arrayToReversed],
+  ["Array::toSorted", arrayToSorted],
+  ["Array::toSpliced", arrayToSpliced],
+  ["Array::unshift", arrayUnshift],
   // Prepend
-  ["Array.prototype.values", arrayValues],
-  ["Array.prototype.with", arrayReplaceWith],
+  ["Array::values", arrayValues],
+  ["Array::with", arrayReplaceWith],
   ["Array.toString", core_default.printEscapedString]
 ];
 function toArray(...args) {
@@ -3099,7 +3254,11 @@ function newError(...args) {
     assertAstNode(args[2]);
     cause = args[2];
   }
-  return createErrorNode(message, name, cause);
+  return createErrorNode(
+    message,
+    name ?? "Error" /* Error */,
+    cause
+  );
 }
 function getMessage(...args) {
   assertArgumentCount(args.length, 1);
@@ -4572,14 +4731,71 @@ for (const [sym, fn] of nsValues2) {
 // src/ensemble/interop/js/dom.ts
 var ns4 = /* @__PURE__ */ new Map();
 var nsValues3 = [
+  // Shorthand properties
+  ["add-event-listener", addEventListener],
+  ["prevent-default", eventProtoPreventDefault],
+  ["get-element-by-id", getElementById],
+  ["query-selector", querySelector2],
+  ["set-attribute", elementProtoSetAttribute],
+  ["get-attribute", elementProtoGetAttribute],
+  // Custom Event
   ["CustomEvent::new", customEventProtoNew],
   ["CustomEvent::prototype", customEventProtoProto],
   ["CustomEvent.detail", customEventDetail],
   ["CustomEvent::initCustomEvent", customEventProtoInitCustomEvent],
+  // Document
+  ["Document::addEventListener", documentProtoAddEventListener],
+  ["Document::adoptNode", documentProtoAdoptNode],
+  ["Document::captureEvents", documentProtoCaptureEvents],
+  ["Document::caretPositionFromPoint", documentProtoCaretPositionFromPoint],
+  ["Document::caretRangeFromPoint", documentProtoCaretRangeFromPoint],
+  ["Document::clear", documentProtoClear],
+  ["Document::close", documentProtoClose],
+  ["Document::createAttribute", documentProtoCreateAttribute],
+  ["Document::createAttributeNS", documentProtoCreateAttributeNS],
+  ["Document::createCDATASection", documentProtoCreateCDATASection],
+  ["Document::createComment", documentProtoCreateComment],
+  ["Document::createDocumentFragment", documentProtoCreateDocumentFragment],
+  ["Document::createElement", documentProtoCreateElement],
+  ["Document::createElementNS", documentProtoCreateElementNS],
+  ["Document::createEvent", documentProtoCreateEvent],
+  ["Document::createNodeIterator", documentProtoCreateNodeIterator],
+  [
+    "Document::createProcessingInstruction",
+    documentProtoCreateProcessingInstruction
+  ],
+  ["Document::createRange", documentProtoCreateRange],
+  ["Document::createTextNode", documentProtoCreateTextNode],
+  ["Document::createTreeWalker", documentProtoCreateTreeWalker],
+  ["Document::execCommand", documentProtoExecCommand],
+  ["Document::exitFullscreen", documentProtoExitFullscreen],
+  ["Document::exitPictureInPicture", documentProtoExitPictureInPicture],
+  ["Document::exitPointerLock", documentProtoExitPointerLock],
+  ["Document::getElementById", documentProtoGetElementById],
+  ["Document::getElementsByClassName", documentProtoGetElementsByClassName],
+  ["Document::getElementsByName", documentProtoGetElementsByName],
+  ["Document::getElementsByTagName", documentProtoGetElementsByTagName],
+  ["Document::getElementsByTagNameNS", documentProtoGetElementsByTagNameNS],
+  ["Document::getSelection", documentProtoGetSelection],
+  ["Document::hasFocus", documentProtoHasFocus],
+  ["Document::hasStorageAccess", documentProtoHasStorageAccess],
+  ["Document::importNode", documentProtoImportNode],
   ["Document::new", documentProtoNew],
-  ["Document::prototype", documentProtoProto],
+  ["Document::open", documentProtoOpen],
   ["Document::parseHTMLUnsafe", documentProtoParseHTMLUnsafe],
-  ["Document.URL", documentURL],
+  ["Document::prototype", documentProtoProto],
+  ["Document::queryCommandEnabled", documentProtoQueryCommandEnabled],
+  ["Document::queryCommandIndeterm", documentProtoQueryCommandIndeterm],
+  ["Document::queryCommandState", documentProtoQueryCommandState],
+  ["Document::queryCommandSupported", documentProtoQueryCommandSupported],
+  ["Document::queryCommandValue", documentProtoQueryCommandValue],
+  ["Document::querySelector", documentProtoQuerySelector],
+  ["Document::releaseEvents", documentProtoReleaseEvents],
+  ["Document::removeEventListener", documentProtoRemoveEventListener],
+  ["Document::requestStorageAccess", documentProtoRequestStorageAccess],
+  ["Document::startViewTransition", documentProtoStartViewTransition],
+  ["Document::write", documentProtoWrite],
+  ["Document::writeln", documentProtoWriteln],
   ["Document.alinkColor", documentAlinkColor],
   ["Document.all", documentAll],
   ["Document.anchors", documentAnchors],
@@ -4629,60 +4845,16 @@ var nsValues3 = [
   ["Document.scrollingElement", documentScrollingElement],
   ["Document.timeline", documentTimeline],
   ["Document.title", documentTitle],
+  ["Document.URL", documentURL],
   ["Document.visibilityState", documentVisibilityState],
   ["Document.vlinkColor", documentVlinkColor],
-  ["Document::adoptNode", documentProtoAdoptNode],
-  ["Document::captureEvents", documentProtoCaptureEvents],
-  ["Document::caretPositionFromPoint", documentProtoCaretPositionFromPoint],
-  ["Document::caretRangeFromPoint", documentProtoCaretRangeFromPoint],
-  ["Document::clear", documentProtoClear],
-  ["Document::close", documentProtoClose],
-  ["Document::createAttribute", documentProtoCreateAttribute],
-  ["Document::createAttributeNS", documentProtoCreateAttributeNS],
-  ["Document::createCDATASection", documentProtoCreateCDATASection],
-  ["Document::createComment", documentProtoCreateComment],
-  ["Document::createDocumentFragment", documentProtoCreateDocumentFragment],
-  ["Document::createElement", documentProtoCreateElement],
-  ["Document::createElementNS", documentProtoCreateElementNS],
-  ["Document::createEvent", documentProtoCreateEvent],
-  ["Document::createNodeIterator", documentProtoCreateNodeIterator],
-  [
-    "Document::createProcessingInstruction",
-    documentProtoCreateProcessingInstruction
-  ],
-  ["Document::createRange", documentProtoCreateRange],
-  ["Document::createTextNode", documentProtoCreateTextNode],
-  ["Document::createTreeWalker", documentProtoCreateTreeWalker],
-  ["Document::execCommand", documentProtoExecCommand],
-  ["Document::exitFullscreen", documentProtoExitFullscreen],
-  ["Document::exitPictureInPicture", documentProtoExitPictureInPicture],
-  ["Document::exitPointerLock", documentProtoExitPointerLock],
-  ["Document::getElementById", documentProtoGetElementById],
-  ["Document::getElementsByClassName", documentProtoGetElementsByClassName],
-  ["Document::getElementsByName", documentProtoGetElementsByName],
-  ["Document::getElementsByTagName", documentProtoGetElementsByTagName],
-  ["Document::getElementsByTagNameNS", documentProtoGetElementsByTagNameNS],
-  ["Document::getSelection", documentProtoGetSelection],
-  ["Document::hasFocus", documentProtoHasFocus],
-  ["Document::hasStorageAccess", documentProtoHasStorageAccess],
-  ["Document::importNode", documentProtoImportNode],
-  ["Document::open", documentProtoOpen],
-  ["Document::queryCommandEnabled", documentProtoQueryCommandEnabled],
-  ["Document::queryCommandIndeterm", documentProtoQueryCommandIndeterm],
-  ["Document::queryCommandState", documentProtoQueryCommandState],
-  ["Document::queryCommandSupported", documentProtoQueryCommandSupported],
-  ["Document::queryCommandValue", documentProtoQueryCommandValue],
-  ["Document::releaseEvents", documentProtoReleaseEvents],
-  ["Document::requestStorageAccess", documentProtoRequestStorageAccess],
-  ["Document::startViewTransition", documentProtoStartViewTransition],
-  ["Document::write", documentProtoWrite],
-  ["Document::writeln", documentProtoWriteln],
-  ["Document::addEventListener", documentProtoAddEventListener],
-  ["Document::removeEventListener", documentProtoRemoveEventListener],
+  // DocumentFragment
+  ["DocumentFragment::getElementById", documentFragmentProtoGetElementById],
   ["DocumentFragment::new", documentFragmentProtoNew],
   ["DocumentFragment::prototype", documentFragmentProtoProto],
   ["DocumentFragment.ownerDocument", documentFragmentOwnerDocument],
-  ["DocumentFragment::getElementById", documentFragmentProtoGetElementById],
+  ["DocumentFragment::querySelector", documentFragmentProtoQuerySelector],
+  // DocumentTimeline
   ["DocumentTimeline::new", documentTimelineProtoNew],
   ["DocumentTimeline::prototype", documentTimelineProtoProto],
   ["DocumentType::new", documentTypeProtoNew],
@@ -4691,12 +4863,53 @@ var nsValues3 = [
   ["DocumentType.ownerDocument", documentTypeOwnerDocument],
   ["DocumentType.publicId", documentTypePublicId],
   ["DocumentType.systemId", documentTypeSystemId],
-  ["DocumentFragment::new", documentFragmentProtoNew],
-  ["DocumentFragment::prototype", documentFragmentProtoProto],
-  ["DocumentFragment.ownerDocument", documentFragmentOwnerDocument],
-  ["DocumentFragment::getElementById", documentFragmentProtoGetElementById],
+  // Element
+  ["Element::addEventListener", elementProtoAddEventListener],
+  ["Element::attachShadow", elementProtoAttachShadow],
+  ["Element::checkVisibility", elementProtoCheckVisibility],
+  ["Element::closest", elementProtoClosest],
+  ["Element::computedStyleMap", elementProtoComputedStyleMap],
+  ["Element::getAttribute", elementProtoGetAttribute],
+  ["Element::getAttributeNames", elementProtoGetAttributeNames],
+  ["Element::getAttributeNode", elementProtoGetAttributeNode],
+  ["Element::getAttributeNodeNS", elementProtoGetAttributeNS],
+  ["Element::getAttributeNS", elementProtoGetAttributeNS],
+  ["Element::getBoundingClientRect", elementProtoGetBoundingClientRect],
+  ["Element::getClientRects", elementProtoGetClientRects],
+  ["Element::getElementsByClassName", elementProtoGetElementsByClassName],
+  ["Element::getElementsByTagName", elementProtoGetElementsByTagName],
+  ["Element::getElementsByTagNameNS", elementProtoGetElementsByTagNameNS],
+  ["Element::getHTML", elementProtoGetHTML],
+  ["Element::hasAttribute", elementProtoHasAttribute],
+  ["Element::hasAttributeNS", elementProtoHasAttributeNS],
+  ["Element::hasAttributes", elementProtoHasAttributes],
+  ["Element::hasPointerCapture", elementProtoHasPointerCapture],
+  ["Element::insertAdjacentElement", elementProtoInsertAdjacentElement],
+  ["Element::insertAdjacentHTML", elementProtoInsertAdjacentHTML],
+  ["Element::insertAdjacentText", elementProtoInsertAdjacentText],
+  ["Element::matches", elementProtoMatches],
   ["Element::new", elementProtoNew],
   ["Element::prototype", elementProtoProto],
+  ["Element::querySelector", elementProtoQuerySelector],
+  ["Element::releasePointerCapture", elementProtoReleasePointerCapture],
+  ["Element::removeAttribute", elementProtoRemoveAttribute],
+  ["Element::removeAttributeNode", elementProtoRemoveAttributeNode],
+  ["Element::removeAttributeNS", elementProtoRemoveAttributeNS],
+  ["Element::removeEventListener", elementProtoRemoveEventListener],
+  ["Element::requestFullscreen", elementProtoRequestFullscreen],
+  ["Element::requestPointerLock", elementProtoRequestPointerLock],
+  ["Element::scroll", elementProtoScroll],
+  ["Element::scrollBy", elementProtoScrollBy],
+  ["Element::scrollIntoView", elementProtoScrollIntoView],
+  ["Element::scrollTo", elementProtoScrollTo],
+  ["Element::setAttribute", elementProtoSetAttribute],
+  ["Element::setAttributeNode", elementProtoSetAttributeNode],
+  ["Element::setAttributeNodeNS", elementProtoSetAttributeNodeNS],
+  ["Element::setAttributeNS", elementProtoSetAttributeNS],
+  ["Element::setHTMLUnsafe", elementProtoSetHTMLUnsafe],
+  ["Element::setPointerCapture", elementProtoSetPointerCapture],
+  ["Element::toggleAttribute", elementProtoToggleAttribute],
+  ["Element::webkitMatchesSelector", elementProtoWebkitMatchesSelector],
   ["Element.attributes", elementAttributes],
   ["Element.classList", elementClassList],
   ["Element.className", elementClassName],
@@ -4722,77 +4935,36 @@ var nsValues3 = [
   ["Element.shadowRoot", elementShadowRoot],
   ["Element.slot", elementSlot],
   ["Element.tagName", elementTagName],
-  ["Element::attachShadow", elementProtoAttachShadow],
-  ["Element::checkVisibility", elementProtoCheckVisibility],
-  ["Element::closest", elementProtoClosest],
-  ["Element::computedStyleMap", elementProtoComputedStyleMap],
-  ["Element::getAttribute", elementProtoGetAttribute],
-  ["Element::getAttributeNS", elementProtoGetAttributeNS],
-  ["Element::getAttributeNames", elementProtoGetAttributeNames],
-  ["Element::getAttributeNode", elementProtoGetAttributeNode],
-  ["Element::getAttributeNodeNS", elementProtoGetAttributeNodeNS],
-  ["Element::getBoundingClientRect", elementProtoGetBoundingClientRect],
-  ["Element::getClientRects", elementProtoGetClientRects],
-  ["Element::getElementsByClassName", elementProtoGetElementsByClassName],
-  ["Element::getElementsByTagName", elementProtoGetElementsByTagName],
-  ["Element::getElementsByTagNameNS", elementProtoGetElementsByTagNameNS],
-  ["Element::getHTML", elementProtoGetHTML],
-  ["Element::hasAttribute", elementProtoHasAttribute],
-  ["Element::hasAttributeNS", elementProtoHasAttributeNS],
-  ["Element::hasAttributes", elementProtoHasAttributes],
-  ["Element::hasPointerCapture", elementProtoHasPointerCapture],
-  ["Element::insertAdjacentElement", elementProtoInsertAdjacentElement],
-  ["Element::insertAdjacentHTML", elementProtoInsertAdjacentHTML],
-  ["Element::insertAdjacentText", elementProtoInsertAdjacentText],
-  ["Element::matches", elementProtoMatches],
-  ["Element::releasePointerCapture", elementProtoReleasePointerCapture],
-  ["Element::removeAttribute", elementProtoRemoveAttribute],
-  ["Element::removeAttributeNS", elementProtoRemoveAttributeNS],
-  ["Element::removeAttributeNode", elementProtoRemoveAttributeNode],
-  ["Element::requestFullscreen", elementProtoRequestFullscreen],
-  ["Element::requestPointerLock", elementProtoRequestPointerLock],
-  ["Element::scroll", elementProtoScroll],
-  ["Element::scrollBy", elementProtoScrollBy],
-  ["Element::scrollIntoView", elementProtoScrollIntoView],
-  ["Element::scrollTo", elementProtoScrollTo],
-  ["Element::setAttribute", elementProtoSetAttribute],
-  ["Element::setAttributeNS", elementProtoSetAttributeNS],
-  ["Element::setAttributeNode", elementProtoSetAttributeNode],
-  ["Element::setAttributeNodeNS", elementProtoSetAttributeNodeNS],
-  ["Element::setHTMLUnsafe", elementProtoSetHTMLUnsafe],
-  ["Element::setPointerCapture", elementProtoSetPointerCapture],
-  ["Element::toggleAttribute", elementProtoToggleAttribute],
-  ["Element::webkitMatchesSelector", elementProtoWebkitMatchesSelector],
-  ["Element::addEventListener", elementProtoAddEventListener],
-  ["Element::removeEventListener", elementProtoRemoveEventListener],
-  ["Event::new", eventProtoNew],
-  ["Event::prototype", eventProtoProto],
-  ["Event::NONE", eventProtoNONE],
-  ["Event::CAPTURING_PHASE", eventProtoCAPTURINGPHASE],
+  // Event
   ["Event::AT_TARGET", eventProtoATTARGET],
   ["Event::BUBBLING_PHASE", eventProtoBUBBLINGPHASE],
+  ["Event::CAPTURING_PHASE", eventProtoCAPTURINGPHASE],
+  ["Event::composedPath", eventProtoComposedPath],
+  ["Event::initEvent", eventProtoInitEvent],
+  ["Event::new", eventProtoNew],
+  ["Event::NONE", eventProtoNONE],
+  ["Event::preventDefault", eventProtoPreventDefault],
+  ["Event::prototype", eventProtoProto],
+  ["Event::stopImmediatePropagation", eventProtoStopImmediatePropagation],
+  ["Event::stopPropagation", eventProtoStopPropagation],
+  ["Event.AT_TARGET", eventATTARGET],
   ["Event.bubbles", eventBubbles],
-  ["Event.cancelBubble", eventCancelBubble],
+  ["Event.BUBBLING_PHASE", eventBUBBLINGPHASE],
   ["Event.cancelable", eventCancelable],
+  ["Event.cancelBubble", eventCancelBubble],
+  ["Event.CAPTURING_PHASE", eventCAPTURINGPHASE],
   ["Event.composed", eventComposed],
   ["Event.currentTarget", eventCurrentTarget],
   ["Event.defaultPrevented", eventDefaultPrevented],
   ["Event.eventPhase", eventEventPhase],
   ["Event.isTrusted", eventIsTrusted],
+  ["Event.NONE", eventNONE],
   ["Event.returnValue", eventReturnValue],
   ["Event.srcElement", eventSrcElement],
   ["Event.target", eventTarget],
   ["Event.timeStamp", eventTimeStamp],
   ["Event.type", eventType],
-  ["Event.NONE", eventNONE],
-  ["Event.CAPTURING_PHASE", eventCAPTURINGPHASE],
-  ["Event.AT_TARGET", eventATTARGET],
-  ["Event.BUBBLING_PHASE", eventBUBBLINGPHASE],
-  ["Event::composedPath", eventProtoComposedPath],
-  ["Event::initEvent", eventProtoInitEvent],
-  ["Event::preventDefault", eventProtoPreventDefault],
-  ["Event::stopImmediatePropagation", eventProtoStopImmediatePropagation],
-  ["Event::stopPropagation", eventProtoStopPropagation],
+  // EventTarget
   ["EventTarget::new", eventTargetProtoNew],
   ["EventTarget::prototype", eventTargetProtoProto],
   ["EventTarget::addEventListener", eventTargetProtoAddEventListener],
@@ -4801,6 +4973,31 @@ var nsValues3 = [
 ];
 for (const [sym, fn] of nsValues3) {
   ns4.set(createSymbolNode(sym), createFunctionNode(fn));
+}
+function getElementById(...args) {
+  assertVariableArgumentCount(args.length, 1, 2);
+  if (args[0].value instanceof DocumentFragment) {
+    return documentFragmentProtoGetElementById(...args);
+  }
+  return documentProtoGetElementById(...args);
+}
+function querySelector2(...args) {
+  assertVariableArgumentCount(args.length, 1, 2);
+  if (args.length === 1 && args[0].value instanceof Document) {
+    return documentProtoQuerySelector(...args);
+  }
+  assertAtomNode(args[0]);
+  if (args.length === 2 && args[0].value instanceof DocumentFragment) {
+    return documentFragmentProtoQuerySelector(...args);
+  }
+  if (args.length === 2 && args[0].value instanceof Element) {
+    return elementProtoQuerySelector(...args);
+  }
+  throw createErrorNode(
+    "querySelector expects a Document, DocumentFragment or Element as the first parameter.",
+    "TypeError" /* TypeError */,
+    args[0]
+  );
 }
 function customEventProtoNew(...args) {
   assertArgumentCount(args.length, 1);
@@ -5192,6 +5389,12 @@ function documentProtoQueryCommandValue(...args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
+function documentProtoQuerySelector(...args) {
+  assertArgumentCount(args.length, 1);
+  assertStringNode(args[0]);
+  const value = Document.prototype.querySelector.call(document, args[0].value);
+  return value ? createAtomNode(value) : createNilNode();
+}
 function documentProtoReleaseEvents(...args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
@@ -5213,7 +5416,16 @@ function documentProtoWriteln(...args) {
   return createNilNode();
 }
 function documentProtoAddEventListener(...args) {
-  assertArgumentCount(args.length, 1);
+  assertArgumentCount(args.length, 2);
+  assertStringNode(args[0]);
+  assertFunctionNode(args[1]);
+  Document.prototype.addEventListener.call(
+    document,
+    args[0].value,
+    (event) => {
+      args[1].value(createAtomNode(event));
+    }
+  );
   return createNilNode();
 }
 function documentProtoRemoveEventListener(...args) {
@@ -5252,13 +5464,36 @@ function documentFragmentProtoProto(...args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
+function documentFragmentProtoQuerySelector(...args) {
+  assertArgumentCount(args.length, 2);
+  assertAtomNode(args[0]);
+  assertStringNode(args[1]);
+  if (!(args[0].value instanceof DocumentFragment)) {
+    throw createErrorNode(
+      "querySelector expects a DocumentFragment as the first parameter.",
+      "TypeError" /* TypeError */,
+      args[0]
+    );
+  }
+  const value = DocumentFragment.prototype.querySelector.call(
+    args[0].value,
+    args[1].value
+  );
+  return value ? createAtomNode(value) : createNilNode();
+}
 function documentFragmentOwnerDocument(...args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
 function documentFragmentProtoGetElementById(...args) {
   assertArgumentCount(args.length, 1);
-  return createNilNode();
+  assertStringNode(args[0]);
+  assertAtomNode(args[1]);
+  const element = DocumentFragment.prototype.getElementById.call(
+    args[0].value,
+    args[1].value
+  );
+  return element ? createAtomNode(element) : createNilNode();
 }
 function documentTypeProtoNew(...args) {
   assertArgumentCount(args.length, 1);
@@ -5275,6 +5510,23 @@ function elementProtoNew(...args) {
 function elementProtoProto(...args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
+}
+function elementProtoQuerySelector(...args) {
+  assertArgumentCount(args.length, 2);
+  assertAtomNode(args[0]);
+  assertStringNode(args[1]);
+  if (!(args[0].value instanceof Element)) {
+    throw createErrorNode(
+      "querySelector expects an Element as the first parameter.",
+      "TypeError" /* TypeError */,
+      args[0]
+    );
+  }
+  const value = Element.prototype.querySelector.call(
+    args[0].value,
+    args[1].value
+  );
+  return value ? createAtomNode(value) : createNilNode();
 }
 function elementAttributes(...args) {
   assertArgumentCount(args.length, 1);
@@ -5393,12 +5645,14 @@ function elementProtoComputedStyleMap(...args) {
   return createNilNode();
 }
 function elementProtoGetAttribute(...args) {
-  assertArgumentCount(args.length, 1);
-  return createNilNode();
-}
-function elementProtoGetAttributeNS(...args) {
-  assertArgumentCount(args.length, 1);
-  return createNilNode();
+  assertArgumentCount(args.length, 2);
+  assertAtomNode(args[0]);
+  assertStringNode(args[1]);
+  const value = Element.prototype.getAttribute.call(
+    args[0].value,
+    args[1].value
+  );
+  return value ? createStringNode(value) : createNilNode();
 }
 function elementProtoGetAttributeNames(...args) {
   assertArgumentCount(args.length, 1);
@@ -5408,7 +5662,7 @@ function elementProtoGetAttributeNode(...args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementProtoGetAttributeNodeNS(...args) {
+function elementProtoGetAttributeNS(...args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
@@ -5509,7 +5763,15 @@ function elementProtoScrollTo(...args) {
   return createNilNode();
 }
 function elementProtoSetAttribute(...args) {
-  assertArgumentCount(args.length, 1);
+  assertArgumentCount(args.length, 3);
+  assertAtomNode(args[0]);
+  assertStringNode(args[1]);
+  assertStringNode(args[2]);
+  Element.prototype.setAttribute.call(
+    args[0].value,
+    args[1].value,
+    args[2].value
+  );
   return createNilNode();
 }
 function elementProtoSetAttributeNS(...args) {
@@ -5541,7 +5803,24 @@ function elementProtoWebkitMatchesSelector(...args) {
   return createNilNode();
 }
 function elementProtoAddEventListener(...args) {
-  assertArgumentCount(args.length, 1);
+  assertArgumentCount(args.length, 3);
+  assertAtomNode(args[0]);
+  assertStringNode(args[1]);
+  assertFunctionNode(args[2]);
+  if (!(args[0].value instanceof Element)) {
+    throw createErrorNode(
+      "addEventListener expects an Element as the first parameter.",
+      "TypeError" /* TypeError */,
+      args[0]
+    );
+  }
+  Element.prototype.addEventListener.call(
+    args[0].value,
+    args[1].value,
+    (event) => {
+      args[2].value(createAtomNode(event));
+    }
+  );
   return createNilNode();
 }
 function elementProtoRemoveEventListener(...args) {
@@ -5650,6 +5929,15 @@ function eventProtoInitEvent(...args) {
 }
 function eventProtoPreventDefault(...args) {
   assertArgumentCount(args.length, 1);
+  assertAtomNode(args[0]);
+  if (!(args[0].value instanceof Event)) {
+    throw createErrorNode(
+      "preventDefault expects an Event as the first parameter.",
+      "TypeError" /* TypeError */,
+      args[0]
+    );
+  }
+  Event.prototype.preventDefault.call(args[0].value);
   return createNilNode();
 }
 function eventProtoStopImmediatePropagation(...args) {
@@ -5668,8 +5956,42 @@ function eventTargetProtoProto(...args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
+function addEventListener(...args) {
+  assertVariableArgumentCount(args.length, 2, 3);
+  if (args[0].value instanceof Document) {
+    return documentProtoAddEventListener(...args);
+  }
+  if (args[0].value instanceof EventTarget) {
+    return eventTargetProtoAddEventListener(...args);
+  }
+  if (args[0].value instanceof Element) {
+    return elementProtoAddEventListener(...args);
+  }
+  throw createErrorNode(
+    "addEventListener expects an Document, Element, or EventTarget as the first parameter.",
+    "TypeError" /* TypeError */,
+    args[0]
+  );
+}
 function eventTargetProtoAddEventListener(...args) {
-  assertArgumentCount(args.length, 1);
+  assertArgumentCount(args.length, 3);
+  assertAtomNode(args[0]);
+  assertStringNode(args[1]);
+  assertFunctionNode(args[2]);
+  if (!(args[0].value instanceof EventTarget)) {
+    throw createErrorNode(
+      "addEventListener expects an EventTarget as the first parameter.",
+      "TypeError" /* TypeError */,
+      args[0]
+    );
+  }
+  EventTarget.prototype.addEventListener.call(
+    args[0].value,
+    args[1].value,
+    (event) => {
+      args[2].value(createAtomNode(event));
+    }
+  );
   return createNilNode();
 }
 function eventTargetProtoDispatchEvent(...args) {
@@ -5682,123 +6004,6 @@ function eventTargetProtoRemoveEventListener(...args) {
 }
 
 // src/ensemble/lib.ts
-function assertTryCatch(a) {
-  assertListNode(a);
-  assertVariableArgumentCount(a.value.length, 2, 3);
-  const symbolNode = a.value[0];
-  assertSymbolNode(symbolNode);
-  if (symbolNode.value !== "try" && symbolNode.value !== "try*") {
-    throw new Error("use `try` or `try*` in try/catch expressions");
-  }
-  assertAstNode(a.value[1]);
-  if (a.value[2]) {
-    assertListNode(a.value[2]);
-    assertArgumentCount(a.value[2].value.length, 3);
-    assertSymbolNode(a.value[2].value[0]);
-    const catchNode = a.value[2].value[0];
-    if (catchNode.value !== "catch" && catchNode.value !== "catch*") {
-      throw new Error("use `catch` or `catch*` in try/catch expressions");
-    }
-    assertSymbolNode(a.value[2].value[1]);
-    assertAstNode(a.value[2].value[2]);
-  }
-}
-function assertDef(a) {
-  assertListNode(a);
-  assertArgumentCount(a.value.length, 3);
-  assertSymbolNode(a.value[0]);
-  const symbolNode = a.value[0];
-  if (symbolNode.value !== "def!" && symbolNode.value !== "globalThis" && symbolNode.value !== "var") {
-    throw new Error("use `def!`, `globalThis`, or `var` in def! expressions");
-  }
-  assertMapKeyNode(a.value[1]);
-  assertAstNode(a.value[2]);
-}
-function assertLet(a) {
-  assertListNode(a);
-  assertArgumentCount(a.value.length, 3);
-  assertSymbolNode(a.value[0]);
-  const symbolNode = a.value[0];
-  if (symbolNode.value !== "let*" && symbolNode.value !== "let" && symbolNode.value !== "const") {
-    throw new Error("use `let*`, `let`, or `const` in let* expressions");
-  }
-  assertSequential(a.value[1]);
-  assertAstNode(a.value[2]);
-  assertEvenArgumentCount(a.value[1].value.length);
-  for (let i = 0; i < a.value[1].value.length; i += 2) {
-    assertSymbolNode(a.value[1].value[i]);
-    assertAstNode(a.value[1].value[i + 1]);
-  }
-}
-function assertQuote(a) {
-  assertListNode(a);
-  assertArgumentCount(a.value.length, 2);
-  assertSymbolNode(a.value[0]);
-  assertSymWithValue(a.value[0], "quote");
-  assertAstNode(a.value[1]);
-}
-function assertQuasiQuoteExpand(a) {
-  const symbol2 = "quasiquoteexpand";
-  assertListNode(a);
-  assertArgumentCount(a.value.length, 2);
-  assertSymbolNode(a.value[0]);
-  assertSymWithValue(a.value[0], symbol2);
-  assertAstNode(a.value[1]);
-}
-function assertQuasiQuote(a) {
-  const symbol2 = "quasiquote";
-  assertListNode(a);
-  assertArgumentCount(a.value.length, 2);
-  assertSymbolNode(a.value[0]);
-  assertSymWithValue(a.value[0], symbol2);
-  assertAstNode(a.value[1]);
-}
-function assertDefMacro(a) {
-  const symbol2 = "defmacro!";
-  assertListNode(a);
-  assertArgumentCount(a.value.length, 3);
-  assertSymbolNode(a.value[0]);
-  assertSymWithValue(a.value[0], symbol2);
-  assertMapKeyNode(a.value[1]);
-  assertAstNode(a.value[2]);
-}
-function assertDo(a) {
-  const symbol2 = "do";
-  assertListNode(a);
-  assertMinimumArgumentCount(a.value.length, 1);
-  assertSymbolNode(a.value[0]);
-  assertSymWithValue(a.value[0], symbol2);
-  for (const node2 of a.value.slice(1)) {
-    assertAstNode(node2);
-  }
-}
-function assertIf(a) {
-  const symbol2 = "if";
-  assertListNode(a);
-  assertVariableArgumentCount(a.value.length, 3, 4);
-  assertSymbolNode(a.value[0]);
-  assertSymWithValue(a.value[0], symbol2);
-  assertAstNode(a.value[1]);
-  assertAstNode(a.value[2]);
-  if (isDefined(a.value[3])) {
-    assertAstNode(a.value[3]);
-  }
-}
-function assertFn(a) {
-  assertListNode(a);
-  assertArgumentCount(a.value.length, 3);
-  assertSymbolNode(a.value[0]);
-  const symbolNode = a.value[0];
-  if (!["fn*", "function", "=>"].includes(symbolNode.value)) {
-    throw new Error("use `fn*`, `function`, of `=>` in fn* expressions");
-  }
-  assertSequential(a.value[1]);
-  assertSequentialValues(
-    a.value[1].value,
-    SymbolNode
-  );
-  assertAstNode(a.value[2]);
-}
 function read(malCode) {
   const ast = readString(malCode);
   return ast;
@@ -5917,7 +6122,7 @@ function evaluate(node2, appEnv) {
       // "On the other hand, let and const declarations never create
       // properties of the global object."
       // https://developer.mozilla.org/en-US/docs/Glossary/Global_object
-      case "let":
+      // We use const to convey that data is immutable.
       case "const":
       case "let*": {
         result = evaluateLet(node2, appEnv);
@@ -5957,7 +6162,6 @@ function evaluate(node2, appEnv) {
         result = evaluateIf(node2, appEnv);
         break;
       }
-      case "=>":
       case "function":
       case "fn*": {
         result = evaluateFn(node2, appEnv);
@@ -5974,12 +6178,47 @@ function evaluate(node2, appEnv) {
     appEnv = result.continue.env;
   }
 }
+function assertDef(a) {
+  assertListNode(a);
+  assertArgumentCount(a.value.length, 3, a);
+  assertSymbolNode(a.value[0]);
+  const symbolNode = a.value[0];
+  if (symbolNode.value !== "var") {
+    throw createErrorNode(
+      "Expected var to be called with the value var. This is a bug.",
+      "TypeError" /* TypeError */,
+      symbolNode
+    );
+  }
+  assertMapKeyNode(a.value[1]);
+  assertAstNode(a.value[2]);
+}
 function evaluateDef(node2, appEnv) {
   assertDef(node2);
   const variableName = node2.value[1];
   const variableValue = node2.value[2];
   const evaluatedValue = evaluate(variableValue, appEnv);
   return returnResult(appEnv.set(variableName, evaluatedValue));
+}
+function assertLet(a) {
+  assertListNode(a);
+  assertArgumentCount(a.value.length, 3, a);
+  assertSymbolNode(a.value[0]);
+  const symbolNode = a.value[0];
+  if (symbolNode.value !== "const") {
+    throw createErrorNode(
+      "Expected let to be called with let but it wasn't. This is a bug with Ensemble.",
+      "TypeError" /* TypeError */,
+      symbolNode
+    );
+  }
+  assertSequential(a.value[1]);
+  assertAstNode(a.value[2]);
+  assertEvenArgumentCount(a.value[1].value.length, a);
+  for (let i = 0; i < a.value[1].value.length; i += 2) {
+    assertSymbolNode(a.value[1].value[i]);
+    assertAstNode(a.value[1].value[i + 1]);
+  }
 }
 function evaluateLet(node2, appEnv) {
   assertLet(node2);
@@ -5994,18 +6233,50 @@ function evaluateLet(node2, appEnv) {
   }
   return continueResult(node2.value[2], letEnv);
 }
+function assertQuote(a) {
+  assertListNode(a);
+  assertArgumentCount(a.value.length, 2, a);
+  assertSymbolNode(a.value[0]);
+  assertSymWithValue(a.value[0], "quote");
+  assertAstNode(a.value[1]);
+}
 function evaluateQuote(node2, _) {
   assertQuote(node2);
   return returnResult(node2.value[1]);
+}
+function assertQuasiQuoteExpand(a) {
+  const symbol2 = "quasiquoteexpand";
+  assertListNode(a);
+  assertArgumentCount(a.value.length, 2);
+  assertSymbolNode(a.value[0]);
+  assertSymWithValue(a.value[0], symbol2);
+  assertAstNode(a.value[1]);
 }
 function evaluateQuasiQuoteExpand(node2, _env) {
   assertQuasiQuoteExpand(node2);
   return returnResult(quasiQuote(node2.value[1]));
 }
+function assertQuasiQuote(a) {
+  const symbol2 = "quasiquote";
+  assertListNode(a);
+  assertArgumentCount(a.value.length, 2);
+  assertSymbolNode(a.value[0]);
+  assertSymWithValue(a.value[0], symbol2);
+  assertAstNode(a.value[1]);
+}
 function evaluateQuasiQuote(node2, appEnv) {
   assertQuasiQuote(node2);
   const resultAst = quasiQuote(node2.value[1]);
   return continueResult(resultAst, appEnv);
+}
+function assertDefMacro(a) {
+  const symbol2 = "defmacro!";
+  assertListNode(a);
+  assertArgumentCount(a.value.length, 3);
+  assertSymbolNode(a.value[0]);
+  assertSymWithValue(a.value[0], symbol2);
+  assertMapKeyNode(a.value[1]);
+  assertAstNode(a.value[2]);
 }
 function evaluateDefMacro(node2, appEnv) {
   assertDefMacro(node2);
@@ -6018,6 +6289,16 @@ function evaluateDefMacro(node2, appEnv) {
   }
   return returnResult(appEnv.set(variableName, copiedValue));
 }
+function assertDo(a) {
+  const symbol2 = "do";
+  assertListNode(a);
+  assertMinimumArgumentCount(a.value.length, 1);
+  assertSymbolNode(a.value[0]);
+  assertSymWithValue(a.value[0], symbol2);
+  for (const node2 of a.value.slice(1)) {
+    assertAstNode(node2);
+  }
+}
 function evaluateDo(node2, appEnv) {
   assertDo(node2);
   let lastResult = createNilNode();
@@ -6025,6 +6306,35 @@ function evaluateDo(node2, appEnv) {
     lastResult = evaluate(node2.value[i], appEnv);
   }
   return { continue: { ast: lastResult, env: appEnv }, return: void 0 };
+}
+function assertTryCatch(a) {
+  assertListNode(a);
+  assertVariableArgumentCount(a.value.length, 2, 3);
+  const symbolNode = a.value[0];
+  assertSymbolNode(symbolNode);
+  if (symbolNode.value !== "try") {
+    throw createErrorNode(
+      "Expected try/catch to be called with try. This is a bug.",
+      "SyntaxError" /* SyntaxError */,
+      symbolNode
+    );
+  }
+  assertAstNode(a.value[1]);
+  if (a.value[2]) {
+    assertListNode(a.value[2]);
+    assertArgumentCount(a.value[2].value.length, 3, a.value[2]);
+    assertSymbolNode(a.value[2].value[0]);
+    const catchNode = a.value[2].value[0];
+    if (catchNode.value !== "catch") {
+      throw createErrorNode(
+        "Expected a catch in the body of a try expression",
+        "SyntaxError" /* SyntaxError */,
+        catchNode
+      );
+    }
+    assertSymbolNode(a.value[2].value[1]);
+    assertAstNode(a.value[2].value[2]);
+  }
 }
 function evaluateTry(node2, appEnv) {
   assertTryCatch(node2);
@@ -6052,6 +6362,18 @@ function evaluateTry(node2, appEnv) {
     return { return: evaluate(list2, errorEnv), continue: void 0 };
   }
 }
+function assertIf(a) {
+  const symbol2 = "if";
+  assertListNode(a);
+  assertVariableArgumentCount(a.value.length, 3, 4);
+  assertSymbolNode(a.value[0]);
+  assertSymWithValue(a.value[0], symbol2);
+  assertAstNode(a.value[1]);
+  assertAstNode(a.value[2]);
+  if (isDefined(a.value[3])) {
+    assertAstNode(a.value[3]);
+  }
+}
 function evaluateIf(node2, appEnv) {
   assertIf(node2);
   const condition = node2.value[1];
@@ -6065,6 +6387,25 @@ function evaluateIf(node2, appEnv) {
     return continueResult(elseExpr, appEnv);
   }
   return returnResult(createNilNode());
+}
+function assertFn(a) {
+  assertListNode(a);
+  assertArgumentCount(a.value.length, 3);
+  assertSymbolNode(a.value[0]);
+  const symbolNode = a.value[0];
+  if (!["fn*", "function", "=>"].includes(symbolNode.value)) {
+    throw createErrorNode(
+      "Expected function to be called with function but it wasn't. This is a bug with Ensemble.",
+      "TypeError" /* TypeError */,
+      symbolNode
+    );
+  }
+  assertSequential(a.value[1]);
+  assertSequentialValues(
+    a.value[1].value,
+    SymbolNode
+  );
+  assertAstNode(a.value[2]);
 }
 function evaluateFn(node2, appEnv) {
   assertFn(node2);
@@ -6109,7 +6450,18 @@ function print(value) {
   return printString(value, true);
 }
 function rep(input, appEnv) {
-  return print(evaluate(read(input), appEnv));
+  try {
+    return print(evaluate(read(input), appEnv));
+  } catch (error) {
+    if (isErrorNode(error)) {
+      console.log(printString(error, false));
+    } else if (error instanceof Error) {
+      console.log(error);
+    } else {
+      console.log(JSON.stringify(error));
+    }
+  }
+  return "";
 }
 function initEnv() {
   const replEnv = new Env(void 0);
@@ -6139,16 +6491,6 @@ function initEnv() {
       console.log(printString(serialized, true));
       return createNilNode();
     })
-  );
-  rep("(def! not (fn* (a) (if a false true)))", replEnv);
-  rep(
-    `(defmacro! cond
-      (fn* (& xs)
-       (if (gt (count xs) 0) (list 'if (first xs)
-                                  (if (gt (count xs) 1) (nth xs 1)
-                                      (throw "odd number of forms to cond"))
-                                  (cons 'cond (rest (rest xs)))))))`,
-    replEnv
   );
   return replEnv;
 }

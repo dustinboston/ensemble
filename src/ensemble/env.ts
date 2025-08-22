@@ -126,13 +126,17 @@ export class Env {
 	get(key: types.MapKeyNode): types.AstNode {
 		const foundEnv = this.findEnv(key);
 		if (foundEnv === undefined) {
-			throw new Error(`'${key.value}' not found`);
+			throw types.createErrorNode(
+				`The variable name '${key.value}' has not been declared.`,
+				types.ErrorTypes.ReferenceError,
+				key,
+			);
 		}
 
 		const keyString = types.convertMapKeyToString(key);
-		const dictValue = foundEnv.value.get(keyString);
-		types.assertDefined<types.AstNode>(dictValue);
+		const mapValue = foundEnv.value.get(keyString);
+		types.assertDefined<types.AstNode>(mapValue);
 
-		return dictValue;
+		return mapValue;
 	}
 }
