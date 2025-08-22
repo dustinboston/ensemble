@@ -1,5 +1,7 @@
 # Ensemble: Novel Synthesis of Eich, McCarthy, Berners-Lee, Lie, etc
 
+![A line drawing of a jazz ensemble](./var/images/ensemble_indexed.gif)
+
 Ensemble is a _web_ programming language that combines JavaScript, HTML, and CSS in a Lisp-like language with HTML-style syntax using angle brackets. The language supports both angle bracket syntax (preferred) and traditional parentheses for developers familiar with Lisp.
 
 ## Language Features
