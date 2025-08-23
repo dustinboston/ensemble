@@ -58,7 +58,7 @@ export class Env {
 		}
 	}
 
-	serialize() {
+	serialize(): types.MapNode {
 		const serialized: types.MapNode = types.createMapNode();
 		let outer: types.MapNode = types.createMapNode();
 
@@ -71,7 +71,7 @@ export class Env {
 			serialized.value.set(key, value);
 		}
 
-		serialized.value.set("__outer__", outer);
+		// serialized.value.set("__outer__", outer);
 
 		return serialized;
 	}

@@ -1,0 +1,86 @@
+// Blog generator example using Ensemble.
+// - Reads .ensmbl files from src/examples/blog/posts/
+// - Generates HTML files in src/examples/blog/public/
+// - Creates an index.html listing all posts.
+// @usage: ./bin/ensmbl src/examples/blog/blog.ensmbl
+
+// Configuration for the blog generator
+<var config {
+  indexFile: "index.html"
+  siteTitle: "mnjn"
+  out: "src/examples/blog/public/"
+  outExt: ".html"
+  src: "src/examples/blog/posts/"
+  srcExt: ".ensmbl"
+}>
+
+// Extract the filename without extension from a given file path
+// @param {string} file - The full filename with extension
+// @returns {string} The filename without the extension
+<var filename <function [file] 
+  <str <first <String::split file ".">>>>>
+
+// Check if a given file has the .ensmbl extension
+// @param {string} file - The filename to check
+// @returns {boolean} True if the file has the .ensmbl extension, else false
+<var isEnsembleFile? <function [file]
+  <String::endsWith file <get config srcExt:>>>>  
+
+// Read and evaluate the content of a .ensmbl file
+// @param {string} file - The filename of the .ensmbl file
+// @returns {string} The evaluated content of the file as a string
+<var post <function [file]
+  <try <do 
+    <eval <read-string <readFile <str <get config src:> file>>>>>
+    <catch e <console.error "Error processing file:" file e>>>>>
+
+// Template for a page
+// @param {string} pageTitle - The title of the page
+// @param {string} pageContent - The HTML content of the page
+// @returns {string} The complete HTML page as a string
+<var tpl <function <pageTitle pageContent>
+  <!doctype 
+    <html 
+      <head 
+        <title <get config siteTitle:>>
+        <style {} { "body" { font-family: "sans-serif" }}>> 
+      <body 
+        <header <h1 pageTitle>>
+        <div pageContent>>>>>>
+
+// Generate a page for a given .ensmbl file and write it to the output directory
+// @param {string} file - The filename of the .ensmbl file
+// @returns {object} An object containing the page title and the output filename
+<var page <function [file] 
+  <if <isEnsembleFile? file>
+    <const [
+      pageTitle <filename file>
+      pageContent <post file>
+      html <str <tpl pageTitle pageContent>>
+    ] <try 
+        <do 
+          <writeFile <str <get config out:> pageTitle <get config outExt:>> html>
+          {pageTitle: pageTitle, file: <str pageTitle <get config outExt:>>}>
+        <catch e <console.error "Error writing file:" file e>>>>>>>
+
+// Generate a link for a given post data object
+// @param {object} postData - An object containing the page title and filename
+// @returns {string} An HTML list item with a link to the post
+<var link <function [postData] 
+  <li <a { href: <get postData file:> } <get postData pageTitle:>>>>>
+
+// Build the entire site by processing all .ensmbl files in the source directory
+<var buildSite <function []
+  <const [
+      files <readir <get config src:>>
+      pages <map page files>
+      index <map link pages>
+      html  <str <tpl <get config siteTitle:> <ul <Array::join index "">>>>
+    ] <try
+        <do
+          <writeFile <str <get config out:> <get config indexFile:>> html>
+          <console.log "All done.">>
+        <catch e
+          <console.error "Error building site:" e>>>>>>
+
+<buildSite>

@@ -6,4 +6,4 @@
 
 import io from "./io.ts";
 
-io.main(...scriptArgs);
+io.main(scriptArgs);

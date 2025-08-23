@@ -1,8 +1,10 @@
 // The Magic 8 Ball code defines a list of 20 possible responses and displays a 
 // randomly chosen one after the user presses enter in response to a prompt. It 
 // simulates a classic Magic 8 Ball toy.
+//
+// @usage ./bin/ensemble ./src/examples/magic8.ensmbl
 
-(var responses [
+<var responses [
   "As I see it, yes"
   "Ask again later"
   "Better not tell you now"
@@ -23,12 +25,12 @@
   "Yes definitely"
   "Yes"
   "You may rely on it"
-])
+]>
 
-(var getReplyAtIndex (function (x) (Array::at responses x))) 
-(var getRandomReplyIndex (function () (Math.floor (* (Math.random) 19))))
+<var getReplyAtIndex <function <x> <Array::at responses x>>> 
+<var getRandomReplyIndex <function <> <Math.floor <multiply <Math.random> 19>>>>
 
-(console.log "Magic (8) Ball\nAsk a yes/no question to receive a reply from beyond!")
-(prompt ">>> ")
-(console.log (getReplyAtIndex (getRandomReplyIndex)))
-(console.log "")
+<console.log "Magic <8> Ball\nAsk a yes/no question to receive a reply from beyond!">
+<prompt ">>> ">
+<console.log <getReplyAtIndex <getRandomReplyIndex>>>
+<console.log "">

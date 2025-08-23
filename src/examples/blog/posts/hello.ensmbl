@@ -1,0 +1,11 @@
+<div
+  <h1 "Hello World">
+  <p 
+    <str "This is my" <b "first post"> "with" <em "emphasis"> ", " 
+      <s "strike"> ", and a" <a {href "https://example.com"} "link"> ".">>
+  <h2 "Features">
+  <ul 
+    <li "Simple markdown parsing">
+    <li "Static site generation">
+    <li "Minimal code">>
+  <p "This is a regular paragraph" <mark "with highlighting"> ".">>

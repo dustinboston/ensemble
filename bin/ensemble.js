@@ -248,8 +248,9 @@ var ErrorNode = class _ErrorNode extends AstNode {
   }
   toString() {
     const cause = this.cause ? this.cause : createNilNode();
-    const type = this.name || "Error";
-    const message = `<str "${type}: [${cause.line}:${cause.column}]" ${this.value}>`;
+    const type = this.name.value;
+    const valueStr = isStringNode(this.value) ? this.value.value : String(this.value);
+    const message = `<str "${type}: [${cause.line}:${cause.column}]" ${valueStr}>`;
     return `<error ${message}>`;
   }
 };
@@ -474,7 +475,6 @@ function createErrorNode(value = "Error", type = "Error" /* Error */, source = c
 function createInvalidElementError(astNode) {
   const invalid = isAstNode(astNode) ? `Invalid ${astNode.kind} element` : "Invalid element";
   const error = createErrorNode(invalid, "TypeError" /* TypeError */, astNode);
-  console.log(invalid, JSON.stringify(error));
   return error;
 }
 function createFunctionNode(value, closureMeta, isMacro2 = false, metadata) {
@@ -731,6 +731,12 @@ function isEqualTo(a, b) {
     }
     return createBooleanNode(true);
   }
+  if (isAtomNode(a) && isAtomNode(b)) {
+    if (isAstNode(a.value) && isAstNode(b.value)) {
+      return isEqualTo(a.value, b.value);
+    }
+    return createBooleanNode(a.value === b.value);
+  }
   if (!isSameClass(a, b)) {
     return createBooleanNode(false);
   }
@@ -901,8 +907,11 @@ function getMapElement(map, key) {
   return map.get(convertMapKeyToString(key));
 }
 function getMapKeys(map) {
-  const keys2 = [...map.keys()];
-  return createListNode(keys2.map((key) => convertStringToMapKey(key)));
+  const keyNodes = [];
+  for (const keyString of map.keys()) {
+    keyNodes.push(convertStringToMapKey(keyString));
+  }
+  return createListNode(keyNodes);
 }
 function convertMapKeyToString(ast) {
   const key = ast;
@@ -1157,7 +1166,7 @@ function printString(ast, printReadably = false) {
   }
   if (isErrorNode(ast)) {
     const cause = ast.cause ? ast.cause : createNilNode();
-    const type = ast.name || "Error";
+    const type = ast.name.value;
     const message = `<str "${type}: [${cause.line}:${cause.column}]" ${printString(ast.value, printReadably)}>`;
     return `<error ${message}>`;
   }
@@ -1243,7 +1252,7 @@ ${body.join(" ")}`;
   }
   const atom2 = ast;
   if (isAtomNode(atom2)) {
-    return `(atom ${printHtml(atom2.value)})`;
+    return `<atom ${printHtml(atom2.value)}>`;
   }
   if (isErrorNode(ast)) {
     return printHtml(ast.value, printReadably);
@@ -1254,7 +1263,7 @@ ${body.join(" ")}`;
   if (isSequentialNode(ast)) {
     const isList = isListNode(ast);
     const serialized = ast.value.map((value) => printHtml(value, printReadably)).join(" ");
-    return isList ? `(${serialized})` : `[${serialized}]`;
+    return isList ? `<${serialized}>` : `[${serialized}]`;
   }
   if (isMapNode(ast)) {
     const serialized = mapFlat(ast.value).map((value) => printHtml(value, printReadably)).join(" ");
@@ -1760,7 +1769,7 @@ function length(...args) {
     return createNumberNode(args[0].value.length);
   }
   throw createErrorNode(
-    `Expected an length argument of type null, map, list, or vector but got ${value.kind}`,
+    `Expected a length argument of type null, map, list, or vector but got ${value.kind}`,
     "TypeError" /* TypeError */,
     value
   );
@@ -2168,7 +2177,6 @@ var Env = class {
     for (const [key, value] of entries) {
       serialized.value.set(key, value);
     }
-    serialized.value.set("__outer__", outer);
     return serialized;
   }
   /**
@@ -3256,7 +3264,7 @@ function newError(...args) {
   }
   return createErrorNode(
     message,
-    name ?? "Error" /* Error */,
+    name ? name.value : "Error" /* Error */,
     cause
   );
 }
@@ -3329,14 +3337,14 @@ var mapFunctions = [
   ["Map.isMap", mapIsMap],
   // Added method
   ["Map.new", mapNew],
-  ["Map.prototype.delete", mapDelete],
-  ["Map.prototype.entries", mapGetEntries],
-  ["Map.prototype.get", mapGet],
-  ["Map.prototype.has", mapHas],
-  ["Map.prototype.keys", mapKeys],
-  ["Map.prototype.set", mapSet],
-  ["Map.prototype.size", mapSize],
-  ["Map.prototype.values", mapValues]
+  ["Map::delete", mapDelete],
+  ["Map::entries", mapGetEntries],
+  ["Map::get", mapGet],
+  ["Map::has", mapHas],
+  ["Map::keys", mapKeys],
+  ["Map::set", mapSet],
+  ["Map::size", mapSize],
+  ["Map::values", mapValues]
 ];
 function mapIsMap(...args) {
   assertArgumentCount(args.length, 1);
@@ -4232,38 +4240,38 @@ var stringFunctions = [
   ["String", core_default.printUnescapedString],
   ["String.fromCharCode", stringFromCharCode],
   ["String.fromCodePoint", stringFromCodePoint],
-  ["String.prototype.at", stringAt],
-  ["String.prototype.charAt", stringAt],
-  ["String.prototype.charCodeAt", stringCodePointAt],
-  ["String.prototype.codePointAt", stringCodePointAt],
-  ["String.prototype.concat", stringConcat],
-  ["String.prototype.endsWith", stringEndsWith],
-  ["String.prototype.includes", stringIncludes],
-  ["String.prototype.indexOf", stringIndexOf],
-  ["String.prototype.isWellFormed", stringIsWellFormed],
-  ["String.prototype.lastIndexOf", stringLastIndexOf],
-  ["String.prototype.length", stringLength],
-  ["String.prototype.localeCompare", stringLocaleCompare],
-  ["String.prototype.match", stringMatch],
-  ["String.prototype.matchAll", stringMatchAll],
-  ["String.prototype.normalize", stringNormalize],
-  ["String.prototype.padEnd", stringPadEnd],
-  ["String.prototype.padStart", stringPadStart],
-  ["String.prototype.repeat", stringRepeat],
-  ["String.prototype.replace", stringReplace],
-  ["String.prototype.replaceAll", stringReplaceAll],
-  ["String.prototype.search", stringSearch],
-  ["String.prototype.slice", stringSlice],
-  ["String.prototype.split", stringSplit],
-  ["String.prototype.startsWith", stringStartsWith],
-  ["String.prototype.toLocaleLowerCase", stringToLocaleLowerCase],
-  ["String.prototype.toLocaleUpperCase", stringToLocaleUpperCase],
-  ["String.prototype.toLowerCase", stringToLowerCase],
-  ["String.prototype.toUpperCase", stringToUpperCase],
-  ["String.prototype.toWellFormed", stringToWellFormed],
-  ["String.prototype.trim", stringTrim],
-  ["String.prototype.trimEnd", stringTrimEnd],
-  ["String.prototype.trimStart", stringTrimStart],
+  ["String::at", stringAt],
+  ["String::charAt", stringAt],
+  ["String::charCodeAt", stringCodePointAt],
+  ["String::codePointAt", stringCodePointAt],
+  ["String::concat", stringConcat],
+  ["String::endsWith", stringEndsWith],
+  ["String::includes", stringIncludes],
+  ["String::indexOf", stringIndexOf],
+  ["String::isWellFormed", stringIsWellFormed],
+  ["String::lastIndexOf", stringLastIndexOf],
+  ["String::length", stringLength],
+  ["String::localeCompare", stringLocaleCompare],
+  ["String::match", stringMatch],
+  ["String::matchAll", stringMatchAll],
+  ["String::normalize", stringNormalize],
+  ["String::padEnd", stringPadEnd],
+  ["String::padStart", stringPadStart],
+  ["String::repeat", stringRepeat],
+  ["String::replace", stringReplace],
+  ["String::replaceAll", stringReplaceAll],
+  ["String::search", stringSearch],
+  ["String::slice", stringSlice],
+  ["String::split", stringSplit],
+  ["String::startsWith", stringStartsWith],
+  ["String::toLocaleLowerCase", stringToLocaleLowerCase],
+  ["String::toLocaleUpperCase", stringToLocaleUpperCase],
+  ["String::toLowerCase", stringToLowerCase],
+  ["String::toUpperCase", stringToUpperCase],
+  ["String::toWellFormed", stringToWellFormed],
+  ["String::trim", stringTrim],
+  ["String::trimEnd", stringTrimEnd],
+  ["String::trimStart", stringTrimStart],
   ["String.raw", stringRaw]
 ];
 function stringFromCharCode(...astArgs) {
@@ -6488,9 +6496,18 @@ function initEnv() {
     createSymbolNode("dump"),
     createFunctionNode((..._args) => {
       const serialized = replEnv.serialize();
-      console.log(printString(serialized, true));
-      return createNilNode();
+      return serialized;
     })
+  );
+  rep("(var not (function (a) (if a false true)))", replEnv);
+  rep(
+    `(defmacro! cond
+			(function (& xs)
+				(if (gt (count xs) 0) (list (quote if) (first xs)
+															(if (gt (count xs) 1) (nth xs 1)
+																	(throw "odd number of forms to cond"))
+															(cons (quote cond) (rest (rest xs)))))))`,
+    replEnv
   );
   return replEnv;
 }

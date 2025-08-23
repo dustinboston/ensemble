@@ -1103,8 +1103,7 @@ export function initEnv(): env.Env {
 		types.createSymbolNode("dump"),
 		types.createFunctionNode((..._args: types.AstNode[]): types.AstNode => {
 			const serialized = replEnv.serialize();
-			console.log(printer.printString(serialized, true));
-			return types.createNilNode();
+			return serialized;
 		}),
 	);
 

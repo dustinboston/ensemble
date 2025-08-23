@@ -3,14 +3,14 @@ import * as types from "../../types.ts";
 export const mapFunctions: Array<[string, types.Closure]> = [
 	["Map.isMap", mapIsMap], // Added method
 	["Map.new", mapNew],
-	["Map.prototype.delete", mapDelete],
-	["Map.prototype.entries", mapGetEntries],
-	["Map.prototype.get", mapGet],
-	["Map.prototype.has", mapHas],
-	["Map.prototype.keys", mapKeys],
-	["Map.prototype.set", mapSet],
-	["Map.prototype.size", mapSize],
-	["Map.prototype.values", mapValues],
+	["Map::delete", mapDelete],
+	["Map::entries", mapGetEntries],
+	["Map::get", mapGet],
+	["Map::has", mapHas],
+	["Map::keys", mapKeys],
+	["Map::set", mapSet],
+	["Map::size", mapSize],
+	["Map::values", mapValues],
 ];
 
 export function mapIsMap(...args: types.AstNode[]): types.AstNode {

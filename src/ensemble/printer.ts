@@ -40,20 +40,20 @@ export function printString(ast: types.AstNode, printReadably = false): string {
 	const atom = ast;
 	if (types.isAtomNode(atom)) {
 		if (types.isAstNode(atom.value)) {
-			return `(atom ${printString(atom.value)})`;
+			return `<atom ${printString(atom.value)}>`;
 		}
 
 		if (atom.value instanceof HTMLElement) {
 			const domNode = types.createDomNodeFromHtmlElement(atom.value);
-			return `(atom (element ${printString(domNode)}))`;
+			return `<atom <element ${printString(domNode)}>>`;
 		}
 
 		if (atom.value instanceof Event) {
 			const event = atom.value.type;
-			return `(atom (event ${event})))`;
+			return `<atom <event ${event}>>`;
 		}
 
-		return `(atom #<js ${typeof atom.value}>)`;
+		return `<atom #<js ${typeof atom.value}>>`;
 	}
 
 	if (types.isErrorNode(ast)) {
@@ -178,7 +178,7 @@ export function printHtml(ast: types.AstNode, printReadably = false): string {
 
 	const atom = ast;
 	if (types.isAtomNode(atom)) {
-		return `(atom ${printHtml(atom.value)})`;
+		return `<atom ${printHtml(atom.value)}>`;
 	}
 
 	if (types.isErrorNode(ast)) {
@@ -194,7 +194,7 @@ export function printHtml(ast: types.AstNode, printReadably = false): string {
 		const serialized = ast.value
 			.map((value) => printHtml(value, printReadably))
 			.join(" ");
-		return isList ? `(${serialized})` : `[${serialized}]`;
+		return isList ? `<${serialized}>` : `[${serialized}]`;
 	}
 
 	if (types.isMapNode(ast)) {

@@ -225,7 +225,7 @@ export function toPosixPath(filePath = ""): string {
  * @param args - [filepath: string, ...argv: any[]].
  * @example `deno run ./step0_repl.ts`
  */
-export async function main(...args: string[]) {
+export async function main(args: string[]) {
 	const replEnv = initMain();
 	// Process the arguments
 	const userScriptPath: string | undefined = toPosixPath(args[0]);

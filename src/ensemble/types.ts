@@ -1935,8 +1935,11 @@ export function getMapElement(
  * @example mapKeys(myMap);
  */
 export function getMapKeys(map: Map<string, AstNode>): ListNode {
-	const keys = [...map.keys()];
-	return createListNode(keys.map((key) => convertStringToMapKey(key)));
+	const keyNodes: AstNode[] = [];
+	for (const keyString of map.keys()) {
+		keyNodes.push(convertStringToMapKey(keyString));
+	}
+	return createListNode(keyNodes);
 }
 
 /**
