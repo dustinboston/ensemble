@@ -46,7 +46,7 @@ export const mathFunctions: Array<[string, types.Closure]> = [
 	["Math.SQRT2", mathSqrt2],
 ];
 
-export function mathAbs(...astArgs: types.AstNode[]): types.AstNode {
+export function mathAbs(astArgs: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 1);
 	types.assertNumberNode(astArgs[0]);
 	const x = astArgs[0].value;
@@ -54,7 +54,7 @@ export function mathAbs(...astArgs: types.AstNode[]): types.AstNode {
 	return types.toAst(result);
 }
 
-export function mathAcos(...astArgs: types.AstNode[]): types.AstNode {
+export function mathAcos(astArgs: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 1);
 	types.assertNumberNode(astArgs[0]);
 	const x = astArgs[0].value;
@@ -62,7 +62,7 @@ export function mathAcos(...astArgs: types.AstNode[]): types.AstNode {
 	return types.toAst(result);
 }
 
-export function mathAcosh(...astArgs: types.AstNode[]): types.AstNode {
+export function mathAcosh(astArgs: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 1);
 	types.assertNumberNode(astArgs[0]);
 	const x = astArgs[0].value;
@@ -70,7 +70,7 @@ export function mathAcosh(...astArgs: types.AstNode[]): types.AstNode {
 	return types.toAst(result);
 }
 
-export function mathAsin(...astArgs: types.AstNode[]): types.AstNode {
+export function mathAsin(astArgs: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 1);
 	types.assertNumberNode(astArgs[0]);
 	const x = astArgs[0].value;
@@ -78,7 +78,7 @@ export function mathAsin(...astArgs: types.AstNode[]): types.AstNode {
 	return types.toAst(result);
 }
 
-export function mathAsinh(...astArgs: types.AstNode[]): types.AstNode {
+export function mathAsinh(astArgs: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 1);
 	types.assertNumberNode(astArgs[0]);
 	const x = astArgs[0].value;
@@ -86,7 +86,7 @@ export function mathAsinh(...astArgs: types.AstNode[]): types.AstNode {
 	return types.toAst(result);
 }
 
-export function mathAtan(...astArgs: types.AstNode[]): types.AstNode {
+export function mathAtan(astArgs: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 1);
 	types.assertNumberNode(astArgs[0]);
 	const x = astArgs[0].value;
@@ -94,7 +94,7 @@ export function mathAtan(...astArgs: types.AstNode[]): types.AstNode {
 	return types.toAst(result);
 }
 
-export function mathAtan2(...astArgs: types.AstNode[]): types.AstNode {
+export function mathAtan2(astArgs: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 2);
 	types.assertNumberNode(astArgs[0]);
 	types.assertNumberNode(astArgs[1]);
@@ -105,7 +105,7 @@ export function mathAtan2(...astArgs: types.AstNode[]): types.AstNode {
 	return types.toAst(result);
 }
 
-export function mathAtanh(...astArgs: types.AstNode[]): types.AstNode {
+export function mathAtanh(astArgs: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 1);
 	types.assertNumberNode(astArgs[0]);
 	const x = astArgs[0].value;
@@ -113,7 +113,7 @@ export function mathAtanh(...astArgs: types.AstNode[]): types.AstNode {
 	return types.toAst(result);
 }
 
-export function mathCbrt(...astArgs: types.AstNode[]): types.AstNode {
+export function mathCbrt(astArgs: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 1);
 	types.assertNumberNode(astArgs[0]);
 	const x = astArgs[0].value;
@@ -121,7 +121,7 @@ export function mathCbrt(...astArgs: types.AstNode[]): types.AstNode {
 	return types.toAst(result);
 }
 
-export function mathCeil(...astArgs: types.AstNode[]): types.AstNode {
+export function mathCeil(astArgs: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 1);
 	types.assertNumberNode(astArgs[0]);
 	const x = astArgs[0].value;
@@ -129,7 +129,7 @@ export function mathCeil(...astArgs: types.AstNode[]): types.AstNode {
 	return types.toAst(result);
 }
 
-export function mathClz32(...astArgs: types.AstNode[]): types.AstNode {
+export function mathClz32(astArgs: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 1);
 	types.assertNumberNode(astArgs[0]);
 	const x = astArgs[0].value;
@@ -137,7 +137,7 @@ export function mathClz32(...astArgs: types.AstNode[]): types.AstNode {
 	return types.toAst(result);
 }
 
-export function mathCos(...astArgs: types.AstNode[]): types.AstNode {
+export function mathCos(astArgs: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 1);
 	types.assertNumberNode(astArgs[0]);
 	const x = astArgs[0].value;
@@ -145,7 +145,7 @@ export function mathCos(...astArgs: types.AstNode[]): types.AstNode {
 	return types.toAst(result);
 }
 
-export function mathCosh(...astArgs: types.AstNode[]): types.AstNode {
+export function mathCosh(astArgs: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 1);
 	types.assertNumberNode(astArgs[0]);
 	const x = astArgs[0].value;
@@ -153,7 +153,7 @@ export function mathCosh(...astArgs: types.AstNode[]): types.AstNode {
 	return types.toAst(result);
 }
 
-export function mathExp(...astArgs: types.AstNode[]): types.AstNode {
+export function mathExp(astArgs: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 1);
 	types.assertNumberNode(astArgs[0]);
 	const x = astArgs[0].value;
@@ -161,7 +161,7 @@ export function mathExp(...astArgs: types.AstNode[]): types.AstNode {
 	return types.toAst(result);
 }
 
-export function mathExpm1(...astArgs: types.AstNode[]): types.AstNode {
+export function mathExpm1(astArgs: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 1);
 	types.assertNumberNode(astArgs[0]);
 	const x = astArgs[0].value;
@@ -169,7 +169,7 @@ export function mathExpm1(...astArgs: types.AstNode[]): types.AstNode {
 	return types.toAst(result);
 }
 
-export function mathFloor(...astArgs: types.AstNode[]): types.AstNode {
+export function mathFloor(astArgs: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 1);
 	types.assertNumberNode(astArgs[0]);
 	const x = astArgs[0].value;
@@ -177,7 +177,7 @@ export function mathFloor(...astArgs: types.AstNode[]): types.AstNode {
 	return types.toAst(result);
 }
 
-export function mathFround(...astArgs: types.AstNode[]): types.AstNode {
+export function mathFround(astArgs: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 1);
 	types.assertNumberNode(astArgs[0]);
 	const x = astArgs[0].value;
@@ -185,14 +185,14 @@ export function mathFround(...astArgs: types.AstNode[]): types.AstNode {
 	return types.toAst(result);
 }
 
-export function mathHypot(...astArgs: types.AstNode[]): types.AstNode {
+export function mathHypot(astArgs: types.AstNode[]): types.AstNode {
 	types.assertSequentialValues<types.NumberNode>(astArgs, types.NumberNode);
 	const values: number[] = astArgs.map(types.unwrapNumberNode);
 	const result = Math.hypot(...values);
 	return types.toAst(result);
 }
 
-export function mathImul(...astArgs: types.AstNode[]): types.AstNode {
+export function mathImul(astArgs: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 2);
 	types.assertNumberNode(astArgs[0]);
 	types.assertNumberNode(astArgs[1]);
@@ -204,7 +204,7 @@ export function mathImul(...astArgs: types.AstNode[]): types.AstNode {
 	return types.toAst(result);
 }
 
-export function mathLog(...astArgs: types.AstNode[]): types.AstNode {
+export function mathLog(astArgs: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 1);
 	types.assertNumberNode(astArgs[0]);
 	const x = astArgs[0].value;
@@ -212,7 +212,7 @@ export function mathLog(...astArgs: types.AstNode[]): types.AstNode {
 	return types.toAst(result);
 }
 
-export function mathLog10(...astArgs: types.AstNode[]): types.AstNode {
+export function mathLog10(astArgs: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 1);
 	types.assertNumberNode(astArgs[0]);
 	const x = astArgs[0].value;
@@ -220,7 +220,7 @@ export function mathLog10(...astArgs: types.AstNode[]): types.AstNode {
 	return types.toAst(result);
 }
 
-export function mathLog1p(...astArgs: types.AstNode[]): types.AstNode {
+export function mathLog1p(astArgs: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 1);
 	types.assertNumberNode(astArgs[0]);
 	const x = astArgs[0].value;
@@ -228,7 +228,7 @@ export function mathLog1p(...astArgs: types.AstNode[]): types.AstNode {
 	return types.toAst(result);
 }
 
-export function mathLog2(...astArgs: types.AstNode[]): types.AstNode {
+export function mathLog2(astArgs: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 1);
 	types.assertNumberNode(astArgs[0]);
 	const x = astArgs[0].value;
@@ -236,21 +236,21 @@ export function mathLog2(...astArgs: types.AstNode[]): types.AstNode {
 	return types.toAst(result);
 }
 
-export function mathMax(...astArgs: types.AstNode[]): types.AstNode {
+export function mathMax(astArgs: types.AstNode[]): types.AstNode {
 	types.assertSequentialValues<types.NumberNode>(astArgs, types.NumberNode);
 	const values: number[] = astArgs.map(types.unwrapNumberNode);
 	const result = Math.max(...values);
 	return types.toAst(result);
 }
 
-export function mathMin(...astArgs: types.AstNode[]): types.AstNode {
+export function mathMin(astArgs: types.AstNode[]): types.AstNode {
 	types.assertSequentialValues<types.NumberNode>(astArgs, types.NumberNode);
 	const values: number[] = astArgs.map(types.unwrapNumberNode);
 	const result = Math.min(...values);
 	return types.toAst(result);
 }
 
-export function mathPow(...astArgs: types.AstNode[]): types.AstNode {
+export function mathPow(astArgs: types.AstNode[]): types.AstNode {
 	if (
 		astArgs.length === 2 &&
 		types.isNumberNode(astArgs[0]) &&
@@ -264,7 +264,7 @@ export function mathPow(...astArgs: types.AstNode[]): types.AstNode {
 	throw new TypeError('Invalid arguments to "Math.pow"');
 }
 
-export function mathRandom(...astArgs: types.AstNode[]): types.AstNode {
+export function mathRandom(astArgs: types.AstNode[]): types.AstNode {
 	if (astArgs.length === 0) {
 		const result = Math.random();
 		return types.toAst(result);
@@ -272,7 +272,7 @@ export function mathRandom(...astArgs: types.AstNode[]): types.AstNode {
 	throw new TypeError('Invalid arguments to "Math.random"');
 }
 
-export function mathRound(...astArgs: types.AstNode[]): types.AstNode {
+export function mathRound(astArgs: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 1);
 	types.assertNumberNode(astArgs[0]);
 	const x = astArgs[0].value;
@@ -280,7 +280,7 @@ export function mathRound(...astArgs: types.AstNode[]): types.AstNode {
 	return types.toAst(result);
 }
 
-export function mathSign(...astArgs: types.AstNode[]): types.AstNode {
+export function mathSign(astArgs: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 1);
 	types.assertNumberNode(astArgs[0]);
 	const x = astArgs[0].value;
@@ -288,7 +288,7 @@ export function mathSign(...astArgs: types.AstNode[]): types.AstNode {
 	return types.toAst(result);
 }
 
-export function mathSin(...astArgs: types.AstNode[]): types.AstNode {
+export function mathSin(astArgs: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 1);
 	types.assertNumberNode(astArgs[0]);
 	const x = astArgs[0].value;
@@ -296,7 +296,7 @@ export function mathSin(...astArgs: types.AstNode[]): types.AstNode {
 	return types.toAst(result);
 }
 
-export function mathSinh(...astArgs: types.AstNode[]): types.AstNode {
+export function mathSinh(astArgs: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 1);
 	types.assertNumberNode(astArgs[0]);
 	const x = astArgs[0].value;
@@ -304,7 +304,7 @@ export function mathSinh(...astArgs: types.AstNode[]): types.AstNode {
 	return types.toAst(result);
 }
 
-export function mathSqrt(...astArgs: types.AstNode[]): types.AstNode {
+export function mathSqrt(astArgs: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 1);
 	types.assertNumberNode(astArgs[0]);
 	const x = astArgs[0].value;
@@ -312,7 +312,7 @@ export function mathSqrt(...astArgs: types.AstNode[]): types.AstNode {
 	return types.toAst(result);
 }
 
-export function mathTan(...astArgs: types.AstNode[]): types.AstNode {
+export function mathTan(astArgs: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 1);
 	types.assertNumberNode(astArgs[0]);
 	const x = astArgs[0].value;
@@ -320,7 +320,7 @@ export function mathTan(...astArgs: types.AstNode[]): types.AstNode {
 	return types.toAst(result);
 }
 
-export function mathTanh(...astArgs: types.AstNode[]): types.AstNode {
+export function mathTanh(astArgs: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 1);
 	types.assertNumberNode(astArgs[0]);
 	const x = astArgs[0].value;
@@ -328,7 +328,7 @@ export function mathTanh(...astArgs: types.AstNode[]): types.AstNode {
 	return types.toAst(result);
 }
 
-export function mathTrunc(...astArgs: types.AstNode[]): types.AstNode {
+export function mathTrunc(astArgs: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 1);
 	types.assertNumberNode(astArgs[0]);
 	const x = astArgs[0].value;
@@ -336,7 +336,7 @@ export function mathTrunc(...astArgs: types.AstNode[]): types.AstNode {
 	return types.toAst(result);
 }
 
-export function mathE(...astArgs: types.AstNode[]): types.AstNode {
+export function mathE(astArgs: types.AstNode[]): types.AstNode {
 	if (astArgs.length === 0) {
 		const result = Math.E;
 		return types.toAst(result);
@@ -344,7 +344,7 @@ export function mathE(...astArgs: types.AstNode[]): types.AstNode {
 	throw new TypeError('Invalid arguments to "Math.E"');
 }
 
-export function mathLn10(...astArgs: types.AstNode[]): types.AstNode {
+export function mathLn10(astArgs: types.AstNode[]): types.AstNode {
 	if (astArgs.length === 0) {
 		const result = Math.LN10;
 		return types.toAst(result);
@@ -352,7 +352,7 @@ export function mathLn10(...astArgs: types.AstNode[]): types.AstNode {
 	throw new TypeError('Invalid arguments to "Math.LN10"');
 }
 
-export function mathLn2(...astArgs: types.AstNode[]): types.AstNode {
+export function mathLn2(astArgs: types.AstNode[]): types.AstNode {
 	if (astArgs.length === 0) {
 		const result = Math.LN2;
 		return types.toAst(result);
@@ -360,7 +360,7 @@ export function mathLn2(...astArgs: types.AstNode[]): types.AstNode {
 	throw new TypeError('Invalid arguments to "Math.LN2"');
 }
 
-export function mathLog10e(...astArgs: types.AstNode[]): types.AstNode {
+export function mathLog10e(astArgs: types.AstNode[]): types.AstNode {
 	if (astArgs.length === 0) {
 		const result = Math.LOG10E;
 		return types.toAst(result);
@@ -368,7 +368,7 @@ export function mathLog10e(...astArgs: types.AstNode[]): types.AstNode {
 	throw new TypeError('Invalid arguments to "Math.LOG10E"');
 }
 
-export function mathLog23(...astArgs: types.AstNode[]): types.AstNode {
+export function mathLog23(astArgs: types.AstNode[]): types.AstNode {
 	if (astArgs.length === 0) {
 		const result = Math.LOG2E;
 		return types.toAst(result);
@@ -376,7 +376,7 @@ export function mathLog23(...astArgs: types.AstNode[]): types.AstNode {
 	throw new TypeError('Invalid arguments to "Math.LOG2E"');
 }
 
-export function mathPi(...astArgs: types.AstNode[]): types.AstNode {
+export function mathPi(astArgs: types.AstNode[]): types.AstNode {
 	if (astArgs.length === 0) {
 		const result = Math.PI;
 		return types.toAst(result);
@@ -384,7 +384,7 @@ export function mathPi(...astArgs: types.AstNode[]): types.AstNode {
 	throw new TypeError('Invalid arguments to "Math.PI"');
 }
 
-export function mathSqrt12(...astArgs: types.AstNode[]): types.AstNode {
+export function mathSqrt12(astArgs: types.AstNode[]): types.AstNode {
 	if (astArgs.length === 0) {
 		const result = Math.SQRT1_2;
 		return types.toAst(result);
@@ -392,7 +392,7 @@ export function mathSqrt12(...astArgs: types.AstNode[]): types.AstNode {
 	throw new TypeError('Invalid arguments to "Math.SQRT1_2"');
 }
 
-export function mathSqrt2(...astArgs: types.AstNode[]): types.AstNode {
+export function mathSqrt2(astArgs: types.AstNode[]): types.AstNode {
 	if (astArgs.length === 0) {
 		const result = Math.SQRT2;
 		return types.toAst(result);

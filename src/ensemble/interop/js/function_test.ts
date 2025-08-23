@@ -7,14 +7,14 @@ import { apply, bind, call, jsEval } from "./function.ts";
 
 runner.test("jsEval - evaluates a js expression", () => {
 	const code = types.createStringNode("1 + 1");
-	const result = jsEval(code);
+	const result = jsEval([code]);
 
 	runner.assert(result, types.createNumberNode(2));
 });
 
 runner.test("jsEval - handles errors", () => {
 	const code = types.createStringNode("invalid javascript");
-	const result = jsEval(code);
+	const result = jsEval([code]);
 
 	runner.assert(types.isErrorNode(result), true);
 });
@@ -22,7 +22,7 @@ runner.test("jsEval - handles errors", () => {
 runner.test("jsEval - invalid arguments", () => {
 	let threw = false;
 	try {
-		jsEval();
+		jsEval([]);
 	} catch (e) {
 		threw = true;
 	}
@@ -31,7 +31,7 @@ runner.test("jsEval - invalid arguments", () => {
 	const num = types.createNumberNode(0);
 	threw = false;
 	try {
-		jsEval(num);
+		jsEval([num]);
 	} catch (e) {
 		threw = true;
 	}
@@ -39,7 +39,7 @@ runner.test("jsEval - invalid arguments", () => {
 
 	threw = false;
 	try {
-		jsEval(types.createStringNode(""), types.createStringNode(""));
+		jsEval([types.createStringNode(""), types.createStringNode("")]);
 	} catch (e) {
 		threw = true;
 	}
@@ -50,14 +50,14 @@ runner.test("jsEval - invalid arguments", () => {
 // --------------------------------------------------------------------------------------------------------------------
 
 runner.test("apply - basic functionality", () => {
-	const fn = types.createFunctionNode((a: types.AstNode, b: types.AstNode) =>
+	const fn = types.createFunctionNode(([a, b]) =>
 		types.createNumberNode(a.value + b.value),
 	);
 	const args = types.createVectorNode([
 		types.createNumberNode(1),
 		types.createNumberNode(2),
 	]);
-	const result = apply(fn, args);
+	const result = apply([fn, args]);
 
 	runner.assert(result, types.createNumberNode(3));
 });
@@ -68,7 +68,7 @@ runner.test("apply - invalid arguments", () => {
 
 	let threw = false;
 	try {
-		apply();
+		apply([]);
 	} catch (e) {
 		threw = true;
 	}
@@ -76,7 +76,7 @@ runner.test("apply - invalid arguments", () => {
 
 	threw = false;
 	try {
-		apply(fn);
+		apply([fn]);
 	} catch (e) {
 		threw = true;
 	}
@@ -84,7 +84,7 @@ runner.test("apply - invalid arguments", () => {
 
 	threw = false;
 	try {
-		apply(num, num);
+		apply([num, num]);
 	} catch (e) {
 		threw = true;
 	}
@@ -92,7 +92,7 @@ runner.test("apply - invalid arguments", () => {
 
 	threw = false;
 	try {
-		apply(fn, num);
+		apply([fn, num]);
 	} catch (e) {
 		threw = true;
 	}
@@ -103,12 +103,12 @@ runner.test("apply - invalid arguments", () => {
 // --------------------------------------------------------------------------------------------------------------------
 
 runner.test("call - basic functionality", () => {
-	const fn = types.createFunctionNode((a: types.AstNode, b: types.AstNode) =>
+	const fn = types.createFunctionNode(([a, b]) =>
 		types.createNumberNode(a.value + b.value),
 	);
 	const arg1 = types.createNumberNode(1);
 	const arg2 = types.createNumberNode(2);
-	const result = call(fn, arg1, arg2);
+	const result = call([fn, arg1, arg2]);
 
 	runner.assert(result, types.createNumberNode(3));
 });
@@ -118,7 +118,7 @@ runner.test("call - invalid arguments", () => {
 
 	let threw = false;
 	try {
-		call();
+		call([]);
 	} catch (e) {
 		threw = true;
 	}
@@ -126,7 +126,7 @@ runner.test("call - invalid arguments", () => {
 
 	threw = false;
 	try {
-		call(num);
+		call([num]);
 	} catch (e) {
 		threw = true;
 	}
@@ -143,7 +143,7 @@ runner.test("bind - basic functionality", () => {
 		return types.createNumberNode(counter);
 	};
 	const fn = types.createFunctionNode(increment);
-	const boundFn = bind(fn, fn); // The second argument can be any AstNode
+	const boundFn = bind([fn, fn]); // The second argument can be any AstNode
 
 	runner.assert(types.isFunctionNode(boundFn), true);
 	runner.assert(boundFn.value(), types.createNumberNode(1)); // Call the bound function
@@ -156,7 +156,7 @@ runner.test("bind - invalid arguments", () => {
 
 	let threw = false;
 	try {
-		bind();
+		bind([]);
 	} catch (e) {
 		threw = true;
 	}
@@ -164,7 +164,7 @@ runner.test("bind - invalid arguments", () => {
 
 	threw = false;
 	try {
-		bind(fn);
+		bind([fn]);
 	} catch (e) {
 		threw = true;
 	}
@@ -172,7 +172,7 @@ runner.test("bind - invalid arguments", () => {
 
 	threw = false;
 	try {
-		bind(num, num);
+		bind([num, num]);
 	} catch (e) {
 		threw = true;
 	}

@@ -5,18 +5,18 @@ import * as operators from "./operator.ts";
 // and
 runner.test("and", () => {
 	runner.assert(
-		operators.and(types.createBooleanNode(true), types.createBooleanNode(true)),
+		operators.and([types.createBooleanNode(true), types.createBooleanNode(true)]),
 		types.createBooleanNode(true),
 	);
 	runner.assert(
 		operators.and(
-			types.createBooleanNode(true),
-			types.createBooleanNode(false),
+[			types.createBooleanNode(true),
+			types.createBooleanNode(false),]
 		),
 		types.createBooleanNode(false),
 	);
 	runner.assert(
-		operators.and(types.createNumberNode(1), types.createNumberNode(0)),
+		operators.and([types.createNumberNode(1), types.createNumberNode(0)]),
 		types.createBooleanNode(false),
 	);
 });
@@ -24,15 +24,15 @@ runner.test("and", () => {
 // bitwiseAnd
 runner.test("bitwiseAnd", () => {
 	runner.assert(
-		operators.bitwiseAnd(types.createNumberNode(5), types.createNumberNode(3)),
+		operators.bitwiseAnd([types.createNumberNode(5), types.createNumberNode(3)]),
 		types.createNumberNode(1),
 	);
 
 	let threw = false;
 	try {
 		operators.bitwiseAnd(
-			types.createStringNode("test"),
-			types.createNumberNode(1),
+[			types.createStringNode("test"),
+			types.createNumberNode(1),]
 		);
 	} catch (e) {
 		threw = true;
@@ -43,13 +43,13 @@ runner.test("bitwiseAnd", () => {
 // bitwiseNot
 runner.test("bitwiseNot", () => {
 	runner.assert(
-		operators.bitwiseNot(types.createNumberNode(5)),
+		operators.bitwiseNot([types.createNumberNode(5)]),
 		types.createNumberNode(~5),
 	);
 
 	let threw = false;
 	try {
-		operators.bitwiseNot(types.createStringNode("test"));
+		operators.bitwiseNot([types.createStringNode("test")]);
 	} catch (e) {
 		threw = true;
 	}
@@ -59,15 +59,15 @@ runner.test("bitwiseNot", () => {
 // bitwiseOr
 runner.test("bitwiseOr", () => {
 	runner.assert(
-		operators.bitwiseOr(types.createNumberNode(1), types.createNumberNode(2)),
+		operators.bitwiseOr([types.createNumberNode(1), types.createNumberNode(2)]),
 		types.createNumberNode(3),
 	);
 
 	let threw = false;
 	try {
 		operators.bitwiseOr(
-			types.createStringNode("test"),
-			types.createNumberNode(0),
+[			types.createStringNode("test"),
+			types.createNumberNode(0),]
 		);
 	} catch (e) {
 		threw = true;
@@ -78,15 +78,15 @@ runner.test("bitwiseOr", () => {
 // bitwiseXor
 runner.test("bitwiseXor", () => {
 	runner.assert(
-		operators.bitwiseXor(types.createNumberNode(1), types.createNumberNode(3)),
+		operators.bitwiseXor([types.createNumberNode(1), types.createNumberNode(3)]),
 		types.createNumberNode(2),
 	);
 
 	let threw = false;
 	try {
 		operators.bitwiseXor(
-			types.createStringNode("test"),
-			types.createNumberNode(1),
+[			types.createStringNode("test"),
+			types.createNumberNode(1),]
 		);
 	} catch (e) {
 		threw = true;
@@ -97,7 +97,7 @@ runner.test("bitwiseXor", () => {
 // decrement
 runner.test("decrement", () => {
 	runner.assert(
-		operators.decrement(types.createNumberNode(2)),
+		operators.decrement([types.createNumberNode(2)]),
 		types.createVectorNode([
 			types.createNumberNode(1),
 			types.createNumberNode(2),
@@ -105,8 +105,8 @@ runner.test("decrement", () => {
 	);
 	runner.assert(
 		operators.decrement(
-			types.createNumberNode(2),
-			types.createStringNode("prefix"),
+[			types.createNumberNode(2),
+			types.createStringNode("prefix")],
 		),
 		types.createVectorNode([
 			types.createNumberNode(1),
@@ -117,8 +117,8 @@ runner.test("decrement", () => {
 	let threw = false;
 	try {
 		operators.decrement(
-			types.createNumberNode(1),
-			types.createStringNode("asdf"),
+[			types.createNumberNode(1),
+			types.createStringNode("asdf"),]
 		);
 	} catch (e) {
 		threw = true;
@@ -129,7 +129,7 @@ runner.test("decrement", () => {
 // increment
 runner.test("increment", () => {
 	runner.assert(
-		operators.increment(types.createNumberNode(1)),
+		operators.increment([types.createNumberNode(1)]),
 		types.createVectorNode([
 			types.createNumberNode(2),
 			types.createNumberNode(1),
@@ -137,8 +137,8 @@ runner.test("increment", () => {
 	);
 	runner.assert(
 		operators.increment(
-			types.createNumberNode(1),
-			types.createStringNode("prefix"),
+[			types.createNumberNode(1),
+			types.createStringNode("prefix"),]
 		),
 		types.createVectorNode([
 			types.createNumberNode(2),
@@ -149,8 +149,8 @@ runner.test("increment", () => {
 	let threw = false;
 	try {
 		operators.increment(
-			types.createNumberNode(1),
-			types.createStringNode("asdf"),
+[			types.createNumberNode(1),
+			types.createStringNode("asdf"),]
 		);
 	} catch (e) {
 		threw = true;
@@ -164,21 +164,21 @@ runner.test("instanceOf", () => {
 	const str = types.createStringNode("");
 
 	runner.assert(
-		operators.instanceOf(num, types.createStringNode("NumberNode")),
+		operators.instanceOf([num, types.createStringNode("NumberNode")]),
 		types.createBooleanNode(true),
 	);
 	runner.assert(
-		operators.instanceOf(str, types.createStringNode("StringNode")),
+		operators.instanceOf([str, types.createStringNode("StringNode")]),
 		types.createBooleanNode(true),
 	);
 	runner.assert(
-		operators.instanceOf(num, types.createStringNode("StringNode")),
+		operators.instanceOf([num, types.createStringNode("StringNode")]),
 		types.createBooleanNode(false),
 	);
 
 	let threw = false;
 	try {
-		operators.instanceOf(num, types.createNumberNode(1));
+		operators.instanceOf([num, types.createNumberNode(1)]);
 	} catch (e) {
 		threw = true;
 	}
@@ -188,13 +188,13 @@ runner.test("instanceOf", () => {
 // leftShift
 runner.test("leftShift", () => {
 	runner.assert(
-		operators.leftShift(types.createNumberNode(1), types.createNumberNode(2)),
+		operators.leftShift([types.createNumberNode(1), types.createNumberNode(2)]),
 		types.createNumberNode(4),
 	);
 
 	let threw = false;
 	try {
-		operators.leftShift(types.createStringNode(""), types.createNumberNode(1));
+		operators.leftShift([types.createStringNode(""), types.createNumberNode(1)]);
 	} catch (e) {
 		threw = true;
 	}
@@ -204,7 +204,7 @@ runner.test("leftShift", () => {
 // not
 runner.test("not", () => {
 	runner.assert(
-		operators.not(types.createBooleanNode(false)),
+		operators.not([types.createBooleanNode(false)]),
 		types.createBooleanNode(true),
 	);
 });
@@ -212,12 +212,12 @@ runner.test("not", () => {
 // notEqualTo
 runner.test("notEqualTo", () => {
 	runner.assert(
-		operators.notEqualTo(types.createNumberNode(1), types.createNumberNode(1)),
+		operators.notEqualTo([types.createNumberNode(1), types.createNumberNode(1)]),
 		types.createBooleanNode(false),
 	);
 
 	runner.assert(
-		operators.notEqualTo(types.createNumberNode(1), types.createNumberNode(2)),
+		operators.notEqualTo([types.createNumberNode(1), types.createNumberNode(2)]),
 		types.createBooleanNode(true),
 	);
 });
@@ -225,13 +225,13 @@ runner.test("notEqualTo", () => {
 // nullishCoalesce
 runner.test("nullishCoalescing", () => {
 	runner.assert(
-		operators.nullishCoalesce(types.createNilNode(), types.createNumberNode(5)),
+		operators.nullishCoalesce([types.createNilNode(), types.createNumberNode(5)]),
 		types.createNumberNode(5),
 	);
 	runner.assert(
 		operators.nullishCoalesce(
-			types.createNumberNode(1),
-			types.createNumberNode(5),
+[			types.createNumberNode(1),
+			types.createNumberNode(5),]
 		),
 		types.createNumberNode(1),
 	);
@@ -240,19 +240,19 @@ runner.test("nullishCoalescing", () => {
 // or
 runner.test("or", () => {
 	runner.assert(
-		operators.or(types.createBooleanNode(false), types.createBooleanNode(true)),
+		operators.or([types.createBooleanNode(false), types.createBooleanNode(true)]),
 		types.createBooleanNode(true),
 	);
 
 	runner.assert(
 		operators.or(
-			types.createBooleanNode(false),
-			types.createBooleanNode(false),
+[			types.createBooleanNode(false),
+			types.createBooleanNode(false),]
 		),
 		types.createBooleanNode(false),
 	);
 	runner.assert(
-		operators.or(types.createNumberNode(0), types.createNumberNode(1)),
+		operators.or([types.createNumberNode(0), types.createNumberNode(1)]),
 		types.createBooleanNode(true),
 	);
 });
@@ -260,13 +260,13 @@ runner.test("or", () => {
 // power
 runner.test("power", () => {
 	runner.assert(
-		operators.power(types.createNumberNode(3), types.createNumberNode(2)),
+		operators.power([types.createNumberNode(3), types.createNumberNode(2)]),
 		types.createNumberNode(9),
 	);
 
 	let threw = false;
 	try {
-		operators.power(types.createStringNode(""), types.createNumberNode(1));
+		operators.power([types.createStringNode(""), types.createNumberNode(1)]);
 	} catch (e) {
 		threw = true;
 	}
@@ -276,13 +276,13 @@ runner.test("power", () => {
 // remainder
 runner.test("remainder", () => {
 	runner.assert(
-		operators.remainder(types.createNumberNode(5), types.createNumberNode(2)),
+		operators.remainder([types.createNumberNode(5), types.createNumberNode(2)]),
 		types.createNumberNode(1),
 	);
 
 	let threw = false;
 	try {
-		operators.remainder(types.createStringNode(""), types.createNumberNode(1));
+		operators.remainder([types.createStringNode(""), types.createNumberNode(1)]);
 	} catch (e) {
 		threw = true;
 	}
@@ -292,13 +292,13 @@ runner.test("remainder", () => {
 // rightShift
 runner.test("rightShift", () => {
 	runner.assert(
-		operators.rightShift(types.createNumberNode(5), types.createNumberNode(1)),
+		operators.rightShift([types.createNumberNode(5), types.createNumberNode(1)]),
 		types.createNumberNode(2),
 	);
 
 	let threw = false;
 	try {
-		operators.rightShift(types.createStringNode(""), types.createNumberNode(1));
+		operators.rightShift([types.createStringNode(""), types.createNumberNode(1)]);
 	} catch (e) {
 		threw = true;
 	}
@@ -310,11 +310,11 @@ runner.test("typeOf", () => {
 	const num = types.createNumberNode(1);
 
 	runner.assert(
-		operators.typeOf(num, types.createStringNode("number")),
+		operators.typeOf([num, types.createStringNode("number")]),
 		types.createBooleanNode(true),
 	);
 	runner.assert(
-		operators.typeOf(num, types.createStringNode("string")),
+		operators.typeOf([num, types.createStringNode("string")]),
 		types.createBooleanNode(false),
 	);
 });
@@ -323,8 +323,8 @@ runner.test("typeOf", () => {
 runner.test("unsignedRightShift", () => {
 	runner.assert(
 		operators.unsignedRightShift(
-			types.createNumberNode(5),
-			types.createNumberNode(1),
+[			types.createNumberNode(5),
+			types.createNumberNode(1),]
 		),
 		types.createNumberNode(2),
 	);
@@ -332,8 +332,8 @@ runner.test("unsignedRightShift", () => {
 	let threw = false;
 	try {
 		operators.unsignedRightShift(
-			types.createStringNode(""),
-			types.createNumberNode(1),
+[			types.createStringNode(""),
+			types.createNumberNode(1),]
 		);
 	} catch (e) {
 		threw = true;

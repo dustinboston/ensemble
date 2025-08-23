@@ -6,7 +6,7 @@ export const jsonFunctions: Array<[string, types.Closure]> = [
 ];
 
 // TODO: Implement reviver?
-export function parseJson(...astArgs: types.AstNode[]): types.AstNode {
+export function parseJson(astArgs: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 1);
 	types.assertStringNode(astArgs[0]);
 	const result = JSON.parse(astArgs[0].value);
@@ -14,7 +14,7 @@ export function parseJson(...astArgs: types.AstNode[]): types.AstNode {
 }
 
 // BUG: Replacer doesn't work as expected (at all).
-export function stringifyJson(...astArgs: types.AstNode[]): types.AstNode {
+export function stringifyJson(astArgs: types.AstNode[]): types.AstNode {
 	types.assertVariableArgumentCount(astArgs.length, 1, 3);
 	types.assertAstNode(astArgs[0]);
 
@@ -42,7 +42,7 @@ export function stringifyJson(...astArgs: types.AstNode[]): types.AstNode {
 		astNode,
 		(key, value) => {
 			const keyNode = types.toAst(key);
-			const replaced = replacer ? replacer(keyNode, value) : value;
+			const replaced = replacer ? replacer([keyNode, value]) : value;
 			return types.isNilNode(replaced) ? undefined : replaced;
 		},
 		space,

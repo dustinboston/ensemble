@@ -6,7 +6,7 @@ export const symbolFunctions: Array<[string, types.Closure]> = [
 	["Symbol.keyFor", symbolKeyFor],
 ];
 
-export function symbolConstructor(...astArgs: types.AstNode[]): types.AstNode {
+export function symbolConstructor(astArgs: types.AstNode[]): types.AstNode {
 	types.assertVariableArgumentCount(astArgs.length, 0, 1);
 
 	if (astArgs.length === 1) {
@@ -18,7 +18,7 @@ export function symbolConstructor(...astArgs: types.AstNode[]): types.AstNode {
 	return types.createAtomNode(result);
 }
 
-export function symbolFor(...astArgs: types.AstNode[]): types.AstNode {
+export function symbolFor(astArgs: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 1);
 	types.assertStringNode(astArgs[0]);
 
@@ -27,7 +27,7 @@ export function symbolFor(...astArgs: types.AstNode[]): types.AstNode {
 	return types.createAtomNode(result);
 }
 
-export function symbolKeyFor(...astArgs: types.AstNode[]): types.AstNode {
+export function symbolKeyFor(astArgs: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 1);
 	types.assertAtomNode(astArgs[0]);
 	types.assertSymbol(astArgs[0].value);

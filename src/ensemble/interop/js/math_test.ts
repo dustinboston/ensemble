@@ -8,15 +8,15 @@ import * as mathFunctions from "./math.ts";
 //Example test for a function with one argument
 runner.test("mathAbs: should return the absolute value of a number", () => {
 	runner.assert(
-		mathFunctions.mathAbs(types.createNumberNode(5)),
+		mathFunctions.mathAbs([types.createNumberNode(5)]),
 		types.createNumberNode(5),
 	);
 	runner.assert(
-		mathFunctions.mathAbs(types.createNumberNode(-5)),
+		mathFunctions.mathAbs([types.createNumberNode(-5)]),
 		types.createNumberNode(5),
 	);
 	runner.assert(
-		mathFunctions.mathAbs(types.createNumberNode(0)),
+		mathFunctions.mathAbs([types.createNumberNode(0)]),
 		types.createNumberNode(0),
 	);
 });
@@ -24,7 +24,7 @@ runner.test("mathAbs: should return the absolute value of a number", () => {
 runner.test("mathAbs - invalid arguments", () => {
 	let threw = false;
 	try {
-		mathFunctions.mathAbs();
+		mathFunctions.mathAbs([]);
 	} catch (e) {
 		threw = true;
 	}
@@ -32,7 +32,7 @@ runner.test("mathAbs - invalid arguments", () => {
 
 	threw = false;
 	try {
-		mathFunctions.mathAbs(types.createStringNode("test"));
+		mathFunctions.mathAbs([types.createStringNode("test")]);
 	} catch (e) {
 		threw = true;
 	}
@@ -45,8 +45,8 @@ runner.test(
 	() => {
 		runner.assert(
 			mathFunctions.mathAtan2(
-				types.createNumberNode(1),
-				types.createNumberNode(1),
+[				types.createNumberNode(1),
+				types.createNumberNode(1),]
 			),
 			types.createNumberNode(Math.atan2(1, 1)),
 		);
@@ -56,7 +56,7 @@ runner.test(
 runner.test("mathAtan2 - invalid arguments", () => {
 	let threw = false;
 	try {
-		mathFunctions.mathAtan2();
+		mathFunctions.mathAtan2([]);
 	} catch (e) {
 		threw = true;
 	}
@@ -64,7 +64,7 @@ runner.test("mathAtan2 - invalid arguments", () => {
 
 	threw = false;
 	try {
-		mathFunctions.mathAtan2(types.createNumberNode(1));
+		mathFunctions.mathAtan2([types.createNumberNode(1)]);
 	} catch (e) {
 		threw = true;
 	}
@@ -73,8 +73,8 @@ runner.test("mathAtan2 - invalid arguments", () => {
 	threw = false;
 	try {
 		mathFunctions.mathAtan2(
-			types.createStringNode("test"),
-			types.createNumberNode(1),
+[			types.createStringNode("test"),
+			types.createNumberNode(1),]
 		);
 	} catch (e) {
 		threw = true;
@@ -88,9 +88,9 @@ runner.test(
 	() => {
 		runner.assert(
 			mathFunctions.mathMax(
-				types.createNumberNode(1),
+[				types.createNumberNode(1),
 				types.createNumberNode(5),
-				types.createNumberNode(2),
+				types.createNumberNode(2),]
 			),
 			types.createNumberNode(5),
 		);
@@ -101,8 +101,8 @@ runner.test("mathMax - invalid arguments", () => {
 	let threw = false;
 	try {
 		mathFunctions.mathMax(
-			types.createStringNode("test"),
-			types.createNumberNode(1),
+[			types.createStringNode("test"),
+			types.createNumberNode(1),]
 		);
 	} catch (e) {
 		threw = true;
@@ -112,13 +112,13 @@ runner.test("mathMax - invalid arguments", () => {
 
 //Example test for a function with no arguments
 runner.test("mathPi: should return PI", () => {
-	runner.assert(mathFunctions.mathPi(), types.createNumberNode(Math.PI));
+	runner.assert(mathFunctions.mathPi([]), types.createNumberNode(Math.PI));
 });
 
 runner.test("mathPi - invalid arguments", () => {
 	let threw = false;
 	try {
-		mathFunctions.mathPi(types.createNumberNode(1));
+		mathFunctions.mathPi([types.createNumberNode(1)]);
 	} catch (e) {
 		threw = true;
 	}
@@ -130,14 +130,14 @@ runner.test("mathPi - invalid arguments", () => {
 // mathAcos
 runner.test("mathAcos", () => {
 	runner.assert(
-		mathFunctions.mathAcos(types.createNumberNode(0)),
+		mathFunctions.mathAcos([types.createNumberNode(0)]),
 		types.createNumberNode(Math.acos(0)),
 	);
 });
 // mathAcosh
 runner.test("mathAcosh", () => {
 	runner.assert(
-		mathFunctions.mathAcosh(types.createNumberNode(1)),
+		mathFunctions.mathAcosh([types.createNumberNode(1)]),
 		types.createNumberNode(Math.acosh(1)),
 	);
 });
@@ -145,14 +145,14 @@ runner.test("mathAcosh", () => {
 // mathAsin
 runner.test("mathAsin", () => {
 	runner.assert(
-		mathFunctions.mathAsin(types.createNumberNode(0)),
+		mathFunctions.mathAsin([types.createNumberNode(0)]),
 		types.createNumberNode(Math.asin(0)),
 	);
 });
 // mathAsinh
 runner.test("mathAsinh", () => {
 	runner.assert(
-		mathFunctions.mathAsinh(types.createNumberNode(0)),
+		mathFunctions.mathAsinh([types.createNumberNode(0)]),
 		types.createNumberNode(Math.asinh(0)),
 	);
 });
@@ -160,7 +160,7 @@ runner.test("mathAsinh", () => {
 // mathAtan
 runner.test("mathAtan", () => {
 	runner.assert(
-		mathFunctions.mathAtan(types.createNumberNode(0)),
+		mathFunctions.mathAtan([types.createNumberNode(0)]),
 		types.createNumberNode(Math.atan(0)),
 	);
 });
@@ -168,7 +168,7 @@ runner.test("mathAtan", () => {
 // mathAtanh
 runner.test("mathAtanh", () => {
 	runner.assert(
-		mathFunctions.mathAtanh(types.createNumberNode(0)),
+		mathFunctions.mathAtanh([types.createNumberNode(0)]),
 		types.createNumberNode(Math.atanh(0)),
 	);
 });
@@ -176,7 +176,7 @@ runner.test("mathAtanh", () => {
 // mathCbrt
 runner.test("mathCbrt", () => {
 	runner.assert(
-		mathFunctions.mathCbrt(types.createNumberNode(8)),
+		mathFunctions.mathCbrt([types.createNumberNode(8)]),
 		types.createNumberNode(Math.cbrt(8)),
 	);
 });
@@ -184,14 +184,14 @@ runner.test("mathCbrt", () => {
 // mathCeil
 runner.test("mathCeil", () => {
 	runner.assert(
-		mathFunctions.mathCeil(types.createNumberNode(4.2)),
+		mathFunctions.mathCeil([types.createNumberNode(4.2)]),
 		types.createNumberNode(Math.ceil(4.2)),
 	);
 });
 // mathClz32
 runner.test("mathClz32", () => {
 	runner.assert(
-		mathFunctions.mathClz32(types.createNumberNode(5)),
+		mathFunctions.mathClz32([types.createNumberNode(5)]),
 		types.createNumberNode(Math.clz32(5)),
 	);
 });
@@ -199,7 +199,7 @@ runner.test("mathClz32", () => {
 // mathCos
 runner.test("mathCos", () => {
 	runner.assert(
-		mathFunctions.mathCos(types.createNumberNode(0)),
+		mathFunctions.mathCos([types.createNumberNode(0)]),
 		types.createNumberNode(Math.cos(0)),
 	);
 });
@@ -207,19 +207,19 @@ runner.test("mathCos", () => {
 // mathCosh
 runner.test("mathCosh", () => {
 	runner.assert(
-		mathFunctions.mathCosh(types.createNumberNode(0)),
+		mathFunctions.mathCosh([types.createNumberNode(0)]),
 		types.createNumberNode(Math.cosh(0)),
 	);
 });
 // mathE
 runner.test("mathE", () => {
-	runner.assert(mathFunctions.mathE(), types.createNumberNode(Math.E));
+	runner.assert(mathFunctions.mathE([]), types.createNumberNode(Math.E));
 });
 
 // mathExp
 runner.test("mathExp", () => {
 	runner.assert(
-		mathFunctions.mathExp(types.createNumberNode(1)),
+		mathFunctions.mathExp([types.createNumberNode(1)]),
 		types.createNumberNode(Math.exp(1)),
 	);
 });
@@ -227,7 +227,7 @@ runner.test("mathExp", () => {
 // mathExpm1
 runner.test("mathExpm1", () => {
 	runner.assert(
-		mathFunctions.mathExpm1(types.createNumberNode(1)),
+		mathFunctions.mathExpm1([types.createNumberNode(1)]),
 		types.createNumberNode(Math.expm1(1)),
 	);
 });
@@ -235,7 +235,7 @@ runner.test("mathExpm1", () => {
 // mathFloor
 runner.test("mathFloor", () => {
 	runner.assert(
-		mathFunctions.mathFloor(types.createNumberNode(4.9)),
+		mathFunctions.mathFloor([types.createNumberNode(4.9)]),
 		types.createNumberNode(Math.floor(4.9)),
 	);
 });
@@ -243,7 +243,7 @@ runner.test("mathFloor", () => {
 // mathFround
 runner.test("mathFround", () => {
 	runner.assert(
-		mathFunctions.mathFround(types.createNumberNode(1.337)),
+		mathFunctions.mathFround([types.createNumberNode(1.337)]),
 		types.createNumberNode(Math.fround(1.337)),
 	);
 });
@@ -254,8 +254,8 @@ runner.test(
 	() => {
 		runner.assert(
 			mathFunctions.mathHypot(
-				types.createNumberNode(3),
-				types.createNumberNode(4),
+[				types.createNumberNode(3),
+				types.createNumberNode(4),]
 			),
 			types.createNumberNode(5),
 		);
@@ -266,8 +266,8 @@ runner.test(
 runner.test("mathImul", () => {
 	runner.assert(
 		mathFunctions.mathImul(
-			types.createNumberNode(3),
-			types.createNumberNode(4),
+[			types.createNumberNode(3),
+			types.createNumberNode(4),]
 		),
 		types.createNumberNode(Math.imul(3, 4)),
 	);
@@ -275,24 +275,24 @@ runner.test("mathImul", () => {
 
 // mathLn10
 runner.test("mathLn10", () => {
-	runner.assert(mathFunctions.mathLn10(), types.createNumberNode(Math.LN10));
+	runner.assert(mathFunctions.mathLn10([]), types.createNumberNode(Math.LN10));
 });
 
 // mathLn2
 runner.test("mathLn2", () => {
-	runner.assert(mathFunctions.mathLn2(), types.createNumberNode(Math.LN2));
+	runner.assert(mathFunctions.mathLn2([]), types.createNumberNode(Math.LN2));
 });
 // mathLog
 runner.test("mathLog", () => {
 	runner.assert(
-		mathFunctions.mathLog(types.createNumberNode(1)),
+		mathFunctions.mathLog([types.createNumberNode(1)]),
 		types.createNumberNode(Math.log(1)),
 	);
 });
 // mathLog10
 runner.test("mathLog10", () => {
 	runner.assert(
-		mathFunctions.mathLog10(types.createNumberNode(10)),
+		mathFunctions.mathLog10([types.createNumberNode(10)]),
 		types.createNumberNode(Math.log10(10)),
 	);
 });
@@ -300,7 +300,7 @@ runner.test("mathLog10", () => {
 // mathLog10e
 runner.test("mathLog10e", () => {
 	runner.assert(
-		mathFunctions.mathLog10e(),
+		mathFunctions.mathLog10e([]),
 		types.createNumberNode(Math.LOG10E),
 	);
 });
@@ -308,7 +308,7 @@ runner.test("mathLog10e", () => {
 // mathLog1p
 runner.test("mathLog1p", () => {
 	runner.assert(
-		mathFunctions.mathLog1p(types.createNumberNode(1)),
+		mathFunctions.mathLog1p([types.createNumberNode(1)]),
 		types.createNumberNode(Math.log1p(1)),
 	);
 });
@@ -316,13 +316,13 @@ runner.test("mathLog1p", () => {
 // mathLog2
 runner.test("mathLog2", () => {
 	runner.assert(
-		mathFunctions.mathLog2(types.createNumberNode(2)),
+		mathFunctions.mathLog2([types.createNumberNode(2)]),
 		types.createNumberNode(Math.log2(2)),
 	);
 });
 // mathLog23
 runner.test("mathLog2E", () => {
-	runner.assert(mathFunctions.mathLog23(), types.createNumberNode(Math.LOG2E));
+	runner.assert(mathFunctions.mathLog23([]), types.createNumberNode(Math.LOG2E));
 });
 
 // mathMin
@@ -331,9 +331,9 @@ runner.test(
 	() => {
 		runner.assert(
 			mathFunctions.mathMin(
-				types.createNumberNode(1),
+[				types.createNumberNode(1),
 				types.createNumberNode(5),
-				types.createNumberNode(2),
+				types.createNumberNode(2),]
 			),
 			types.createNumberNode(1),
 		);
@@ -346,8 +346,8 @@ runner.test(
 	() => {
 		runner.assert(
 			mathFunctions.mathPow(
-				types.createNumberNode(2),
-				types.createNumberNode(3),
+[				types.createNumberNode(2),
+				types.createNumberNode(3),]
 			),
 			types.createNumberNode(8),
 		);
@@ -356,7 +356,7 @@ runner.test(
 
 // mathRandom
 runner.test("mathRandom", () => {
-	const result = mathFunctions.mathRandom();
+	const result = mathFunctions.mathRandom([]);
 	runner.assert(types.isNumberNode(result), true);
 	runner.assert(result.value >= 0 && result.value < 1, true);
 });
@@ -364,7 +364,7 @@ runner.test("mathRandom", () => {
 // mathRound
 runner.test("mathRound", () => {
 	runner.assert(
-		mathFunctions.mathRound(types.createNumberNode(2.5)),
+		mathFunctions.mathRound([types.createNumberNode(2.5)]),
 		types.createNumberNode(3),
 	);
 });
@@ -372,15 +372,15 @@ runner.test("mathRound", () => {
 // mathSign
 runner.test("mathSign", () => {
 	runner.assert(
-		mathFunctions.mathSign(types.createNumberNode(-5)),
+		mathFunctions.mathSign([types.createNumberNode(-5)]),
 		types.createNumberNode(-1),
 	);
 	runner.assert(
-		mathFunctions.mathSign(types.createNumberNode(5)),
+		mathFunctions.mathSign([types.createNumberNode(5)]),
 		types.createNumberNode(1),
 	);
 	runner.assert(
-		mathFunctions.mathSign(types.createNumberNode(0)),
+		mathFunctions.mathSign([types.createNumberNode(0)]),
 		types.createNumberNode(0),
 	);
 });
@@ -388,47 +388,47 @@ runner.test("mathSign", () => {
 // mathSin
 runner.test("mathSin", () => {
 	runner.assert(
-		mathFunctions.mathSin(types.createNumberNode(0)),
+		mathFunctions.mathSin([types.createNumberNode(0)]),
 		types.createNumberNode(Math.sin(0)),
 	);
 });
 // mathSinh
 runner.test("mathSinh", () => {
 	runner.assert(
-		mathFunctions.mathSinh(types.createNumberNode(0)),
+		mathFunctions.mathSinh([types.createNumberNode(0)]),
 		types.createNumberNode(Math.sinh(0)),
 	);
 });
 // mathSqrt
 runner.test("mathSqrt", () => {
 	runner.assert(
-		mathFunctions.mathSqrt(types.createNumberNode(4)),
+		mathFunctions.mathSqrt([types.createNumberNode(4)]),
 		types.createNumberNode(Math.sqrt(4)),
 	);
 });
 // mathSqrt1_2
 runner.test("mathSqrt1_2", () => {
 	runner.assert(
-		mathFunctions.mathSqrt12(),
+		mathFunctions.mathSqrt12([]),
 		types.createNumberNode(Math.SQRT1_2),
 	);
 });
 
 // mathSqrt2
 runner.test("mathSqrt2", () => {
-	runner.assert(mathFunctions.mathSqrt2(), types.createNumberNode(Math.SQRT2));
+	runner.assert(mathFunctions.mathSqrt2([]), types.createNumberNode(Math.SQRT2));
 });
 // mathTan
 runner.test("mathTan", () => {
 	runner.assert(
-		mathFunctions.mathTan(types.createNumberNode(0)),
+		mathFunctions.mathTan([types.createNumberNode(0)]),
 		types.createNumberNode(Math.tan(0)),
 	);
 });
 // mathTanh
 runner.test("mathTanh", () => {
 	runner.assert(
-		mathFunctions.mathTanh(types.createNumberNode(0)),
+		mathFunctions.mathTanh([types.createNumberNode(0)]),
 		types.createNumberNode(Math.tanh(0)),
 	);
 });
@@ -436,7 +436,7 @@ runner.test("mathTanh", () => {
 // mathTrunc
 runner.test("mathTrunc", () => {
 	runner.assert(
-		mathFunctions.mathTrunc(types.createNumberNode(13.37)),
+		mathFunctions.mathTrunc([types.createNumberNode(13.37)]),
 		types.createNumberNode(13),
 	);
 });

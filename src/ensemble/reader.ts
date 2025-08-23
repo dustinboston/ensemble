@@ -99,9 +99,7 @@ export function readString(code: string): types.AstNode {
 		const result = readForm(new Reader(tokens));
 		return result;
 	} catch (e) {
-		const message = e instanceof Error ? e.message : String(e);
-		console.log(`Error reading input: ${message}`);
-		return types.createNilNode();
+		throw e;
 	}
 }
 

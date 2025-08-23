@@ -40,7 +40,7 @@ export const stringFunctions: Array<[string, types.Closure]> = [
 	["String.raw", stringRaw],
 ];
 
-export function stringFromCharCode(...astArgs: types.AstNode[]): types.AstNode {
+export function stringFromCharCode(astArgs: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 1);
 	types.assertVectorNode(astArgs[0]);
 	types.assertSequentialValues<types.NumberNode>(
@@ -54,7 +54,7 @@ export function stringFromCharCode(...astArgs: types.AstNode[]): types.AstNode {
 }
 
 export function stringFromCodePoint(
-	...astArgs: types.AstNode[]
+	astArgs: types.AstNode[]
 ): types.AstNode {
 	types.assertSequentialValues<types.NumberNode>(astArgs, types.NumberNode);
 
@@ -68,7 +68,7 @@ export function stringFromCodePoint(
  * @param {[types.StringNode, types.NumberNode]} astArgs - The string to get the character from, and index of a character in the string.
  * @returns {types.StringNode|types.NilNode} An Ast Node that contains the character at the given index.
  */
-export function stringAt(...astArgs: types.AstNode[]): types.AstNode {
+export function stringAt(astArgs: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 2);
 	types.assertStringNode(astArgs[0]);
 	types.assertNumberNode(astArgs[1]);
@@ -79,7 +79,7 @@ export function stringAt(...astArgs: types.AstNode[]): types.AstNode {
 		: types.createStringNode(result);
 }
 
-export function stringCodePointAt(...astArgs: types.AstNode[]): types.AstNode {
+export function stringCodePointAt(astArgs: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 2);
 	types.assertStringNode(astArgs[0]);
 	types.assertNumberNode(astArgs[1]);
@@ -93,7 +93,7 @@ export function stringCodePointAt(...astArgs: types.AstNode[]): types.AstNode {
 		: types.createNumberNode(result);
 }
 
-export function stringConcat(...astArgs: types.AstNode[]): types.AstNode {
+export function stringConcat(astArgs: types.AstNode[]): types.AstNode {
 	types.assertMinimumArgumentCount(astArgs.length, 2);
 	types.assertSequentialValues<types.StringNode>(astArgs, types.StringNode);
 
@@ -104,7 +104,7 @@ export function stringConcat(...astArgs: types.AstNode[]): types.AstNode {
 	return types.createStringNode(result);
 }
 
-export function stringEndsWith(...astArgs: types.AstNode[]): types.AstNode {
+export function stringEndsWith(astArgs: types.AstNode[]): types.AstNode {
 	types.assertVariableArgumentCount(astArgs.length, 2, 3);
 	types.assertStringNode(astArgs[0]);
 	types.assertStringNode(astArgs[1]);
@@ -121,7 +121,7 @@ export function stringEndsWith(...astArgs: types.AstNode[]): types.AstNode {
 	return types.toAst(result);
 }
 
-export function stringIncludes(...astArgs: types.AstNode[]): types.AstNode {
+export function stringIncludes(astArgs: types.AstNode[]): types.AstNode {
 	types.assertVariableArgumentCount(astArgs.length, 2, 3);
 	types.assertStringNode(astArgs[0]);
 	types.assertStringNode(astArgs[1]);
@@ -140,7 +140,7 @@ export function stringIncludes(...astArgs: types.AstNode[]): types.AstNode {
 	return types.toAst(result);
 }
 
-export function stringIndexOf(...astArgs: types.AstNode[]): types.AstNode {
+export function stringIndexOf(astArgs: types.AstNode[]): types.AstNode {
 	types.assertVariableArgumentCount(astArgs.length, 2, 3);
 	types.assertStringNode(astArgs[0]);
 	types.assertStringNode(astArgs[1]);
@@ -155,7 +155,7 @@ export function stringIndexOf(...astArgs: types.AstNode[]): types.AstNode {
 	return types.toAst(result);
 }
 
-export function stringIsWellFormed(...astArgs: types.AstNode[]): types.AstNode {
+export function stringIsWellFormed(astArgs: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 1);
 	types.assertStringNode(astArgs[0]);
 
@@ -164,7 +164,7 @@ export function stringIsWellFormed(...astArgs: types.AstNode[]): types.AstNode {
 	return types.toAst(result);
 }
 
-export function stringLastIndexOf(...astArgs: types.AstNode[]): types.AstNode {
+export function stringLastIndexOf(astArgs: types.AstNode[]): types.AstNode {
 	types.assertVariableArgumentCount(astArgs.length, 2, 3);
 	types.assertStringNode(astArgs[0]);
 	types.assertStringNode(astArgs[1]);
@@ -183,7 +183,7 @@ export function stringLastIndexOf(...astArgs: types.AstNode[]): types.AstNode {
 	return types.toAst(result);
 }
 
-export function stringLength(...astArgs: types.AstNode[]): types.AstNode {
+export function stringLength(astArgs: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 1);
 	types.assertAstNode(astArgs[0]);
 
@@ -193,7 +193,7 @@ export function stringLength(...astArgs: types.AstNode[]): types.AstNode {
 }
 
 export function stringLocaleCompare(
-	...astArgs: types.AstNode[]
+	astArgs: types.AstNode[]
 ): types.AstNode {
 	types.assertVariableArgumentCount(astArgs.length, 2, 4);
 	types.assertStringNode(astArgs[0]);
@@ -236,7 +236,7 @@ export function stringLocaleCompare(
 	return types.toAst(result);
 }
 
-export function stringMatch(...astArgs: types.AstNode[]): types.AstNode {
+export function stringMatch(astArgs: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 2);
 	types.assertStringNode(astArgs[0]);
 	types.assertAtomNode(astArgs[1]);
@@ -248,7 +248,7 @@ export function stringMatch(...astArgs: types.AstNode[]): types.AstNode {
 	return types.toAst(result);
 }
 
-export function stringMatchAll(...astArgs: types.AstNode[]): types.AstNode {
+export function stringMatchAll(astArgs: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 2);
 	types.assertStringNode(astArgs[0]);
 	types.assertAtomNode(astArgs[1]);
@@ -260,7 +260,7 @@ export function stringMatchAll(...astArgs: types.AstNode[]): types.AstNode {
 	return types.toAst(result);
 }
 
-export function stringNormalize(...astArgs: types.AstNode[]): types.AstNode {
+export function stringNormalize(astArgs: types.AstNode[]): types.AstNode {
 	types.assertVariableArgumentCount(astArgs.length, 1, 2);
 	types.assertAstNode(astArgs[0]);
 	if (astArgs.length === 2) {
@@ -273,7 +273,7 @@ export function stringNormalize(...astArgs: types.AstNode[]): types.AstNode {
 	return types.toAst(result);
 }
 
-export function stringPadEnd(...astArgs: types.AstNode[]): types.AstNode {
+export function stringPadEnd(astArgs: types.AstNode[]): types.AstNode {
 	types.assertVariableArgumentCount(astArgs.length, 2, 3);
 	types.assertAstNode(astArgs[0]);
 	types.assertNumberNode(astArgs[1]);
@@ -288,7 +288,7 @@ export function stringPadEnd(...astArgs: types.AstNode[]): types.AstNode {
 	return types.toAst(result);
 }
 
-export function stringPadStart(...astArgs: types.AstNode[]): types.AstNode {
+export function stringPadStart(astArgs: types.AstNode[]): types.AstNode {
 	types.assertVariableArgumentCount(astArgs.length, 2, 3);
 	types.assertAstNode(astArgs[0]);
 	types.assertNumberNode(astArgs[1]);
@@ -303,7 +303,7 @@ export function stringPadStart(...astArgs: types.AstNode[]): types.AstNode {
 	return types.toAst(result);
 }
 
-export function stringRepeat(...astArgs: types.AstNode[]): types.AstNode {
+export function stringRepeat(astArgs: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 2);
 	types.assertStringNode(astArgs[0]);
 	types.assertNumberNode(astArgs[1]);
@@ -314,7 +314,7 @@ export function stringRepeat(...astArgs: types.AstNode[]): types.AstNode {
 	return types.toAst(result);
 }
 
-export function stringReplace(...astArgs: types.AstNode[]): types.AstNode {
+export function stringReplace(astArgs: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 3);
 	types.assertStringNode(astArgs[0]);
 
@@ -342,7 +342,7 @@ export function stringReplace(...astArgs: types.AstNode[]): types.AstNode {
 	return types.toAst(result);
 }
 
-export function stringReplaceAll(...astArgs: types.AstNode[]): types.AstNode {
+export function stringReplaceAll(astArgs: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 3);
 	types.assertStringNode(astArgs[0]);
 
@@ -370,7 +370,7 @@ export function stringReplaceAll(...astArgs: types.AstNode[]): types.AstNode {
 	return types.toAst(result);
 }
 
-export function stringSearch(...astArgs: types.AstNode[]): types.AstNode {
+export function stringSearch(astArgs: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 2);
 	types.assertStringNode(astArgs[0]);
 	types.assertAtomNode(astArgs[1]);
@@ -382,7 +382,7 @@ export function stringSearch(...astArgs: types.AstNode[]): types.AstNode {
 	return types.toAst(result);
 }
 
-export function stringSlice(...astArgs: types.AstNode[]): types.AstNode {
+export function stringSlice(astArgs: types.AstNode[]): types.AstNode {
 	types.assertVariableArgumentCount(astArgs.length, 1, 3);
 	types.assertAstNode(astArgs[0]);
 	if (astArgs.length > 1) {
@@ -399,7 +399,7 @@ export function stringSlice(...astArgs: types.AstNode[]): types.AstNode {
 	return types.toAst(result);
 }
 
-export function stringSplit(...astArgs: types.AstNode[]): types.AstNode {
+export function stringSplit(astArgs: types.AstNode[]): types.AstNode {
 	types.assertVariableArgumentCount(astArgs.length, 2, 3);
 	types.assertStringNode(astArgs[0]);
 	types.assertStringNode(astArgs[1]);
@@ -416,7 +416,7 @@ export function stringSplit(...astArgs: types.AstNode[]): types.AstNode {
 	return types.toAst(result);
 }
 
-export function stringStartsWith(...astArgs: types.AstNode[]): types.AstNode {
+export function stringStartsWith(astArgs: types.AstNode[]): types.AstNode {
 	types.assertVariableArgumentCount(astArgs.length, 2, 3);
 	types.assertAstNode(astArgs[0]);
 	types.assertStringNode(astArgs[1]);
@@ -437,7 +437,7 @@ export function stringStartsWith(...astArgs: types.AstNode[]): types.AstNode {
 }
 
 export function stringToLocaleLowerCase(
-	...astArgs: types.AstNode[]
+	astArgs: types.AstNode[]
 ): types.AstNode {
 	types.assertVariableArgumentCount(astArgs.length, 1, 2); // Corrected argument count
 	types.assertAstNode(astArgs[0]);
@@ -458,7 +458,7 @@ export function stringToLocaleLowerCase(
 }
 
 export function stringToLocaleUpperCase(
-	...astArgs: types.AstNode[]
+	astArgs: types.AstNode[]
 ): types.AstNode {
 	types.assertVariableArgumentCount(astArgs.length, 1, 2); // Corrected argument count
 	types.assertAstNode(astArgs[0]);
@@ -478,7 +478,7 @@ export function stringToLocaleUpperCase(
 	return types.toAst(result);
 }
 
-export function stringToLowerCase(...astArgs: types.AstNode[]): types.AstNode {
+export function stringToLowerCase(astArgs: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 1);
 	types.assertAstNode(astArgs[0]);
 
@@ -487,7 +487,7 @@ export function stringToLowerCase(...astArgs: types.AstNode[]): types.AstNode {
 	return types.toAst(result);
 }
 
-export function stringToUpperCase(...astArgs: types.AstNode[]): types.AstNode {
+export function stringToUpperCase(astArgs: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 1);
 	types.assertAstNode(astArgs[0]);
 
@@ -496,7 +496,7 @@ export function stringToUpperCase(...astArgs: types.AstNode[]): types.AstNode {
 	return types.toAst(result);
 }
 
-export function stringToWellFormed(...astArgs: types.AstNode[]): types.AstNode {
+export function stringToWellFormed(astArgs: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 1);
 	types.assertAstNode(astArgs[0]);
 
@@ -505,7 +505,7 @@ export function stringToWellFormed(...astArgs: types.AstNode[]): types.AstNode {
 	return types.toAst(result);
 }
 
-export function stringTrim(...astArgs: types.AstNode[]): types.AstNode {
+export function stringTrim(astArgs: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 1);
 	types.assertAstNode(astArgs[0]);
 
@@ -514,7 +514,7 @@ export function stringTrim(...astArgs: types.AstNode[]): types.AstNode {
 	return types.toAst(result);
 }
 
-export function stringTrimEnd(...astArgs: types.AstNode[]): types.AstNode {
+export function stringTrimEnd(astArgs: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 1);
 	types.assertAstNode(astArgs[0]);
 
@@ -523,7 +523,7 @@ export function stringTrimEnd(...astArgs: types.AstNode[]): types.AstNode {
 	return types.toAst(result);
 }
 
-export function stringTrimStart(...astArgs: types.AstNode[]): types.AstNode {
+export function stringTrimStart(astArgs: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 1);
 	types.assertAstNode(astArgs[0]);
 
@@ -532,7 +532,7 @@ export function stringTrimStart(...astArgs: types.AstNode[]): types.AstNode {
 	return types.toAst(result);
 }
 
-export function stringRaw(...astArgs: types.AstNode[]): types.AstNode {
+export function stringRaw(astArgs: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 2);
 	types.assertMapNode(astArgs[0]);
 	types.assertVectorNode(astArgs[1]);

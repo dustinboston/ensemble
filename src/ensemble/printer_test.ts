@@ -50,7 +50,7 @@ runner.test("printString(): should print numbers without quotes", () => {
 runner.test("printString(): should correctly print atom type", () => {
 	runner.assert(
 		printString(createAtomNode(createStringNode("hello"))),
-		"(atom hello)",
+		"<atom hello>",
 	);
 });
 

@@ -149,7 +149,7 @@ export function macroExpand(
 		const list = resultAst;
 		const symbol = list.value[0];
 		const fn = appEnv.get(symbol) as types.FunctionNode;
-		resultAst = fn.value(...list.value.slice(1));
+		resultAst = fn.value(list.value.slice(1));
 	}
 
 	return resultAst;
@@ -377,7 +377,7 @@ export type DefAst = types.ListNode & {
  * @example (def! x "x")
  */
 export function assertDef(a: types.AstNode): asserts a is DefAst {
-	types.assertListNode(a); // (...)
+	types.assertListNode(a); // ()
 	types.assertArgumentCount(a.value.length, 3, a); // (1 2 3)
 	types.assertSymbolNode(a.value[0]); // (sym 2 3)
 
@@ -440,7 +440,7 @@ export type LetAst = types.ListNode & {
  * @example (let* (z 9) z)
  */
 export function assertLet(a: types.AstNode): asserts a is LetAst {
-	types.assertListNode(a); // (...)
+	types.assertListNode(a); // ()
 	types.assertArgumentCount(a.value.length, 3, a); // (1 2 3)
 	types.assertSymbolNode(a.value[0]); // (sym 2 3)
 
@@ -508,7 +508,7 @@ export type QuoteAst = types.ListNode & {
  * @example (quote (1 2 3))
  */
 export function assertQuote(a: types.AstNode): asserts a is QuoteAst {
-	types.assertListNode(a); // (...)
+	types.assertListNode(a); // ()
 	types.assertArgumentCount(a.value.length, 2, a); // (1 2)
 	types.assertSymbolNode(a.value[0]); // (sym 2)
 	types.assertSymWithValue(a.value[0], "quote"); // '(quote 2)
@@ -551,7 +551,7 @@ export function assertQuasiQuoteExpand(
 	a: types.AstNode,
 ): asserts a is QuasiQuoteExpandAst {
 	const symbol = "quasiquoteexpand";
-	types.assertListNode(a); // (...)
+	types.assertListNode(a); // ()
 	types.assertArgumentCount(a.value.length, 2); // (1 2)
 	types.assertSymbolNode(a.value[0]); // (sym 2)
 	types.assertSymWithValue(a.value[0], symbol); // '(quasiquoteexpand 2)
@@ -590,7 +590,7 @@ export type QuasiQuoteAst = types.ListNode & {
  */
 export function assertQuasiQuote(a: types.AstNode): asserts a is QuasiQuoteAst {
 	const symbol = "quasiquote";
-	types.assertListNode(a); // (...)
+	types.assertListNode(a); // ()
 	types.assertArgumentCount(a.value.length, 2); // (1 2)
 	types.assertSymbolNode(a.value[0]); // (sym 2)
 	types.assertSymWithValue(a.value[0], symbol); // '(quasiquote 2)
@@ -630,7 +630,7 @@ export type DefMacroAst = types.ListNode & {
  */
 export function assertDefMacro(a: types.AstNode): asserts a is DefMacroAst {
 	const symbol = "defmacro!";
-	types.assertListNode(a); // (...)
+	types.assertListNode(a); // ()
 	types.assertArgumentCount(a.value.length, 3); // (1 2 3)
 	types.assertSymbolNode(a.value[0]); // (sym 2 3)
 	types.assertSymWithValue(a.value[0], symbol); // '(defmacro! 2 3)
@@ -680,7 +680,7 @@ export type DoAst = types.ListNode & {
  */
 export function assertDo(a: types.AstNode): asserts a is DoAst {
 	const symbol = "do";
-	types.assertListNode(a); // (...)
+	types.assertListNode(a); // ()
 	types.assertMinimumArgumentCount(a.value.length, 1); // (1 n*)
 	types.assertSymbolNode(a.value[0]); // (sym 2)
 	types.assertSymWithValue(a.value[0], symbol); // (do n*)
@@ -840,7 +840,7 @@ export type IfAst = types.ListNode & {
  */
 export function assertIf(a: types.AstNode): asserts a is IfAst {
 	const symbol = "if";
-	types.assertListNode(a); // (...)
+	types.assertListNode(a); // ()
 	types.assertVariableArgumentCount(a.value.length, 3, 4); // (1 2 3 4)
 	types.assertSymbolNode(a.value[0]); // (sym 2 3 4)
 	types.assertSymWithValue(a.value[0], symbol); // (if 2 3 4)
@@ -914,7 +914,7 @@ export type FnAst = types.ListNode & {
  * @example ( (fn* (a b) (+ b a)) 3 4)
  */
 export function assertFn(a: types.AstNode): asserts a is FnAst {
-	// (...)
+	// ()
 	types.assertListNode(a);
 	// (1 2 3)
 	types.assertArgumentCount(a.value.length, 3);
@@ -974,9 +974,9 @@ export function evaluateFn(
 		parameters,
 	};
 	const fn = types.createFunctionNode(
-		(...args: types.AstNode[]): types.AstNode => {
+		(args: types.AstNode[]): types.AstNode => {
 			const fnEnv = new env.Env(outerEnv, parameters, args);
-			// TODO: Check if this should be types.returnResult(evaluate(...))
+			// TODO: Check if this should be types.returnResult(evaluate())
 			return evaluate(bodyExpr, fnEnv);
 		},
 		closureMeta,
@@ -1015,7 +1015,7 @@ export function evaluateApply(
 			return { continue: { ast, env: fnEnv }, return: undefined };
 		}
 
-		const called = fn.value(...args);
+		const called = fn.value(args);
 		return { return: called, continue: undefined };
 	}
 
@@ -1045,18 +1045,7 @@ export function print(value: types.AstNode): string {
  * @example No example given.
  */
 export function rep(input: string, appEnv: env.Env): string {
-	try {
-		return print(evaluate(read(input), appEnv));
-	} catch (error) {
-		if (types.isErrorNode(error)) {
-			console.log(printer.printString(error, false));
-		} else if (error instanceof Error) {
-			console.log(error);
-		} else {
-			console.log(JSON.stringify(error));
-		}
-	}
-	return "";
+	return print(evaluate(read(input), appEnv));
 }
 
 /**
@@ -1093,7 +1082,7 @@ export function initEnv(): env.Env {
 	// Eval treats mal-data as a mal program
 	replEnv.set(
 		types.createSymbolNode("eval"),
-		types.createFunctionNode((...args: types.AstNode[]): types.AstNode => {
+		types.createFunctionNode((args: types.AstNode[]): types.AstNode => {
 			types.assertArgumentCount(args.length, 1);
 			return evaluate(args[0], replEnv);
 		}),
@@ -1101,7 +1090,7 @@ export function initEnv(): env.Env {
 
 	replEnv.set(
 		types.createSymbolNode("dump"),
-		types.createFunctionNode((..._args: types.AstNode[]): types.AstNode => {
+		types.createFunctionNode((_args: types.AstNode[]): types.AstNode => {
 			const serialized = replEnv.serialize();
 			return serialized;
 		}),

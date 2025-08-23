@@ -1,7 +1,7 @@
 /// <reference path="./qjs.d.ts" />
 
-import * as os from "qjs:os";
-import * as std from "qjs:std";
+import * as os from "os";
+import * as std from "std";
 
 import cli from "./io.ts";
 import runner from "./tests/test_runner.ts";
@@ -17,7 +17,7 @@ runner.test("readir(): should list directory contents", () => {
 	writeToFile("hellow", `${temporaryDir}/file2.txt`);
 
 	const input = types.createStringNode(temporaryDir);
-	const result = readir(input);
+	const result = readir([input]);
 
 	os.remove(`${temporaryDir}/file.txt`);
 	os.remove(`${temporaryDir}/file2.txt`);
@@ -35,7 +35,7 @@ runner.test("readir(): should list directory contents", () => {
 runner.test("readir(): should throw error if argument is not a string", () => {
 	let threw = false;
 	try {
-		readir(types.createNumberNode(123) as unknown as types.StringNode);
+		readir([types.createNumberNode(123) as unknown as types.StringNode]);
 	} catch (e) {
 		threw = true;
 	}
@@ -64,7 +64,7 @@ runner.test("slurp(): should read a file", () => {
 runner.test("slurp(): should throw error if file does not exist", () => {
 	let threw = false;
 	try {
-		slurp(types.createStringNode("mocks/nonexistent"));
+		slurp([types.createStringNode("mocks/nonexistent")]);
 	} catch (e) {
 		threw = true;
 	}
@@ -79,7 +79,7 @@ runner.test("spit(): should write to a file", async () => {
 
 	os.mkdir(temporaryDir);
 
-	spit(types.createStringNode(filePath), types.createStringNode(content));
+	spit([types.createStringNode(filePath), types.createStringNode(content)]);
 
 	const result = std.loadFile(filePath);
 
@@ -93,7 +93,7 @@ runner.test("spit(): should write to a file", async () => {
 runner.test("spit(): should throw error if path is not a string", () => {
 	let threw = false;
 	try {
-		spit(types.createNumberNode(123), types.createStringNode("content"));
+		spit([types.createNumberNode(123), types.createStringNode("content")]);
 	} catch (e) {
 		threw = true;
 	}
@@ -112,7 +112,7 @@ runner.test("readln(): should read line and return string", () => {
 	std.out.puts = () => {};
 
 	try {
-		runner.assert(readln(input), expected);
+		runner.assert(readln([input]), expected);
 	} finally {
 		std.in.getline = originalGetline;
 		std.out.puts = originalPuts;
@@ -132,7 +132,7 @@ runner.test(
 		std.out.puts = () => {};
 
 		try {
-			runner.assert(readln(input), expected);
+			runner.assert(readln([input]), expected);
 		} finally {
 			std.in.getline = originalGetline;
 			std.out.puts = originalPuts;
@@ -145,7 +145,7 @@ runner.test(
 	() => {
 		let threw = false;
 		try {
-			readln();
+			readln([]);
 		} catch (e) {
 			threw = true;
 		}
@@ -159,7 +159,7 @@ runner.test(
 	() => {
 		let threw = false;
 		try {
-			readln(types.createStringNode("foo"), types.createStringNode("bar"));
+			readln([types.createStringNode("foo"), types.createStringNode("bar")]);
 		} catch (e) {
 			threw = true;
 		}
@@ -171,7 +171,7 @@ runner.test(
 runner.test("readln(): should throw when argument is not a string", () => {
 	let threw = false;
 	try {
-		readln(types.createNumberNode(42));
+		readln([types.createNumberNode(42)]);
 	} catch (e) {
 		threw = true;
 	}

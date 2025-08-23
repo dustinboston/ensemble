@@ -296,31 +296,31 @@ for (const [sym, fn] of nsValues) {
 }
 
 // MARK: Shorthand Events
-export function getElementById(...args: types.AstNode[]): types.AstNode {
+export function getElementById(args: types.AstNode[]): types.AstNode {
 	types.assertVariableArgumentCount(args.length, 1, 2);
 
 	if (args[0].value instanceof DocumentFragment) {
-		return documentFragmentProtoGetElementById(...args);
+		return documentFragmentProtoGetElementById(args);
 	}
 
-	return documentProtoGetElementById(...args);
+	return documentProtoGetElementById(args);
 }
 
-export function querySelector(...args: types.AstNode[]): types.AstNode {
+export function querySelector(args: types.AstNode[]): types.AstNode {
 	types.assertVariableArgumentCount(args.length, 1, 2);
 
 	if (args.length === 1 && args[0].value instanceof Document) {
-		return documentProtoQuerySelector(...args);
+		return documentProtoQuerySelector(args);
 	}
 
 	types.assertAtomNode(args[0]);
 
 	if (args.length === 2 && args[0].value instanceof DocumentFragment) {
-		return documentFragmentProtoQuerySelector(...args);
+		return documentFragmentProtoQuerySelector(args);
 	}
 
 	if (args.length === 2 && args[0].value instanceof Element) {
-		return elementProtoQuerySelector(...args);
+		return elementProtoQuerySelector(args);
 	}
 
 	throw types.createErrorNode(
@@ -331,409 +331,409 @@ export function querySelector(...args: types.AstNode[]): types.AstNode {
 }
 
 // MARK: Longhand Events
-export function customEventProtoNew(...args: types.AstNode[]): types.AstNode {
+export function customEventProtoNew(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function customEventProtoProto(...args: types.AstNode[]): types.AstNode {
+export function customEventProtoProto(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function customEventDetail(...args: types.AstNode[]): types.AstNode {
+export function customEventDetail(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function customEventProtoInitCustomEvent(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function documentProtoNew(...args: types.AstNode[]): types.AstNode {
+export function documentProtoNew(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function documentProtoProto(...args: types.AstNode[]): types.AstNode {
+export function documentProtoProto(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function documentProtoParseHTMLUnsafe(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function documentURL(...args: types.AstNode[]): types.AstNode {
+export function documentURL(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function documentAlinkColor(...args: types.AstNode[]): types.AstNode {
+export function documentAlinkColor(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function documentAll(...args: types.AstNode[]): types.AstNode {
+export function documentAll(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function documentAnchors(...args: types.AstNode[]): types.AstNode {
+export function documentAnchors(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function documentApplets(...args: types.AstNode[]): types.AstNode {
+export function documentApplets(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function documentBgColor(...args: types.AstNode[]): types.AstNode {
+export function documentBgColor(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function documentBody(...args: types.AstNode[]): types.AstNode {
+export function documentBody(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function documentCharacterSet(...args: types.AstNode[]): types.AstNode {
+export function documentCharacterSet(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function documentCharset(...args: types.AstNode[]): types.AstNode {
+export function documentCharset(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function documentCompatMode(...args: types.AstNode[]): types.AstNode {
+export function documentCompatMode(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function documentContentType(...args: types.AstNode[]): types.AstNode {
+export function documentContentType(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function documentCookie(...args: types.AstNode[]): types.AstNode {
+export function documentCookie(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function documentCurrentScript(...args: types.AstNode[]): types.AstNode {
+export function documentCurrentScript(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function documentDefaultView(...args: types.AstNode[]): types.AstNode {
+export function documentDefaultView(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function documentDesignMode(...args: types.AstNode[]): types.AstNode {
+export function documentDesignMode(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function documentDir(...args: types.AstNode[]): types.AstNode {
+export function documentDir(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function documentDoctype(...args: types.AstNode[]): types.AstNode {
+export function documentDoctype(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function documentDocumentElement(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function documentDocumentURI(...args: types.AstNode[]): types.AstNode {
+export function documentDocumentURI(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function documentDomain(...args: types.AstNode[]): types.AstNode {
+export function documentDomain(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function documentEmbeds(...args: types.AstNode[]): types.AstNode {
+export function documentEmbeds(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function documentFgColor(...args: types.AstNode[]): types.AstNode {
+export function documentFgColor(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function documentForms(...args: types.AstNode[]): types.AstNode {
+export function documentForms(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function documentFragmentDirective(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function documentFullscreen(...args: types.AstNode[]): types.AstNode {
+export function documentFullscreen(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function documentFullscreenEnabled(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function documentHead(...args: types.AstNode[]): types.AstNode {
+export function documentHead(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function documentHidden(...args: types.AstNode[]): types.AstNode {
+export function documentHidden(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function documentImages(...args: types.AstNode[]): types.AstNode {
+export function documentImages(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function documentImplementation(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function documentInputEncoding(...args: types.AstNode[]): types.AstNode {
+export function documentInputEncoding(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function documentLastModified(...args: types.AstNode[]): types.AstNode {
+export function documentLastModified(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function documentLinkColor(...args: types.AstNode[]): types.AstNode {
+export function documentLinkColor(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function documentLinks(...args: types.AstNode[]): types.AstNode {
+export function documentLinks(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function documentOnfullscreenchange(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function documentOnfullscreenerror(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function documentOnpointerlockchange(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function documentOnpointerlockerror(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function documentOnreadystatechange(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function documentOnvisibilitychange(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function documentOwnerDocument(...args: types.AstNode[]): types.AstNode {
+export function documentOwnerDocument(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function documentPictureInPictureEnabled(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function documentPlugins(...args: types.AstNode[]): types.AstNode {
+export function documentPlugins(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function documentReadyState(...args: types.AstNode[]): types.AstNode {
+export function documentReadyState(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function documentReferrer(...args: types.AstNode[]): types.AstNode {
+export function documentReferrer(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function documentRootElement(...args: types.AstNode[]): types.AstNode {
+export function documentRootElement(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function documentScripts(...args: types.AstNode[]): types.AstNode {
+export function documentScripts(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function documentScrollingElement(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function documentTimeline(...args: types.AstNode[]): types.AstNode {
+export function documentTimeline(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function documentTitle(...args: types.AstNode[]): types.AstNode {
+export function documentTitle(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function documentVisibilityState(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function documentVlinkColor(...args: types.AstNode[]): types.AstNode {
+export function documentVlinkColor(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function documentProtoAdoptNode(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function documentProtoCaptureEvents(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function documentProtoCaretPositionFromPoint(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function documentProtoCaretRangeFromPoint(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function documentProtoClear(...args: types.AstNode[]): types.AstNode {
+export function documentProtoClear(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function documentProtoClose(...args: types.AstNode[]): types.AstNode {
+export function documentProtoClose(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function documentProtoCreateAttribute(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function documentProtoCreateAttributeNS(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function documentProtoCreateCDATASection(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function documentProtoCreateComment(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function documentProtoCreateDocumentFragment(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function documentProtoCreateElement(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function documentProtoCreateElementNS(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function documentProtoCreateEvent(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function documentProtoCreateNodeIterator(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function documentProtoCreateProcessingInstruction(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function documentProtoCreateRange(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function documentProtoCreateTextNode(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function documentProtoCreateTreeWalker(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function documentProtoExecCommand(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function documentProtoExitFullscreen(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function documentProtoExitPictureInPicture(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function documentProtoExitPointerLock(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 
 export function documentProtoGetElementById(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	types.assertStringNode(args[0]);
@@ -744,88 +744,88 @@ export function documentProtoGetElementById(
 }
 
 export function documentProtoGetElementsByClassName(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function documentProtoGetElementsByName(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function documentProtoGetElementsByTagName(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function documentProtoGetElementsByTagNameNS(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function documentProtoGetSelection(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function documentProtoHasFocus(...args: types.AstNode[]): types.AstNode {
+export function documentProtoHasFocus(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function documentProtoHasStorageAccess(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function documentProtoImportNode(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function documentProtoOpen(...args: types.AstNode[]): types.AstNode {
+export function documentProtoOpen(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function documentProtoQueryCommandEnabled(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function documentProtoQueryCommandIndeterm(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function documentProtoQueryCommandState(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function documentProtoQueryCommandSupported(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function documentProtoQueryCommandValue(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 
 export function documentProtoQuerySelector(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	types.assertStringNode(args[0]);
@@ -836,40 +836,40 @@ export function documentProtoQuerySelector(
 }
 
 // export function documentQuerySelectorAll(
-// 	...args: types.AstNode[]
+// 	args: types.AstNode[]
 // ): types.AstNode {
 // 	types.assertArgumentCount(args.length, 1);
 // 	return types.createNilNode();
 // }
 
 export function documentProtoReleaseEvents(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function documentProtoRequestStorageAccess(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function documentProtoStartViewTransition(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function documentProtoWrite(...args: types.AstNode[]): types.AstNode {
+export function documentProtoWrite(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function documentProtoWriteln(...args: types.AstNode[]): types.AstNode {
+export function documentProtoWriteln(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function documentProtoAddEventListener(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 2);
 	types.assertStringNode(args[0]);
@@ -887,56 +887,56 @@ export function documentProtoAddEventListener(
 }
 
 export function documentProtoRemoveEventListener(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function documentTimelineProtoNew(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function documentTimelineProtoProto(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function documentTypeName(...args: types.AstNode[]): types.AstNode {
+export function documentTypeName(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function documentTypeOwnerDocument(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function documentTypePublicId(...args: types.AstNode[]): types.AstNode {
+export function documentTypePublicId(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function documentTypeSystemId(...args: types.AstNode[]): types.AstNode {
+export function documentTypeSystemId(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function documentFragmentProtoNew(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function documentFragmentProtoProto(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 
 export function documentFragmentProtoQuerySelector(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 2);
 	types.assertAtomNode(args[0]);
@@ -959,13 +959,13 @@ export function documentFragmentProtoQuerySelector(
 }
 
 export function documentFragmentOwnerDocument(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function documentFragmentProtoGetElementById(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	types.assertStringNode(args[0]);
@@ -979,27 +979,27 @@ export function documentFragmentProtoGetElementById(
 	return element ? types.createAtomNode(element) : types.createNilNode();
 }
 
-export function documentTypeProtoNew(...args: types.AstNode[]): types.AstNode {
+export function documentTypeProtoNew(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function documentTypeProtoProto(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function elementProtoNew(...args: types.AstNode[]): types.AstNode {
+export function elementProtoNew(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function elementProtoProto(...args: types.AstNode[]): types.AstNode {
+export function elementProtoProto(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 
 export function elementProtoQuerySelector(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 2);
 	types.assertAtomNode(args[0]);
@@ -1021,134 +1021,134 @@ export function elementProtoQuerySelector(
 	return value ? types.createAtomNode(value) : types.createNilNode();
 }
 
-export function elementAttributes(...args: types.AstNode[]): types.AstNode {
+export function elementAttributes(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function elementClassList(...args: types.AstNode[]): types.AstNode {
+export function elementClassList(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function elementClassName(...args: types.AstNode[]): types.AstNode {
+export function elementClassName(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function elementClientHeight(...args: types.AstNode[]): types.AstNode {
+export function elementClientHeight(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function elementClientLeft(...args: types.AstNode[]): types.AstNode {
+export function elementClientLeft(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function elementClientTop(...args: types.AstNode[]): types.AstNode {
+export function elementClientTop(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function elementClientWidth(...args: types.AstNode[]): types.AstNode {
+export function elementClientWidth(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function elementCurrentCSSZoom(...args: types.AstNode[]): types.AstNode {
+export function elementCurrentCSSZoom(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function elementId(...args: types.AstNode[]): types.AstNode {
+export function elementId(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function elementInnerHTML(...args: types.AstNode[]): types.AstNode {
+export function elementInnerHTML(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function elementLocalName(...args: types.AstNode[]): types.AstNode {
+export function elementLocalName(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function elementNamespaceURI(...args: types.AstNode[]): types.AstNode {
+export function elementNamespaceURI(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function elementOnfullscreenchange(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function elementOnfullscreenerror(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function elementOuterHTML(...args: types.AstNode[]): types.AstNode {
+export function elementOuterHTML(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function elementOwnerDocument(...args: types.AstNode[]): types.AstNode {
+export function elementOwnerDocument(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function elementPart(...args: types.AstNode[]): types.AstNode {
+export function elementPart(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function elementPrefix(...args: types.AstNode[]): types.AstNode {
+export function elementPrefix(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function elementScrollHeight(...args: types.AstNode[]): types.AstNode {
+export function elementScrollHeight(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function elementScrollLeft(...args: types.AstNode[]): types.AstNode {
+export function elementScrollLeft(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function elementScrollTop(...args: types.AstNode[]): types.AstNode {
+export function elementScrollTop(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function elementScrollWidth(...args: types.AstNode[]): types.AstNode {
+export function elementScrollWidth(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function elementShadowRoot(...args: types.AstNode[]): types.AstNode {
+export function elementShadowRoot(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function elementSlot(...args: types.AstNode[]): types.AstNode {
+export function elementSlot(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function elementTagName(...args: types.AstNode[]): types.AstNode {
+export function elementTagName(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function elementProtoAttachShadow(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function elementProtoCheckVisibility(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function elementProtoClosest(...args: types.AstNode[]): types.AstNode {
+export function elementProtoClosest(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function elementProtoComputedStyleMap(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function elementProtoGetAttribute(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 2);
 	types.assertAtomNode(args[0]);
@@ -1162,160 +1162,160 @@ export function elementProtoGetAttribute(
 	return value ? types.createStringNode(value) : types.createNilNode();
 }
 export function elementProtoGetAttributeNames(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function elementProtoGetAttributeNode(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 
 export function elementProtoGetAttributeNS(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function elementProtoGetBoundingClientRect(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function elementProtoGetClientRects(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function elementProtoGetElementsByClassName(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function elementProtoGetElementsByTagName(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function elementProtoGetElementsByTagNameNS(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function elementProtoGetHTML(...args: types.AstNode[]): types.AstNode {
+export function elementProtoGetHTML(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function elementProtoHasAttribute(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function elementProtoHasAttributeNS(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function elementProtoHasAttributes(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function elementProtoHasPointerCapture(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function elementProtoInsertAdjacentElement(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function elementProtoInsertAdjacentHTML(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function elementProtoInsertAdjacentText(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function elementProtoMatches(...args: types.AstNode[]): types.AstNode {
+export function elementProtoMatches(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function elementProtoReleasePointerCapture(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function elementProtoRemoveAttribute(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function elementProtoRemoveAttributeNS(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function elementProtoRemoveAttributeNode(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function elementProtoRequestFullscreen(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function elementProtoRequestPointerLock(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function elementProtoScroll(...args: types.AstNode[]): types.AstNode {
+export function elementProtoScroll(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function elementProtoScrollBy(...args: types.AstNode[]): types.AstNode {
+export function elementProtoScrollBy(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function elementProtoScrollIntoView(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function elementProtoScrollTo(...args: types.AstNode[]): types.AstNode {
+export function elementProtoScrollTo(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function elementProtoSetAttribute(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 3);
 	types.assertAtomNode(args[0]);
@@ -1331,49 +1331,49 @@ export function elementProtoSetAttribute(
 	return types.createNilNode();
 }
 export function elementProtoSetAttributeNS(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function elementProtoSetAttributeNode(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function elementProtoSetAttributeNodeNS(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function elementProtoSetHTMLUnsafe(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function elementProtoSetPointerCapture(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function elementProtoToggleAttribute(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function elementProtoWebkitMatchesSelector(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function elementProtoAddEventListener(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 3);
 	types.assertAtomNode(args[0]);
@@ -1399,119 +1399,119 @@ export function elementProtoAddEventListener(
 	return types.createNilNode();
 }
 export function elementProtoRemoveEventListener(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function eventProtoNew(...args: types.AstNode[]): types.AstNode {
+export function eventProtoNew(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function eventProtoProto(...args: types.AstNode[]): types.AstNode {
+export function eventProtoProto(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function eventProtoNONE(...args: types.AstNode[]): types.AstNode {
+export function eventProtoNONE(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function eventProtoCAPTURINGPHASE(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function eventProtoATTARGET(...args: types.AstNode[]): types.AstNode {
+export function eventProtoATTARGET(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function eventProtoBUBBLINGPHASE(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function eventBubbles(...args: types.AstNode[]): types.AstNode {
+export function eventBubbles(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function eventCancelBubble(...args: types.AstNode[]): types.AstNode {
+export function eventCancelBubble(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function eventCancelable(...args: types.AstNode[]): types.AstNode {
+export function eventCancelable(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function eventComposed(...args: types.AstNode[]): types.AstNode {
+export function eventComposed(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function eventCurrentTarget(...args: types.AstNode[]): types.AstNode {
+export function eventCurrentTarget(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function eventDefaultPrevented(...args: types.AstNode[]): types.AstNode {
+export function eventDefaultPrevented(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function eventEventPhase(...args: types.AstNode[]): types.AstNode {
+export function eventEventPhase(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function eventIsTrusted(...args: types.AstNode[]): types.AstNode {
+export function eventIsTrusted(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function eventReturnValue(...args: types.AstNode[]): types.AstNode {
+export function eventReturnValue(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function eventSrcElement(...args: types.AstNode[]): types.AstNode {
+export function eventSrcElement(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function eventTarget(...args: types.AstNode[]): types.AstNode {
+export function eventTarget(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function eventTimeStamp(...args: types.AstNode[]): types.AstNode {
+export function eventTimeStamp(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function eventType(...args: types.AstNode[]): types.AstNode {
+export function eventType(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function eventNONE(...args: types.AstNode[]): types.AstNode {
+export function eventNONE(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function eventCAPTURINGPHASE(...args: types.AstNode[]): types.AstNode {
+export function eventCAPTURINGPHASE(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function eventATTARGET(...args: types.AstNode[]): types.AstNode {
+export function eventATTARGET(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function eventBUBBLINGPHASE(...args: types.AstNode[]): types.AstNode {
+export function eventBUBBLINGPHASE(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function eventProtoComposedPath(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function eventProtoInitEvent(...args: types.AstNode[]): types.AstNode {
+export function eventProtoInitEvent(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function eventProtoPreventDefault(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	types.assertAtomNode(args[0]);
@@ -1528,39 +1528,39 @@ export function eventProtoPreventDefault(
 	return types.createNilNode();
 }
 export function eventProtoStopImmediatePropagation(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function eventProtoStopPropagation(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function eventTargetProtoNew(...args: types.AstNode[]): types.AstNode {
+export function eventTargetProtoNew(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
-export function eventTargetProtoProto(...args: types.AstNode[]): types.AstNode {
+export function eventTargetProtoProto(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 
-export function addEventListener(...args: types.AstNode[]): types.AstNode {
+export function addEventListener(args: types.AstNode[]): types.AstNode {
 	types.assertVariableArgumentCount(args.length, 2, 3);
 
 	if (args[0].value instanceof Document) {
-		return documentProtoAddEventListener(...args);
+		return documentProtoAddEventListener(args);
 	}
 
 	if (args[0].value instanceof EventTarget) {
-		return eventTargetProtoAddEventListener(...args);
+		return eventTargetProtoAddEventListener(args);
 	}
 
 	if (args[0].value instanceof Element) {
-		return elementProtoAddEventListener(...args);
+		return elementProtoAddEventListener(args);
 	}
 
 	throw types.createErrorNode(
@@ -1571,7 +1571,7 @@ export function addEventListener(...args: types.AstNode[]): types.AstNode {
 }
 
 export function eventTargetProtoAddEventListener(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 3);
 	types.assertAtomNode(args[0]);
@@ -1598,13 +1598,13 @@ export function eventTargetProtoAddEventListener(
 }
 
 export function eventTargetProtoDispatchEvent(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();
 }
 export function eventTargetProtoRemoveEventListener(
-	...args: types.AstNode[]
+	args: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	return types.createNilNode();

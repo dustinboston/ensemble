@@ -45,7 +45,7 @@ export const operators: Array<[string, types.Closure]> = [
  * @param ast the ast to test for truthiness
  * @return types.Bool whether the ast is truthy
  */
-export function and(...args: types.AstNode[]): types.BooleanNode {
+export function and(args: types.AstNode[]): types.BooleanNode {
 	const useJavaScriptTruthiness = true;
 	for (const arg of args) {
 		const isTruthy = types.isAstTruthy(arg, useJavaScriptTruthiness);
@@ -62,7 +62,7 @@ export function and(...args: types.AstNode[]): types.BooleanNode {
  * @param ast the ast to test for truthiness
  * @return types.Bool whether the ast is truthy
  */
-export function or(...args: types.AstNode[]): types.BooleanNode {
+export function or(args: types.AstNode[]): types.BooleanNode {
 	for (const arg of args) {
 		const isTruthy = types.isAstTruthy(arg);
 		if (isTruthy) {
@@ -81,8 +81,8 @@ export function or(...args: types.AstNode[]): types.BooleanNode {
  * @throws TypeError
  */
 export function remainder(
-	a: types.AstNode,
-	b: types.AstNode,
+	[	a,
+		b,]: types.AstNode[],
 ): types.NumberNode {
 	if (types.isNumberNode(a) && types.isNumberNode(b)) {
 		return types.createNumberNode(((a.value % b.value) + b.value) % b.value);
@@ -97,8 +97,8 @@ export function remainder(
  * @throws TypeError
  */
 export function bitwiseAnd(
-	a: types.AstNode,
-	b: types.AstNode,
+	[a,
+	b]: types.AstNode[],
 ): types.NumberNode {
 	if (types.isNumberNode(a) && types.isNumberNode(b)) {
 		return types.createNumberNode(a.value & b.value); // eslint-disable-line no-bitwise
@@ -113,8 +113,8 @@ export function bitwiseAnd(
  * @throws TypeError
  */
 export function bitwiseOr(
-	a: types.AstNode,
-	b: types.AstNode,
+	[a,
+	b]:	 types.AstNode[],
 ): types.NumberNode {
 	if (types.isNumberNode(a) && types.isNumberNode(b)) {
 		return types.createNumberNode(a.value | b.value); // eslint-disable-line no-bitwise
@@ -129,8 +129,8 @@ export function bitwiseOr(
  * @throws TypeError
  */
 export function bitwiseXor(
-	a: types.AstNode,
-	b: types.AstNode,
+	[a,
+	b]: types.AstNode[],
 ): types.NumberNode {
 	if (types.isNumberNode(a) && types.isNumberNode(b)) {
 		return types.createNumberNode(a.value ^ b.value); // eslint-disable-line no-bitwise
@@ -143,7 +143,7 @@ export function bitwiseXor(
  * @returns types.NumberNode The result of the bitwise NOT operation.
  * @throws TypeError If the argument is not a number.
  */
-export function bitwiseNot(a: types.AstNode): types.NumberNode {
+export function bitwiseNot([a]: types.AstNode[]): types.NumberNode {
 	if (types.isNumberNode(a)) {
 		return types.createNumberNode(~a.value); // eslint-disable-line no-bitwise
 	}
@@ -157,8 +157,8 @@ export function bitwiseNot(a: types.AstNode): types.NumberNode {
  * @throws TypeError
  */
 export function leftShift(
-	a: types.AstNode,
-	b: types.AstNode,
+	[a,
+	b,]: types.AstNode[],
 ): types.NumberNode {
 	if (types.isNumberNode(a) && types.isNumberNode(b)) {
 		return types.createNumberNode(a.value << b.value); // eslint-disable-line no-bitwise
@@ -173,8 +173,8 @@ export function leftShift(
  * @throws TypeError
  */
 export function rightShift(
-	a: types.AstNode,
-	b: types.AstNode,
+	[a,
+	b,]: types.AstNode[],
 ): types.NumberNode {
 	if (types.isNumberNode(a) && types.isNumberNode(b)) {
 		return types.createNumberNode(a.value >> b.value); // eslint-disable-line no-bitwise
@@ -189,8 +189,8 @@ export function rightShift(
  * @throws TypeError
  */
 export function unsignedRightShift(
-	a: types.AstNode,
-	b: types.AstNode,
+	[a,
+	b,]: types.AstNode[],
 ): types.NumberNode {
 	if (types.isNumberNode(a) && types.isNumberNode(b)) {
 		return types.createNumberNode(a.value >>> b.value); // eslint-disable-line no-bitwise
@@ -202,7 +202,7 @@ export function unsignedRightShift(
  * @param a
  * @returns types.AstNode
  */
-export function not(a: types.AstNode): types.AstNode {
+export function not([a]: types.AstNode[]): types.AstNode {
 	return types.createBooleanNode(!a.value);
 }
 
@@ -213,7 +213,7 @@ export function not(a: types.AstNode): types.AstNode {
  * @returns types.Bool
  * @see types.isEqualTo()
  */
-export function notEqualTo(...args: types.AstNode[]): types.AstNode {
+export function notEqualTo(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 2);
 	const bool = types.isEqualTo(args[0], args[1]);
 	return types.createBooleanNode(!bool.value);
@@ -245,7 +245,7 @@ export function notEqualTo(...args: types.AstNode[]): types.AstNode {
  * (++ 1 "prefix") ;=>[2, 2]
  * ```
  */
-export function increment(...args: types.AstNode[]): types.AstNode {
+export function increment(args: types.AstNode[]): types.AstNode {
 	types.assertVariableArgumentCount(args.length, 1, 2);
 	types.assertNumberNode(args[0]);
 
@@ -307,7 +307,7 @@ export function increment(...args: types.AstNode[]): types.AstNode {
  * ;=>[0, 0]
  * ```
  */
-export function decrement(...args: types.AstNode[]): types.AstNode {
+export function decrement(args: types.AstNode[]): types.AstNode {
 	types.assertVariableArgumentCount(args.length, 1, 2);
 	types.assertNumberNode(args[0]);
 
@@ -345,7 +345,7 @@ export function decrement(...args: types.AstNode[]): types.AstNode {
  * @param typeString Must be: undefined, object, boolean, number, string, function, symbol, bigint
  * @returns types.BooleanNode
  */
-export function typeOf(...args: types.AstNode[]): types.BooleanNode {
+export function typeOf(args: types.AstNode[]): types.BooleanNode {
 	types.assertArgumentCount(args.length, 2);
 	types.assertAstNode(args[0]); // object
 	types.assertStringNode(args[1]); // typeString
@@ -371,7 +371,7 @@ export function typeOf(...args: types.AstNode[]): types.BooleanNode {
 	return types.createBooleanNode(obj === args[1].value);
 }
 
-// export function instanceOf(...args: types.AstNode[]): types.BooleanNode {
+// export function instanceOf(args: types.AstNode[]): types.BooleanNode {
 //   types.assertArgumentCount(args.length, 2);
 //   types.assertAstNode(args[0]);
 //   types.assertAtomNode(args[1]);
@@ -386,7 +386,7 @@ export function typeOf(...args: types.AstNode[]): types.BooleanNode {
  * Wraps instanceof
  * @returns types.BooleanNode
  */
-export function instanceOf(...args: types.AstNode[]): types.BooleanNode {
+export function instanceOf(args: types.AstNode[]): types.BooleanNode {
 	types.assertArgumentCount(args.length, 2);
 	types.assertAstNode(args[0]);
 	types.assertStringNode(args[1]); // instance type
@@ -430,8 +430,7 @@ export function instanceOf(...args: types.AstNode[]): types.BooleanNode {
  * @returns types.AstNode
  */
 export function nullishCoalesce(
-	a: types.AstNode,
-	b: types.AstNode,
+	[a, b]: types.AstNode[],
 ): types.AstNode {
 	return a.value == null ? b : a;
 }
@@ -443,8 +442,10 @@ export function nullishCoalesce(
  * @throws TypeError
  */
 export function power(
-	base: types.AstNode,
-	exponent: types.AstNode,
+	[
+	base,
+	exponent,
+	]: types.AstNode[],
 ): types.NumberNode {
 	if (types.isNumberNode(base) && types.isNumberNode(exponent)) {
 		return types.createNumberNode(base.value ** exponent.value);

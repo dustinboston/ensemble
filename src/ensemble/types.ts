@@ -53,8 +53,9 @@ export abstract class AstNode {
 
 /**
  * Defines the actual function that FunctionNode wraps.
+ * Was previous variadic, but changed to fixed args to improve performance.
  */
-export type Closure = (...args: AstNode[]) => AstNode;
+export type Closure = (args: AstNode[]) => AstNode;
 
 /**
  * The metadata for a FunctionNode. These values are used as the context for the function when it is evaluated.
@@ -2185,8 +2186,8 @@ export function unwrapErrorNode(ast: ErrorNode): Error {
 
 export function unwrapFunctionNode(
 	ast: FunctionNode,
-): (...args: AstNode[]) => AstNode {
-	return (...args: AstNode[]) => toAst(unwrap(ast.value(...args)));
+): (args: AstNode[]) => AstNode {
+	return (args: AstNode[]) => toAst(unwrap(ast.value(args)));
 }
 
 export function unwrapKeywordNode(ast: KeywordNode): string {
@@ -2270,9 +2271,9 @@ export function toAst(input: unknown): AstNode {
 		}
 
 		case "function": {
-			return createFunctionNode((...args: AstNode[]): AstNode => {
+			return createFunctionNode((args: AstNode[]): AstNode => {
 				try {
-					return toAst(input(...args.map((x) => x.value)));
+					return toAst(input(args.map((x) => x.value)));
 				} catch (error: unknown) {
 					if (error instanceof Error) {
 						return createErrorNode(createStringNode(error.message));

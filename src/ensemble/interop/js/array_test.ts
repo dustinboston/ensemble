@@ -10,7 +10,7 @@ runner.test("toArray should create a vector from multiple arguments", () => {
 	const num2 = types.createNumberNode(2);
 	const num3 = types.createNumberNode(3);
 
-	const result = array.toArray(num1, num2, num3);
+	const result = array.toArray([num1, num2, num3]);
 
 	runner.assert(types.isVectorNode(result), true);
 	runner.assert(result.value, [num1, num2, num3]);
@@ -20,7 +20,7 @@ runner.test(
 	"toArray should create a vector of specified length filled with nils when given only a number",
 	() => {
 		const length = types.createNumberNode(3);
-		const result = array.toArray(length);
+		const result = array.toArray([length]);
 		runner.assert(types.isVectorNode(result), true);
 		runner.assert(result.value.length, 3);
 		runner.assert(result.value.every(types.isNilNode), true);
@@ -32,7 +32,7 @@ runner.test(
 	() => {
 		let threw = false;
 		try {
-			array.toArray();
+			array.toArray([]);
 		} catch (e) {
 			threw = true;
 		}
@@ -44,7 +44,7 @@ runner.test(
 	"toArray should create a vector from a single non-number argument",
 	() => {
 		const str = types.createStringNode("hello");
-		const result = array.toArray(str);
+		const result = array.toArray([str]);
 		runner.assert(types.isVectorNode(result), true);
 		runner.assert(result.value, [str]);
 	},
@@ -58,7 +58,7 @@ runner.test("arrayFrom - one argument", () => {
 		types.createNumberNode(1),
 		types.createNumberNode(2),
 	]);
-	const result = array.arrayFrom(vec);
+	const result = array.arrayFrom([vec]);
 	runner.assert(types.isVectorNode(result), true);
 	runner.assert(result.value.length, 2);
 	runner.assert(result.value[0].value, 1);
@@ -70,10 +70,10 @@ runner.test("arrayFrom - two arguments", () => {
 		types.createNumberNode(1),
 		types.createNumberNode(2),
 	]);
-	const fn = types.createFunctionNode((x: types.AstNode) =>
+	const fn = types.createFunctionNode(([x]) =>
 		types.createNumberNode(x.value * 2),
 	);
-	const result = array.arrayFrom(vec, fn);
+	const result = array.arrayFrom([vec, fn]);
 	runner.assert(types.isVectorNode(result), true);
 	runner.assert(result.value.length, 2);
 	runner.assert(result.value[0].value, 2);
@@ -85,11 +85,11 @@ runner.test("arrayFrom - three arguments", () => {
 		types.createNumberNode(1),
 		types.createNumberNode(2),
 	]);
-	const fn = types.createFunctionNode((x: types.AstNode) =>
+	const fn = types.createFunctionNode(([x]) =>
 		types.createNumberNode(x.value * 2),
 	);
 	const thisArg = types.createNumberNode(5);
-	const result = array.arrayFrom(vec, fn, thisArg);
+	const result = array.arrayFrom([vec, fn, thisArg]);
 	runner.assert(types.isVectorNode(result), true);
 	runner.assert(result.value.length, 2);
 	runner.assert(result.value[0].value, 2);
@@ -99,7 +99,7 @@ runner.test("arrayFrom - three arguments", () => {
 runner.test("arrayFrom - too few arguments", () => {
 	let threw = false;
 	try {
-		array.arrayFrom();
+		array.arrayFrom([]);
 	} catch (e) {
 		threw = true;
 	}
@@ -111,14 +111,14 @@ runner.test("arrayFrom - too many arguments", () => {
 		types.createNumberNode(1),
 		types.createNumberNode(2),
 	]);
-	const fn = types.createFunctionNode((x: types.AstNode) =>
+	const fn = types.createFunctionNode(([x]) =>
 		types.createNumberNode(x.value * 2),
 	);
 	const thisArg = types.createNumberNode(5);
 	const extraArg = types.createNumberNode(10);
 	let threw = false;
 	try {
-		array.arrayFrom(vec, fn, thisArg, extraArg);
+		array.arrayFrom([vec, fn, thisArg, extraArg]);
 	} catch (e) {
 		threw = true;
 	}
@@ -129,7 +129,7 @@ runner.test("arrayFrom - first argument not a vector", () => {
 	const notAVector = types.createNumberNode(1);
 	let threw = false;
 	try {
-		array.arrayFrom(notAVector);
+		array.arrayFrom([notAVector]);
 	} catch (e) {
 		threw = true;
 	}
@@ -144,7 +144,7 @@ runner.test("arrayFrom - second argument not a function", () => {
 	const notAFunction = types.createNumberNode(5);
 	let threw = false;
 	try {
-		array.arrayFrom(vec, notAFunction);
+		array.arrayFrom([vec, notAFunction]);
 	} catch (e) {
 		threw = true;
 	}
@@ -160,7 +160,7 @@ runner.test("at - valid index", () => {
 		types.createNumberNode(2),
 	]);
 	const index = types.createNumberNode(0);
-	const result = array.arrayAt(vec, index);
+	const result = array.arrayAt([vec, index]);
 	runner.assert(result, types.createNumberNode(1));
 });
 
@@ -170,7 +170,7 @@ runner.test("at - negative index", () => {
 		types.createNumberNode(2),
 	]);
 	const index = types.createNumberNode(-1);
-	const result = array.arrayAt(vec, index);
+	const result = array.arrayAt([vec, index]);
 	runner.assert(result, types.createNumberNode(2));
 });
 
@@ -180,14 +180,14 @@ runner.test("at - out of range index", () => {
 		types.createNumberNode(2),
 	]);
 	const index = types.createNumberNode(2);
-	const result = array.arrayAt(vec, index);
+	const result = array.arrayAt([vec, index]);
 	runner.assert(types.isNilNode(result), true);
 });
 
 runner.test("at - incorrect argument count", () => {
 	let threw = false;
 	try {
-		array.arrayAt();
+		array.arrayAt([]);
 	} catch (e) {
 		threw = true;
 	}
@@ -195,7 +195,7 @@ runner.test("at - incorrect argument count", () => {
 
 	threw = false;
 	try {
-		array.arrayAt(types.createVectorNode([]));
+		array.arrayAt([types.createVectorNode([])]);
 	} catch (e) {
 		threw = true;
 	}
@@ -204,9 +204,9 @@ runner.test("at - incorrect argument count", () => {
 	threw = false;
 	try {
 		array.arrayAt(
-			types.createVectorNode([]),
+[			types.createVectorNode([]),
 			types.createNumberNode(0),
-			types.createNumberNode(1),
+			types.createNumberNode(1),]
 		);
 	} catch (e) {
 		threw = true;
@@ -219,7 +219,7 @@ runner.test("at - first argument not a vector", () => {
 	const index = types.createNumberNode(0);
 	let threw = false;
 	try {
-		array.arrayAt(notAVector, index);
+		array.arrayAt([notAVector, index]);
 	} catch (e) {
 		threw = true;
 	}
@@ -231,7 +231,7 @@ runner.test("at - second argument not a number", () => {
 	const notANumber = types.createStringNode("hello");
 	let threw = false;
 	try {
-		array.arrayAt(vec, notANumber);
+		array.arrayAt([vec, notANumber]);
 	} catch (e) {
 		threw = true;
 	}
@@ -243,20 +243,20 @@ runner.test("at - second argument not a number", () => {
 
 runner.test("isArray - is a vector", () => {
 	const vec = types.createVectorNode([]);
-	const result = array.arrayIsArray(vec);
+	const result = array.arrayIsArray([vec]);
 	runner.assert(result, types.createBooleanNode(true));
 });
 
 runner.test("isArray - is not a vector", () => {
 	const notAVector = types.createNumberNode(1);
-	const result = array.arrayIsArray(notAVector);
+	const result = array.arrayIsArray([notAVector]);
 	runner.assert(result, types.createBooleanNode(false));
 });
 
 runner.test("isArray - incorrect argument count", () => {
 	let threw = false;
 	try {
-		array.arrayIsArray();
+		array.arrayIsArray([]);
 	} catch (e) {
 		threw = true;
 	}
@@ -264,7 +264,7 @@ runner.test("isArray - incorrect argument count", () => {
 
 	threw = false;
 	try {
-		array.arrayIsArray(types.createVectorNode([]), types.createNumberNode(1));
+		array.arrayIsArray([types.createVectorNode([]), types.createNumberNode(1)]);
 	} catch (e) {
 		threw = true;
 	}
@@ -279,7 +279,7 @@ runner.test("concat - one vector", () => {
 		types.createNumberNode(1),
 		types.createNumberNode(2),
 	]);
-	const result = array.arrayConcat(vec1);
+	const result = array.arrayConcat([vec1]);
 	runner.assert(types.isVectorNode(result), true);
 	runner.assert(result.value.length, 2);
 	runner.assert(result.value[0].value, 1);
@@ -295,7 +295,7 @@ runner.test("concat - multiple vectors", () => {
 		types.createNumberNode(3),
 		types.createNumberNode(4),
 	]);
-	const result = array.arrayConcat(vec1, vec2);
+	const result = array.arrayConcat([vec1, vec2]);
 	runner.assert(types.isVectorNode(result), true);
 	runner.assert(result.value.length, 4);
 	runner.assert(result.value[0].value, 1);
@@ -307,7 +307,7 @@ runner.test("concat - multiple vectors", () => {
 runner.test("concat - no arguments", () => {
 	let threw = false;
 	try {
-		array.arrayConcat();
+		array.arrayConcat([]);
 	} catch (e) {
 		threw = true;
 	}
@@ -318,7 +318,7 @@ runner.test("concat - non-vector argument", () => {
 	const notAVector = types.createNumberNode(1);
 	let threw = false;
 	try {
-		array.arrayConcat(notAVector);
+		array.arrayConcat([notAVector]);
 	} catch (e) {
 		threw = true;
 	}
@@ -330,7 +330,7 @@ runner.test("concat - mixed arguments", () => {
 	const notAVector = types.createNumberNode(2);
 	let threw = false;
 	try {
-		array.arrayConcat(vec1, notAVector);
+		array.arrayConcat([vec1, notAVector]);
 	} catch (e) {
 		threw = true;
 	}
@@ -348,7 +348,7 @@ runner.test("copyWithin - two arguments", () => {
 	]);
 	const target = types.createNumberNode(0);
 	const start = types.createNumberNode(1);
-	const result = array.arrayCopyWithin(vec, target, start);
+	const result = array.arrayCopyWithin([vec, target, start]);
 	runner.assert(
 		result.value.map((n: { value: unknown }) => n.value),
 		[2, 3, 3],
@@ -364,7 +364,7 @@ runner.test("copyWithin - three arguments", () => {
 	const target = types.createNumberNode(0);
 	const start = types.createNumberNode(1);
 	const end = types.createNumberNode(2);
-	const result = array.arrayCopyWithin(vec, target, start, end);
+	const result = array.arrayCopyWithin([vec, target, start, end]);
 	runner.assert(
 		result.value.map((n: { value: unknown }) => n.value),
 		[2, 2, 3],
@@ -374,7 +374,7 @@ runner.test("copyWithin - three arguments", () => {
 runner.test("copyWithin - invalid number of arguments", () => {
 	let threw = false;
 	try {
-		array.arrayCopyWithin();
+		array.arrayCopyWithin([]);
 	} catch (e) {
 		threw = true;
 	}
@@ -382,7 +382,7 @@ runner.test("copyWithin - invalid number of arguments", () => {
 
 	threw = false;
 	try {
-		array.arrayCopyWithin(types.createVectorNode([]));
+		array.arrayCopyWithin([types.createVectorNode([])]);
 	} catch (e) {
 		threw = true;
 	}
@@ -395,7 +395,7 @@ runner.test("copyWithin - invalid number of arguments", () => {
 	const extra = types.createNumberNode(0);
 	threw = false;
 	try {
-		array.arrayCopyWithin(vec, target, start, end, extra);
+		array.arrayCopyWithin([vec, target, start, end, extra]);
 	} catch (e) {
 		threw = true;
 	}
@@ -409,7 +409,7 @@ runner.test("copyWithin - invalid argument types", () => {
 
 	let threw = false;
 	try {
-		array.arrayCopyWithin(str, num, num);
+		array.arrayCopyWithin([str, num, num]);
 	} catch (e) {
 		threw = true;
 	}
@@ -417,7 +417,7 @@ runner.test("copyWithin - invalid argument types", () => {
 
 	threw = false;
 	try {
-		array.arrayCopyWithin(vec, str, num);
+		array.arrayCopyWithin([vec, str, num]);
 	} catch (e) {
 		threw = true;
 	}
@@ -425,7 +425,7 @@ runner.test("copyWithin - invalid argument types", () => {
 
 	threw = false;
 	try {
-		array.arrayCopyWithin(vec, num, str);
+		array.arrayCopyWithin([vec, num, str]);
 	} catch (e) {
 		threw = true;
 	}
@@ -437,7 +437,7 @@ runner.test("copyWithin - invalid argument types", () => {
 
 runner.test("entries - empty vector", () => {
 	const vec = types.createVectorNode([]);
-	const result = array.arrayEntries(vec);
+	const result = array.arrayEntries([vec]);
 	runner.assert(types.isVectorNode(result), true);
 	runner.assert(result.value, []);
 });
@@ -447,7 +447,7 @@ runner.test("entries - non-empty vector", () => {
 		types.createNumberNode(1),
 		types.createStringNode("a"),
 	]);
-	const result = array.arrayEntries(vec);
+	const result = array.arrayEntries([vec]);
 
 	runner.assert(types.isVectorNode(result), true);
 	runner.assert(result.value.length, 2);
@@ -464,7 +464,7 @@ runner.test("entries - non-empty vector", () => {
 runner.test("entries - incorrect argument count", () => {
 	let threw = false;
 	try {
-		array.arrayEntries();
+		array.arrayEntries([]);
 	} catch (e) {
 		threw = true;
 	}
@@ -472,7 +472,7 @@ runner.test("entries - incorrect argument count", () => {
 
 	threw = false;
 	try {
-		array.arrayEntries(types.createVectorNode([]), types.createNumberNode(1));
+		array.arrayEntries([types.createVectorNode([]), types.createNumberNode(1)]);
 	} catch (e) {
 		threw = true;
 	}
@@ -482,7 +482,7 @@ runner.test("entries - incorrect argument count", () => {
 runner.test("entries - invalid argument type", () => {
 	let threw = false;
 	try {
-		array.arrayEntries(types.createNumberNode(1));
+		array.arrayEntries([types.createNumberNode(1)]);
 	} catch (e) {
 		threw = true;
 	}
@@ -498,7 +498,7 @@ runner.test("every - all true", () => {
 		types.createNumberNode(2),
 	]);
 	const fn = types.createFunctionNode(() => types.createBooleanNode(true));
-	const result = array.arrayEvery(vec, fn);
+	const result = array.arrayEvery([vec, fn]);
 	runner.assert(result, types.createBooleanNode(true));
 });
 
@@ -508,10 +508,10 @@ runner.test("every - some false", () => {
 		types.createNumberNode(2),
 	]);
 	const fn = types.createFunctionNode(
-		(_index: types.AstNode, v: types.AstNode, _vector: types.AstNode) =>
+		([_index, v, _vector]) =>
 			types.createBooleanNode(v.value !== 2),
 	);
-	const result = array.arrayEvery(vec, fn);
+	const result = array.arrayEvery([vec, fn]);
 	runner.assert(result, types.createBooleanNode(false));
 });
 
@@ -522,7 +522,7 @@ runner.test("every - invalid arguments", () => {
 
 	let threw = false;
 	try {
-		array.arrayEvery();
+		array.arrayEvery([]);
 	} catch (e) {
 		threw = true;
 	}
@@ -530,7 +530,7 @@ runner.test("every - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arrayEvery(vec);
+		array.arrayEvery([vec]);
 	} catch (e) {
 		threw = true;
 	}
@@ -538,7 +538,7 @@ runner.test("every - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arrayEvery(num, num);
+		array.arrayEvery([num, num]);
 	} catch (e) {
 		threw = true;
 	}
@@ -546,7 +546,7 @@ runner.test("every - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arrayEvery(vec, num);
+		array.arrayEvery([vec, num]);
 	} catch (e) {
 		threw = true;
 	}
@@ -554,7 +554,7 @@ runner.test("every - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arrayEvery(vec, str);
+		array.arrayEvery([vec, str]);
 	} catch (e) {
 		threw = true;
 	}
@@ -562,7 +562,7 @@ runner.test("every - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arrayEvery(vec, undefined as unknown as types.AstNode, num);
+		array.arrayEvery([vec, undefined as unknown as types.AstNode, num]);
 	} catch (e) {
 		threw = true;
 	}
@@ -578,7 +578,7 @@ runner.test("fill - two arguments", () => {
 		types.createNumberNode(2),
 	]);
 	const value = types.createNumberNode(0);
-	const result = array.arrayFill(vector, value);
+	const result = array.arrayFill([vector, value]);
 
 	runner.assert(result.value.length, 2);
 	runner.assert(result.value[0].value, 0);
@@ -593,7 +593,7 @@ runner.test("fill - three arguments", () => {
 	]);
 	const value = types.createNumberNode(0);
 	const start = types.createNumberNode(1);
-	const result = array.arrayFill(vec, value, start);
+	const result = array.arrayFill([vec, value, start]);
 
 	runner.assert(result.value.length, 3);
 	runner.assert(result.value[0].value, 1);
@@ -611,7 +611,7 @@ runner.test("fill - four arguments", () => {
 	const value = types.createNumberNode(0);
 	const start = types.createNumberNode(2);
 	const end = types.createNumberNode(4);
-	const result = array.arrayFill(vec, value, start, end);
+	const result = array.arrayFill([vec, value, start, end]);
 
 	runner.assert(result.value.length, 4);
 	runner.assert(result.value[0].value, 1);
@@ -623,7 +623,7 @@ runner.test("fill - four arguments", () => {
 runner.test("fill - invalid number of arguments", () => {
 	let threw = false;
 	try {
-		array.arrayFill();
+		array.arrayFill([]);
 	} catch (e) {
 		threw = true;
 	}
@@ -631,7 +631,7 @@ runner.test("fill - invalid number of arguments", () => {
 
 	threw = false;
 	try {
-		array.arrayFill(types.createVectorNode([]));
+		array.arrayFill([types.createVectorNode([])]);
 	} catch (e) {
 		threw = true;
 	}
@@ -641,7 +641,7 @@ runner.test("fill - invalid number of arguments", () => {
 	const val = types.createNumberNode(1);
 	threw = false;
 	try {
-		array.arrayFill(vec, val, val, val, val);
+		array.arrayFill([vec, val, val, val, val]);
 	} catch (e) {
 		threw = true;
 	}
@@ -655,7 +655,7 @@ runner.test("fill - invalid argument types", () => {
 
 	let threw = false;
 	try {
-		array.arrayFill(str, num);
+		array.arrayFill([str, num]);
 	} catch (e) {
 		threw = true;
 	}
@@ -663,7 +663,7 @@ runner.test("fill - invalid argument types", () => {
 
 	threw = false;
 	try {
-		array.arrayFill(vec, num, str);
+		array.arrayFill([vec, num, str]);
 	} catch (e) {
 		threw = true;
 	}
@@ -671,7 +671,7 @@ runner.test("fill - invalid argument types", () => {
 
 	threw = false;
 	try {
-		array.arrayFill(vec, num, num, str);
+		array.arrayFill([vec, num, num, str]);
 	} catch (e) {
 		threw = true;
 	}
@@ -686,10 +686,10 @@ runner.test("filter - some match", () => {
 		types.createNumberNode(1),
 		types.createNumberNode(2),
 	]);
-	const fn = types.createFunctionNode((item: types.AstNode) =>
+	const fn = types.createFunctionNode(([item]) =>
 		types.createBooleanNode(item.value > 1),
 	);
-	const result = array.arrayFilter(fn, vec);
+	const result = array.arrayFilter([fn, vec]);
 
 	runner.assert(types.isVectorNode(result), true);
 	runner.assert(result.value.length, 1);
@@ -702,7 +702,7 @@ runner.test("filter - none match", () => {
 		types.createNumberNode(2),
 	]);
 	const fn = types.createFunctionNode(() => types.createBooleanNode(false));
-	const result = array.arrayFilter(fn, vec);
+	const result = array.arrayFilter([fn, vec]);
 
 	runner.assert(types.isVectorNode(result), true);
 	runner.assert(result.value.length, 0);
@@ -714,7 +714,7 @@ runner.test("filter - invalid arguments", () => {
 
 	let threw = false;
 	try {
-		array.arrayFilter();
+		array.arrayFilter([]);
 	} catch (e) {
 		threw = true;
 	}
@@ -722,7 +722,7 @@ runner.test("filter - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arrayFilter(num);
+		array.arrayFilter([num]);
 	} catch (e) {
 		threw = true;
 	}
@@ -730,7 +730,7 @@ runner.test("filter - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arrayFilter(num, vec);
+		array.arrayFilter([num, vec]);
 	} catch (e) {
 		threw = true;
 	}
@@ -745,10 +745,10 @@ runner.test("find - element found", () => {
 		types.createNumberNode(1),
 		types.createNumberNode(2),
 	]);
-	const fn = types.createFunctionNode((v: types.AstNode) =>
+	const fn = types.createFunctionNode(([v]) =>
 		types.createBooleanNode(v.value === 2),
 	);
-	const result = array.arrayFind(vec, fn);
+	const result = array.arrayFind([vec, fn]);
 	runner.assert(result, types.createNumberNode(2));
 });
 
@@ -758,7 +758,7 @@ runner.test("find - element not found", () => {
 		types.createNumberNode(2),
 	]);
 	const fn = types.createFunctionNode(() => types.createBooleanNode(false));
-	const result = array.arrayFind(vec, fn);
+	const result = array.arrayFind([vec, fn]);
 	runner.assert(types.isNilNode(result), true);
 });
 
@@ -768,7 +768,7 @@ runner.test("find - invalid arguments", () => {
 
 	let threw = false;
 	try {
-		array.arrayFind();
+		array.arrayFind([]);
 	} catch (e) {
 		threw = true;
 	}
@@ -776,7 +776,7 @@ runner.test("find - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arrayFind(vec);
+		array.arrayFind([vec]);
 	} catch (e) {
 		threw = true;
 	}
@@ -784,7 +784,7 @@ runner.test("find - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arrayFind(num, num);
+		array.arrayFind([num, num]);
 	} catch (e) {
 		threw = true;
 	}
@@ -792,7 +792,7 @@ runner.test("find - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arrayFind(vec, num);
+		array.arrayFind([vec, num]);
 	} catch (e) {
 		threw = true;
 	}
@@ -807,10 +807,10 @@ runner.test("findIndex - element found", () => {
 		types.createNumberNode(1),
 		types.createNumberNode(2),
 	]);
-	const fn = types.createFunctionNode((v: types.AstNode) =>
+	const fn = types.createFunctionNode(([v]) =>
 		types.createBooleanNode(v.value === 2),
 	);
-	const result = array.arrayFindIndex(vec, fn);
+	const result = array.arrayFindIndex([vec, fn]);
 	runner.assert(result, types.createNumberNode(1));
 });
 
@@ -820,7 +820,7 @@ runner.test("findIndex - element not found", () => {
 		types.createNumberNode(2),
 	]);
 	const fn = types.createFunctionNode(() => types.createBooleanNode(false));
-	const result = array.arrayFindIndex(vec, fn);
+	const result = array.arrayFindIndex([vec, fn]);
 	runner.assert(result, types.createNumberNode(-1));
 });
 
@@ -830,7 +830,7 @@ runner.test("findIndex - invalid arguments", () => {
 
 	let threw = false;
 	try {
-		array.arrayFindIndex();
+		array.arrayFindIndex([]);
 	} catch (e) {
 		threw = true;
 	}
@@ -838,7 +838,7 @@ runner.test("findIndex - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arrayFindIndex(vec);
+		array.arrayFindIndex([vec]);
 	} catch (e) {
 		threw = true;
 	}
@@ -846,7 +846,7 @@ runner.test("findIndex - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arrayFindIndex(num, num);
+		array.arrayFindIndex([num, num]);
 	} catch (e) {
 		threw = true;
 	}
@@ -854,7 +854,7 @@ runner.test("findIndex - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arrayFindIndex(vec, num);
+		array.arrayFindIndex([vec, num]);
 	} catch (e) {
 		threw = true;
 	}
@@ -869,10 +869,10 @@ runner.test("findLast - element found", () => {
 		types.createNumberNode(1),
 		types.createNumberNode(2),
 	]);
-	const fn = types.createFunctionNode((v: types.AstNode) =>
+	const fn = types.createFunctionNode(([v]) =>
 		types.createBooleanNode(v.value === 2),
 	);
-	const result = array.arrayFindLast(vec, fn);
+	const result = array.arrayFindLast([vec, fn]);
 	runner.assert(result, types.createNumberNode(2));
 });
 
@@ -882,7 +882,7 @@ runner.test("findLast - element not found", () => {
 		types.createNumberNode(2),
 	]);
 	const fn = types.createFunctionNode(() => types.createBooleanNode(false));
-	const result = array.arrayFindLast(vec, fn);
+	const result = array.arrayFindLast([vec, fn]);
 	runner.assert(types.isNilNode(result), true);
 });
 
@@ -892,7 +892,7 @@ runner.test("findLast - invalid arguments", () => {
 
 	let threw = false;
 	try {
-		array.arrayFindLast();
+		array.arrayFindLast([]);
 	} catch (e) {
 		threw = true;
 	}
@@ -900,7 +900,7 @@ runner.test("findLast - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arrayFindLast(vec);
+		array.arrayFindLast([vec]);
 	} catch (e) {
 		threw = true;
 	}
@@ -908,7 +908,7 @@ runner.test("findLast - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arrayFindLast(num, num);
+		array.arrayFindLast([num, num]);
 	} catch (e) {
 		threw = true;
 	}
@@ -916,7 +916,7 @@ runner.test("findLast - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arrayFindLast(vec, num);
+		array.arrayFindLast([vec, num]);
 	} catch (e) {
 		threw = true;
 	}
@@ -931,10 +931,10 @@ runner.test("findLastIndex - element found", () => {
 		types.createNumberNode(1),
 		types.createNumberNode(2),
 	]);
-	const fn = types.createFunctionNode((v: types.AstNode) =>
+	const fn = types.createFunctionNode(([v]) =>
 		types.createBooleanNode(v.value === 2),
 	);
-	const result = array.arrayFindLastIndex(vec, fn);
+	const result = array.arrayFindLastIndex([vec, fn]);
 	runner.assert(result, types.createNumberNode(1));
 });
 
@@ -944,7 +944,7 @@ runner.test("findLastIndex - element not found", () => {
 		types.createNumberNode(2),
 	]);
 	const fn = types.createFunctionNode(() => types.createBooleanNode(false));
-	const result = array.arrayFindLastIndex(vec, fn);
+	const result = array.arrayFindLastIndex([vec, fn]);
 	runner.assert(result, types.createNumberNode(-1));
 });
 
@@ -954,7 +954,7 @@ runner.test("findLastIndex - invalid arguments", () => {
 
 	let threw = false;
 	try {
-		array.arrayFindLastIndex();
+		array.arrayFindLastIndex([]);
 	} catch (e) {
 		threw = true;
 	}
@@ -962,7 +962,7 @@ runner.test("findLastIndex - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arrayFindLastIndex(vec);
+		array.arrayFindLastIndex([vec]);
 	} catch (e) {
 		threw = true;
 	}
@@ -970,7 +970,7 @@ runner.test("findLastIndex - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arrayFindLastIndex(num, num);
+		array.arrayFindLastIndex([num, num]);
 	} catch (e) {
 		threw = true;
 	}
@@ -978,7 +978,7 @@ runner.test("findLastIndex - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arrayFindLastIndex(vec, num);
+		array.arrayFindLastIndex([vec, num]);
 	} catch (e) {
 		threw = true;
 	}
@@ -996,7 +996,7 @@ runner.test("arrayFlat - basic functionality", () => {
 			types.createNumberNode(3),
 		]),
 	]);
-	const result = array.arrayFlat(vec);
+	const result = array.arrayFlat([vec]);
 	runner.assert(
 		result.value.map((n: { value: unknown }) => n.value),
 		[1, 2, 3],
@@ -1014,7 +1014,7 @@ runner.test("arrayFlat - deeply nested vectors", () => {
 			]),
 		]),
 	]);
-	const result = array.arrayFlat(vec);
+	const result = array.arrayFlat([vec]);
 	runner.assert(
 		result.value.map((n: { value: unknown }) => n.value),
 		[1, 2, 3, 4],
@@ -1023,7 +1023,7 @@ runner.test("arrayFlat - deeply nested vectors", () => {
 
 runner.test("arrayFlat - empty vector", () => {
 	const vec = types.createVectorNode([]);
-	const result = array.arrayFlat(vec);
+	const result = array.arrayFlat([vec]);
 	runner.assert(result.value, []);
 });
 
@@ -1032,7 +1032,7 @@ runner.test("arrayFlat - vector with non-nested elements", () => {
 		types.createNumberNode(1),
 		types.createNumberNode(2),
 	]);
-	const result = array.arrayFlat(vec);
+	const result = array.arrayFlat([vec]);
 	runner.assert(
 		result.value.map((n: { value: unknown }) => n.value),
 		[1, 2],
@@ -1044,7 +1044,7 @@ runner.test("arrayFlat - invalid arguments", () => {
 
 	let threw = false;
 	try {
-		array.arrayFlat();
+		array.arrayFlat([]);
 	} catch (e) {
 		threw = true;
 	}
@@ -1052,7 +1052,7 @@ runner.test("arrayFlat - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arrayFlat(num);
+		array.arrayFlat([num]);
 	} catch (e) {
 		threw = true;
 	}
@@ -1067,11 +1067,11 @@ runner.test("arrayFlatMap - basic functionality", () => {
 		types.createNumberNode(1),
 		types.createNumberNode(2),
 	]);
-	const fn = types.createFunctionNode((v: types.AstNode) =>
+	const fn = types.createFunctionNode(([v]) =>
 		types.createVectorNode([v, v]),
 	);
 
-	const result = array.arrayFlatMap(vec, fn);
+	const result = array.arrayFlatMap([vec, fn]);
 	runner.assert(
 		result.value.map((n: { value: unknown }) => n.value),
 		[1, 1, 2, 2],
@@ -1084,11 +1084,11 @@ runner.test("arrayFlatMap - nested result", () => {
 		types.createNumberNode(2),
 	]);
 	// Callback returns a nested vector for each element
-	const fn = types.createFunctionNode((v: types.AstNode) =>
+	const fn = types.createFunctionNode(([v]) =>
 		types.createVectorNode([v, types.createVectorNode([v])]),
 	);
 
-	const result = array.arrayFlatMap(vec, fn);
+	const result = array.arrayFlatMap([vec, fn]);
 	runner.assert(
 		result.value.map((n: { value: unknown }) => n.value),
 		[1, 1, 2, 2],
@@ -1099,7 +1099,7 @@ runner.test("arrayFlatMap - empty vector", () => {
 	const vec = types.createVectorNode([]);
 	const fn = types.createFunctionNode(() => types.createVectorNode([]));
 
-	const result = array.arrayFlatMap(vec, fn);
+	const result = array.arrayFlatMap([vec, fn]);
 	runner.assert(result.value, []);
 });
 
@@ -1109,7 +1109,7 @@ runner.test("arrayFlatMap - invalid arguments", () => {
 
 	let threw = false;
 	try {
-		array.arrayFlatMap();
+		array.arrayFlatMap([]);
 	} catch (e) {
 		threw = true;
 	}
@@ -1117,7 +1117,7 @@ runner.test("arrayFlatMap - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arrayFlatMap(vec);
+		array.arrayFlatMap([vec]);
 	} catch (e) {
 		threw = true;
 	}
@@ -1125,7 +1125,7 @@ runner.test("arrayFlatMap - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arrayFlatMap(num, num);
+		array.arrayFlatMap([num, num]);
 	} catch (e) {
 		threw = true;
 	}
@@ -1133,7 +1133,7 @@ runner.test("arrayFlatMap - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arrayFlatMap(vec, num);
+		array.arrayFlatMap([vec, num]);
 	} catch (e) {
 		threw = true;
 	}
@@ -1149,7 +1149,7 @@ runner.test("includes - vector includes element", () => {
 		types.createNumberNode(2),
 	]);
 	const element = types.createNumberNode(2);
-	const result = array.arrayIncludes(vec, element);
+	const result = array.arrayIncludes([vec, element]);
 	runner.assert(result, types.createBooleanNode(true));
 });
 
@@ -1159,7 +1159,7 @@ runner.test("includes - vector does not include element", () => {
 		types.createNumberNode(2),
 	]);
 	const element = types.createNumberNode(3);
-	const result = array.arrayIncludes(vec, element);
+	const result = array.arrayIncludes([vec, element]);
 
 	runner.assert(result.value, false);
 });
@@ -1171,7 +1171,7 @@ runner.test("includes - invalid arguments", () => {
 
 	let threw = false;
 	try {
-		array.arrayIncludes();
+		array.arrayIncludes([]);
 	} catch (e) {
 		threw = true;
 	}
@@ -1179,7 +1179,7 @@ runner.test("includes - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arrayIncludes(vec);
+		array.arrayIncludes([vec]);
 	} catch (e) {
 		threw = true;
 	}
@@ -1187,7 +1187,7 @@ runner.test("includes - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arrayIncludes(num, num);
+		array.arrayIncludes([num, num]);
 	} catch (e) {
 		threw = true;
 	}
@@ -1195,7 +1195,7 @@ runner.test("includes - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arrayIncludes(str, num);
+		array.arrayIncludes([str, num]);
 	} catch (e) {
 		threw = true;
 	}
@@ -1212,7 +1212,7 @@ runner.test("indexOf - element found", () => {
 	]);
 	const value = types.createNumberNode(2);
 
-	const result = array.arrayIndexOf(vec, value);
+	const result = array.arrayIndexOf([vec, value]);
 	runner.assert(result, types.createNumberNode(1));
 });
 
@@ -1223,7 +1223,7 @@ runner.test("indexOf - element not found", () => {
 	]);
 	const value = types.createNumberNode(3);
 
-	const result = array.arrayIndexOf(vec, value);
+	const result = array.arrayIndexOf([vec, value]);
 	runner.assert(result, types.createNumberNode(-1));
 });
 
@@ -1234,7 +1234,7 @@ runner.test("indexOf - invalid arguments", () => {
 
 	let threw = false;
 	try {
-		array.arrayIndexOf();
+		array.arrayIndexOf([]);
 	} catch (e) {
 		threw = true;
 	}
@@ -1242,7 +1242,7 @@ runner.test("indexOf - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arrayIndexOf(vec);
+		array.arrayIndexOf([vec]);
 	} catch (e) {
 		threw = true;
 	}
@@ -1250,7 +1250,7 @@ runner.test("indexOf - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arrayIndexOf(str, num);
+		array.arrayIndexOf([str, num]);
 	} catch (e) {
 		threw = true;
 	}
@@ -1258,7 +1258,7 @@ runner.test("indexOf - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arrayIndexOf(num, vec);
+		array.arrayIndexOf([num, vec]);
 	} catch (e) {
 		threw = true;
 	}
@@ -1275,14 +1275,14 @@ runner.test("join - basic functionality", () => {
 	]);
 	const separator = types.createStringNode(",");
 
-	const result = array.arrayJoin(vec, separator);
+	const result = array.arrayJoin([vec, separator]);
 	runner.assert(result, types.createStringNode("1,2"));
 });
 
 runner.test("join - no arguments", () => {
 	let threw = false;
 	try {
-		array.arrayJoin();
+		array.arrayJoin([]);
 	} catch (e) {
 		threw = true;
 	}
@@ -1297,7 +1297,7 @@ runner.test("keys - basic functionality", () => {
 		types.createNumberNode(1),
 		types.createNumberNode(2),
 	]);
-	const result = array.arrayKeys(vec);
+	const result = array.arrayKeys([vec]);
 
 	runner.assert(result.value.length, 2);
 	runner.assert(result.value[0], types.createNumberNode(0));
@@ -1309,7 +1309,7 @@ runner.test("keys - invalid arguments", () => {
 
 	let threw = false;
 	try {
-		array.arrayKeys();
+		array.arrayKeys([]);
 	} catch (e) {
 		threw = true;
 	}
@@ -1317,7 +1317,7 @@ runner.test("keys - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arrayKeys(num);
+		array.arrayKeys([num]);
 	} catch (e) {
 		threw = true;
 	}
@@ -1332,13 +1332,13 @@ runner.test("arrayLast - retrieves last element", () => {
 		types.createNumberNode(1),
 		types.createNumberNode(2),
 	]);
-	const result = array.arrayLast(vec);
+	const result = array.arrayLast([vec]);
 	runner.assert(result, types.createNumberNode(2));
 });
 
 runner.test("arrayLast - empty vector", () => {
 	const vec = types.createVectorNode([]);
-	const result = array.arrayLast(vec);
+	const result = array.arrayLast([vec]);
 	runner.assert(types.isNilNode(result), true);
 });
 
@@ -1347,7 +1347,7 @@ runner.test("arrayLast - invalid arguments", () => {
 
 	let threw = false;
 	try {
-		array.arrayLast();
+		array.arrayLast([]);
 	} catch (e) {
 		threw = true;
 	}
@@ -1355,7 +1355,7 @@ runner.test("arrayLast - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arrayLast(num);
+		array.arrayLast([num]);
 	} catch (e) {
 		threw = true;
 	}
@@ -1370,10 +1370,10 @@ runner.test("arrayMap - basic functionality", () => {
 		types.createNumberNode(1),
 		types.createNumberNode(2),
 	]);
-	const fn = types.createFunctionNode((x: types.AstNode) =>
+	const fn = types.createFunctionNode(([x]) =>
 		types.createNumberNode(x.value * 2),
 	);
-	const result = array.arrayMap(vec, fn);
+	const result = array.arrayMap([vec, fn]);
 
 	runner.assert(result.value.length, 2);
 	runner.assert(result.value[0], types.createNumberNode(2));
@@ -1387,11 +1387,11 @@ runner.test("arrayMap - with thisArg", () => {
 	]);
 	const thisArg = types.createNumberNode(5); // Not actually used in this example, but demonstrating usage
 	const fn = types.createFunctionNode(
-		(_x: types.AstNode, _index: types.AstNode, _thisArg: types.AstNode) =>
+		([_x, _index, _thisArg]) =>
 			types.createNumberNode(2),
 	);
 
-	const result = array.arrayMap(vec, fn, thisArg);
+	const result = array.arrayMap([vec, fn, thisArg]);
 
 	runner.assert(result.value.length, 2);
 	runner.assert(result.value[0], types.createNumberNode(2));
@@ -1404,7 +1404,7 @@ runner.test("arrayMap - invalid arguments", () => {
 
 	let threw = false;
 	try {
-		array.arrayMap();
+		array.arrayMap([]);
 	} catch (e) {
 		threw = true;
 	}
@@ -1412,7 +1412,7 @@ runner.test("arrayMap - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arrayMap(vec);
+		array.arrayMap([vec]);
 	} catch (e) {
 		threw = true;
 	}
@@ -1420,7 +1420,7 @@ runner.test("arrayMap - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arrayMap(num, num);
+		array.arrayMap([num, num]);
 	} catch (e) {
 		threw = true;
 	}
@@ -1428,7 +1428,7 @@ runner.test("arrayMap - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arrayMap(vec, num);
+		array.arrayMap([vec, num]);
 	} catch (e) {
 		threw = true;
 	}
@@ -1441,7 +1441,7 @@ runner.test("arrayMap - invalid arguments", () => {
 runner.test("arrayPush - basic functionality", () => {
 	const vec = types.createVectorNode([types.createNumberNode(1)]);
 	const value = types.createNumberNode(2);
-	const result = array.arrayPush(vec, value);
+	const result = array.arrayPush([vec, value]);
 	runner.assert(
 		result.value.map((n: { value: unknown }) => n.value),
 		[1, 2],
@@ -1453,7 +1453,7 @@ runner.test("arrayPush - multiple values", () => {
 	const val1 = types.createNumberNode(2);
 	const val2 = types.createNumberNode(3);
 
-	const result = array.arrayPush(vec, val1, val2);
+	const result = array.arrayPush([vec, val1, val2]);
 
 	runner.assert(
 		result.value.map((n: { value: unknown }) => n.value),
@@ -1466,7 +1466,7 @@ runner.test("arrayPush - invalid arguments", () => {
 
 	let threw = false;
 	try {
-		array.arrayPush();
+		array.arrayPush([]);
 	} catch (e) {
 		threw = true;
 	}
@@ -1474,7 +1474,7 @@ runner.test("arrayPush - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arrayPush(num, num);
+		array.arrayPush([num, num]);
 	} catch (e) {
 		threw = true;
 	}
@@ -1489,7 +1489,7 @@ runner.test("arrayLength - invalid arguments", () => {
 
 	let threw = false;
 	try {
-		array.arrayLength();
+		array.arrayLength([]);
 	} catch (e) {
 		threw = true;
 	}
@@ -1497,7 +1497,7 @@ runner.test("arrayLength - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arrayLength(num);
+		array.arrayLength([num]);
 	} catch (e) {
 		threw = true;
 	}
@@ -1508,7 +1508,7 @@ runner.test("arrayLength - invalid arguments", () => {
 // --------------------------------------------------------------------------------------------------------------------
 
 runner.test("arrayReduce - basic functionality", () => {
-	const fn = types.createFunctionNode((acc: types.AstNode, x: types.AstNode) =>
+	const fn = types.createFunctionNode(([acc, x]) =>
 		types.createNumberNode(acc.value + x.value),
 	);
 	const vec = types.createVectorNode([
@@ -1517,12 +1517,12 @@ runner.test("arrayReduce - basic functionality", () => {
 	]);
 	const initialValue = types.createNumberNode(0);
 
-	const result = array.arrayReduce(fn, vec, initialValue);
+	const result = array.arrayReduce([fn, vec, initialValue]);
 	runner.assert(result.value, 3);
 });
 
 runner.test("arrayReduce - invalid arguments", () => {
-	const fn = types.createFunctionNode((acc: types.AstNode, x: types.AstNode) =>
+	const fn = types.createFunctionNode(([acc, x]) =>
 		types.createNumberNode(acc.value + x.value),
 	);
 	const vec = types.createVectorNode([
@@ -1533,7 +1533,7 @@ runner.test("arrayReduce - invalid arguments", () => {
 
 	let threw = false;
 	try {
-		array.arrayReduce();
+		array.arrayReduce([]);
 	} catch (e) {
 		threw = true;
 	}
@@ -1541,7 +1541,7 @@ runner.test("arrayReduce - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arrayReduce(fn);
+		array.arrayReduce([fn]);
 	} catch (e) {
 		threw = true;
 	}
@@ -1549,7 +1549,7 @@ runner.test("arrayReduce - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arrayReduce(fn, vec);
+		array.arrayReduce([fn, vec]);
 	} catch (e) {
 		threw = true;
 	}
@@ -1557,7 +1557,7 @@ runner.test("arrayReduce - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arrayReduce(num, vec, num);
+		array.arrayReduce([num, vec, num]);
 	} catch (e) {
 		threw = true;
 	}
@@ -1565,7 +1565,7 @@ runner.test("arrayReduce - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arrayReduce(fn, num, num);
+		array.arrayReduce([fn, num, num]);
 	} catch (e) {
 		threw = true;
 	}
@@ -1580,7 +1580,7 @@ runner.test("arrayToReversed - basic functionality", () => {
 		types.createNumberNode(1),
 		types.createNumberNode(2),
 	]);
-	const result = array.arrayToReversed(vec);
+	const result = array.arrayToReversed([vec]);
 	runner.assert(
 		result.value.map((n: { value: unknown }) => n.value),
 		[2, 1],
@@ -1592,7 +1592,7 @@ runner.test("arrayToReversed - invalid arguments", () => {
 
 	let threw = false;
 	try {
-		array.arrayToReversed();
+		array.arrayToReversed([]);
 	} catch (e) {
 		threw = true;
 	}
@@ -1600,7 +1600,7 @@ runner.test("arrayToReversed - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arrayToReversed(num);
+		array.arrayToReversed([num]);
 	} catch (e) {
 		threw = true;
 	}
@@ -1615,14 +1615,14 @@ runner.test("arrayFirst - basic functionality", () => {
 		types.createNumberNode(1),
 		types.createNumberNode(2),
 	]);
-	const result = array.arrayFirst(vec);
+	const result = array.arrayFirst([vec]);
 
 	runner.assert(result, types.createNumberNode(1));
 });
 
 runner.test("arrayFirst - empty vector", () => {
 	const vec = types.createVectorNode([]);
-	const result = array.arrayFirst(vec);
+	const result = array.arrayFirst([vec]);
 	runner.assert(types.isNilNode(result), true);
 });
 
@@ -1631,7 +1631,7 @@ runner.test("arrayFirst - invalid arguments", () => {
 
 	let threw = false;
 	try {
-		array.arrayFirst();
+		array.arrayFirst([]);
 	} catch (e) {
 		threw = true;
 	}
@@ -1639,7 +1639,7 @@ runner.test("arrayFirst - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arrayFirst(num);
+		array.arrayFirst([num]);
 	} catch (e) {
 		threw = true;
 	}
@@ -1654,7 +1654,7 @@ runner.test("arraySlice - one argument", () => {
 		types.createNumberNode(1),
 		types.createNumberNode(2),
 	]);
-	const result = array.arraySlice(vec);
+	const result = array.arraySlice([vec]);
 	runner.assert(
 		result.value.map((n: { value: unknown }) => n.value),
 		[1, 2],
@@ -1668,7 +1668,7 @@ runner.test("arraySlice - two arguments", () => {
 	]);
 	const start = types.createNumberNode(1);
 
-	const result = array.arraySlice(vec, start);
+	const result = array.arraySlice([vec, start]);
 	runner.assert(
 		result.value.map((n: { value: unknown }) => n.value),
 		[2],
@@ -1684,7 +1684,7 @@ runner.test("arraySlice - three arguments", () => {
 	const start = types.createNumberNode(1);
 	const end = types.createNumberNode(2);
 
-	const result = array.arraySlice(vec, start, end);
+	const result = array.arraySlice([vec, start, end]);
 	runner.assert(
 		result.value.map((n: { value: unknown }) => n.value),
 		[2],
@@ -1698,7 +1698,7 @@ runner.test("arraySlice - invalid arguments", () => {
 
 	let threw = false;
 	try {
-		array.arraySlice();
+		array.arraySlice([]);
 	} catch (e) {
 		threw = true;
 	}
@@ -1706,7 +1706,7 @@ runner.test("arraySlice - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arraySlice(num);
+		array.arraySlice([num]);
 	} catch (e) {
 		threw = true;
 	}
@@ -1714,7 +1714,7 @@ runner.test("arraySlice - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arraySlice(vec, str);
+		array.arraySlice([vec, str]);
 	} catch (e) {
 		threw = true;
 	}
@@ -1722,7 +1722,7 @@ runner.test("arraySlice - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arraySlice(vec, num, str);
+		array.arraySlice([vec, num, str]);
 	} catch (e) {
 		threw = true;
 	}
@@ -1737,10 +1737,10 @@ runner.test("arraySome - some true", () => {
 		types.createNumberNode(1),
 		types.createNumberNode(2),
 	]);
-	const fn = types.createFunctionNode((v: types.AstNode) =>
+	const fn = types.createFunctionNode(([v]) =>
 		types.createBooleanNode(v.value === 2),
 	);
-	const result = array.arraySome(vec, fn);
+	const result = array.arraySome([vec, fn]);
 	runner.assert(result, types.createBooleanNode(true));
 });
 
@@ -1751,7 +1751,7 @@ runner.test("arraySome - all false", () => {
 	]);
 	const fn = types.createFunctionNode(() => types.createBooleanNode(false));
 
-	const result = array.arraySome(vec, fn);
+	const result = array.arraySome([vec, fn]);
 	runner.assert(result, types.createBooleanNode(false));
 });
 
@@ -1761,7 +1761,7 @@ runner.test("arraySome - invalid arguments", () => {
 
 	let threw = false;
 	try {
-		array.arraySome();
+		array.arraySome([]);
 	} catch (e) {
 		threw = true;
 	}
@@ -1769,7 +1769,7 @@ runner.test("arraySome - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arraySome(vec);
+		array.arraySome([vec]);
 	} catch (e) {
 		threw = true;
 	}
@@ -1777,7 +1777,7 @@ runner.test("arraySome - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arraySome(num, num);
+		array.arraySome([num, num]);
 	} catch (e) {
 		threw = true;
 	}
@@ -1785,7 +1785,7 @@ runner.test("arraySome - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arraySome(vec, num);
+		array.arraySome([vec, num]);
 	} catch (e) {
 		threw = true;
 	}
@@ -1800,11 +1800,11 @@ runner.test("arrayToSorted - basic functionality", () => {
 		types.createNumberNode(2),
 		types.createNumberNode(1),
 	]);
-	const fn = types.createFunctionNode((a: types.AstNode, b: types.AstNode) =>
+	const fn = types.createFunctionNode(([a, b]) =>
 		types.createNumberNode(a.value - b.value),
 	);
 
-	const result = array.arrayToSorted(vec, fn);
+	const result = array.arrayToSorted([vec, fn]);
 	runner.assert(
 		result.value.map((n: { value: unknown }) => n.value),
 		[1, 2],
@@ -1817,7 +1817,7 @@ runner.test("arrayToSorted - invalid arguments", () => {
 
 	let threw = false;
 	try {
-		array.arrayToSorted();
+		array.arrayToSorted([]);
 	} catch (e) {
 		threw = true;
 	}
@@ -1825,7 +1825,7 @@ runner.test("arrayToSorted - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arrayToSorted(vec);
+		array.arrayToSorted([vec]);
 	} catch (e) {
 		threw = true;
 	}
@@ -1833,7 +1833,7 @@ runner.test("arrayToSorted - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arrayToSorted(num, num);
+		array.arrayToSorted([num, num]);
 	} catch (e) {
 		threw = true;
 	}
@@ -1841,7 +1841,7 @@ runner.test("arrayToSorted - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arrayToSorted(vec, num);
+		array.arrayToSorted([vec, num]);
 	} catch (e) {
 		threw = true;
 	}
@@ -1857,7 +1857,7 @@ runner.test("arrayToSpliced - two arguments", () => {
 		types.createNumberNode(2),
 	]);
 	const start = types.createNumberNode(1);
-	const result = array.arrayToSpliced(vec, start);
+	const result = array.arrayToSpliced([vec, start]);
 
 	runner.assert(result.value.length, 1);
 	runner.assert(result.value[0].value, 1);
@@ -1871,7 +1871,7 @@ runner.test("arrayToSpliced - three arguments", () => {
 	const start = types.createNumberNode(1);
 	const deleteCount = types.createNumberNode(1);
 
-	const result = array.arrayToSpliced(vec, start, deleteCount);
+	const result = array.arrayToSpliced([vec, start, deleteCount]);
 	runner.assert(
 		result.value.map((n: { value: unknown }) => n.value),
 		[1],
@@ -1887,7 +1887,7 @@ runner.test("arrayToSpliced - four arguments", () => {
 	const deleteCount = types.createNumberNode(1);
 	const item = types.createNumberNode(3);
 
-	const result = array.arrayToSpliced(vec, start, deleteCount, item);
+	const result = array.arrayToSpliced([vec, start, deleteCount, item]);
 
 	runner.assert(
 		result.value.map((n: { value: unknown }) => n.value),
@@ -1902,7 +1902,7 @@ runner.test("arrayToSpliced - invalid arguments", () => {
 
 	let threw = false;
 	try {
-		array.arrayToSpliced();
+		array.arrayToSpliced([]);
 	} catch (e) {
 		threw = true;
 	}
@@ -1910,7 +1910,7 @@ runner.test("arrayToSpliced - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arrayToSpliced(vec);
+		array.arrayToSpliced([vec]);
 	} catch (e) {
 		threw = true;
 	}
@@ -1918,7 +1918,7 @@ runner.test("arrayToSpliced - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arrayToSpliced(num, num);
+		array.arrayToSpliced([num, num]);
 	} catch (e) {
 		threw = true;
 	}
@@ -1926,7 +1926,7 @@ runner.test("arrayToSpliced - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arrayToSpliced(vec, str);
+		array.arrayToSpliced([vec, str]);
 	} catch (e) {
 		threw = true;
 	}
@@ -1942,7 +1942,7 @@ runner.test("arrayUnshift - basic functionality", () => {
 		types.createNumberNode(1),
 		types.createNumberNode(2),
 	]);
-	const result = array.arrayUnshift(value, vec);
+	const result = array.arrayUnshift([value, vec]);
 
 	runner.assert(
 		result.value.map((n) => n.value),
@@ -1955,7 +1955,7 @@ runner.test("arrayUnshift - invalid arguments", () => {
 
 	let threw = false;
 	try {
-		array.arrayUnshift();
+		array.arrayUnshift([]);
 	} catch (e) {
 		threw = true;
 	}
@@ -1963,7 +1963,7 @@ runner.test("arrayUnshift - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arrayUnshift(num);
+		array.arrayUnshift([num]);
 	} catch (e) {
 		threw = true;
 	}
@@ -1971,7 +1971,7 @@ runner.test("arrayUnshift - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arrayUnshift(num, num);
+		array.arrayUnshift([num, num]);
 	} catch (e) {
 		threw = true;
 	}
@@ -1986,7 +1986,7 @@ runner.test("arrayValues - invalid arguments", () => {
 
 	let threw = false;
 	try {
-		array.arrayValues();
+		array.arrayValues([]);
 	} catch (e) {
 		threw = true;
 	}
@@ -1994,7 +1994,7 @@ runner.test("arrayValues - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arrayValues(num);
+		array.arrayValues([num]);
 	} catch (e) {
 		threw = true;
 	}
@@ -2013,7 +2013,7 @@ runner.test("arrayReplaceWith - replaces with specified value", () => {
 	const index = types.createNumberNode(1);
 	const value = types.createNumberNode(5);
 
-	const result = array.arrayReplaceWith(vec, index, value);
+	const result = array.arrayReplaceWith([vec, index, value]);
 	runner.assert(
 		result.value.map((n: { value: unknown }) => n.value),
 		[1, 5, 3],
@@ -2027,7 +2027,7 @@ runner.test("arrayReplaceWith - invalid arguments", () => {
 
 	let threw = false;
 	try {
-		array.arrayReplaceWith();
+		array.arrayReplaceWith([]);
 	} catch (e) {
 		threw = true;
 	}
@@ -2035,7 +2035,7 @@ runner.test("arrayReplaceWith - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arrayReplaceWith(vec);
+		array.arrayReplaceWith([vec]);
 	} catch (e) {
 		threw = true;
 	}
@@ -2043,7 +2043,7 @@ runner.test("arrayReplaceWith - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arrayReplaceWith(vec, num);
+		array.arrayReplaceWith([vec, num]);
 	} catch (e) {
 		threw = true;
 	}
@@ -2051,7 +2051,7 @@ runner.test("arrayReplaceWith - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arrayReplaceWith(num, num, num);
+		array.arrayReplaceWith([num, num, num]);
 	} catch (e) {
 		threw = true;
 	}
@@ -2059,7 +2059,7 @@ runner.test("arrayReplaceWith - invalid arguments", () => {
 
 	threw = false;
 	try {
-		array.arrayReplaceWith(vec, str, num);
+		array.arrayReplaceWith([vec, str, num]);
 	} catch (e) {
 		threw = true;
 	}

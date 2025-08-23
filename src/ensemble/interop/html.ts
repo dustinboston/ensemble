@@ -131,8 +131,8 @@ for (const htmlTag of htmlTags) {
  * @returns anonymous function
  */
 export function tag(tag: string) {
-	return (...args: types.AstNode[]): types.AstNode => {
-		return node(types.createSymbolNode(tag), ...args);
+	return (args: types.AstNode[]): types.AstNode => {
+		return node([types.createSymbolNode(tag)].concat(args));
 	};
 }
 
@@ -142,7 +142,7 @@ export function tag(tag: string) {
  * @example (node div {:id "foo"} (p (strong "text")))
  * @return Node
  */
-export function node(...args: types.AstNode[]): types.AstNode {
+export function node(args: types.AstNode[]): types.AstNode {
 	types.assertMinimumArgumentCount(args.length, 1);
 
 	const tagName = args[0];
@@ -162,7 +162,7 @@ export function node(...args: types.AstNode[]): types.AstNode {
 	return types.createDomNode(tagName.value, attributes, children);
 }
 
-export function querySelector(...args: types.AstNode[]): types.AstNode {
+export function querySelector(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	types.assertStringNode(args[0]);
 

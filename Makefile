@@ -13,7 +13,8 @@ ENSEMBLE_RUNTIME_FILE=$(BIN_DIR)/ensemble.js
 ENSEMBLE_TESTS_DIR=$(ENSEMBLE_SRC_DIR)/tests
 ENSEMBLE_TS_FILES:=$(shell find $(ENSEMBLE_SRC_DIR) -name '*.ts')
 EXTENSION_DIR=./src/extension
-QJS_BINARY_FILE=$(BIN_DIR)/qjs
+QJS_BINARY_FILE=qjs
+QJS_COMPILER_FILE=qjsc
 EXTENSION_VERSION=$(shell date +"%y.%m.%d-%H%M")
 EXTENSION_NAME=ensemble-syntax-$(EXTENSION_VERSION).vsix
 NODE_MODULES_DIR="./node_modules"
@@ -27,13 +28,17 @@ all: build
 $(QJS_BINARY_FILE):
 	@echo "QuickJS binary not found."
 
+# Verify that the QuickJS compiler exists.
+$(QJS_COMPILER_FILE):
+	@echo "QuickJS compiler not found."
+
 # Compile the ensemble.js interpreter into a standalone binary
-$(ENSEMBLE_BINARY_FILE): $(QJS_BINARY_FILE) $(ENSEMBLE_BUNDLE_FILE)
-	$(QJS_BINARY_FILE) --std --module --out "$(ENSEMBLE_BINARY_FILE)" --compile "$(ENSEMBLE_BUNDLE_FILE)"
+$(ENSEMBLE_BINARY_FILE): $(QJS_COMPILER_FILE) $(ENSEMBLE_BUNDLE_FILE)
+	$(QJS_COMPILER_FILE) -m -o "$(ENSEMBLE_BINARY_FILE)" "$(ENSEMBLE_BUNDLE_FILE)"
 
 # Bundle Typescript into a single file.
 $(ENSEMBLE_BUNDLE_FILE): $(ENSEMBLE_TS_FILES)
-	$(NODE) esbuild "$(ENSEMBLE_SRC_DIR)/cli.ts" --outfile="$(ENSEMBLE_BUNDLE_FILE)" --bundle --format=esm --minify --platform=neutral --target=esnext --external:qjs:* --main-fields=main,module
+	$(NODE) esbuild "$(ENSEMBLE_SRC_DIR)/cli.ts" --outfile="$(ENSEMBLE_BUNDLE_FILE)" --bundle --format=esm --minify --platform=neutral --target=esnext --external:os --external:std --main-fields=main,module
 
 $(ENSEMBLE_RUNTIME_FILE): $(ENSEMBLE_TS_FILES)	
 	$(NODE) esbuild "$(ENSEMBLE_SRC_DIR)/lib.ts" --outfile="$(ENSEMBLE_RUNTIME_FILE)" --bundle --format=esm --platform=neutral --target=esnext --main-fields=rep,initEnv,module
@@ -43,7 +48,7 @@ $(ENSEMBLE_BUILD_DIR)/%.js: $(ENSEMBLE_TS_FILES)
 	cd "$(ENSEMBLE_SRC_DIR)" && $(NODE) tsc --build
 
 # Build the Ensemble CLI JavaScript file and standalone binary
-build: install-dependencies $(QJS_BINARY_FILE) $(ENSEMBLE_BUNDLE_FILE) $(ENSEMBLE_RUNTIME_FILE) $(ENSEMBLE_BINARY_FILE) $(ENSEMBLE_BUILD_DIR)/%.js
+build: install-dependencies $(QJS_COMPILER_FILE) $(QJS_BINARY_FILE) $(ENSEMBLE_BUNDLE_FILE) $(ENSEMBLE_RUNTIME_FILE) $(ENSEMBLE_BINARY_FILE) $(ENSEMBLE_BUILD_DIR)/%.js
 
 # Clean the Ensemble build directory and artifacts
 clean:

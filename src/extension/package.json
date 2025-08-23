@@ -2,7 +2,7 @@
   "name": "ensemble-syntax",
   "displayName": "Ensemble Syntax",
   "description": "Ensemble syntax highlighting.",
-  "version": "25.2.23-836",
+  "version": "25.8.23-1254",
   "engines": {
     "vscode": "^1.96.0"
   },

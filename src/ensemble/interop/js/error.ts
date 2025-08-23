@@ -7,7 +7,7 @@ export const errorFunctions: Array<[string, types.Closure]> = [
 	["Error.prototype.name", getName], // Type of error
 ];
 
-export function newError(...args: types.AstNode[]): types.AstNode {
+export function newError(args: types.AstNode[]): types.AstNode {
 	types.assertVariableArgumentCount(args.length, 1, 3);
 	const message = args[0];
 	types.assertStringNode(message);
@@ -37,19 +37,19 @@ export function newError(...args: types.AstNode[]): types.AstNode {
 	);
 }
 
-export function getMessage(...args: types.AstNode[]): types.AstNode {
+export function getMessage(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	types.assertErrorNode(args[0]);
 	return args[0].value;
 }
 
-export function getCause(...args: types.AstNode[]): types.AstNode {
+export function getCause(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	types.assertErrorNode(args[0]);
 	return args[0].cause ?? types.createNilNode();
 }
 
-export function getName(...args: types.AstNode[]): types.AstNode {
+export function getName(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	types.assertErrorNode(args[0]);
 	return args[0].name;

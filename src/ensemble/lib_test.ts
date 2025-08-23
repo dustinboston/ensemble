@@ -247,7 +247,7 @@ runner.test(
 
 runner.test("macroExpand(): should expand a single-layer macro", () => {
 	const env = new Env();
-	const macroFunc = createFunctionNode((...args) =>
+	const macroFunc = createFunctionNode((args) =>
 		createListNode([createSymbolNode("quote"), ...args]),
 	);
 	macroFunc.isMacro = true;
@@ -267,11 +267,11 @@ runner.test("macroExpand(): should expand a single-layer macro", () => {
 
 runner.test("macroExpand(): should expand nested macros", () => {
 	const env = new Env();
-	const macroFunc1 = createFunctionNode((...args) =>
+	const macroFunc1 = createFunctionNode((args) =>
 		createListNode([createSymbolNode("quote"), ...args]),
 	);
 	macroFunc1.isMacro = true;
-	const macroFunc2 = createFunctionNode((...args) =>
+	const macroFunc2 = createFunctionNode((args) =>
 		createListNode([createSymbolNode("a_macro1"), ...args]),
 	);
 	macroFunc2.isMacro = true;
@@ -779,7 +779,7 @@ runner.test("evaluateTry(): catches thrown error and handles it", () => {
 	const env = initEnv();
 	env.set(
 		createSymbolNode("custom-throw"),
-		createFunctionNode((_args, _env) => {
+		createFunctionNode(([_args, _env]) => {
 			throw "error!";
 		}),
 	);
@@ -803,7 +803,7 @@ runner.test("evaluateTry(): catches native error and handles it", () => {
 	const env = initEnv();
 	env.set(
 		createSymbolNode("throw-native"),
-		createFunctionNode((_args, _env) => {
+		createFunctionNode(([_args, _env]) => {
 			throw new Error("native error!");
 		}),
 	);
@@ -929,7 +929,7 @@ runner.test("evaluateFn(): creates a simple anonymous function", () => {
 	const env = new Env();
 	env.set(
 		createSymbolNode("+"),
-		createFunctionNode((...args: AstNode[]) =>
+		createFunctionNode((args: AstNode[]) =>
 			createNumberNode(
 				(args[0] as NumberNode).value + (args[1] as NumberNode).value,
 			),
@@ -938,7 +938,7 @@ runner.test("evaluateFn(): creates a simple anonymous function", () => {
 	const result = evaluateFn(ast, env);
 	const fn = result.return as FunctionNode;
 	runner.assert(fn !== undefined, true);
-	const fnResult = fn.value(createNumberNode(2), createNumberNode(3));
+	const fnResult = fn.value([createNumberNode(2), createNumberNode(3)]);
 	runner.assert(fnResult, createNumberNode(5));
 });
 
@@ -954,7 +954,7 @@ runner.test(
 		const result = evaluateFn(ast, env);
 		const fn = result.return as FunctionNode;
 		runner.assert(fn !== undefined, true);
-		const fnResult = fn.value();
+		const fnResult = fn.value([]);
 		runner.assert(fnResult, createNumberNode(10));
 	},
 );
@@ -972,7 +972,7 @@ runner.test("evaluateFn(): captures environment in closure", () => {
 	const env = initEnv();
 	env.set(
 		createSymbolNode("+"),
-		createFunctionNode((...args: AstNode[]) =>
+		createFunctionNode((args: AstNode[]) =>
 			createNumberNode(
 				(args[0] as NumberNode).value + (args[1] as NumberNode).value,
 			),
@@ -983,7 +983,7 @@ runner.test("evaluateFn(): captures environment in closure", () => {
 	const result = evaluateFn(ast, env);
 	const fn = result.return as FunctionNode;
 	runner.assert(fn !== undefined, true);
-	const fnResult = fn.value(createNumberNode(2));
+	const fnResult = fn.value([createNumberNode(2)]);
 	runner.assert(fnResult, createNumberNode(7));
 });
 
@@ -1065,7 +1065,7 @@ runner.test("initEnv(): initEnv runs repl with predefined functions", () => {
 	const env = initEnv();
 	const fn = env.get(createSymbolNode("not")) as FunctionNode;
 	runner.assert(isFunctionNode(fn), true);
-	runner.assert(fn.value(createNumberNode(1)), createBooleanNode(false));
+	runner.assert(fn.value([createNumberNode(1)]), createBooleanNode(false));
 });
 
 runner.report();

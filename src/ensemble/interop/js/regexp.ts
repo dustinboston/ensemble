@@ -8,11 +8,11 @@ export const regExpFunctions: Array<[string, types.Closure]> = [
 
 export function createRegExp(pattern: string, flags?: string) {
 	return flags
-		? newRegExp(types.createStringNode(pattern), types.createStringNode(flags))
-		: newRegExp(types.createStringNode(pattern));
+		? newRegExp([types.createStringNode(pattern), types.createStringNode(flags)])
+		: newRegExp([types.createStringNode(pattern)]);
 }
 
-export function newRegExp(...astArgs: types.AstNode[]): types.AstNode {
+export function newRegExp(astArgs: types.AstNode[]): types.AstNode {
 	types.assertVariableArgumentCount(astArgs.length, 1, 2);
 	types.assertStringNode(astArgs[0]);
 
@@ -29,7 +29,7 @@ export function newRegExp(...astArgs: types.AstNode[]): types.AstNode {
 	return types.createAtomNode(regexp);
 }
 
-export function execRegExp(...astArgs: types.AstNode[]): types.AstNode {
+export function execRegExp(astArgs: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 2);
 	types.assertAtomNode(astArgs[0]);
 
@@ -47,7 +47,7 @@ export function execRegExp(...astArgs: types.AstNode[]): types.AstNode {
 
 // You can use regex against objects?!
 
-export function testRegExp(...astArgs: types.AstNode[]): types.AstNode {
+export function testRegExp(astArgs: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 2);
 	types.assertAtomNode(astArgs[0]);
 	types.assertRegExp(astArgs[0].value);

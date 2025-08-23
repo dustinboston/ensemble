@@ -45,7 +45,7 @@ export const arrayFunctions: Array<[string, types.Closure]> = [
 	["Array.toString", core.printEscapedString],
 ];
 
-export function toArray(...args: types.AstNode[]): types.AstNode {
+export function toArray(args: types.AstNode[]): types.AstNode {
 	types.assertMinimumArgumentCount(args.length, 1);
 
 	if (args.length === 1 && types.isNumberNode(args[0])) {
@@ -56,7 +56,7 @@ export function toArray(...args: types.AstNode[]): types.AstNode {
 	return types.createVectorNode(args);
 }
 
-export function arrayFrom(...args: types.AstNode[]): types.AstNode {
+export function arrayFrom(args: types.AstNode[]): types.AstNode {
 	types.assertVariableArgumentCount(args.length, 1, 3);
 	types.assertVectorNode(args[0]);
 
@@ -68,15 +68,21 @@ export function arrayFrom(...args: types.AstNode[]): types.AstNode {
 		types.assertAstNode(args[2]);
 	}
 
-	const result = Array.from<types.AstNode, types.AstNode>(
-		args[0].value,
-		args[1]?.value,
-		args[2]?.value,
-	);
+	const vector = args[0].value;
+	
+	if (args.length === 1) {
+		return types.createVectorNode([...vector]);
+	}
+
+	const mapFn = args[1].value;
+	const result = vector.map((value, index) => {
+		return mapFn([value]);
+	});
+	
 	return types.createVectorNode(result);
 }
 
-export function arrayAt(...args: types.AstNode[]): types.AstNode {
+export function arrayAt(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 2);
 	types.assertVectorNode(args[0]);
 	types.assertNumberNode(args[1]);
@@ -88,7 +94,7 @@ export function arrayAt(...args: types.AstNode[]): types.AstNode {
 	return result ? types.toAst(result) : types.createNilNode();
 }
 
-export function arrayIsArray(...args: types.AstNode[]): types.AstNode {
+export function arrayIsArray(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	types.assertAstNode(args[0]);
 
@@ -96,15 +102,15 @@ export function arrayIsArray(...args: types.AstNode[]): types.AstNode {
 	return types.createBooleanNode(result);
 }
 
-export function arrayConcat(...args: types.AstNode[]): types.AstNode {
+export function arrayConcat(args: types.AstNode[]): types.AstNode {
 	types.assertMinimumArgumentCount(args.length, 1);
 	types.assertSequentialValues<types.VectorNode>(args, types.VectorNode);
 
-	const result = args[0].value.concat(...args.slice(1).map((x) => x.value));
+	const result = args[0].value.concat(args.slice(1).flatMap((x) => x.value));
 	return types.createVectorNode(result);
 }
 
-export function arrayCopyWithin(...args: types.AstNode[]): types.AstNode {
+export function arrayCopyWithin(args: types.AstNode[]): types.AstNode {
 	types.assertVariableArgumentCount(args.length, 1, 4);
 	types.assertVectorNode(args[0]);
 	types.assertNumberNode(args[1]);
@@ -119,7 +125,7 @@ export function arrayCopyWithin(...args: types.AstNode[]): types.AstNode {
 	return types.createVectorNode(result);
 }
 
-export function arrayEntries(...args: types.AstNode[]): types.AstNode {
+export function arrayEntries(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	types.assertVectorNode(args[0]);
 
@@ -131,7 +137,7 @@ export function arrayEntries(...args: types.AstNode[]): types.AstNode {
 	return types.createVectorNode(result);
 }
 
-export function arrayEvery(...args: types.AstNode[]): types.AstNode {
+export function arrayEvery(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 2);
 	types.assertVectorNode(args[0]);
 	types.assertFunctionNode(args[1]);
@@ -141,9 +147,9 @@ export function arrayEvery(...args: types.AstNode[]): types.AstNode {
 
 	const result = vector.every((value, index, vector) => {
 		const test = fn(
-			types.createNumberNode(index),
+[			types.createNumberNode(index),
 			value,
-			types.createVectorNode(vector),
+			types.createVectorNode(vector),]
 		);
 		return test.value; // truthy or falsy
 	});
@@ -151,7 +157,7 @@ export function arrayEvery(...args: types.AstNode[]): types.AstNode {
 	return types.createBooleanNode(result);
 }
 
-export function arrayFill(...args: types.AstNode[]): types.AstNode {
+export function arrayFill(args: types.AstNode[]): types.AstNode {
 	types.assertVariableArgumentCount(args.length, 2, 4);
 	types.assertVectorNode(args[0]);
 	types.assertAstNode(args[1]);
@@ -175,7 +181,7 @@ export function arrayFill(...args: types.AstNode[]): types.AstNode {
 	return types.createVectorNode(result.map(types.toAst));
 }
 
-export function arrayFilter(...args: types.AstNode[]): types.AstNode {
+export function arrayFilter(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 2);
 	types.assertFunctionNode(args[0]);
 	types.assertVectorNode(args[1]);
@@ -183,11 +189,11 @@ export function arrayFilter(...args: types.AstNode[]): types.AstNode {
 	const fn = args[0];
 	const vec = args[1];
 
-	const filtered = vec.value.filter((item) => Boolean(fn.value(item).value));
+	const filtered = vec.value.filter((item) => Boolean(fn.value([item]).value));
 	return types.createVectorNode(filtered);
 }
 
-export function arrayFind(...args: types.AstNode[]): types.AstNode {
+export function arrayFind(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 2);
 	types.assertVectorNode(args[0]);
 	types.assertFunctionNode(args[1]);
@@ -197,9 +203,9 @@ export function arrayFind(...args: types.AstNode[]): types.AstNode {
 
 	const result = vector.find((value, index, vector) => {
 		const test = fn(
-			value,
+[			value,
 			types.createNumberNode(index),
-			types.createVectorNode(vector),
+			types.createVectorNode(vector),]
 		);
 		return test.value;
 	});
@@ -207,7 +213,7 @@ export function arrayFind(...args: types.AstNode[]): types.AstNode {
 	return result ?? types.createNilNode();
 }
 
-export function arrayFindIndex(...args: types.AstNode[]): types.AstNode {
+export function arrayFindIndex(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 2);
 	types.assertVectorNode(args[0]);
 	types.assertFunctionNode(args[1]);
@@ -217,9 +223,9 @@ export function arrayFindIndex(...args: types.AstNode[]): types.AstNode {
 
 	const result = vector.findIndex((value, index, vector) => {
 		const test = fn(
-			value,
+[			value,
 			types.createNumberNode(index),
-			types.createVectorNode(vector),
+			types.createVectorNode(vector),]
 		);
 		return test.value;
 	});
@@ -227,7 +233,7 @@ export function arrayFindIndex(...args: types.AstNode[]): types.AstNode {
 	return types.createNumberNode(result);
 }
 
-export function arrayFindLast(...args: types.AstNode[]): types.AstNode {
+export function arrayFindLast(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 2);
 	types.assertVectorNode(args[0]);
 	types.assertFunctionNode(args[1]);
@@ -237,9 +243,9 @@ export function arrayFindLast(...args: types.AstNode[]): types.AstNode {
 
 	const result = vector.findLast((value, index, vector) => {
 		const test = fn(
-			value,
+[			value,
 			types.createNumberNode(index),
-			types.createVectorNode(vector),
+			types.createVectorNode(vector),]
 		);
 		return test.value;
 	});
@@ -247,7 +253,7 @@ export function arrayFindLast(...args: types.AstNode[]): types.AstNode {
 	return result ?? types.createNilNode();
 }
 
-export function arrayFindLastIndex(...args: types.AstNode[]): types.AstNode {
+export function arrayFindLastIndex(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 2);
 	types.assertVectorNode(args[0]);
 	types.assertFunctionNode(args[1]);
@@ -257,9 +263,9 @@ export function arrayFindLastIndex(...args: types.AstNode[]): types.AstNode {
 
 	const result = vector.findLastIndex((value, index, vector) => {
 		const test = fn(
-			value,
+[			value,
 			types.createNumberNode(index),
-			types.createVectorNode(vector),
+			types.createVectorNode(vector),]
 		);
 		return test.value;
 	});
@@ -267,7 +273,7 @@ export function arrayFindLastIndex(...args: types.AstNode[]): types.AstNode {
 	return types.createNumberNode(result);
 }
 
-export function arrayFlat(...args: types.AstNode[]): types.AstNode {
+export function arrayFlat(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	types.assertVectorNode(args[0]);
 
@@ -285,7 +291,7 @@ export function arrayFlat(...args: types.AstNode[]): types.AstNode {
 	return types.createVectorNode(result);
 }
 
-export function arrayFlatMap(...args: types.AstNode[]): types.AstNode {
+export function arrayFlatMap(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 2);
 	types.assertVectorNode(args[0]);
 	types.assertFunctionNode(args[1]);
@@ -302,9 +308,9 @@ export function arrayFlatMap(...args: types.AstNode[]): types.AstNode {
 
 	const mapped = vector.map((value, index, vector) => {
 		return fn(
-			value,
+[			value,
 			types.createNumberNode(index),
-			types.createVectorNode(vector),
+			types.createVectorNode(vector),]
 		);
 	});
 
@@ -312,7 +318,7 @@ export function arrayFlatMap(...args: types.AstNode[]): types.AstNode {
 	return types.createVectorNode(result);
 }
 
-export function arrayIncludes(...args: types.AstNode[]): types.AstNode {
+export function arrayIncludes(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 2);
 	types.assertVectorNode(args[0]); // Assert the first argument *must* be a vector
 	types.assertAstNode(args[1]); // The element can be any AstNode
@@ -324,7 +330,7 @@ export function arrayIncludes(...args: types.AstNode[]): types.AstNode {
 	return types.createBooleanNode(result);
 }
 
-export function arrayIndexOf(...args: types.AstNode[]): types.AstNode {
+export function arrayIndexOf(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 2);
 	types.assertVectorNode(args[0]); // Assert the first argument *must* be a vector
 	types.assertAstNode(args[1]); // The element can be any AstNode
@@ -341,7 +347,7 @@ export function arrayIndexOf(...args: types.AstNode[]): types.AstNode {
 	return types.createNumberNode(-1);
 }
 
-export function arrayJoin(...args: types.AstNode[]): types.AstNode {
+export function arrayJoin(args: types.AstNode[]): types.AstNode {
 	types.assertVariableArgumentCount(args.length, 1, 2);
 	types.assertSequential(args[0]);
 
@@ -353,7 +359,7 @@ export function arrayJoin(...args: types.AstNode[]): types.AstNode {
 	return types.createStringNode(joined);
 }
 
-export function arrayKeys(...args: types.AstNode[]): types.AstNode {
+export function arrayKeys(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	types.assertVectorNode(args[0]);
 
@@ -363,7 +369,7 @@ export function arrayKeys(...args: types.AstNode[]): types.AstNode {
 	return types.createVectorNode(result);
 }
 
-export function arrayMap(...args: types.AstNode[]): types.AstNode {
+export function arrayMap(args: types.AstNode[]): types.AstNode {
 	types.assertVariableArgumentCount(args.length, 2, 3);
 	types.assertVectorNode(args[0]);
 	types.assertFunctionNode(args[1]);
@@ -373,15 +379,15 @@ export function arrayMap(...args: types.AstNode[]): types.AstNode {
 	const thisArg = args.length === 3 ? args[2].value : undefined;
 
 	const result = vector.map((value, index, _arr) => {
-		const res = callback(value, types.createNumberNode(index), thisArg);
-		return types.toAst(res);
+		const res = callback([value, types.createNumberNode(index), thisArg]);
+		return res;
 	});
 
 	return types.createVectorNode(result);
 }
 
 // pop
-export function arrayLast(...args: types.AstNode[]): types.AstNode {
+export function arrayLast(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	types.assertVectorNode(args[0]);
 
@@ -391,7 +397,7 @@ export function arrayLast(...args: types.AstNode[]): types.AstNode {
 }
 
 // push
-export function arrayPush(...args: types.AstNode[]): types.AstNode {
+export function arrayPush(args: types.AstNode[]): types.AstNode {
 	types.assertMinimumArgumentCount(args.length, 2);
 
 	if (!args.every(types.isAstNode)) {
@@ -402,7 +408,7 @@ export function arrayPush(...args: types.AstNode[]): types.AstNode {
 	return types.createVectorNode([...args[0].value, ...args.slice(1)]);
 }
 
-export function arrayLength(...args: types.AstNode[]): types.AstNode {
+export function arrayLength(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	types.assertVectorNode(args[0]);
 
@@ -418,7 +424,7 @@ export function arrayLength(...args: types.AstNode[]): types.AstNode {
  * @returns Types.AstNode.
  * @example (reduce (lambda (acc x) (+ acc x)) [1, 2, 3, 4] 0) ;=> 10
  */
-export function arrayReduce(...args: types.AstNode[]): types.AstNode {
+export function arrayReduce(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 3);
 	types.assertFunctionNode(args[0]);
 	types.assertVectorNode(args[1]);
@@ -428,13 +434,13 @@ export function arrayReduce(...args: types.AstNode[]): types.AstNode {
 	let accumulator = args[2];
 
 	for (const item of vec.value) {
-		accumulator = fn.value(accumulator, item);
+		accumulator = fn.value([accumulator, item]);
 	}
 
 	return accumulator;
 }
 
-export function arrayToReversed(...args: types.AstNode[]): types.AstNode {
+export function arrayToReversed(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	types.assertVectorNode(args[0]);
 
@@ -443,7 +449,7 @@ export function arrayToReversed(...args: types.AstNode[]): types.AstNode {
 	return types.createVectorNode(result);
 }
 
-export function arrayFirst(...args: types.AstNode[]): types.AstNode {
+export function arrayFirst(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	types.assertVectorNode(args[0]);
 
@@ -452,7 +458,7 @@ export function arrayFirst(...args: types.AstNode[]): types.AstNode {
 	return result ? result : types.createNilNode();
 }
 
-export function arraySlice(...args: types.AstNode[]): types.AstNode {
+export function arraySlice(args: types.AstNode[]): types.AstNode {
 	types.assertVariableArgumentCount(args.length, 1, 3);
 	types.assertVectorNode(args[0]);
 
@@ -471,7 +477,7 @@ export function arraySlice(...args: types.AstNode[]): types.AstNode {
 	return types.createVectorNode(args[0].value.slice(start, end));
 }
 
-export function arraySome(...args: types.AstNode[]): types.AstNode {
+export function arraySome(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 2);
 	types.assertVectorNode(args[0]);
 	types.assertFunctionNode(args[1]);
@@ -481,9 +487,9 @@ export function arraySome(...args: types.AstNode[]): types.AstNode {
 
 	const result = vector.some((value, index, vector) => {
 		const test = fn(
-			value,
+[			value,
 			types.createNumberNode(index),
-			types.createVectorNode(vector),
+			types.createVectorNode(vector),]
 		);
 		return test.value;
 	});
@@ -491,7 +497,7 @@ export function arraySome(...args: types.AstNode[]): types.AstNode {
 	return types.createBooleanNode(result);
 }
 
-export function arrayToSorted(...args: types.AstNode[]): types.AstNode {
+export function arrayToSorted(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 2);
 	types.assertVectorNode(args[0]);
 	types.assertFunctionNode(args[1]);
@@ -500,7 +506,7 @@ export function arrayToSorted(...args: types.AstNode[]): types.AstNode {
 	const fn = args[1].value;
 
 	const result = vector.toSorted((a, b) => {
-		const order = fn(a, b);
+		const order = fn([a, b]);
 		types.assertNumberNode(order);
 		return order.value;
 	});
@@ -508,7 +514,7 @@ export function arrayToSorted(...args: types.AstNode[]): types.AstNode {
 	return types.createVectorNode(result);
 }
 
-export function arrayToSpliced(...args: types.AstNode[]): types.AstNode {
+export function arrayToSpliced(args: types.AstNode[]): types.AstNode {
 	types.assertVariableArgumentCount(args.length, 2, 4);
 	types.assertVectorNode(args[0]);
 	types.assertNumberNode(args[1]);
@@ -529,15 +535,15 @@ export function arrayToSpliced(...args: types.AstNode[]): types.AstNode {
 }
 
 // Based on cons
-export function arrayUnshift(...args: types.AstNode[]): types.ListNode {
+export function arrayUnshift(args: types.AstNode[]): types.ListNode {
 	types.assertArgumentCount(args.length, 2);
 	types.assertVectorNode(args[1]);
 
-	const prepended = [args[0], ...args[1].value];
+	const prepended = [args[0]].concat(args[1].value);
 	return types.createVectorNode(prepended);
 }
 
-export function arrayValues(...args: types.AstNode[]): types.AstNode {
+export function arrayValues(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	types.assertVectorNode(args[0]);
 
@@ -547,7 +553,7 @@ export function arrayValues(...args: types.AstNode[]): types.AstNode {
 	return types.createVectorNode(result);
 }
 
-export function arrayReplaceWith(...args: types.AstNode[]): types.AstNode {
+export function arrayReplaceWith(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 3);
 	types.assertVectorNode(args[0]);
 	types.assertNumberNode(args[1]);

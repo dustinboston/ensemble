@@ -23,7 +23,7 @@ export const numberFunctions: Array<[string, types.Closure]> = [
 	["Number.POSITIVE_INFINITY", numberPositiveInfinity],
 ];
 
-export function newNumber(...astArgs: types.AstNode[]): types.AstNode {
+export function newNumber(astArgs: types.AstNode[]): types.AstNode {
 	if (astArgs.length === 1 && types.isAstNode(astArgs[0])) {
 		const value = astArgs[0].value;
 		const result = Number(value); // ctor
@@ -32,7 +32,7 @@ export function newNumber(...astArgs: types.AstNode[]): types.AstNode {
 	throw new TypeError('Invalid arguments to "Number"');
 }
 
-export function numberIsFinite(...astArgs: types.AstNode[]): types.AstNode {
+export function numberIsFinite(astArgs: types.AstNode[]): types.AstNode {
 	if (astArgs.length === 1 && types.isAstNode(astArgs[0])) {
 		const value = astArgs[0].value;
 		const result = Number.isFinite(value);
@@ -41,7 +41,7 @@ export function numberIsFinite(...astArgs: types.AstNode[]): types.AstNode {
 	throw new TypeError('Invalid arguments to "Number.isFinite"');
 }
 
-export function numberIsInteger(...astArgs: types.AstNode[]): types.AstNode {
+export function numberIsInteger(astArgs: types.AstNode[]): types.AstNode {
 	if (astArgs.length === 1 && types.isAstNode(astArgs[0])) {
 		const value = astArgs[0].value;
 		const result = Number.isInteger(value);
@@ -50,7 +50,7 @@ export function numberIsInteger(...astArgs: types.AstNode[]): types.AstNode {
 	throw new TypeError('Invalid arguments to "Number.isInteger"');
 }
 
-export function numberIsNaN(...astArgs: types.AstNode[]): types.AstNode {
+export function numberIsNaN(astArgs: types.AstNode[]): types.AstNode {
 	if (astArgs.length === 1 && types.isAstNode(astArgs[0])) {
 		const value = astArgs[0].value;
 		const result = Number.isNaN(value);
@@ -60,7 +60,7 @@ export function numberIsNaN(...astArgs: types.AstNode[]): types.AstNode {
 }
 
 export function numberIsSafeInteger(
-	...astArgs: types.AstNode[]
+	astArgs: types.AstNode[]
 ): types.AstNode {
 	if (astArgs.length === 1 && types.isAstNode(astArgs[0])) {
 		const value = astArgs[0].value;
@@ -70,7 +70,7 @@ export function numberIsSafeInteger(
 	throw new TypeError('Invalid arguments to "Number.isSafeInteger"');
 }
 
-export function numberParseFloat(...astArgs: types.AstNode[]): types.AstNode {
+export function numberParseFloat(astArgs: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 1);
 	types.assertStringNode(astArgs[0]);
 	const stringValue = types.unwrapStringNode(astArgs[0]);
@@ -78,7 +78,7 @@ export function numberParseFloat(...astArgs: types.AstNode[]): types.AstNode {
 	return types.toAst(result);
 }
 
-export function numberParseInt(...astArgs: types.AstNode[]): types.AstNode {
+export function numberParseInt(astArgs: types.AstNode[]): types.AstNode {
 	types.assertVariableArgumentCount(astArgs.length, 1, 2);
 	types.assertStringNode(astArgs[0]);
 
@@ -95,7 +95,7 @@ export function numberParseInt(...astArgs: types.AstNode[]): types.AstNode {
 	return types.createNumberNode(result);
 }
 
-export function numberEpsilon(...astArgs: types.AstNode[]): types.AstNode {
+export function numberEpsilon(astArgs: types.AstNode[]): types.AstNode {
 	if (astArgs.length === 0) {
 		const result = Number.EPSILON;
 		return types.toAst(result);
@@ -104,7 +104,7 @@ export function numberEpsilon(...astArgs: types.AstNode[]): types.AstNode {
 }
 
 export function numberMaxSafeInteger(
-	...astArgs: types.AstNode[]
+	astArgs: types.AstNode[]
 ): types.AstNode {
 	if (astArgs.length === 0) {
 		const result = Number.MAX_SAFE_INTEGER;
@@ -113,7 +113,7 @@ export function numberMaxSafeInteger(
 	throw new TypeError('Invalid arguments to "Number.MAX_SAFE_INTEGER"');
 }
 
-export function numberMaxValue(...astArgs: types.AstNode[]): types.AstNode {
+export function numberMaxValue(astArgs: types.AstNode[]): types.AstNode {
 	if (astArgs.length === 0) {
 		const result = Number.MAX_VALUE;
 		return types.toAst(result);
@@ -122,7 +122,7 @@ export function numberMaxValue(...astArgs: types.AstNode[]): types.AstNode {
 }
 
 export function numberMinSafeInteger(
-	...astArgs: types.AstNode[]
+	astArgs: types.AstNode[]
 ): types.AstNode {
 	if (astArgs.length === 0) {
 		const result = Number.MIN_SAFE_INTEGER;
@@ -131,7 +131,7 @@ export function numberMinSafeInteger(
 	throw new TypeError('Invalid arguments to "Number.MIN_SAFE_INTEGER"');
 }
 
-export function numberMinValue(...astArgs: types.AstNode[]): types.AstNode {
+export function numberMinValue(astArgs: types.AstNode[]): types.AstNode {
 	if (astArgs.length === 0) {
 		const result = Number.MIN_VALUE;
 		return types.toAst(result);
@@ -139,7 +139,7 @@ export function numberMinValue(...astArgs: types.AstNode[]): types.AstNode {
 	throw new TypeError('Invalid arguments to "Number.MIN_VALUE"');
 }
 
-export function numberNaN(...astArgs: types.AstNode[]): types.AstNode {
+export function numberNaN(astArgs: types.AstNode[]): types.AstNode {
 	if (astArgs.length === 0) {
 		const result = Number.NaN;
 		return types.toAst(result);
@@ -148,7 +148,7 @@ export function numberNaN(...astArgs: types.AstNode[]): types.AstNode {
 }
 
 export function numberNegativeInfinity(
-	...astArgs: types.AstNode[]
+	astArgs: types.AstNode[]
 ): types.AstNode {
 	if (astArgs.length === 0) {
 		const result = Number.NEGATIVE_INFINITY;
@@ -158,7 +158,7 @@ export function numberNegativeInfinity(
 }
 
 export function numberPositiveInfinity(
-	...astArgs: types.AstNode[]
+	astArgs: types.AstNode[]
 ): types.AstNode {
 	if (astArgs.length === 0) {
 		const result = Number.POSITIVE_INFINITY;
@@ -168,7 +168,7 @@ export function numberPositiveInfinity(
 }
 
 export function numberPrototypeToExponential(
-	...astArgs: types.AstNode[]
+	astArgs: types.AstNode[]
 ): types.AstNode {
 	types.assertVariableArgumentCount(astArgs.length, 1, 2);
 	types.assertNumberNode(astArgs[0]);
@@ -183,7 +183,7 @@ export function numberPrototypeToExponential(
 }
 
 export function numberPrototypeToFixed(
-	...astArgs: types.AstNode[]
+	astArgs: types.AstNode[]
 ): types.AstNode {
 	types.assertVariableArgumentCount(astArgs.length, 1, 2);
 	types.assertNumberNode(astArgs[0]);
@@ -198,7 +198,7 @@ export function numberPrototypeToFixed(
 }
 
 export function numberPrototypeToPrecision(
-	...astArgs: types.AstNode[]
+	astArgs: types.AstNode[]
 ): types.AstNode {
 	types.assertVariableArgumentCount(astArgs.length, 1, 2);
 	types.assertNumberNode(astArgs[0]);
@@ -213,7 +213,7 @@ export function numberPrototypeToPrecision(
 }
 
 export function numberPrototypeToString(
-	...astArgs: types.AstNode[]
+	astArgs: types.AstNode[]
 ): types.AstNode {
 	types.assertVariableArgumentCount(astArgs.length, 1, 2);
 	types.assertNumberNode(astArgs[0]);

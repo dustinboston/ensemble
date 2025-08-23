@@ -12,7 +12,7 @@ runner.test("toBoolean - truthy values", () => {
 	];
 
 	for (const val of values) {
-		runner.assert(bool.toBoolean(val), types.createBooleanNode(true));
+		runner.assert(bool.toBoolean([val]), types.createBooleanNode(true));
 	}
 });
 
@@ -24,14 +24,14 @@ runner.test("toBoolean - falsy values", () => {
 		types.createBooleanNode(false),
 	];
 	for (const val of values) {
-		runner.assert(bool.toBoolean(val), types.createBooleanNode(false));
+		runner.assert(bool.toBoolean([val]), types.createBooleanNode(false));
 	}
 });
 
 runner.test("toBoolean - invalid arguments", () => {
 	let threw = false;
 	try {
-		bool.toBoolean();
+		bool.toBoolean([]);
 	} catch (e) {
 		threw = true;
 	}
@@ -39,7 +39,7 @@ runner.test("toBoolean - invalid arguments", () => {
 
 	threw = false;
 	try {
-		bool.toBoolean(types.createNumberNode(1), types.createNumberNode(1));
+		bool.toBoolean([types.createNumberNode(1), types.createNumberNode(1)]);
 	} catch (e) {
 		threw = true;
 	}

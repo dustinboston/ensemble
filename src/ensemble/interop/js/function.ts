@@ -16,7 +16,7 @@ export const functionFunctions: Array<[string, types.Closure]> = [
  * @returns Result of the evaluated expression or an Err.
  * @example (js-eval "console.log('give me a donut');")
  */
-export function jsEval(...args: types.AstNode[]): types.AstNode {
+export function jsEval(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	types.assertStringNode(args[0]);
 	try {
@@ -34,26 +34,27 @@ export function jsEval(...args: types.AstNode[]): types.AstNode {
 	}
 }
 
-export function apply(...args: types.AstNode[]): types.AstNode {
+export function apply(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 2);
 	types.assertFunctionNode(args[0]);
 	types.assertVectorNode(args[1]);
-	const result = args[0].value.apply(null, args[1].value);
+	const result = args[0].value.apply(null, [args[1].value]);
 	return types.toAst(result);
 }
 
-export function call(...args: types.AstNode[]): types.AstNode {
+export function call(args: types.AstNode[]): types.AstNode {
 	types.assertMinimumArgumentCount(args.length, 1);
 	types.assertFunctionNode(args[0]);
-	const result = args[0].value.call(null, ...args.slice(1));
+	const result = args[0].value.call(null, args.slice(1));
 	return types.toAst(result);
 }
 
 // Only allows binding a function to an AstNode (such as a FunctionNode).
-export function bind(...args: types.AstNode[]): types.AstNode {
+export function bind(args: types.AstNode[]): types.AstNode {
 	types.assertMinimumArgumentCount(args.length, 2);
 	types.assertFunctionNode(args[0]);
 	types.assertAstNode(args[1]);
-	const result = args[0].value.bind(args[1], ...args.slice(2));
-	return types.toAst(result);
+	const originalFn = args[0].value;
+	const boundFn = () => originalFn([]);
+	return types.createFunctionNode(boundFn);
 }

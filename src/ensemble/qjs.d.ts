@@ -1,4 +1,4 @@
-declare module "qjs:os" {
+declare module "os" {
 	export function readdir(path: string): [string[], string];
 	export function mkdir(path: string): void;
 	export function remove(path: string): void;
@@ -9,7 +9,7 @@ declare interface File {
 	close(): void;
 }
 
-declare module "qjs:std" {
+declare module "std" {
 	export function loadFile(path: string): string;
 	export function open(path: string, mode: string): QuickJSFile;
 	export function close(file: any): void;

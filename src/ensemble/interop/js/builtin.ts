@@ -7,7 +7,7 @@ export const builtInFunctions: Array<[string, types.Closure]> = [
 	["encodeURIComponent", globalEncodeUriComponent],
 ];
 
-export function globalDecodeUri(...astArgs: types.AstNode[]): types.AstNode {
+export function globalDecodeUri(astArgs: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 1);
 	types.assertStringNode(astArgs[0]);
 	const result = decodeURI(astArgs[0].value);
@@ -15,7 +15,7 @@ export function globalDecodeUri(...astArgs: types.AstNode[]): types.AstNode {
 }
 
 export function globalDecodeUriComponent(
-	...astArgs: types.AstNode[]
+	astArgs: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 1);
 	types.assertStringNode(astArgs[0]);
@@ -23,7 +23,7 @@ export function globalDecodeUriComponent(
 	return types.createStringNode(result);
 }
 
-export function globalEncodeUri(...astArgs: types.AstNode[]): types.AstNode {
+export function globalEncodeUri(astArgs: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 1);
 	types.assertStringNode(astArgs[0]);
 	const result = encodeURI(astArgs[0].value);
@@ -31,7 +31,7 @@ export function globalEncodeUri(...astArgs: types.AstNode[]): types.AstNode {
 }
 
 export function globalEncodeUriComponent(
-	...astArgs: types.AstNode[]
+	astArgs: types.AstNode[]
 ): types.AstNode {
 	types.assertArgumentCount(astArgs.length, 1);
 	types.assertStringNode(astArgs[0]);

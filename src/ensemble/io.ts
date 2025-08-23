@@ -1,7 +1,7 @@
 /// <reference path="./qjs.d.ts" />
 
-import * as os from "qjs:os";
-import * as std from "qjs:std";
+import * as os from "os";
+import * as std from "std";
 
 import * as env from "./env.ts";
 import { initEnv, rep } from "./lib.ts";
@@ -31,7 +31,7 @@ export function writeToFile(text: string, filePath: string) {
  * @returns {types.NilNode|types.StringNode} - The user input or null.
  * @example (readline ">>> ")
  */
-export function readln(...args: types.AstNode[]): types.AstNode {
+export function readln(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	const cmdPrompt = args[0];
 	types.assertStringNode(cmdPrompt);
@@ -49,7 +49,7 @@ export function readln(...args: types.AstNode[]): types.AstNode {
  * @returns A Dict with details about each item in the directory.
  * @example (readdir "./path/to/file.txt")
  */
-export function readir(...args: types.AstNode[]): types.AstNode {
+export function readir(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 	types.assertStringNode(args[0]);
 
@@ -79,7 +79,7 @@ export function readir(...args: types.AstNode[]): types.AstNode {
  * @throws An error when file doesn't exist or reading a directory.
  * @example (slurp "../tests/test.txt") ;=>"A line of text\n"
  */
-export function slurp(...args: types.AstNode[]): types.AstNode {
+export function slurp(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 1);
 
 	const filePath = args[0];
@@ -103,7 +103,7 @@ export function slurp(...args: types.AstNode[]): types.AstNode {
  * @throws An error when the operation fails.
  * @example (spit "../tests/test.txt")
  */
-export function spit(...args: types.AstNode[]): types.AstNode {
+export function spit(args: types.AstNode[]): types.AstNode {
 	types.assertArgumentCount(args.length, 2);
 	const filePath = args[0];
 	types.assertStringNode(filePath);
@@ -175,11 +175,11 @@ export function* readline(promptText = defaultPrompt): Generator<string> {
  * ```
  */
 export function loadFileWithEnv(appEnv: env.Env) {
-	return function loadFile(...args: types.AstNode[]): types.AstNode {
+	return function loadFile(args: types.AstNode[]): types.AstNode {
 		types.assertArgumentCount(args.length, 1);
 		types.assertStringNode(args[0]);
 
-		const text = slurp(args[0]);
+		const text = slurp([args[0]]);
 		types.assertStringNode(text);
 
 		// Evaluate the file content in the same environment so definitions persist
@@ -227,10 +227,10 @@ export function toPosixPath(filePath = ""): string {
  */
 export async function main(args: string[]) {
 	const replEnv = initMain();
-	// Process the arguments
-	const userScriptPath: string | undefined = toPosixPath(args[0]);
-	const hostEnvArgs: types.StringNode[] = args
-		.slice(1)
+	// Process the arguments - filter out the binary path
+	const filteredArgs = args.filter(arg => !arg.endsWith('ensemble') && !arg.endsWith('ensemble.exe'));
+	const userScriptPath: string | undefined = filteredArgs.length > 0 ? toPosixPath(filteredArgs[0]) : undefined;
+	const hostEnvArgs: types.StringNode[] = filteredArgs.slice(1)
 		.map((arg) => types.createStringNode(arg));
 
 	replEnv.set(
@@ -262,14 +262,16 @@ export async function main(args: string[]) {
 
 		try {
 			const result = rep(input, replEnv);
-			console.log(result);
+			if (result) {
+				console.log(result);
+			}
 		} catch (error: unknown) {
 			if (types.isErrorNode(error)) {
 				console.log(printer.printString(error, false));
 			} else if (error instanceof Error) {
-				console.log(error);
+				console.log(error.message);
 			} else {
-				console.log(error);
+				console.log(String(error));
 			}
 		}
 	}

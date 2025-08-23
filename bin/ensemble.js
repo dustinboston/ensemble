@@ -1024,7 +1024,7 @@ function unwrapErrorNode(ast) {
   return new Error(message);
 }
 function unwrapFunctionNode(ast) {
-  return (...args) => toAst(unwrap(ast.value(...args)));
+  return (args) => toAst(unwrap(ast.value(args)));
 }
 function unwrapKeywordNode(ast) {
   return ast.value;
@@ -1082,9 +1082,9 @@ function toAst(input) {
       return createStringNode(JSON.stringify(input));
     }
     case "function": {
-      return createFunctionNode((...args) => {
+      return createFunctionNode((args) => {
         try {
-          return toAst(input(...args.map((x) => x.value)));
+          return toAst(input(args.map((x) => x.value)));
         } catch (error) {
           if (error instanceof Error) {
             return createErrorNode(createStringNode(error.message));
@@ -1152,17 +1152,17 @@ function printString(ast, printReadably = false) {
   const atom2 = ast;
   if (isAtomNode(atom2)) {
     if (isAstNode(atom2.value)) {
-      return `(atom ${printString(atom2.value)})`;
+      return `<atom ${printString(atom2.value)}>`;
     }
     if (atom2.value instanceof HTMLElement) {
       const domNode = createDomNodeFromHtmlElement(atom2.value);
-      return `(atom (element ${printString(domNode)}))`;
+      return `<atom <element ${printString(domNode)}>>`;
     }
     if (atom2.value instanceof Event) {
       const event = atom2.value.type;
-      return `(atom (event ${event})))`;
+      return `<atom <event ${event}>>`;
     }
-    return `(atom #<js ${typeof atom2.value}>)`;
+    return `<atom #<js ${typeof atom2.value}>>`;
   }
   if (isErrorNode(ast)) {
     const cause = ast.cause ? ast.cause : createNilNode();
@@ -1385,9 +1385,7 @@ function readString(code) {
     const result = readForm(new Reader(tokens));
     return result;
   } catch (e) {
-    const message = e instanceof Error ? e.message : String(e);
-    console.log(`Error reading input: ${message}`);
-    return createNilNode();
+    throw e;
   }
 }
 function readForm(rdr) {
@@ -1558,7 +1556,6 @@ var nsValues = [
   // Arrays
   ["concat", concat],
   ["conj", conj],
-  // Similar to ...
   ["cons", cons],
   ["count", length],
   ["empty?", empty],
@@ -1585,40 +1582,40 @@ var nsValues = [
 for (const [sym, fn] of nsValues) {
   ns.set(createSymbolNode(sym), createFunctionNode(fn));
 }
-function eq(...args) {
+function eq(args) {
   assertArgumentCount(args.length, 2);
   return isEqualTo(args[0], args[1]);
 }
-function printEscapedString(...args) {
+function printEscapedString(args) {
   const result = args.map((arg) => printString(arg, true)).join(" ");
   return createStringNode(result);
 }
-function printUnescapedString(...args) {
+function printUnescapedString(args) {
   const result = args.map((arg) => printString(arg, false)).join("");
   return createStringNode(result);
 }
-function printEscapedStringToScreen(...args) {
+function printEscapedStringToScreen(args) {
   const result = args.map((arg) => printString(arg, true)).join(" ");
   console.log(result);
   return createNilNode();
 }
-function printUnescapedStringToScreen(...args) {
+function printUnescapedStringToScreen(args) {
   const result = args.map((arg) => printString(arg, false)).join(" ");
   console.log(result);
   return createNilNode();
 }
-function readString2(...args) {
+function readString2(args) {
   assertArgumentCount(args.length, 1);
   const code = args[0];
   assertStringNode(code);
   return readString(code.value);
 }
-function trim(...args) {
+function trim(args) {
   assertArgumentCount(args.length, 1);
   const value = args[0].value;
   return value ? createStringNode(value.trim()) : createStringNode("");
 }
-function lt(...args) {
+function lt(args) {
   assertArgumentCount(args.length, 2);
   const a = args[0];
   assertNumberNode(a);
@@ -1626,7 +1623,7 @@ function lt(...args) {
   assertNumberNode(b);
   return createBooleanNode(a.value < b.value);
 }
-function lte(...args) {
+function lte(args) {
   assertArgumentCount(args.length, 2);
   const a = args[0];
   assertNumberNode(a);
@@ -1634,7 +1631,7 @@ function lte(...args) {
   assertNumberNode(b);
   return createBooleanNode(a.value <= b.value);
 }
-function gt(...args) {
+function gt(args) {
   assertArgumentCount(args.length, 2);
   const a = args[0];
   assertNumberNode(a);
@@ -1642,7 +1639,7 @@ function gt(...args) {
   assertNumberNode(b);
   return createBooleanNode(a.value > b.value);
 }
-function gte(...args) {
+function gte(args) {
   assertArgumentCount(args.length, 2);
   const a = args[0];
   assertNumberNode(a);
@@ -1650,7 +1647,7 @@ function gte(...args) {
   assertNumberNode(b);
   return createBooleanNode(a.value >= b.value);
 }
-function add(...args) {
+function add(args) {
   assertArgumentCount(args.length, 2);
   const a = args[0];
   assertNumberNode(a);
@@ -1658,7 +1655,7 @@ function add(...args) {
   assertNumberNode(b);
   return createNumberNode(a.value + b.value);
 }
-function subtract(...args) {
+function subtract(args) {
   assertArgumentCount(args.length, 2);
   const a = args[0];
   assertNumberNode(a);
@@ -1666,7 +1663,7 @@ function subtract(...args) {
   assertNumberNode(b);
   return createNumberNode(a.value - b.value);
 }
-function multiply(...args) {
+function multiply(args) {
   assertArgumentCount(args.length, 2);
   const a = args[0];
   assertNumberNode(a);
@@ -1674,7 +1671,7 @@ function multiply(...args) {
   assertNumberNode(b);
   return createNumberNode(a.value * b.value);
 }
-function divide(...args) {
+function divide(args) {
   assertArgumentCount(args.length, 2);
   const a = args[0];
   assertNumberNode(a);
@@ -1682,37 +1679,39 @@ function divide(...args) {
   assertNumberNode(b);
   return createNumberNode(a.value / b.value);
 }
-function timeMs(...args) {
+function timeMs(args) {
   assertArgumentCount(args.length, 0);
   return createNumberNode((/* @__PURE__ */ new Date()).getTime());
 }
-function list(...args) {
+function list(args) {
   for (const arg of args) {
     assertAstNode(arg);
   }
   return createListNode(args);
 }
-function isListNode2(...args) {
+function isListNode2(args) {
   assertArgumentCount(args.length, 1);
   return createBooleanNode(isListNode(args[0]));
 }
-function cons(...args) {
+function cons(args) {
   assertArgumentCount(args.length, 2);
   assertSequential(args[1]);
-  return new ListNode([args[0], ...args[1].value]);
+  return new ListNode([args[0]].concat(args[1].value));
 }
-function concat(...args) {
+function concat(args) {
   const resultList = [];
   for (const arg of args) {
     assertSequential(arg);
-    resultList.push(...arg.value);
+    for (const item of arg.value) {
+      resultList.push(item);
+    }
   }
   return createListNode(resultList);
 }
-function vec(...args) {
+function vec(args) {
   return isListNode(args[0]) ? createVectorNode(args[0].value) : args[0];
 }
-function nth(...args) {
+function nth(args) {
   assertArgumentCount(args.length, 2);
   assertSequential(args[0]);
   assertNumberNode(args[1]);
@@ -1729,34 +1728,34 @@ function nth(...args) {
     index
   );
 }
-function firstNodeInList(...args) {
+function firstNodeInList(args) {
   assertArgumentCount(args.length, 1);
   if (isSequentialNode(args[0]) && args[0].value.length > 0) {
     return args[0].value[0];
   }
   return createNilNode();
 }
-function lastNodeInList(...args) {
+function lastNodeInList(args) {
   assertArgumentCount(args.length, 1);
   if (isSequentialNode(args[0]) && args[0].value.length > 0) {
     return args[0].value[args[0].value.length - 1];
   }
   return createNilNode();
 }
-function rest(...args) {
+function rest(args) {
   assertArgumentCount(args.length, 1);
   if (isSequentialNode(args[0])) {
     return createListNode(args[0].value.slice(1));
   }
   return createListNode([]);
 }
-function empty(...args) {
+function empty(args) {
   assertArgumentCount(args.length, 1);
   const list2 = args[0];
   assertSequential(list2);
   return createBooleanNode(list2.value.length === 0);
 }
-function length(...args) {
+function length(args) {
   assertArgumentCount(args.length, 1);
   const value = args[0];
   if (isNilNode(value)) {
@@ -1774,23 +1773,23 @@ function length(...args) {
     value
   );
 }
-function atom(...args) {
+function atom(args) {
   assertArgumentCount(args.length, 1);
   const value = args[0];
   return createAtomNode(value);
 }
-function isAtom(...args) {
+function isAtom(args) {
   assertArgumentCount(args.length, 1);
   const node2 = args[0];
   return createBooleanNode(isAtomNode(node2));
 }
-function deref(...args) {
+function deref(args) {
   assertArgumentCount(args.length, 1);
   const atom2 = args[0];
   assertAtomNode(atom2);
   return atom2.value;
 }
-function reset(...args) {
+function reset(args) {
   assertArgumentCount(args.length, 2);
   const atom2 = args[0];
   const node2 = args[1];
@@ -1798,56 +1797,62 @@ function reset(...args) {
   atom2.value = node2;
   return node2;
 }
-function swap(...args) {
+function swap(args) {
   assertMinimumArgumentCount(args.length, 2);
   assertAtomNode(args[0]);
   assertFunctionNode(args[1]);
   const atom2 = args[0];
   const fn = args[1];
   const rest2 = args.slice(2);
-  atom2.value = fn.value(atom2.value, ...rest2);
+  atom2.value = fn.value([atom2.value].concat(rest2));
   return atom2.value;
 }
-function throwError(...args) {
+function throwError(args) {
   assertArgumentCount(args.length, 1);
   assertAstNode(args[0]);
   throw createErrorNode(args[0]);
 }
-function apply(...args) {
+function apply(args) {
   const count = args.length;
   assertMinimumArgumentCount(count, 2);
   assertFunctionNode(args[0]);
+  const fn = args[0];
   const lastList = args[count - 1];
   assertSequential(lastList);
-  return args[0].value(...args.slice(1, -1), ...lastList.value);
+  const middleArgs = args.slice(1, -1);
+  const allArgs = middleArgs.concat(lastList.value);
+  return fn.value(allArgs);
 }
-function applyToSequence(...args) {
+function applyToSequence(args) {
   const count = args.length;
   assertArgumentCount(count, 2);
   assertFunctionNode(args[0]);
   assertSequential(args[1]);
   const fn = args[0];
   const list2 = args[1];
-  const result = list2.value.map((item) => fn.value(item));
+  const result = list2.value.map((item) => fn.value([item]));
   return createListNode(result);
 }
-function conj(...args) {
+function conj(args) {
   assertMinimumArgumentCount(args.length, 2);
   assertSequential(args[0]);
-  const [seq2, ...rest2] = args;
-  if (isListNode(seq2)) {
-    return createListNode([...rest2.reverse(), ...seq2.value]);
+  if (isListNode(args[0])) {
+    const seq3 = args[0];
+    const rest3 = args.slice(1);
+    return createListNode(rest3.reverse().concat(seq3.value));
   }
-  return createVectorNode([...args[0].value, ...rest2]);
+  const seq2 = args[0];
+  const rest2 = args.slice(1);
+  return createVectorNode(seq2.value.concat(rest2));
 }
-function seq(...args) {
+function seq(args) {
   assertArgumentCount(args.length, 1);
   const ast = args[0];
   if (isListNode(ast) && ast.value.length > 0) {
     return ast;
   }
   if (isVectorNode(ast) && ast.value.length > 0) {
-    return createListNode([...ast.value]);
+    return createListNode(ast.value);
   }
   if (isStringNode(ast) && ast.value.length > 0) {
     return createListNode(
@@ -1856,12 +1861,12 @@ function seq(...args) {
   }
   return createNilNode();
 }
-function meta(...args) {
+function meta(args) {
   assertArgumentCount(args.length, 1);
   assertMetadataType(args[0]);
   return args[0].metadata ?? createNilNode();
 }
-function withMeta(...args) {
+function withMeta(args) {
   assertArgumentCount(args.length, 2);
   assertMetadataType(args[0]);
   assertAstNode(args[1]);
@@ -1869,34 +1874,34 @@ function withMeta(...args) {
   copy2.metadata = args[1];
   return copy2;
 }
-function isNil(...args) {
+function isNil(args) {
   assertArgumentCount(args.length, 1);
   return createBooleanNode(isNilNode(args[0]));
 }
-function isTrue(...args) {
+function isTrue(args) {
   assertArgumentCount(args.length, 1);
   return createBooleanNode(isBooleanNode(args[0]) && args[0].value);
 }
-function isFalse(...args) {
+function isFalse(args) {
   assertArgumentCount(args.length, 1);
   return createBooleanNode(
     isBooleanNode(args[0]) && !args[0].value
   );
 }
-function isString(...args) {
+function isString(args) {
   assertArgumentCount(args.length, 1);
   return createBooleanNode(isStringNode(args[0]));
 }
-function symbol(...args) {
+function symbol(args) {
   assertArgumentCount(args.length, 1);
   assertStringNode(args[0]);
   return createSymbolNode(args[0].value);
 }
-function isSymbolNode2(...args) {
+function isSymbolNode2(args) {
   assertArgumentCount(args.length, 1);
   return createBooleanNode(isSymbolNode(args[0]));
 }
-function keyword(...args) {
+function keyword(args) {
   assertArgumentCount(args.length, 1);
   assertMapKeyNode(args[0]);
   const key = args[0];
@@ -1906,34 +1911,34 @@ function keyword(...args) {
   const string_ = args[0];
   return createKeywordNode(`:${string_.value}`);
 }
-function isKeyword(...args) {
+function isKeyword(args) {
   assertArgumentCount(args.length, 1);
   return createBooleanNode(isKeywordNode(args[0]));
 }
-function isNumber(...args) {
+function isNumber(args) {
   assertArgumentCount(args.length, 1);
   return createBooleanNode(isNumberNode(args[0]));
 }
-function isFn(...args) {
+function isFn(args) {
   assertArgumentCount(args.length, 1);
   return createBooleanNode(
     isFunctionNode(args[0]) && !args[0].isMacro
   );
 }
-function isMacro(...args) {
+function isMacro(args) {
   assertArgumentCount(args.length, 1);
   return createBooleanNode(
     isFunctionNode(args[0]) ? args[0].isMacro : false
   );
 }
-function vector(...args) {
+function vector(args) {
   return createVectorNode(args);
 }
-function isVector(...args) {
+function isVector(args) {
   assertArgumentCount(args.length, 1);
   return createBooleanNode(isVectorNode(args[0]));
 }
-function hashMap(...args) {
+function hashMap(args) {
   if (args.length === 0) {
     return createMapNode();
   }
@@ -1949,24 +1954,24 @@ function hashMap(...args) {
   }
   return dict;
 }
-function isMap(...args) {
+function isMap(args) {
   assertArgumentCount(args.length, 1);
   return createBooleanNode(isMapNode(args[0]));
 }
-function assoc(...args) {
+function assoc(args) {
   assertMinimumArgumentCount(args.length, 1);
   assertMapNode(args[0]);
   const rest2 = args.slice(1);
   const dict = createMapNode(
     new Map(args[0].value)
   );
-  const pairs = hashMap(...rest2);
+  const pairs = hashMap(rest2);
   for (const [key, value] of pairs.value.entries()) {
     dict.value.set(key, value);
   }
   return dict;
 }
-function dissoc(...args) {
+function dissoc(args) {
   assertMinimumArgumentCount(args.length, 1);
   assertMapNode(args[0]);
   const dict = createMapNode(
@@ -1978,7 +1983,7 @@ function dissoc(...args) {
   }
   return dict;
 }
-function get(...args) {
+function get(args) {
   assertArgumentCount(args.length, 2);
   const mapNode = args[0];
   if (!isMapNode(mapNode)) {
@@ -1992,7 +1997,7 @@ function get(...args) {
   }
   return createNilNode();
 }
-function contains(...args) {
+function contains(args) {
   assertArgumentCount(args.length, 2);
   const dict = args[0];
   const key = args[1];
@@ -2000,29 +2005,30 @@ function contains(...args) {
   assertMapKeyNode(key);
   return createBooleanNode(hasMapElement(dict.value, key));
 }
-function keys(...args) {
+function keys(args) {
   assertArgumentCount(args.length, 1);
   assertMapNode(args[0]);
   return getMapKeys(args[0].value);
 }
-function vals(...args) {
+function vals(args) {
   assertArgumentCount(args.length, 1);
   assertMapNode(args[0]);
-  return createListNode([...args[0].value.values()]);
+  return createListNode(Array.from(args[0].value.values()));
 }
-function isSequentialNode2(...args) {
+function isSequentialNode2(args) {
   return createBooleanNode(isSequentialNode(args[0]));
 }
-function join(...args) {
+function join(args) {
   assertVariableArgumentCount(args.length, 1, 2);
   assertSequential(args[0]);
   const delim = isStringNode(args[1]) ? args[1].value : " ";
   const joined = args[0].value.map((ast) => printString(ast, false)).join(delim);
   return createStringNode(joined);
 }
-function switchCase(...args) {
+function switchCase(args) {
   assertMinimumArgumentCount(args.length, 2);
-  const [expr, ...clauses] = args;
+  const expr = args[0];
+  const clauses = args.slice(1);
   const defaultClause = clauses.pop();
   assertDefined(defaultClause);
   assertFunctionNode(defaultClause);
@@ -2034,12 +2040,12 @@ function switchCase(...args) {
     assertFunctionNode(clause.value[1]);
     const result = isEqualTo(expr, clause.value[0]);
     if (result.value) {
-      return clause.value[1].value();
+      return clause.value[1].value([]);
     }
   }
-  return defaultClause.value();
+  return defaultClause.value([]);
 }
-function getProp(...args) {
+function getProp(args) {
   assertMinimumArgumentCount(args.length, 2);
   assertAstNode(args[0]);
   assertStringNode(args[1]);
@@ -2362,11 +2368,11 @@ for (const htmlTag of htmlTags) {
   );
 }
 function tag(tag2) {
-  return (...args) => {
-    return node(createSymbolNode(tag2), ...args);
+  return (args) => {
+    return node([createSymbolNode(tag2)].concat(args));
   };
 }
-function node(...args) {
+function node(args) {
   assertMinimumArgumentCount(args.length, 1);
   const tagName = args[0];
   assertSymbolNode(tagName);
@@ -2380,7 +2386,7 @@ function node(...args) {
   }
   return createDomNode(tagName.value, attributes, children);
 }
-function querySelector(...args) {
+function querySelector(args) {
   assertArgumentCount(args.length, 1);
   assertStringNode(args[0]);
   const selector = args[0].value;
@@ -2442,7 +2448,7 @@ var arrayFunctions = [
   ["Array::with", arrayReplaceWith],
   ["Array.toString", core_default.printEscapedString]
 ];
-function toArray(...args) {
+function toArray(args) {
   assertMinimumArgumentCount(args.length, 1);
   if (args.length === 1 && isNumberNode(args[0])) {
     const fillableArray = Array(args[0].value).fill(createNilNode());
@@ -2450,7 +2456,7 @@ function toArray(...args) {
   }
   return createVectorNode(args);
 }
-function arrayFrom(...args) {
+function arrayFrom(args) {
   assertVariableArgumentCount(args.length, 1, 3);
   assertVectorNode(args[0]);
   if (args.length >= 2) {
@@ -2459,14 +2465,17 @@ function arrayFrom(...args) {
   if (args.length === 3) {
     assertAstNode(args[2]);
   }
-  const result = Array.from(
-    args[0].value,
-    args[1]?.value,
-    args[2]?.value
-  );
+  const vector2 = args[0].value;
+  if (args.length === 1) {
+    return createVectorNode([...vector2]);
+  }
+  const mapFn = args[1].value;
+  const result = vector2.map((value, index) => {
+    return mapFn([value]);
+  });
   return createVectorNode(result);
 }
-function arrayAt(...args) {
+function arrayAt(args) {
   assertArgumentCount(args.length, 2);
   assertVectorNode(args[0]);
   assertNumberNode(args[1]);
@@ -2475,19 +2484,19 @@ function arrayAt(...args) {
   const result = vector2.at(index);
   return result ? toAst(result) : createNilNode();
 }
-function arrayIsArray(...args) {
+function arrayIsArray(args) {
   assertArgumentCount(args.length, 1);
   assertAstNode(args[0]);
   const result = isVectorNode(args[0]);
   return createBooleanNode(result);
 }
-function arrayConcat(...args) {
+function arrayConcat(args) {
   assertMinimumArgumentCount(args.length, 1);
   assertSequentialValues(args, VectorNode);
-  const result = args[0].value.concat(...args.slice(1).map((x) => x.value));
+  const result = args[0].value.concat(args.slice(1).flatMap((x) => x.value));
   return createVectorNode(result);
 }
-function arrayCopyWithin(...args) {
+function arrayCopyWithin(args) {
   assertVariableArgumentCount(args.length, 1, 4);
   assertVectorNode(args[0]);
   assertNumberNode(args[1]);
@@ -2499,7 +2508,7 @@ function arrayCopyWithin(...args) {
   const result = vector2.copyWithin(target, start, end);
   return createVectorNode(result);
 }
-function arrayEntries(...args) {
+function arrayEntries(args) {
   assertArgumentCount(args.length, 1);
   assertVectorNode(args[0]);
   const result = args[0].value.map((valueNode, index) => {
@@ -2508,7 +2517,7 @@ function arrayEntries(...args) {
   });
   return createVectorNode(result);
 }
-function arrayEvery(...args) {
+function arrayEvery(args) {
   assertArgumentCount(args.length, 2);
   assertVectorNode(args[0]);
   assertFunctionNode(args[1]);
@@ -2516,15 +2525,17 @@ function arrayEvery(...args) {
   const fn = args[1].value;
   const result = vector2.every((value, index, vector3) => {
     const test = fn(
-      createNumberNode(index),
-      value,
-      createVectorNode(vector3)
+      [
+        createNumberNode(index),
+        value,
+        createVectorNode(vector3)
+      ]
     );
     return test.value;
   });
   return createBooleanNode(result);
 }
-function arrayFill(...args) {
+function arrayFill(args) {
   assertVariableArgumentCount(args.length, 2, 4);
   assertVectorNode(args[0]);
   assertAstNode(args[1]);
@@ -2543,16 +2554,16 @@ function arrayFill(...args) {
   const result = vector2.fill(value, start, end);
   return createVectorNode(result.map(toAst));
 }
-function arrayFilter(...args) {
+function arrayFilter(args) {
   assertArgumentCount(args.length, 2);
   assertFunctionNode(args[0]);
   assertVectorNode(args[1]);
   const fn = args[0];
   const vec2 = args[1];
-  const filtered = vec2.value.filter((item) => Boolean(fn.value(item).value));
+  const filtered = vec2.value.filter((item) => Boolean(fn.value([item]).value));
   return createVectorNode(filtered);
 }
-function arrayFind(...args) {
+function arrayFind(args) {
   assertArgumentCount(args.length, 2);
   assertVectorNode(args[0]);
   assertFunctionNode(args[1]);
@@ -2560,15 +2571,17 @@ function arrayFind(...args) {
   const fn = args[1].value;
   const result = vector2.find((value, index, vector3) => {
     const test = fn(
-      value,
-      createNumberNode(index),
-      createVectorNode(vector3)
+      [
+        value,
+        createNumberNode(index),
+        createVectorNode(vector3)
+      ]
     );
     return test.value;
   });
   return result ?? createNilNode();
 }
-function arrayFindIndex(...args) {
+function arrayFindIndex(args) {
   assertArgumentCount(args.length, 2);
   assertVectorNode(args[0]);
   assertFunctionNode(args[1]);
@@ -2576,15 +2589,17 @@ function arrayFindIndex(...args) {
   const fn = args[1].value;
   const result = vector2.findIndex((value, index, vector3) => {
     const test = fn(
-      value,
-      createNumberNode(index),
-      createVectorNode(vector3)
+      [
+        value,
+        createNumberNode(index),
+        createVectorNode(vector3)
+      ]
     );
     return test.value;
   });
   return createNumberNode(result);
 }
-function arrayFindLast(...args) {
+function arrayFindLast(args) {
   assertArgumentCount(args.length, 2);
   assertVectorNode(args[0]);
   assertFunctionNode(args[1]);
@@ -2592,15 +2607,17 @@ function arrayFindLast(...args) {
   const fn = args[1].value;
   const result = vector2.findLast((value, index, vector3) => {
     const test = fn(
-      value,
-      createNumberNode(index),
-      createVectorNode(vector3)
+      [
+        value,
+        createNumberNode(index),
+        createVectorNode(vector3)
+      ]
     );
     return test.value;
   });
   return result ?? createNilNode();
 }
-function arrayFindLastIndex(...args) {
+function arrayFindLastIndex(args) {
   assertArgumentCount(args.length, 2);
   assertVectorNode(args[0]);
   assertFunctionNode(args[1]);
@@ -2608,15 +2625,17 @@ function arrayFindLastIndex(...args) {
   const fn = args[1].value;
   const result = vector2.findLastIndex((value, index, vector3) => {
     const test = fn(
-      value,
-      createNumberNode(index),
-      createVectorNode(vector3)
+      [
+        value,
+        createNumberNode(index),
+        createVectorNode(vector3)
+      ]
     );
     return test.value;
   });
   return createNumberNode(result);
 }
-function arrayFlat(...args) {
+function arrayFlat(args) {
   assertArgumentCount(args.length, 1);
   assertVectorNode(args[0]);
   const vector2 = args[0].value;
@@ -2628,7 +2647,7 @@ function arrayFlat(...args) {
   const result = flattenDeep(vector2);
   return createVectorNode(result);
 }
-function arrayFlatMap(...args) {
+function arrayFlatMap(args) {
   assertArgumentCount(args.length, 2);
   assertVectorNode(args[0]);
   assertFunctionNode(args[1]);
@@ -2641,15 +2660,17 @@ function arrayFlatMap(...args) {
   }
   const mapped = vector2.map((value, index, vector3) => {
     return fn(
-      value,
-      createNumberNode(index),
-      createVectorNode(vector3)
+      [
+        value,
+        createNumberNode(index),
+        createVectorNode(vector3)
+      ]
     );
   });
   const result = flattenDeep(mapped);
   return createVectorNode(result);
 }
-function arrayIncludes(...args) {
+function arrayIncludes(args) {
   assertArgumentCount(args.length, 2);
   assertVectorNode(args[0]);
   assertAstNode(args[1]);
@@ -2658,7 +2679,7 @@ function arrayIncludes(...args) {
   const result = vec2.value.some((item) => isEqualTo(item, element).value);
   return createBooleanNode(result);
 }
-function arrayIndexOf(...args) {
+function arrayIndexOf(args) {
   assertArgumentCount(args.length, 2);
   assertVectorNode(args[0]);
   assertAstNode(args[1]);
@@ -2671,21 +2692,21 @@ function arrayIndexOf(...args) {
   }
   return createNumberNode(-1);
 }
-function arrayJoin(...args) {
+function arrayJoin(args) {
   assertVariableArgumentCount(args.length, 1, 2);
   assertSequential(args[0]);
   const delim = isStringNode(args[1]) ? args[1].value : " ";
   const joined = args[0].value.map((ast) => printString(ast, false)).join(delim);
   return createStringNode(joined);
 }
-function arrayKeys(...args) {
+function arrayKeys(args) {
   assertArgumentCount(args.length, 1);
   assertVectorNode(args[0]);
   const vec2 = args[0];
   const result = vec2.value.map((_, index) => createNumberNode(index));
   return createVectorNode(result);
 }
-function arrayMap(...args) {
+function arrayMap(args) {
   assertVariableArgumentCount(args.length, 2, 3);
   assertVectorNode(args[0]);
   assertFunctionNode(args[1]);
@@ -2693,19 +2714,19 @@ function arrayMap(...args) {
   const callback = args[1].value;
   const thisArg = args.length === 3 ? args[2].value : void 0;
   const result = vector2.map((value, index, _arr) => {
-    const res = callback(value, createNumberNode(index), thisArg);
-    return toAst(res);
+    const res = callback([value, createNumberNode(index), thisArg]);
+    return res;
   });
   return createVectorNode(result);
 }
-function arrayLast(...args) {
+function arrayLast(args) {
   assertArgumentCount(args.length, 1);
   assertVectorNode(args[0]);
   const vec2 = args[0];
   const result = vec2.value[vec2.value.length - 1];
   return toAst(result);
 }
-function arrayPush(...args) {
+function arrayPush(args) {
   assertMinimumArgumentCount(args.length, 2);
   if (!args.every(isAstNode)) {
     throw new TypeError("Invalid arguments.");
@@ -2713,14 +2734,14 @@ function arrayPush(...args) {
   assertVectorNode(args[0]);
   return createVectorNode([...args[0].value, ...args.slice(1)]);
 }
-function arrayLength(...args) {
+function arrayLength(args) {
   assertArgumentCount(args.length, 1);
   assertVectorNode(args[0]);
   const vec2 = args[0];
   const result = createNumberNode(vec2.value.length);
   return result;
 }
-function arrayReduce(...args) {
+function arrayReduce(args) {
   assertArgumentCount(args.length, 3);
   assertFunctionNode(args[0]);
   assertVectorNode(args[1]);
@@ -2728,25 +2749,25 @@ function arrayReduce(...args) {
   const vec2 = args[1];
   let accumulator = args[2];
   for (const item of vec2.value) {
-    accumulator = fn.value(accumulator, item);
+    accumulator = fn.value([accumulator, item]);
   }
   return accumulator;
 }
-function arrayToReversed(...args) {
+function arrayToReversed(args) {
   assertArgumentCount(args.length, 1);
   assertVectorNode(args[0]);
   const vec2 = args[0];
   const result = vec2.value.toReversed();
   return createVectorNode(result);
 }
-function arrayFirst(...args) {
+function arrayFirst(args) {
   assertArgumentCount(args.length, 1);
   assertVectorNode(args[0]);
   const vec2 = args[0];
   const result = vec2.value[0];
   return result ? result : createNilNode();
 }
-function arraySlice(...args) {
+function arraySlice(args) {
   assertVariableArgumentCount(args.length, 1, 3);
   assertVectorNode(args[0]);
   let start = 0;
@@ -2761,7 +2782,7 @@ function arraySlice(...args) {
   }
   return createVectorNode(args[0].value.slice(start, end));
 }
-function arraySome(...args) {
+function arraySome(args) {
   assertArgumentCount(args.length, 2);
   assertVectorNode(args[0]);
   assertFunctionNode(args[1]);
@@ -2769,28 +2790,30 @@ function arraySome(...args) {
   const fn = args[1].value;
   const result = vector2.some((value, index, vector3) => {
     const test = fn(
-      value,
-      createNumberNode(index),
-      createVectorNode(vector3)
+      [
+        value,
+        createNumberNode(index),
+        createVectorNode(vector3)
+      ]
     );
     return test.value;
   });
   return createBooleanNode(result);
 }
-function arrayToSorted(...args) {
+function arrayToSorted(args) {
   assertArgumentCount(args.length, 2);
   assertVectorNode(args[0]);
   assertFunctionNode(args[1]);
   const vector2 = args[0].value;
   const fn = args[1].value;
   const result = vector2.toSorted((a, b) => {
-    const order = fn(a, b);
+    const order = fn([a, b]);
     assertNumberNode(order);
     return order.value;
   });
   return createVectorNode(result);
 }
-function arrayToSpliced(...args) {
+function arrayToSpliced(args) {
   assertVariableArgumentCount(args.length, 2, 4);
   assertVectorNode(args[0]);
   assertNumberNode(args[1]);
@@ -2806,20 +2829,20 @@ function arrayToSpliced(...args) {
   const result = vector2.toSpliced(start, deleteCount, ...items);
   return createVectorNode(result);
 }
-function arrayUnshift(...args) {
+function arrayUnshift(args) {
   assertArgumentCount(args.length, 2);
   assertVectorNode(args[1]);
-  const prepended = [args[0], ...args[1].value];
+  const prepended = [args[0]].concat(args[1].value);
   return createVectorNode(prepended);
 }
-function arrayValues(...args) {
+function arrayValues(args) {
   assertArgumentCount(args.length, 1);
   assertVectorNode(args[0]);
   const vec2 = args[0];
   const result = vec2.value.map((value) => value);
   return createVectorNode(result);
 }
-function arrayReplaceWith(...args) {
+function arrayReplaceWith(args) {
   assertArgumentCount(args.length, 3);
   assertVectorNode(args[0]);
   assertNumberNode(args[1]);
@@ -2835,7 +2858,7 @@ function arrayReplaceWith(...args) {
 var booleanFunctions = [
   ["Boolean", toBoolean]
 ];
-function toBoolean(...astArgs) {
+function toBoolean(astArgs) {
   assertArgumentCount(astArgs.length, 1);
   assertAstNode(astArgs[0]);
   return createBooleanNode(Boolean(astArgs[0].value));
@@ -2848,25 +2871,25 @@ var builtInFunctions = [
   ["encodeURI", globalEncodeUri],
   ["encodeURIComponent", globalEncodeUriComponent]
 ];
-function globalDecodeUri(...astArgs) {
+function globalDecodeUri(astArgs) {
   assertArgumentCount(astArgs.length, 1);
   assertStringNode(astArgs[0]);
   const result = decodeURI(astArgs[0].value);
   return createStringNode(result);
 }
-function globalDecodeUriComponent(...astArgs) {
+function globalDecodeUriComponent(astArgs) {
   assertArgumentCount(astArgs.length, 1);
   assertStringNode(astArgs[0]);
   const result = decodeURIComponent(astArgs[0].value);
   return createStringNode(result);
 }
-function globalEncodeUri(...astArgs) {
+function globalEncodeUri(astArgs) {
   assertArgumentCount(astArgs.length, 1);
   assertStringNode(astArgs[0]);
   const result = encodeURI(astArgs[0].value);
   return createStringNode(result);
 }
-function globalEncodeUriComponent(...astArgs) {
+function globalEncodeUriComponent(astArgs) {
   assertArgumentCount(astArgs.length, 1);
   assertStringNode(astArgs[0]);
   const result = encodeURIComponent(astArgs[0].value);
@@ -2922,135 +2945,135 @@ var dateFunctions = [
   ["Date.prototype.toTimeString", dateToTimeString],
   ["Date.prototype.toUTCString", dateToUTCString]
 ];
-function newDate(...args) {
+function newDate(args) {
   const unwrapped = args.map(unwrap);
   const date = unwrapped.length > 0 ? new Date(...unwrapped) : /* @__PURE__ */ new Date();
   return createNumberNode(date.getTime());
 }
-function dateNow(..._args) {
+function dateNow(_args) {
   return createNumberNode(Date.now());
 }
-function dateParse(...args) {
+function dateParse(args) {
   assertArgumentCount(args.length, 1);
   assertStringNode(args[0]);
   const date = Date.parse(args[0].value);
   return createNumberNode(date);
 }
-function dateUtc(...args) {
+function dateUtc(args) {
   const unwrapped = args.map(unwrap);
   const timestamp = Date.UTC(...unwrapped);
   if (Number.isNaN(timestamp)) return createNilNode();
   return createNumberNode(timestamp);
 }
-function dateGetDate(...args) {
+function dateGetDate(args) {
   assertArgumentCount(args.length, 1);
   assertNumberNode(args[0]);
   const date = new Date(args[0].value);
   return createNumberNode(date.getDate());
 }
-function dateGetDay(...args) {
+function dateGetDay(args) {
   assertArgumentCount(args.length, 1);
   assertNumberNode(args[0]);
   const date = new Date(args[0].value);
   return createNumberNode(date.getDay());
 }
-function dateGetFullYear(...args) {
+function dateGetFullYear(args) {
   assertArgumentCount(args.length, 1);
   assertNumberNode(args[0]);
   const date = new Date(args[0].value);
   return createNumberNode(date.getFullYear());
 }
-function dateGetHours(...args) {
+function dateGetHours(args) {
   assertArgumentCount(args.length, 1);
   assertNumberNode(args[0]);
   const date = new Date(args[0].value);
   return createNumberNode(date.getHours());
 }
-function dateGetMilliseconds(...args) {
+function dateGetMilliseconds(args) {
   assertArgumentCount(args.length, 1);
   assertNumberNode(args[0]);
   const date = new Date(args[0].value);
   return createNumberNode(date.getMilliseconds());
 }
-function dateGetMinutes(...args) {
+function dateGetMinutes(args) {
   assertArgumentCount(args.length, 1);
   assertNumberNode(args[0]);
   const date = new Date(args[0].value);
   return createNumberNode(date.getMinutes());
 }
-function dateGetMonth(...args) {
+function dateGetMonth(args) {
   assertArgumentCount(args.length, 1);
   assertNumberNode(args[0]);
   const date = new Date(args[0].value);
   return createNumberNode(date.getMonth());
 }
-function dateGetSeconds(...args) {
+function dateGetSeconds(args) {
   assertArgumentCount(args.length, 1);
   assertNumberNode(args[0]);
   const date = new Date(args[0].value);
   return createNumberNode(date.getSeconds());
 }
-function dateGetTime(...args) {
+function dateGetTime(args) {
   assertArgumentCount(args.length, 1);
   assertNumberNode(args[0]);
   const date = new Date(args[0].value);
   return createNumberNode(date.getTime());
 }
-function dateGetTimezoneOffset(...args) {
+function dateGetTimezoneOffset(args) {
   assertArgumentCount(args.length, 1);
   assertNumberNode(args[0]);
   const date = new Date(args[0].value);
   return createNumberNode(date.getTimezoneOffset());
 }
-function dateGetUTCDate(...args) {
+function dateGetUTCDate(args) {
   assertArgumentCount(args.length, 1);
   assertNumberNode(args[0]);
   const date = new Date(args[0].value);
   return createNumberNode(date.getUTCDate());
 }
-function dateGetUTCDay(...args) {
+function dateGetUTCDay(args) {
   assertArgumentCount(args.length, 1);
   assertNumberNode(args[0]);
   const date = new Date(args[0].value);
   return createNumberNode(date.getUTCDay());
 }
-function dateGetUTCFullYear(...args) {
+function dateGetUTCFullYear(args) {
   assertArgumentCount(args.length, 1);
   assertNumberNode(args[0]);
   const date = new Date(args[0].value);
   return createNumberNode(date.getUTCFullYear());
 }
-function dateGetUTCHours(...args) {
+function dateGetUTCHours(args) {
   assertArgumentCount(args.length, 1);
   assertNumberNode(args[0]);
   const date = new Date(args[0].value);
   return createNumberNode(date.getUTCHours());
 }
-function dateGetUTCMilliseconds(...args) {
+function dateGetUTCMilliseconds(args) {
   assertArgumentCount(args.length, 1);
   assertNumberNode(args[0]);
   const date = new Date(args[0].value);
   return createNumberNode(date.getUTCMilliseconds());
 }
-function dateGetUTCMinutes(...args) {
+function dateGetUTCMinutes(args) {
   assertArgumentCount(args.length, 1);
   assertNumberNode(args[0]);
   const date = new Date(args[0].value);
   return createNumberNode(date.getUTCMinutes());
 }
-function dateGetUTCMonth(...args) {
+function dateGetUTCMonth(args) {
   assertArgumentCount(args.length, 1);
   assertNumberNode(args[0]);
   const date = new Date(args[0].value);
   return createNumberNode(date.getUTCMonth());
 }
-function dateGetUTCSeconds(...args) {
+function dateGetUTCSeconds(args) {
   assertArgumentCount(args.length, 1);
   assertNumberNode(args[0]);
   const date = new Date(args[0].value);
   return createNumberNode(date.getUTCSeconds());
 }
-function dateSetDate(...args) {
+function dateSetDate(args) {
   assertArgumentCount(args.length, 2);
   assertNumberNode(args[0]);
   assertNumberNode(args[1]);
@@ -3058,7 +3081,7 @@ function dateSetDate(...args) {
   date.setDate(args[1].value);
   return createNumberNode(date.getTime());
 }
-function dateSetFullYear(...args) {
+function dateSetFullYear(args) {
   assertArgumentCount(args.length, 2);
   assertNumberNode(args[0]);
   assertNumberNode(args[1]);
@@ -3066,7 +3089,7 @@ function dateSetFullYear(...args) {
   date.setFullYear(args[1].value);
   return createNumberNode(date.getTime());
 }
-function dateSetHours(...args) {
+function dateSetHours(args) {
   assertArgumentCount(args.length, 2);
   assertNumberNode(args[0]);
   assertNumberNode(args[1]);
@@ -3074,7 +3097,7 @@ function dateSetHours(...args) {
   date.setHours(args[1].value);
   return createNumberNode(date.getTime());
 }
-function dateSetMilliseconds(...args) {
+function dateSetMilliseconds(args) {
   assertArgumentCount(args.length, 2);
   assertNumberNode(args[0]);
   assertNumberNode(args[1]);
@@ -3082,7 +3105,7 @@ function dateSetMilliseconds(...args) {
   date.setMilliseconds(args[1].value);
   return createNumberNode(date.getTime());
 }
-function dateSetMinutes(...args) {
+function dateSetMinutes(args) {
   assertArgumentCount(args.length, 2);
   assertNumberNode(args[0]);
   assertNumberNode(args[1]);
@@ -3090,7 +3113,7 @@ function dateSetMinutes(...args) {
   date.setMinutes(args[1].value);
   return createNumberNode(date.getTime());
 }
-function dateSetMonth(...args) {
+function dateSetMonth(args) {
   assertArgumentCount(args.length, 2);
   assertNumberNode(args[0]);
   assertNumberNode(args[1]);
@@ -3098,7 +3121,7 @@ function dateSetMonth(...args) {
   date.setMonth(args[1].value);
   return createNumberNode(date.getTime());
 }
-function dateSetSeconds(...args) {
+function dateSetSeconds(args) {
   assertArgumentCount(args.length, 2);
   assertNumberNode(args[0]);
   assertNumberNode(args[1]);
@@ -3106,7 +3129,7 @@ function dateSetSeconds(...args) {
   date.setSeconds(args[1].value);
   return createNumberNode(date.getTime());
 }
-function dateSetTime(...args) {
+function dateSetTime(args) {
   assertArgumentCount(args.length, 2);
   assertNumberNode(args[0]);
   assertNumberNode(args[1]);
@@ -3114,7 +3137,7 @@ function dateSetTime(...args) {
   date.setTime(args[1].value);
   return createNumberNode(date.getTime());
 }
-function dateSetUTCDate(...args) {
+function dateSetUTCDate(args) {
   assertArgumentCount(args.length, 2);
   assertNumberNode(args[0]);
   assertNumberNode(args[1]);
@@ -3122,7 +3145,7 @@ function dateSetUTCDate(...args) {
   date.setUTCDate(args[1].value);
   return createNumberNode(date.getTime());
 }
-function dateSetUTCFullYear(...args) {
+function dateSetUTCFullYear(args) {
   assertArgumentCount(args.length, 2);
   assertNumberNode(args[0]);
   assertNumberNode(args[1]);
@@ -3130,7 +3153,7 @@ function dateSetUTCFullYear(...args) {
   date.setUTCFullYear(args[1].value);
   return createNumberNode(date.getTime());
 }
-function dateSetUTCHours(...args) {
+function dateSetUTCHours(args) {
   assertArgumentCount(args.length, 2);
   assertNumberNode(args[0]);
   assertNumberNode(args[1]);
@@ -3138,7 +3161,7 @@ function dateSetUTCHours(...args) {
   date.setUTCHours(args[1].value);
   return createNumberNode(date.getTime());
 }
-function dateSetUTCMilliseconds(...args) {
+function dateSetUTCMilliseconds(args) {
   assertArgumentCount(args.length, 2);
   assertNumberNode(args[0]);
   assertNumberNode(args[1]);
@@ -3146,7 +3169,7 @@ function dateSetUTCMilliseconds(...args) {
   date.setUTCMilliseconds(args[1].value);
   return createNumberNode(date.getTime());
 }
-function dateSetUTCMinutes(...args) {
+function dateSetUTCMinutes(args) {
   assertArgumentCount(args.length, 2);
   assertNumberNode(args[0]);
   assertNumberNode(args[1]);
@@ -3154,7 +3177,7 @@ function dateSetUTCMinutes(...args) {
   date.setUTCMinutes(args[1].value);
   return createNumberNode(date.getTime());
 }
-function dateSetUTCMonth(...args) {
+function dateSetUTCMonth(args) {
   assertArgumentCount(args.length, 2);
   assertNumberNode(args[0]);
   assertNumberNode(args[1]);
@@ -3162,7 +3185,7 @@ function dateSetUTCMonth(...args) {
   date.setUTCMonth(args[1].value);
   return createNumberNode(date.getTime());
 }
-function dateSetUTCSeconds(...args) {
+function dateSetUTCSeconds(args) {
   assertArgumentCount(args.length, 2);
   assertNumberNode(args[0]);
   assertNumberNode(args[1]);
@@ -3170,26 +3193,26 @@ function dateSetUTCSeconds(...args) {
   date.setUTCSeconds(args[1].value);
   return createNumberNode(date.getTime());
 }
-function dateToDateString(...args) {
+function dateToDateString(args) {
   assertArgumentCount(args.length, 1);
   assertNumberNode(args[0]);
   const date = new Date(args[0].value);
   return createStringNode(date.toDateString());
 }
-function dateToISOString(...args) {
+function dateToISOString(args) {
   assertArgumentCount(args.length, 1);
   assertNumberNode(args[0]);
   const date = new Date(args[0].value);
   return createStringNode(date.toISOString());
 }
-function dateToJSON(...args) {
+function dateToJSON(args) {
   assertVariableArgumentCount(args.length, 1, 2);
   assertNumberNode(args[0]);
   if (args[1]) assertStringNode(args[1]);
   const date = new Date(args[0].value);
   return createStringNode(date.toJSON());
 }
-function dateToLocaleDateString(...args) {
+function dateToLocaleDateString(args) {
   assertVariableArgumentCount(args.length, 1, 3);
   assertNumberNode(args[0]);
   const date = new Date(args[0].value);
@@ -3198,7 +3221,7 @@ function dateToLocaleDateString(...args) {
     date.toLocaleDateString(...dateArgs)
   );
 }
-function dateToLocaleString(...args) {
+function dateToLocaleString(args) {
   assertVariableArgumentCount(args.length, 1, 3);
   assertNumberNode(args[0]);
   const date = new Date(args[0].value);
@@ -3207,7 +3230,7 @@ function dateToLocaleString(...args) {
     date.toLocaleString(...dateArgs)
   );
 }
-function dateToLocaleTimeString(...args) {
+function dateToLocaleTimeString(args) {
   assertVariableArgumentCount(args.length, 1, 3);
   assertNumberNode(args[0]);
   const date = new Date(args[0].value);
@@ -3216,19 +3239,19 @@ function dateToLocaleTimeString(...args) {
     date.toLocaleTimeString(...dateArgs)
   );
 }
-function dateToString(...args) {
+function dateToString(args) {
   assertArgumentCount(args.length, 1);
   assertNumberNode(args[0]);
   const date = new Date(args[0].value);
   return createStringNode(date.toString());
 }
-function dateToTimeString(...args) {
+function dateToTimeString(args) {
   assertArgumentCount(args.length, 1);
   assertNumberNode(args[0]);
   const date = new Date(args[0].value);
   return createStringNode(date.toTimeString());
 }
-function dateToUTCString(...args) {
+function dateToUTCString(args) {
   assertArgumentCount(args.length, 1);
   assertNumberNode(args[0]);
   const date = new Date(args[0].value);
@@ -3243,7 +3266,7 @@ var errorFunctions = [
   ["Error.prototype.name", getName]
   // Type of error
 ];
-function newError(...args) {
+function newError(args) {
   assertVariableArgumentCount(args.length, 1, 3);
   const message = args[0];
   assertStringNode(message);
@@ -3268,17 +3291,17 @@ function newError(...args) {
     cause
   );
 }
-function getMessage(...args) {
+function getMessage(args) {
   assertArgumentCount(args.length, 1);
   assertErrorNode(args[0]);
   return args[0].value;
 }
-function getCause(...args) {
+function getCause(args) {
   assertArgumentCount(args.length, 1);
   assertErrorNode(args[0]);
   return args[0].cause ?? createNilNode();
 }
-function getName(...args) {
+function getName(args) {
   assertArgumentCount(args.length, 1);
   assertErrorNode(args[0]);
   return args[0].name;
@@ -3296,7 +3319,7 @@ var functionFunctions = [
   ["js-eval", jsEval]
   // Javascript Interop
 ];
-function jsEval(...args) {
+function jsEval(args) {
   assertArgumentCount(args.length, 1);
   assertStringNode(args[0]);
   try {
@@ -3311,25 +3334,26 @@ function jsEval(...args) {
     return createErrorNode(createStringNode(JSON.stringify(error)));
   }
 }
-function apply2(...args) {
+function apply2(args) {
   assertArgumentCount(args.length, 2);
   assertFunctionNode(args[0]);
   assertVectorNode(args[1]);
-  const result = args[0].value.apply(null, args[1].value);
+  const result = args[0].value.apply(null, [args[1].value]);
   return toAst(result);
 }
-function call(...args) {
+function call(args) {
   assertMinimumArgumentCount(args.length, 1);
   assertFunctionNode(args[0]);
-  const result = args[0].value.call(null, ...args.slice(1));
+  const result = args[0].value.call(null, args.slice(1));
   return toAst(result);
 }
-function bind(...args) {
+function bind(args) {
   assertMinimumArgumentCount(args.length, 2);
   assertFunctionNode(args[0]);
   assertAstNode(args[1]);
-  const result = args[0].value.bind(args[1], ...args.slice(2));
-  return toAst(result);
+  const originalFn = args[0].value;
+  const boundFn = () => originalFn([]);
+  return createFunctionNode(boundFn);
 }
 
 // src/ensemble/interop/js/map.ts
@@ -3346,11 +3370,11 @@ var mapFunctions = [
   ["Map::size", mapSize],
   ["Map::values", mapValues]
 ];
-function mapIsMap(...args) {
+function mapIsMap(args) {
   assertArgumentCount(args.length, 1);
   return createBooleanNode(isMapNode(args[0]));
 }
-function mapNew(...args) {
+function mapNew(args) {
   if (args.length === 0) {
     return createMapNode();
   }
@@ -3366,7 +3390,7 @@ function mapNew(...args) {
   }
   return dict;
 }
-function mapGetEntries(...astArgs) {
+function mapGetEntries(astArgs) {
   assertArgumentCount(astArgs.length, 1);
   assertMapNode(astArgs[0]);
   const entries = astArgs[0].value.entries();
@@ -3380,20 +3404,20 @@ function mapGetEntries(...astArgs) {
   }
   return vectors;
 }
-function mapSet(...args) {
+function mapSet(args) {
   assertMinimumArgumentCount(args.length, 1);
   assertMapNode(args[0]);
   const rest2 = args.slice(1);
   const dict = createMapNode(
     new Map(args[0].value)
   );
-  const pairs = mapNew(...rest2);
+  const pairs = mapNew(rest2);
   for (const [key, value] of pairs.value.entries()) {
     dict.value.set(key, value);
   }
   return dict;
 }
-function mapDelete(...args) {
+function mapDelete(args) {
   assertMinimumArgumentCount(args.length, 1);
   assertMapNode(args[0]);
   const dict = createMapNode(
@@ -3405,7 +3429,7 @@ function mapDelete(...args) {
   }
   return dict;
 }
-function mapGet(...args) {
+function mapGet(args) {
   assertArgumentCount(args.length, 2);
   const mapNode = args[0];
   if (!isMapNode(mapNode)) {
@@ -3419,7 +3443,7 @@ function mapGet(...args) {
   }
   return createNilNode();
 }
-function mapHas(...args) {
+function mapHas(args) {
   assertArgumentCount(args.length, 2);
   const dict = args[0];
   const key = args[1];
@@ -3427,17 +3451,17 @@ function mapHas(...args) {
   assertMapKeyNode(key);
   return createBooleanNode(hasMapElement(dict.value, key));
 }
-function mapKeys(...args) {
+function mapKeys(args) {
   assertArgumentCount(args.length, 1);
   assertMapNode(args[0]);
   return getMapKeys(args[0].value);
 }
-function mapValues(...args) {
+function mapValues(args) {
   assertArgumentCount(args.length, 1);
   assertMapNode(args[0]);
   return createListNode([...args[0].value.values()]);
 }
-function mapSize(...args) {
+function mapSize(args) {
   assertArgumentCount(args.length, 1);
   const value = args[0];
   if (isNilNode(value)) {
@@ -3498,49 +3522,49 @@ var mathFunctions = [
   ["Math.SQRT1_2", mathSqrt12],
   ["Math.SQRT2", mathSqrt2]
 ];
-function mathAbs(...astArgs) {
+function mathAbs(astArgs) {
   assertArgumentCount(astArgs.length, 1);
   assertNumberNode(astArgs[0]);
   const x = astArgs[0].value;
   const result = Math.abs(x);
   return toAst(result);
 }
-function mathAcos(...astArgs) {
+function mathAcos(astArgs) {
   assertArgumentCount(astArgs.length, 1);
   assertNumberNode(astArgs[0]);
   const x = astArgs[0].value;
   const result = Math.acos(x);
   return toAst(result);
 }
-function mathAcosh(...astArgs) {
+function mathAcosh(astArgs) {
   assertArgumentCount(astArgs.length, 1);
   assertNumberNode(astArgs[0]);
   const x = astArgs[0].value;
   const result = Math.acosh(x);
   return toAst(result);
 }
-function mathAsin(...astArgs) {
+function mathAsin(astArgs) {
   assertArgumentCount(astArgs.length, 1);
   assertNumberNode(astArgs[0]);
   const x = astArgs[0].value;
   const result = Math.asin(x);
   return toAst(result);
 }
-function mathAsinh(...astArgs) {
+function mathAsinh(astArgs) {
   assertArgumentCount(astArgs.length, 1);
   assertNumberNode(astArgs[0]);
   const x = astArgs[0].value;
   const result = Math.asinh(x);
   return toAst(result);
 }
-function mathAtan(...astArgs) {
+function mathAtan(astArgs) {
   assertArgumentCount(astArgs.length, 1);
   assertNumberNode(astArgs[0]);
   const x = astArgs[0].value;
   const result = Math.atan(x);
   return toAst(result);
 }
-function mathAtan2(...astArgs) {
+function mathAtan2(astArgs) {
   assertArgumentCount(astArgs.length, 2);
   assertNumberNode(astArgs[0]);
   assertNumberNode(astArgs[1]);
@@ -3549,83 +3573,83 @@ function mathAtan2(...astArgs) {
   const result = Math.atan2(y, x);
   return toAst(result);
 }
-function mathAtanh(...astArgs) {
+function mathAtanh(astArgs) {
   assertArgumentCount(astArgs.length, 1);
   assertNumberNode(astArgs[0]);
   const x = astArgs[0].value;
   const result = Math.atanh(x);
   return toAst(result);
 }
-function mathCbrt(...astArgs) {
+function mathCbrt(astArgs) {
   assertArgumentCount(astArgs.length, 1);
   assertNumberNode(astArgs[0]);
   const x = astArgs[0].value;
   const result = Math.cbrt(x);
   return toAst(result);
 }
-function mathCeil(...astArgs) {
+function mathCeil(astArgs) {
   assertArgumentCount(astArgs.length, 1);
   assertNumberNode(astArgs[0]);
   const x = astArgs[0].value;
   const result = Math.ceil(x);
   return toAst(result);
 }
-function mathClz32(...astArgs) {
+function mathClz32(astArgs) {
   assertArgumentCount(astArgs.length, 1);
   assertNumberNode(astArgs[0]);
   const x = astArgs[0].value;
   const result = Math.clz32(x);
   return toAst(result);
 }
-function mathCos(...astArgs) {
+function mathCos(astArgs) {
   assertArgumentCount(astArgs.length, 1);
   assertNumberNode(astArgs[0]);
   const x = astArgs[0].value;
   const result = Math.cos(x);
   return toAst(result);
 }
-function mathCosh(...astArgs) {
+function mathCosh(astArgs) {
   assertArgumentCount(astArgs.length, 1);
   assertNumberNode(astArgs[0]);
   const x = astArgs[0].value;
   const result = Math.cosh(x);
   return toAst(result);
 }
-function mathExp(...astArgs) {
+function mathExp(astArgs) {
   assertArgumentCount(astArgs.length, 1);
   assertNumberNode(astArgs[0]);
   const x = astArgs[0].value;
   const result = Math.exp(x);
   return toAst(result);
 }
-function mathExpm1(...astArgs) {
+function mathExpm1(astArgs) {
   assertArgumentCount(astArgs.length, 1);
   assertNumberNode(astArgs[0]);
   const x = astArgs[0].value;
   const result = Math.expm1(x);
   return toAst(result);
 }
-function mathFloor(...astArgs) {
+function mathFloor(astArgs) {
   assertArgumentCount(astArgs.length, 1);
   assertNumberNode(astArgs[0]);
   const x = astArgs[0].value;
   const result = Math.floor(x);
   return toAst(result);
 }
-function mathFround(...astArgs) {
+function mathFround(astArgs) {
   assertArgumentCount(astArgs.length, 1);
   assertNumberNode(astArgs[0]);
   const x = astArgs[0].value;
   const result = Math.fround(x);
   return toAst(result);
 }
-function mathHypot(...astArgs) {
+function mathHypot(astArgs) {
   assertSequentialValues(astArgs, NumberNode);
   const values = astArgs.map(unwrapNumberNode);
   const result = Math.hypot(...values);
   return toAst(result);
 }
-function mathImul(...astArgs) {
+function mathImul(astArgs) {
   assertArgumentCount(astArgs.length, 2);
   assertNumberNode(astArgs[0]);
   assertNumberNode(astArgs[1]);
@@ -3634,47 +3658,47 @@ function mathImul(...astArgs) {
   const result = Math.imul(a, b);
   return toAst(result);
 }
-function mathLog(...astArgs) {
+function mathLog(astArgs) {
   assertArgumentCount(astArgs.length, 1);
   assertNumberNode(astArgs[0]);
   const x = astArgs[0].value;
   const result = Math.log(x);
   return toAst(result);
 }
-function mathLog10(...astArgs) {
+function mathLog10(astArgs) {
   assertArgumentCount(astArgs.length, 1);
   assertNumberNode(astArgs[0]);
   const x = astArgs[0].value;
   const result = Math.log10(x);
   return toAst(result);
 }
-function mathLog1p(...astArgs) {
+function mathLog1p(astArgs) {
   assertArgumentCount(astArgs.length, 1);
   assertNumberNode(astArgs[0]);
   const x = astArgs[0].value;
   const result = Math.log1p(x);
   return toAst(result);
 }
-function mathLog2(...astArgs) {
+function mathLog2(astArgs) {
   assertArgumentCount(astArgs.length, 1);
   assertNumberNode(astArgs[0]);
   const x = astArgs[0].value;
   const result = Math.log2(x);
   return toAst(result);
 }
-function mathMax(...astArgs) {
+function mathMax(astArgs) {
   assertSequentialValues(astArgs, NumberNode);
   const values = astArgs.map(unwrapNumberNode);
   const result = Math.max(...values);
   return toAst(result);
 }
-function mathMin(...astArgs) {
+function mathMin(astArgs) {
   assertSequentialValues(astArgs, NumberNode);
   const values = astArgs.map(unwrapNumberNode);
   const result = Math.min(...values);
   return toAst(result);
 }
-function mathPow(...astArgs) {
+function mathPow(astArgs) {
   if (astArgs.length === 2 && isNumberNode(astArgs[0]) && isNumberNode(astArgs[1])) {
     const base = astArgs[0].value;
     const exponent = astArgs[1].value;
@@ -3683,119 +3707,119 @@ function mathPow(...astArgs) {
   }
   throw new TypeError('Invalid arguments to "Math.pow"');
 }
-function mathRandom(...astArgs) {
+function mathRandom(astArgs) {
   if (astArgs.length === 0) {
     const result = Math.random();
     return toAst(result);
   }
   throw new TypeError('Invalid arguments to "Math.random"');
 }
-function mathRound(...astArgs) {
+function mathRound(astArgs) {
   assertArgumentCount(astArgs.length, 1);
   assertNumberNode(astArgs[0]);
   const x = astArgs[0].value;
   const result = Math.round(x);
   return toAst(result);
 }
-function mathSign(...astArgs) {
+function mathSign(astArgs) {
   assertArgumentCount(astArgs.length, 1);
   assertNumberNode(astArgs[0]);
   const x = astArgs[0].value;
   const result = Math.sign(x);
   return toAst(result);
 }
-function mathSin(...astArgs) {
+function mathSin(astArgs) {
   assertArgumentCount(astArgs.length, 1);
   assertNumberNode(astArgs[0]);
   const x = astArgs[0].value;
   const result = Math.sin(x);
   return toAst(result);
 }
-function mathSinh(...astArgs) {
+function mathSinh(astArgs) {
   assertArgumentCount(astArgs.length, 1);
   assertNumberNode(astArgs[0]);
   const x = astArgs[0].value;
   const result = Math.sinh(x);
   return toAst(result);
 }
-function mathSqrt(...astArgs) {
+function mathSqrt(astArgs) {
   assertArgumentCount(astArgs.length, 1);
   assertNumberNode(astArgs[0]);
   const x = astArgs[0].value;
   const result = Math.sqrt(x);
   return toAst(result);
 }
-function mathTan(...astArgs) {
+function mathTan(astArgs) {
   assertArgumentCount(astArgs.length, 1);
   assertNumberNode(astArgs[0]);
   const x = astArgs[0].value;
   const result = Math.tan(x);
   return toAst(result);
 }
-function mathTanh(...astArgs) {
+function mathTanh(astArgs) {
   assertArgumentCount(astArgs.length, 1);
   assertNumberNode(astArgs[0]);
   const x = astArgs[0].value;
   const result = Math.tanh(x);
   return toAst(result);
 }
-function mathTrunc(...astArgs) {
+function mathTrunc(astArgs) {
   assertArgumentCount(astArgs.length, 1);
   assertNumberNode(astArgs[0]);
   const x = astArgs[0].value;
   const result = Math.trunc(x);
   return toAst(result);
 }
-function mathE(...astArgs) {
+function mathE(astArgs) {
   if (astArgs.length === 0) {
     const result = Math.E;
     return toAst(result);
   }
   throw new TypeError('Invalid arguments to "Math.E"');
 }
-function mathLn10(...astArgs) {
+function mathLn10(astArgs) {
   if (astArgs.length === 0) {
     const result = Math.LN10;
     return toAst(result);
   }
   throw new TypeError('Invalid arguments to "Math.LN10"');
 }
-function mathLn2(...astArgs) {
+function mathLn2(astArgs) {
   if (astArgs.length === 0) {
     const result = Math.LN2;
     return toAst(result);
   }
   throw new TypeError('Invalid arguments to "Math.LN2"');
 }
-function mathLog10e(...astArgs) {
+function mathLog10e(astArgs) {
   if (astArgs.length === 0) {
     const result = Math.LOG10E;
     return toAst(result);
   }
   throw new TypeError('Invalid arguments to "Math.LOG10E"');
 }
-function mathLog23(...astArgs) {
+function mathLog23(astArgs) {
   if (astArgs.length === 0) {
     const result = Math.LOG2E;
     return toAst(result);
   }
   throw new TypeError('Invalid arguments to "Math.LOG2E"');
 }
-function mathPi(...astArgs) {
+function mathPi(astArgs) {
   if (astArgs.length === 0) {
     const result = Math.PI;
     return toAst(result);
   }
   throw new TypeError('Invalid arguments to "Math.PI"');
 }
-function mathSqrt12(...astArgs) {
+function mathSqrt12(astArgs) {
   if (astArgs.length === 0) {
     const result = Math.SQRT1_2;
     return toAst(result);
   }
   throw new TypeError('Invalid arguments to "Math.SQRT1_2"');
 }
-function mathSqrt2(...astArgs) {
+function mathSqrt2(astArgs) {
   if (astArgs.length === 0) {
     const result = Math.SQRT2;
     return toAst(result);
@@ -3826,7 +3850,7 @@ var numberFunctions = [
   ["Number.NEGATIVE_INFINITY", numberNegativeInfinity],
   ["Number.POSITIVE_INFINITY", numberPositiveInfinity]
 ];
-function newNumber(...astArgs) {
+function newNumber(astArgs) {
   if (astArgs.length === 1 && isAstNode(astArgs[0])) {
     const value = astArgs[0].value;
     const result = Number(value);
@@ -3834,7 +3858,7 @@ function newNumber(...astArgs) {
   }
   throw new TypeError('Invalid arguments to "Number"');
 }
-function numberIsFinite(...astArgs) {
+function numberIsFinite(astArgs) {
   if (astArgs.length === 1 && isAstNode(astArgs[0])) {
     const value = astArgs[0].value;
     const result = Number.isFinite(value);
@@ -3842,7 +3866,7 @@ function numberIsFinite(...astArgs) {
   }
   throw new TypeError('Invalid arguments to "Number.isFinite"');
 }
-function numberIsInteger(...astArgs) {
+function numberIsInteger(astArgs) {
   if (astArgs.length === 1 && isAstNode(astArgs[0])) {
     const value = astArgs[0].value;
     const result = Number.isInteger(value);
@@ -3850,7 +3874,7 @@ function numberIsInteger(...astArgs) {
   }
   throw new TypeError('Invalid arguments to "Number.isInteger"');
 }
-function numberIsNaN(...astArgs) {
+function numberIsNaN(astArgs) {
   if (astArgs.length === 1 && isAstNode(astArgs[0])) {
     const value = astArgs[0].value;
     const result = Number.isNaN(value);
@@ -3858,7 +3882,7 @@ function numberIsNaN(...astArgs) {
   }
   throw new TypeError('Invalid arguments to "Number.isNaN"');
 }
-function numberIsSafeInteger(...astArgs) {
+function numberIsSafeInteger(astArgs) {
   if (astArgs.length === 1 && isAstNode(astArgs[0])) {
     const value = astArgs[0].value;
     const result = Number.isSafeInteger(value);
@@ -3866,14 +3890,14 @@ function numberIsSafeInteger(...astArgs) {
   }
   throw new TypeError('Invalid arguments to "Number.isSafeInteger"');
 }
-function numberParseFloat(...astArgs) {
+function numberParseFloat(astArgs) {
   assertArgumentCount(astArgs.length, 1);
   assertStringNode(astArgs[0]);
   const stringValue = unwrapStringNode(astArgs[0]);
   const result = Number.parseFloat(stringValue);
   return toAst(result);
 }
-function numberParseInt(...astArgs) {
+function numberParseInt(astArgs) {
   assertVariableArgumentCount(astArgs.length, 1, 2);
   assertStringNode(astArgs[0]);
   const string = astArgs[0].value;
@@ -3886,63 +3910,63 @@ function numberParseInt(...astArgs) {
   const result = Number.parseInt(string);
   return createNumberNode(result);
 }
-function numberEpsilon(...astArgs) {
+function numberEpsilon(astArgs) {
   if (astArgs.length === 0) {
     const result = Number.EPSILON;
     return toAst(result);
   }
   throw new TypeError('Invalid arguments to "Number.EPSILON"');
 }
-function numberMaxSafeInteger(...astArgs) {
+function numberMaxSafeInteger(astArgs) {
   if (astArgs.length === 0) {
     const result = Number.MAX_SAFE_INTEGER;
     return toAst(result);
   }
   throw new TypeError('Invalid arguments to "Number.MAX_SAFE_INTEGER"');
 }
-function numberMaxValue(...astArgs) {
+function numberMaxValue(astArgs) {
   if (astArgs.length === 0) {
     const result = Number.MAX_VALUE;
     return toAst(result);
   }
   throw new TypeError('Invalid arguments to "Number.MAX_VALUE"');
 }
-function numberMinSafeInteger(...astArgs) {
+function numberMinSafeInteger(astArgs) {
   if (astArgs.length === 0) {
     const result = Number.MIN_SAFE_INTEGER;
     return toAst(result);
   }
   throw new TypeError('Invalid arguments to "Number.MIN_SAFE_INTEGER"');
 }
-function numberMinValue(...astArgs) {
+function numberMinValue(astArgs) {
   if (astArgs.length === 0) {
     const result = Number.MIN_VALUE;
     return toAst(result);
   }
   throw new TypeError('Invalid arguments to "Number.MIN_VALUE"');
 }
-function numberNaN(...astArgs) {
+function numberNaN(astArgs) {
   if (astArgs.length === 0) {
     const result = Number.NaN;
     return toAst(result);
   }
   throw new TypeError('Invalid arguments to "Number.NaN"');
 }
-function numberNegativeInfinity(...astArgs) {
+function numberNegativeInfinity(astArgs) {
   if (astArgs.length === 0) {
     const result = Number.NEGATIVE_INFINITY;
     return toAst(result);
   }
   throw new TypeError('Invalid arguments to "Number.NEGATIVE_INFINITY"');
 }
-function numberPositiveInfinity(...astArgs) {
+function numberPositiveInfinity(astArgs) {
   if (astArgs.length === 0) {
     const result = Number.POSITIVE_INFINITY;
     return toAst(result);
   }
   throw new TypeError('Invalid arguments to "Number.POSITIVE_INFINITY"');
 }
-function numberPrototypeToExponential(...astArgs) {
+function numberPrototypeToExponential(astArgs) {
   assertVariableArgumentCount(astArgs.length, 1, 2);
   assertNumberNode(astArgs[0]);
   if (astArgs.length === 2) {
@@ -3954,7 +3978,7 @@ function numberPrototypeToExponential(...astArgs) {
   const result = astArgs[0].value.toExponential();
   return createStringNode(result);
 }
-function numberPrototypeToFixed(...astArgs) {
+function numberPrototypeToFixed(astArgs) {
   assertVariableArgumentCount(astArgs.length, 1, 2);
   assertNumberNode(astArgs[0]);
   if (astArgs.length === 2) {
@@ -3966,7 +3990,7 @@ function numberPrototypeToFixed(...astArgs) {
   const result = astArgs[0].value.toFixed();
   return createStringNode(result);
 }
-function numberPrototypeToPrecision(...astArgs) {
+function numberPrototypeToPrecision(astArgs) {
   assertVariableArgumentCount(astArgs.length, 1, 2);
   assertNumberNode(astArgs[0]);
   if (astArgs.length === 2) {
@@ -3978,7 +4002,7 @@ function numberPrototypeToPrecision(...astArgs) {
   const result = astArgs[0].value.toPrecision();
   return createStringNode(result);
 }
-function numberPrototypeToString(...astArgs) {
+function numberPrototypeToString(astArgs) {
   assertVariableArgumentCount(astArgs.length, 1, 2);
   assertNumberNode(astArgs[0]);
   if (astArgs.length === 2) {
@@ -4030,7 +4054,7 @@ var operators = [
   ["increment", increment],
   ["decrement", decrement]
 ];
-function and(...args) {
+function and(args) {
   const useJavaScriptTruthiness = true;
   for (const arg of args) {
     const isTruthy = isAstTruthy(arg, useJavaScriptTruthiness);
@@ -4040,7 +4064,7 @@ function and(...args) {
   }
   return createBooleanNode(true);
 }
-function or(...args) {
+function or(args) {
   for (const arg of args) {
     const isTruthy = isAstTruthy(arg);
     if (isTruthy) {
@@ -4049,63 +4073,84 @@ function or(...args) {
   }
   return createBooleanNode(false);
 }
-function remainder(a, b) {
+function remainder([
+  a,
+  b
+]) {
   if (isNumberNode(a) && isNumberNode(b)) {
     return createNumberNode((a.value % b.value + b.value) % b.value);
   }
   throw new TypeError("not a number");
 }
-function bitwiseAnd(a, b) {
+function bitwiseAnd([
+  a,
+  b
+]) {
   if (isNumberNode(a) && isNumberNode(b)) {
     return createNumberNode(a.value & b.value);
   }
   throw new TypeError("not a number");
 }
-function bitwiseOr(a, b) {
+function bitwiseOr([
+  a,
+  b
+]) {
   if (isNumberNode(a) && isNumberNode(b)) {
     return createNumberNode(a.value | b.value);
   }
   throw new TypeError("not a number");
 }
-function bitwiseXor(a, b) {
+function bitwiseXor([
+  a,
+  b
+]) {
   if (isNumberNode(a) && isNumberNode(b)) {
     return createNumberNode(a.value ^ b.value);
   }
   throw new TypeError("not a number");
 }
-function bitwiseNot(a) {
+function bitwiseNot([a]) {
   if (isNumberNode(a)) {
     return createNumberNode(~a.value);
   }
   throw new TypeError("not a number");
 }
-function leftShift(a, b) {
+function leftShift([
+  a,
+  b
+]) {
   if (isNumberNode(a) && isNumberNode(b)) {
     return createNumberNode(a.value << b.value);
   }
   throw new TypeError("not a number");
 }
-function rightShift(a, b) {
+function rightShift([
+  a,
+  b
+]) {
   if (isNumberNode(a) && isNumberNode(b)) {
     return createNumberNode(a.value >> b.value);
   }
   throw new TypeError("not a number");
 }
-function unsignedRightShift(a, b) {
+function unsignedRightShift([
+  a,
+  b
+]) {
   if (isNumberNode(a) && isNumberNode(b)) {
     return createNumberNode(a.value >>> b.value);
   }
   throw new TypeError("not a number");
 }
-function not(a) {
+function not([a]) {
   return createBooleanNode(!a.value);
 }
-function notEqualTo(...args) {
+function notEqualTo(args) {
   assertArgumentCount(args.length, 2);
   const bool = isEqualTo(args[0], args[1]);
   return createBooleanNode(!bool.value);
 }
-function increment(...args) {
+function increment(args) {
   assertVariableArgumentCount(args.length, 1, 2);
   assertNumberNode(args[0]);
   let affix = "postfix";
@@ -4132,7 +4177,7 @@ function increment(...args) {
   }
   throw new Error("Unhandled error in decrement");
 }
-function decrement(...args) {
+function decrement(args) {
   assertVariableArgumentCount(args.length, 1, 2);
   assertNumberNode(args[0]);
   let affix = "postfix";
@@ -4159,7 +4204,7 @@ function decrement(...args) {
   }
   throw new Error("Unhandled error in decrement");
 }
-function typeOf(...args) {
+function typeOf(args) {
   assertArgumentCount(args.length, 2);
   assertAstNode(args[0]);
   assertStringNode(args[1]);
@@ -4171,7 +4216,7 @@ function typeOf(...args) {
   }
   return createBooleanNode(obj === args[1].value);
 }
-function instanceOf(...args) {
+function instanceOf(args) {
   assertArgumentCount(args.length, 2);
   assertAstNode(args[0]);
   assertStringNode(args[1]);
@@ -4187,10 +4232,13 @@ function instanceOf(...args) {
   }
   return createBooleanNode(value instanceof instance);
 }
-function nullishCoalesce(a, b) {
+function nullishCoalesce([a, b]) {
   return a.value == null ? b : a;
 }
-function power(base, exponent) {
+function power([
+  base,
+  exponent
+]) {
   if (isNumberNode(base) && isNumberNode(exponent)) {
     return createNumberNode(base.value ** exponent.value);
   }
@@ -4203,7 +4251,7 @@ var regExpFunctions = [
   ["RegExp.prototype.exec", execRegExp],
   ["RegExp.prototype.test", testRegExp]
 ];
-function newRegExp(...astArgs) {
+function newRegExp(astArgs) {
   assertVariableArgumentCount(astArgs.length, 1, 2);
   assertStringNode(astArgs[0]);
   const pattern = astArgs[0].value;
@@ -4216,7 +4264,7 @@ function newRegExp(...astArgs) {
   const regexp = new RegExp(pattern);
   return createAtomNode(regexp);
 }
-function execRegExp(...astArgs) {
+function execRegExp(astArgs) {
   assertArgumentCount(astArgs.length, 2);
   assertAtomNode(astArgs[0]);
   const regexp = astArgs[0].value;
@@ -4226,7 +4274,7 @@ function execRegExp(...astArgs) {
   const result = regexp.exec(stringValue);
   return result ? createVectorNode(result.map(toAst)) : createNilNode();
 }
-function testRegExp(...astArgs) {
+function testRegExp(astArgs) {
   assertArgumentCount(astArgs.length, 2);
   assertAtomNode(astArgs[0]);
   assertRegExp(astArgs[0].value);
@@ -4274,7 +4322,7 @@ var stringFunctions = [
   ["String::trimStart", stringTrimStart],
   ["String.raw", stringRaw]
 ];
-function stringFromCharCode(...astArgs) {
+function stringFromCharCode(astArgs) {
   assertArgumentCount(astArgs.length, 1);
   assertVectorNode(astArgs[0]);
   assertSequentialValues(
@@ -4285,20 +4333,20 @@ function stringFromCharCode(...astArgs) {
   const result = String.fromCharCode(...codeUnits);
   return createStringNode(result);
 }
-function stringFromCodePoint(...astArgs) {
+function stringFromCodePoint(astArgs) {
   assertSequentialValues(astArgs, NumberNode);
   const codePoints = astArgs.map(unwrapNumberNode);
   const result = String.fromCodePoint(...codePoints);
   return createStringNode(result);
 }
-function stringAt(...astArgs) {
+function stringAt(astArgs) {
   assertArgumentCount(astArgs.length, 2);
   assertStringNode(astArgs[0]);
   assertNumberNode(astArgs[1]);
   const result = String.prototype.at.call(astArgs[0].value, astArgs[1].value);
   return result === void 0 ? createNilNode() : createStringNode(result);
 }
-function stringCodePointAt(...astArgs) {
+function stringCodePointAt(astArgs) {
   assertArgumentCount(astArgs.length, 2);
   assertStringNode(astArgs[0]);
   assertNumberNode(astArgs[1]);
@@ -4308,7 +4356,7 @@ function stringCodePointAt(...astArgs) {
   );
   return result === void 0 ? createNilNode() : createNumberNode(result);
 }
-function stringConcat(...astArgs) {
+function stringConcat(astArgs) {
   assertMinimumArgumentCount(astArgs.length, 2);
   assertSequentialValues(astArgs, StringNode);
   const context = astArgs[0].value;
@@ -4316,7 +4364,7 @@ function stringConcat(...astArgs) {
   const result = String.prototype.concat.call(context, ...strings);
   return createStringNode(result);
 }
-function stringEndsWith(...astArgs) {
+function stringEndsWith(astArgs) {
   assertVariableArgumentCount(astArgs.length, 2, 3);
   assertStringNode(astArgs[0]);
   assertStringNode(astArgs[1]);
@@ -4329,7 +4377,7 @@ function stringEndsWith(...astArgs) {
   const result = String.prototype.endsWith.call(context, searchString, length2);
   return toAst(result);
 }
-function stringIncludes(...astArgs) {
+function stringIncludes(astArgs) {
   assertVariableArgumentCount(astArgs.length, 2, 3);
   assertStringNode(astArgs[0]);
   assertStringNode(astArgs[1]);
@@ -4346,7 +4394,7 @@ function stringIncludes(...astArgs) {
   );
   return toAst(result);
 }
-function stringIndexOf(...astArgs) {
+function stringIndexOf(astArgs) {
   assertVariableArgumentCount(astArgs.length, 2, 3);
   assertStringNode(astArgs[0]);
   assertStringNode(astArgs[1]);
@@ -4359,14 +4407,14 @@ function stringIndexOf(...astArgs) {
   const result = String.prototype.indexOf.call(context, searchString, position);
   return toAst(result);
 }
-function stringIsWellFormed(...astArgs) {
+function stringIsWellFormed(astArgs) {
   assertArgumentCount(astArgs.length, 1);
   assertStringNode(astArgs[0]);
   const context = astArgs[0].value;
   const result = String.prototype.isWellFormed.call(context);
   return toAst(result);
 }
-function stringLastIndexOf(...astArgs) {
+function stringLastIndexOf(astArgs) {
   assertVariableArgumentCount(astArgs.length, 2, 3);
   assertStringNode(astArgs[0]);
   assertStringNode(astArgs[1]);
@@ -4383,14 +4431,14 @@ function stringLastIndexOf(...astArgs) {
   );
   return toAst(result);
 }
-function stringLength(...astArgs) {
+function stringLength(astArgs) {
   assertArgumentCount(astArgs.length, 1);
   assertAstNode(astArgs[0]);
   const context = astArgs[0].value;
   const result = context.length;
   return toAst(result);
 }
-function stringLocaleCompare(...astArgs) {
+function stringLocaleCompare(astArgs) {
   assertVariableArgumentCount(astArgs.length, 2, 4);
   assertStringNode(astArgs[0]);
   assertStringNode(astArgs[1]);
@@ -4426,7 +4474,7 @@ function stringLocaleCompare(...astArgs) {
   );
   return toAst(result);
 }
-function stringMatch(...astArgs) {
+function stringMatch(astArgs) {
   assertArgumentCount(astArgs.length, 2);
   assertStringNode(astArgs[0]);
   assertAtomNode(astArgs[1]);
@@ -4436,7 +4484,7 @@ function stringMatch(...astArgs) {
   const result = String.prototype.match.call(context, regexp);
   return toAst(result);
 }
-function stringMatchAll(...astArgs) {
+function stringMatchAll(astArgs) {
   assertArgumentCount(astArgs.length, 2);
   assertStringNode(astArgs[0]);
   assertAtomNode(astArgs[1]);
@@ -4446,7 +4494,7 @@ function stringMatchAll(...astArgs) {
   const result = String.prototype.matchAll.call(context, regexp);
   return toAst(result);
 }
-function stringNormalize(...astArgs) {
+function stringNormalize(astArgs) {
   assertVariableArgumentCount(astArgs.length, 1, 2);
   assertAstNode(astArgs[0]);
   if (astArgs.length === 2) {
@@ -4457,7 +4505,7 @@ function stringNormalize(...astArgs) {
   const result = String.prototype.normalize.call(context, form);
   return toAst(result);
 }
-function stringPadEnd(...astArgs) {
+function stringPadEnd(astArgs) {
   assertVariableArgumentCount(astArgs.length, 2, 3);
   assertAstNode(astArgs[0]);
   assertNumberNode(astArgs[1]);
@@ -4470,7 +4518,7 @@ function stringPadEnd(...astArgs) {
   const result = String.prototype.padEnd.call(context, maxLength, fillString);
   return toAst(result);
 }
-function stringPadStart(...astArgs) {
+function stringPadStart(astArgs) {
   assertVariableArgumentCount(astArgs.length, 2, 3);
   assertAstNode(astArgs[0]);
   assertNumberNode(astArgs[1]);
@@ -4483,7 +4531,7 @@ function stringPadStart(...astArgs) {
   const result = String.prototype.padStart.call(context, maxLength, fillString);
   return toAst(result);
 }
-function stringRepeat(...astArgs) {
+function stringRepeat(astArgs) {
   assertArgumentCount(astArgs.length, 2);
   assertStringNode(astArgs[0]);
   assertNumberNode(astArgs[1]);
@@ -4492,7 +4540,7 @@ function stringRepeat(...astArgs) {
   const result = String.prototype.repeat.call(context, count);
   return toAst(result);
 }
-function stringReplace(...astArgs) {
+function stringReplace(astArgs) {
   assertArgumentCount(astArgs.length, 3);
   assertStringNode(astArgs[0]);
   let pattern = "";
@@ -4515,7 +4563,7 @@ function stringReplace(...astArgs) {
   const result = context.replace(pattern, replacer);
   return toAst(result);
 }
-function stringReplaceAll(...astArgs) {
+function stringReplaceAll(astArgs) {
   assertArgumentCount(astArgs.length, 3);
   assertStringNode(astArgs[0]);
   let pattern = "";
@@ -4538,7 +4586,7 @@ function stringReplaceAll(...astArgs) {
   const result = context.replaceAll(pattern, replacer);
   return toAst(result);
 }
-function stringSearch(...astArgs) {
+function stringSearch(astArgs) {
   assertArgumentCount(astArgs.length, 2);
   assertStringNode(astArgs[0]);
   assertAtomNode(astArgs[1]);
@@ -4548,7 +4596,7 @@ function stringSearch(...astArgs) {
   const result = String.prototype.search.call(context, regexp);
   return toAst(result);
 }
-function stringSlice(...astArgs) {
+function stringSlice(astArgs) {
   assertVariableArgumentCount(astArgs.length, 1, 3);
   assertAstNode(astArgs[0]);
   if (astArgs.length > 1) {
@@ -4563,7 +4611,7 @@ function stringSlice(...astArgs) {
   const result = String.prototype.slice.call(context, start, end);
   return toAst(result);
 }
-function stringSplit(...astArgs) {
+function stringSplit(astArgs) {
   assertVariableArgumentCount(astArgs.length, 2, 3);
   assertStringNode(astArgs[0]);
   assertStringNode(astArgs[1]);
@@ -4576,7 +4624,7 @@ function stringSplit(...astArgs) {
   const result = context.split(separator, limit);
   return toAst(result);
 }
-function stringStartsWith(...astArgs) {
+function stringStartsWith(astArgs) {
   assertVariableArgumentCount(astArgs.length, 2, 3);
   assertAstNode(astArgs[0]);
   assertStringNode(astArgs[1]);
@@ -4593,7 +4641,7 @@ function stringStartsWith(...astArgs) {
   );
   return toAst(result);
 }
-function stringToLocaleLowerCase(...astArgs) {
+function stringToLocaleLowerCase(astArgs) {
   assertVariableArgumentCount(astArgs.length, 1, 2);
   assertAstNode(astArgs[0]);
   if (astArgs.length === 2) {
@@ -4606,7 +4654,7 @@ function stringToLocaleLowerCase(...astArgs) {
   const result = String.prototype.toLocaleLowerCase.call(context, locales);
   return toAst(result);
 }
-function stringToLocaleUpperCase(...astArgs) {
+function stringToLocaleUpperCase(astArgs) {
   assertVariableArgumentCount(astArgs.length, 1, 2);
   assertAstNode(astArgs[0]);
   if (astArgs.length === 2) {
@@ -4619,49 +4667,49 @@ function stringToLocaleUpperCase(...astArgs) {
   const result = String.prototype.toLocaleUpperCase.call(context, locales);
   return toAst(result);
 }
-function stringToLowerCase(...astArgs) {
+function stringToLowerCase(astArgs) {
   assertArgumentCount(astArgs.length, 1);
   assertAstNode(astArgs[0]);
   const context = astArgs[0].value;
   const result = String.prototype.toLowerCase.call(context);
   return toAst(result);
 }
-function stringToUpperCase(...astArgs) {
+function stringToUpperCase(astArgs) {
   assertArgumentCount(astArgs.length, 1);
   assertAstNode(astArgs[0]);
   const context = astArgs[0].value;
   const result = String.prototype.toUpperCase.call(context);
   return toAst(result);
 }
-function stringToWellFormed(...astArgs) {
+function stringToWellFormed(astArgs) {
   assertArgumentCount(astArgs.length, 1);
   assertAstNode(astArgs[0]);
   const context = astArgs[0].value;
   const result = String.prototype.toWellFormed.call(context);
   return toAst(result);
 }
-function stringTrim(...astArgs) {
+function stringTrim(astArgs) {
   assertArgumentCount(astArgs.length, 1);
   assertAstNode(astArgs[0]);
   const context = astArgs[0].value;
   const result = String.prototype.trim.call(context);
   return toAst(result);
 }
-function stringTrimEnd(...astArgs) {
+function stringTrimEnd(astArgs) {
   assertArgumentCount(astArgs.length, 1);
   assertAstNode(astArgs[0]);
   const context = astArgs[0].value;
   const result = String.prototype.trimEnd.call(context);
   return toAst(result);
 }
-function stringTrimStart(...astArgs) {
+function stringTrimStart(astArgs) {
   assertArgumentCount(astArgs.length, 1);
   assertAstNode(astArgs[0]);
   const context = astArgs[0].value;
   const result = String.prototype.trimStart.call(context);
   return toAst(result);
 }
-function stringRaw(...astArgs) {
+function stringRaw(astArgs) {
   assertArgumentCount(astArgs.length, 2);
   assertMapNode(astArgs[0]);
   assertVectorNode(astArgs[1]);
@@ -4677,7 +4725,7 @@ var symbolFunctions = [
   ["Symbol.for", symbolFor],
   ["Symbol.keyFor", symbolKeyFor]
 ];
-function symbolConstructor(...astArgs) {
+function symbolConstructor(astArgs) {
   assertVariableArgumentCount(astArgs.length, 0, 1);
   if (astArgs.length === 1) {
     assertStringNode(astArgs[0]);
@@ -4686,14 +4734,14 @@ function symbolConstructor(...astArgs) {
   const result = Symbol(description);
   return createAtomNode(result);
 }
-function symbolFor(...astArgs) {
+function symbolFor(astArgs) {
   assertArgumentCount(astArgs.length, 1);
   assertStringNode(astArgs[0]);
   const key = astArgs[0].value;
   const result = Symbol.for(key);
   return createAtomNode(result);
 }
-function symbolKeyFor(...astArgs) {
+function symbolKeyFor(astArgs) {
   assertArgumentCount(astArgs.length, 1);
   assertAtomNode(astArgs[0]);
   assertSymbol(astArgs[0].value);
@@ -4982,24 +5030,24 @@ var nsValues3 = [
 for (const [sym, fn] of nsValues3) {
   ns4.set(createSymbolNode(sym), createFunctionNode(fn));
 }
-function getElementById(...args) {
+function getElementById(args) {
   assertVariableArgumentCount(args.length, 1, 2);
   if (args[0].value instanceof DocumentFragment) {
-    return documentFragmentProtoGetElementById(...args);
+    return documentFragmentProtoGetElementById(args);
   }
-  return documentProtoGetElementById(...args);
+  return documentProtoGetElementById(args);
 }
-function querySelector2(...args) {
+function querySelector2(args) {
   assertVariableArgumentCount(args.length, 1, 2);
   if (args.length === 1 && args[0].value instanceof Document) {
-    return documentProtoQuerySelector(...args);
+    return documentProtoQuerySelector(args);
   }
   assertAtomNode(args[0]);
   if (args.length === 2 && args[0].value instanceof DocumentFragment) {
-    return documentFragmentProtoQuerySelector(...args);
+    return documentFragmentProtoQuerySelector(args);
   }
   if (args.length === 2 && args[0].value instanceof Element) {
-    return elementProtoQuerySelector(...args);
+    return elementProtoQuerySelector(args);
   }
   throw createErrorNode(
     "querySelector expects a Document, DocumentFragment or Element as the first parameter.",
@@ -5007,423 +5055,423 @@ function querySelector2(...args) {
     args[0]
   );
 }
-function customEventProtoNew(...args) {
+function customEventProtoNew(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function customEventProtoProto(...args) {
+function customEventProtoProto(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function customEventDetail(...args) {
+function customEventDetail(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function customEventProtoInitCustomEvent(...args) {
+function customEventProtoInitCustomEvent(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentProtoNew(...args) {
+function documentProtoNew(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentProtoProto(...args) {
+function documentProtoProto(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentProtoParseHTMLUnsafe(...args) {
+function documentProtoParseHTMLUnsafe(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentURL(...args) {
+function documentURL(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentAlinkColor(...args) {
+function documentAlinkColor(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentAll(...args) {
+function documentAll(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentAnchors(...args) {
+function documentAnchors(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentApplets(...args) {
+function documentApplets(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentBgColor(...args) {
+function documentBgColor(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentBody(...args) {
+function documentBody(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentCharacterSet(...args) {
+function documentCharacterSet(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentCharset(...args) {
+function documentCharset(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentCompatMode(...args) {
+function documentCompatMode(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentContentType(...args) {
+function documentContentType(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentCookie(...args) {
+function documentCookie(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentCurrentScript(...args) {
+function documentCurrentScript(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentDefaultView(...args) {
+function documentDefaultView(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentDesignMode(...args) {
+function documentDesignMode(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentDir(...args) {
+function documentDir(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentDoctype(...args) {
+function documentDoctype(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentDocumentElement(...args) {
+function documentDocumentElement(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentDocumentURI(...args) {
+function documentDocumentURI(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentDomain(...args) {
+function documentDomain(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentEmbeds(...args) {
+function documentEmbeds(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentFgColor(...args) {
+function documentFgColor(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentForms(...args) {
+function documentForms(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentFragmentDirective(...args) {
+function documentFragmentDirective(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentFullscreen(...args) {
+function documentFullscreen(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentFullscreenEnabled(...args) {
+function documentFullscreenEnabled(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentHead(...args) {
+function documentHead(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentHidden(...args) {
+function documentHidden(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentImages(...args) {
+function documentImages(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentImplementation(...args) {
+function documentImplementation(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentInputEncoding(...args) {
+function documentInputEncoding(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentLastModified(...args) {
+function documentLastModified(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentLinkColor(...args) {
+function documentLinkColor(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentLinks(...args) {
+function documentLinks(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentOnfullscreenchange(...args) {
+function documentOnfullscreenchange(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentOnfullscreenerror(...args) {
+function documentOnfullscreenerror(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentOnpointerlockchange(...args) {
+function documentOnpointerlockchange(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentOnpointerlockerror(...args) {
+function documentOnpointerlockerror(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentOnreadystatechange(...args) {
+function documentOnreadystatechange(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentOnvisibilitychange(...args) {
+function documentOnvisibilitychange(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentOwnerDocument(...args) {
+function documentOwnerDocument(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentPictureInPictureEnabled(...args) {
+function documentPictureInPictureEnabled(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentPlugins(...args) {
+function documentPlugins(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentReadyState(...args) {
+function documentReadyState(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentReferrer(...args) {
+function documentReferrer(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentRootElement(...args) {
+function documentRootElement(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentScripts(...args) {
+function documentScripts(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentScrollingElement(...args) {
+function documentScrollingElement(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentTimeline(...args) {
+function documentTimeline(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentTitle(...args) {
+function documentTitle(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentVisibilityState(...args) {
+function documentVisibilityState(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentVlinkColor(...args) {
+function documentVlinkColor(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentProtoAdoptNode(...args) {
+function documentProtoAdoptNode(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentProtoCaptureEvents(...args) {
+function documentProtoCaptureEvents(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentProtoCaretPositionFromPoint(...args) {
+function documentProtoCaretPositionFromPoint(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentProtoCaretRangeFromPoint(...args) {
+function documentProtoCaretRangeFromPoint(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentProtoClear(...args) {
+function documentProtoClear(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentProtoClose(...args) {
+function documentProtoClose(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentProtoCreateAttribute(...args) {
+function documentProtoCreateAttribute(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentProtoCreateAttributeNS(...args) {
+function documentProtoCreateAttributeNS(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentProtoCreateCDATASection(...args) {
+function documentProtoCreateCDATASection(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentProtoCreateComment(...args) {
+function documentProtoCreateComment(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentProtoCreateDocumentFragment(...args) {
+function documentProtoCreateDocumentFragment(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentProtoCreateElement(...args) {
+function documentProtoCreateElement(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentProtoCreateElementNS(...args) {
+function documentProtoCreateElementNS(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentProtoCreateEvent(...args) {
+function documentProtoCreateEvent(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentProtoCreateNodeIterator(...args) {
+function documentProtoCreateNodeIterator(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentProtoCreateProcessingInstruction(...args) {
+function documentProtoCreateProcessingInstruction(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentProtoCreateRange(...args) {
+function documentProtoCreateRange(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentProtoCreateTextNode(...args) {
+function documentProtoCreateTextNode(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentProtoCreateTreeWalker(...args) {
+function documentProtoCreateTreeWalker(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentProtoExecCommand(...args) {
+function documentProtoExecCommand(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentProtoExitFullscreen(...args) {
+function documentProtoExitFullscreen(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentProtoExitPictureInPicture(...args) {
+function documentProtoExitPictureInPicture(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentProtoExitPointerLock(...args) {
+function documentProtoExitPointerLock(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentProtoGetElementById(...args) {
+function documentProtoGetElementById(args) {
   assertArgumentCount(args.length, 1);
   assertStringNode(args[0]);
   const value = Document.prototype.getElementById.call(document, args[0].value);
   return value ? createAtomNode(value) : createNilNode();
 }
-function documentProtoGetElementsByClassName(...args) {
+function documentProtoGetElementsByClassName(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentProtoGetElementsByName(...args) {
+function documentProtoGetElementsByName(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentProtoGetElementsByTagName(...args) {
+function documentProtoGetElementsByTagName(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentProtoGetElementsByTagNameNS(...args) {
+function documentProtoGetElementsByTagNameNS(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentProtoGetSelection(...args) {
+function documentProtoGetSelection(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentProtoHasFocus(...args) {
+function documentProtoHasFocus(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentProtoHasStorageAccess(...args) {
+function documentProtoHasStorageAccess(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentProtoImportNode(...args) {
+function documentProtoImportNode(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentProtoOpen(...args) {
+function documentProtoOpen(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentProtoQueryCommandEnabled(...args) {
+function documentProtoQueryCommandEnabled(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentProtoQueryCommandIndeterm(...args) {
+function documentProtoQueryCommandIndeterm(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentProtoQueryCommandState(...args) {
+function documentProtoQueryCommandState(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentProtoQueryCommandSupported(...args) {
+function documentProtoQueryCommandSupported(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentProtoQueryCommandValue(...args) {
+function documentProtoQueryCommandValue(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentProtoQuerySelector(...args) {
+function documentProtoQuerySelector(args) {
   assertArgumentCount(args.length, 1);
   assertStringNode(args[0]);
   const value = Document.prototype.querySelector.call(document, args[0].value);
   return value ? createAtomNode(value) : createNilNode();
 }
-function documentProtoReleaseEvents(...args) {
+function documentProtoReleaseEvents(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentProtoRequestStorageAccess(...args) {
+function documentProtoRequestStorageAccess(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentProtoStartViewTransition(...args) {
+function documentProtoStartViewTransition(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentProtoWrite(...args) {
+function documentProtoWrite(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentProtoWriteln(...args) {
+function documentProtoWriteln(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentProtoAddEventListener(...args) {
+function documentProtoAddEventListener(args) {
   assertArgumentCount(args.length, 2);
   assertStringNode(args[0]);
   assertFunctionNode(args[1]);
@@ -5436,43 +5484,43 @@ function documentProtoAddEventListener(...args) {
   );
   return createNilNode();
 }
-function documentProtoRemoveEventListener(...args) {
+function documentProtoRemoveEventListener(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentTimelineProtoNew(...args) {
+function documentTimelineProtoNew(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentTimelineProtoProto(...args) {
+function documentTimelineProtoProto(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentTypeName(...args) {
+function documentTypeName(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentTypeOwnerDocument(...args) {
+function documentTypeOwnerDocument(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentTypePublicId(...args) {
+function documentTypePublicId(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentTypeSystemId(...args) {
+function documentTypeSystemId(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentFragmentProtoNew(...args) {
+function documentFragmentProtoNew(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentFragmentProtoProto(...args) {
+function documentFragmentProtoProto(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentFragmentProtoQuerySelector(...args) {
+function documentFragmentProtoQuerySelector(args) {
   assertArgumentCount(args.length, 2);
   assertAtomNode(args[0]);
   assertStringNode(args[1]);
@@ -5489,11 +5537,11 @@ function documentFragmentProtoQuerySelector(...args) {
   );
   return value ? createAtomNode(value) : createNilNode();
 }
-function documentFragmentOwnerDocument(...args) {
+function documentFragmentOwnerDocument(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentFragmentProtoGetElementById(...args) {
+function documentFragmentProtoGetElementById(args) {
   assertArgumentCount(args.length, 1);
   assertStringNode(args[0]);
   assertAtomNode(args[1]);
@@ -5503,23 +5551,23 @@ function documentFragmentProtoGetElementById(...args) {
   );
   return element ? createAtomNode(element) : createNilNode();
 }
-function documentTypeProtoNew(...args) {
+function documentTypeProtoNew(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function documentTypeProtoProto(...args) {
+function documentTypeProtoProto(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementProtoNew(...args) {
+function elementProtoNew(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementProtoProto(...args) {
+function elementProtoProto(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementProtoQuerySelector(...args) {
+function elementProtoQuerySelector(args) {
   assertArgumentCount(args.length, 2);
   assertAtomNode(args[0]);
   assertStringNode(args[1]);
@@ -5536,123 +5584,123 @@ function elementProtoQuerySelector(...args) {
   );
   return value ? createAtomNode(value) : createNilNode();
 }
-function elementAttributes(...args) {
+function elementAttributes(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementClassList(...args) {
+function elementClassList(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementClassName(...args) {
+function elementClassName(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementClientHeight(...args) {
+function elementClientHeight(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementClientLeft(...args) {
+function elementClientLeft(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementClientTop(...args) {
+function elementClientTop(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementClientWidth(...args) {
+function elementClientWidth(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementCurrentCSSZoom(...args) {
+function elementCurrentCSSZoom(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementId(...args) {
+function elementId(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementInnerHTML(...args) {
+function elementInnerHTML(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementLocalName(...args) {
+function elementLocalName(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementNamespaceURI(...args) {
+function elementNamespaceURI(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementOnfullscreenchange(...args) {
+function elementOnfullscreenchange(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementOnfullscreenerror(...args) {
+function elementOnfullscreenerror(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementOuterHTML(...args) {
+function elementOuterHTML(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementOwnerDocument(...args) {
+function elementOwnerDocument(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementPart(...args) {
+function elementPart(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementPrefix(...args) {
+function elementPrefix(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementScrollHeight(...args) {
+function elementScrollHeight(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementScrollLeft(...args) {
+function elementScrollLeft(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementScrollTop(...args) {
+function elementScrollTop(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementScrollWidth(...args) {
+function elementScrollWidth(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementShadowRoot(...args) {
+function elementShadowRoot(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementSlot(...args) {
+function elementSlot(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementTagName(...args) {
+function elementTagName(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementProtoAttachShadow(...args) {
+function elementProtoAttachShadow(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementProtoCheckVisibility(...args) {
+function elementProtoCheckVisibility(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementProtoClosest(...args) {
+function elementProtoClosest(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementProtoComputedStyleMap(...args) {
+function elementProtoComputedStyleMap(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementProtoGetAttribute(...args) {
+function elementProtoGetAttribute(args) {
   assertArgumentCount(args.length, 2);
   assertAtomNode(args[0]);
   assertStringNode(args[1]);
@@ -5662,115 +5710,115 @@ function elementProtoGetAttribute(...args) {
   );
   return value ? createStringNode(value) : createNilNode();
 }
-function elementProtoGetAttributeNames(...args) {
+function elementProtoGetAttributeNames(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementProtoGetAttributeNode(...args) {
+function elementProtoGetAttributeNode(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementProtoGetAttributeNS(...args) {
+function elementProtoGetAttributeNS(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementProtoGetBoundingClientRect(...args) {
+function elementProtoGetBoundingClientRect(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementProtoGetClientRects(...args) {
+function elementProtoGetClientRects(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementProtoGetElementsByClassName(...args) {
+function elementProtoGetElementsByClassName(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementProtoGetElementsByTagName(...args) {
+function elementProtoGetElementsByTagName(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementProtoGetElementsByTagNameNS(...args) {
+function elementProtoGetElementsByTagNameNS(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementProtoGetHTML(...args) {
+function elementProtoGetHTML(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementProtoHasAttribute(...args) {
+function elementProtoHasAttribute(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementProtoHasAttributeNS(...args) {
+function elementProtoHasAttributeNS(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementProtoHasAttributes(...args) {
+function elementProtoHasAttributes(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementProtoHasPointerCapture(...args) {
+function elementProtoHasPointerCapture(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementProtoInsertAdjacentElement(...args) {
+function elementProtoInsertAdjacentElement(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementProtoInsertAdjacentHTML(...args) {
+function elementProtoInsertAdjacentHTML(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementProtoInsertAdjacentText(...args) {
+function elementProtoInsertAdjacentText(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementProtoMatches(...args) {
+function elementProtoMatches(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementProtoReleasePointerCapture(...args) {
+function elementProtoReleasePointerCapture(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementProtoRemoveAttribute(...args) {
+function elementProtoRemoveAttribute(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementProtoRemoveAttributeNS(...args) {
+function elementProtoRemoveAttributeNS(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementProtoRemoveAttributeNode(...args) {
+function elementProtoRemoveAttributeNode(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementProtoRequestFullscreen(...args) {
+function elementProtoRequestFullscreen(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementProtoRequestPointerLock(...args) {
+function elementProtoRequestPointerLock(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementProtoScroll(...args) {
+function elementProtoScroll(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementProtoScrollBy(...args) {
+function elementProtoScrollBy(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementProtoScrollIntoView(...args) {
+function elementProtoScrollIntoView(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementProtoScrollTo(...args) {
+function elementProtoScrollTo(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementProtoSetAttribute(...args) {
+function elementProtoSetAttribute(args) {
   assertArgumentCount(args.length, 3);
   assertAtomNode(args[0]);
   assertStringNode(args[1]);
@@ -5782,35 +5830,35 @@ function elementProtoSetAttribute(...args) {
   );
   return createNilNode();
 }
-function elementProtoSetAttributeNS(...args) {
+function elementProtoSetAttributeNS(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementProtoSetAttributeNode(...args) {
+function elementProtoSetAttributeNode(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementProtoSetAttributeNodeNS(...args) {
+function elementProtoSetAttributeNodeNS(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementProtoSetHTMLUnsafe(...args) {
+function elementProtoSetHTMLUnsafe(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementProtoSetPointerCapture(...args) {
+function elementProtoSetPointerCapture(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementProtoToggleAttribute(...args) {
+function elementProtoToggleAttribute(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementProtoWebkitMatchesSelector(...args) {
+function elementProtoWebkitMatchesSelector(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function elementProtoAddEventListener(...args) {
+function elementProtoAddEventListener(args) {
   assertArgumentCount(args.length, 3);
   assertAtomNode(args[0]);
   assertStringNode(args[1]);
@@ -5831,111 +5879,111 @@ function elementProtoAddEventListener(...args) {
   );
   return createNilNode();
 }
-function elementProtoRemoveEventListener(...args) {
+function elementProtoRemoveEventListener(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function eventProtoNew(...args) {
+function eventProtoNew(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function eventProtoProto(...args) {
+function eventProtoProto(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function eventProtoNONE(...args) {
+function eventProtoNONE(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function eventProtoCAPTURINGPHASE(...args) {
+function eventProtoCAPTURINGPHASE(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function eventProtoATTARGET(...args) {
+function eventProtoATTARGET(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function eventProtoBUBBLINGPHASE(...args) {
+function eventProtoBUBBLINGPHASE(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function eventBubbles(...args) {
+function eventBubbles(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function eventCancelBubble(...args) {
+function eventCancelBubble(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function eventCancelable(...args) {
+function eventCancelable(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function eventComposed(...args) {
+function eventComposed(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function eventCurrentTarget(...args) {
+function eventCurrentTarget(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function eventDefaultPrevented(...args) {
+function eventDefaultPrevented(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function eventEventPhase(...args) {
+function eventEventPhase(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function eventIsTrusted(...args) {
+function eventIsTrusted(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function eventReturnValue(...args) {
+function eventReturnValue(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function eventSrcElement(...args) {
+function eventSrcElement(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function eventTarget(...args) {
+function eventTarget(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function eventTimeStamp(...args) {
+function eventTimeStamp(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function eventType(...args) {
+function eventType(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function eventNONE(...args) {
+function eventNONE(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function eventCAPTURINGPHASE(...args) {
+function eventCAPTURINGPHASE(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function eventATTARGET(...args) {
+function eventATTARGET(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function eventBUBBLINGPHASE(...args) {
+function eventBUBBLINGPHASE(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function eventProtoComposedPath(...args) {
+function eventProtoComposedPath(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function eventProtoInitEvent(...args) {
+function eventProtoInitEvent(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function eventProtoPreventDefault(...args) {
+function eventProtoPreventDefault(args) {
   assertArgumentCount(args.length, 1);
   assertAtomNode(args[0]);
   if (!(args[0].value instanceof Event)) {
@@ -5948,32 +5996,32 @@ function eventProtoPreventDefault(...args) {
   Event.prototype.preventDefault.call(args[0].value);
   return createNilNode();
 }
-function eventProtoStopImmediatePropagation(...args) {
+function eventProtoStopImmediatePropagation(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function eventProtoStopPropagation(...args) {
+function eventProtoStopPropagation(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function eventTargetProtoNew(...args) {
+function eventTargetProtoNew(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function eventTargetProtoProto(...args) {
+function eventTargetProtoProto(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function addEventListener(...args) {
+function addEventListener(args) {
   assertVariableArgumentCount(args.length, 2, 3);
   if (args[0].value instanceof Document) {
-    return documentProtoAddEventListener(...args);
+    return documentProtoAddEventListener(args);
   }
   if (args[0].value instanceof EventTarget) {
-    return eventTargetProtoAddEventListener(...args);
+    return eventTargetProtoAddEventListener(args);
   }
   if (args[0].value instanceof Element) {
-    return elementProtoAddEventListener(...args);
+    return elementProtoAddEventListener(args);
   }
   throw createErrorNode(
     "addEventListener expects an Document, Element, or EventTarget as the first parameter.",
@@ -5981,7 +6029,7 @@ function addEventListener(...args) {
     args[0]
   );
 }
-function eventTargetProtoAddEventListener(...args) {
+function eventTargetProtoAddEventListener(args) {
   assertArgumentCount(args.length, 3);
   assertAtomNode(args[0]);
   assertStringNode(args[1]);
@@ -6002,11 +6050,11 @@ function eventTargetProtoAddEventListener(...args) {
   );
   return createNilNode();
 }
-function eventTargetProtoDispatchEvent(...args) {
+function eventTargetProtoDispatchEvent(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
-function eventTargetProtoRemoveEventListener(...args) {
+function eventTargetProtoRemoveEventListener(args) {
   assertArgumentCount(args.length, 1);
   return createNilNode();
 }
@@ -6067,7 +6115,7 @@ function macroExpand(ast, appEnv) {
     const list2 = resultAst;
     const symbol2 = list2.value[0];
     const fn = appEnv.get(symbol2);
-    resultAst = fn.value(...list2.value.slice(1));
+    resultAst = fn.value(list2.value.slice(1));
   }
   return resultAst;
 }
@@ -6426,7 +6474,7 @@ function evaluateFn(node2, appEnv) {
     parameters
   };
   const fn = createFunctionNode(
-    (...args) => {
+    (args) => {
       const fnEnv = new Env(outerEnv, parameters, args);
       return evaluate(bodyExpr, fnEnv);
     },
@@ -6449,7 +6497,7 @@ function evaluateApply(node2, appEnv) {
       );
       return { continue: { ast, env: fnEnv }, return: void 0 };
     }
-    const called = fn.value(...args);
+    const called = fn.value(args);
     return { return: called, continue: void 0 };
   }
   return { return: fn, continue: void 0 };
@@ -6458,18 +6506,7 @@ function print(value) {
   return printString(value, true);
 }
 function rep(input, appEnv) {
-  try {
-    return print(evaluate(read(input), appEnv));
-  } catch (error) {
-    if (isErrorNode(error)) {
-      console.log(printString(error, false));
-    } else if (error instanceof Error) {
-      console.log(error);
-    } else {
-      console.log(JSON.stringify(error));
-    }
-  }
-  return "";
+  return print(evaluate(read(input), appEnv));
 }
 function initEnv() {
   const replEnv = new Env(void 0);
@@ -6487,14 +6524,14 @@ function initEnv() {
   }
   replEnv.set(
     createSymbolNode("eval"),
-    createFunctionNode((...args) => {
+    createFunctionNode((args) => {
       assertArgumentCount(args.length, 1);
       return evaluate(args[0], replEnv);
     })
   );
   replEnv.set(
     createSymbolNode("dump"),
-    createFunctionNode((..._args) => {
+    createFunctionNode((_args) => {
       const serialized = replEnv.serialize();
       return serialized;
     })

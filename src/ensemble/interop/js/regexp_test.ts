@@ -32,7 +32,7 @@ runner.test("RegExp.new: Accepts flags as the second argument", () => {
 runner.test("RegExp.new: Throws with zero arguments", () => {
 	let threw = false;
 	try {
-		fns.newRegExp();
+		fns.newRegExp([]);
 	} catch (e) {
 		threw = true;
 	}
@@ -62,14 +62,14 @@ runner.test("RegExp.new: Throws if second arg isn't a string", () => {
 runner.test("execRegExp: Result is null", () => {
 	const regexp = createRegExp("abc");
 	const stringValue = types.createStringNode("def");
-	const result = fns.execRegExp(regexp, stringValue);
+	const result = fns.execRegExp([regexp, stringValue]);
 	runner.assert(true, types.isNilNode(result));
 });
 
 runner.test("execRegExp: Result is not null", () => {
 	const regexp = createRegExp("abc");
 	const stringValue = types.createStringNode("abcdef");
-	const result = fns.execRegExp(regexp, stringValue);
+	const result = fns.execRegExp([regexp, stringValue]);
 
 	runner.assert(true, types.isVectorNode(result));
 	runner.assert(result.value.length, 1);
@@ -80,7 +80,7 @@ runner.test("execRegExp: Result is not null", () => {
 runner.test("execRegExp: Result has groups", () => {
 	const regexp = createRegExp("a(b)c");
 	const stringValue = types.createStringNode("abcdef");
-	const result = fns.execRegExp(regexp, stringValue);
+	const result = fns.execRegExp([regexp, stringValue]);
 
 	runner.assert(true, types.isVectorNode(result));
 	runner.assert(result.value.length, 2);
@@ -93,7 +93,7 @@ runner.test("execRegExp: Result has groups", () => {
 runner.test("execRegExp: Result is not null with global flag", () => {
 	const regexp = createRegExp("a(b)c", "g");
 	const stringValue = types.createStringNode("abcdef,abc");
-	const result = fns.execRegExp(regexp, stringValue);
+	const result = fns.execRegExp([regexp, stringValue]);
 
 	runner.assert(true, types.isVectorNode(result));
 	runner.assert(result.value.length, 2);
@@ -102,7 +102,7 @@ runner.test("execRegExp: Result is not null with global flag", () => {
 runner.test("regExpPrototypeTest: returns true for match", () => {
 	const regexp = createRegExp("abc");
 	const stringValue = types.createStringNode("abc");
-	const result = fns.testRegExp(regexp, stringValue);
+	const result = fns.testRegExp([regexp, stringValue]);
 	runner.assert(true, types.isBooleanNode(result));
 	runner.assert(result.value, true);
 });
@@ -110,7 +110,7 @@ runner.test("regExpPrototypeTest: returns true for match", () => {
 runner.test("regExpPrototypeTest: returns false for no match", () => {
 	const regexp = createRegExp("abc");
 	const stringValue = types.createStringNode("def");
-	const result = fns.testRegExp(regexp, stringValue);
+	const result = fns.testRegExp([regexp, stringValue]);
 	runner.assert(true, types.isBooleanNode(result));
 	runner.assert(result.value, false);
 });
@@ -124,7 +124,7 @@ runner.test(
 		let threw = false;
 		try {
 			// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-			fns.testRegExp(regexp as any, stringValue);
+			fns.testRegExp([regexp as any, stringValue]);
 		} catch (e) {
 			threw = true;
 		}
@@ -141,7 +141,7 @@ runner.test(
 		let threw = false;
 		try {
 			// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-			fns.testRegExp(regexp, stringValue as any);
+			fns.testRegExp([regexp, stringValue as any]);
 		} catch (e) {
 			threw = true;
 		}
@@ -155,7 +155,7 @@ runner.test("regExpPrototypeTest: throws if wrong number of args", () => {
 
 	let threw = false;
 	try {
-		fns.testRegExp(regexp);
+		fns.testRegExp([regexp]);
 	} catch (e) {
 		threw = true;
 	}
@@ -163,7 +163,7 @@ runner.test("regExpPrototypeTest: throws if wrong number of args", () => {
 
 	threw = false;
 	try {
-		fns.testRegExp(regexp, stringValue, regexp);
+		fns.testRegExp([regexp, stringValue, regexp]);
 	} catch (e) {
 		threw = true;
 	}
