@@ -1,0 +1,18 @@
+// An alternative approach, to complement perf.ensmbl
+<load-file      "opt/bench/scripts/load-file-once.ensmbl">
+<load-file-once "opt/bench/scripts/trivial.ensmbl">   // gensym inc
+
+<var benchmark* <function <f n results>
+  <if <lt 0 n>
+    <const [start-ms <time-ms>
+            _ <f>
+            end-ms <time-ms>]
+      <benchmark* f <subtract n 1> <conj results <subtract end-ms start-ms>>>
+    >
+    results
+  >
+>>
+
+<defmacro! benchmark <function <expr n>
+  <quasiquote <benchmark* <function <> <unquote expr>> <unquote n> <vector>>>
+>>

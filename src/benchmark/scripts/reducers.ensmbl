@@ -1,0 +1,38 @@
+// Left and right folds.
+
+// Left fold (f (.. (f (f init x1) x2) ..) xn)
+<var reduce
+  <function <f init xs>
+    // f      : Accumulator Element -> Accumulator
+    // init   : Accumulator
+    // xs     : sequence of Elements x1 x2 .. xn
+    // return : Accumulator
+    <if <empty? xs>
+      init
+      <reduce f <f init <first xs>> <rest xs>>
+    >
+  >
+>
+
+// Right fold (f x1 (f x2 (.. (f xn init)) ..))
+// The natural implementation for foldr is not tail-recursive, and
+// the one based on reduce constructs many intermediate functions, so we
+// rely on efficient nth and count.
+<var foldr
+  <const [
+    rec <function <f xs acc index>
+      <if <lt index 0>
+        acc
+        <rec f xs <f <nth xs index> acc> <subtract index 1>>
+      >
+    >
+  ]
+    <function <f init xs>
+      // f      : Element Accumulator -> Accumulator
+      // init   : Accumulator
+      // xs     : sequence of Elements x1 x2 .. xn
+      // return : Accumulator
+      <rec f xs init <subtract <count xs> 1>>
+    >
+  >
+>

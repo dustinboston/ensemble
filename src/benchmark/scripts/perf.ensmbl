@@ -1,0 +1,53 @@
+// Measure performances.
+
+<load-file      "opt/bench/scripts/load-file-once.ensmbl">
+<load-file-once "opt/bench/scripts/trivial.ensmbl">   // gensym inc
+
+// Evaluate an expression, but report the time spent
+<defmacro! time
+  <function <exp>
+    <const [start <gensym>
+            ret   <gensym>]
+      <quasiquote
+        <const [<unquote start> <time-ms>
+                <unquote ret>   <unquote exp>]
+          <do
+            <console.log "Elapsed time:" <subtract <time-ms> <unquote start>> "msecs">
+            <unquote ret>
+          >
+        >
+      >
+    >
+  >
+>
+
+// Count evaluations of a function during a given time frame.
+<var run-fn-for
+  <const [
+    run-fn-for* <function <fn max-ms acc-ms last-iters>
+      <const [start <time-ms>
+              _ <fn>
+              elapsed <subtract <time-ms> start>
+              iters <add last-iters 1>
+              new-acc-ms <add acc-ms elapsed>]
+        // <console.log "new-acc-ms:" new-acc-ms "iters:" iters>
+        <if <gte new-acc-ms max-ms>
+          last-iters
+          <run-fn-for* fn max-ms new-acc-ms iters>
+        >
+      >
+    >
+  ]
+    <function <fn max-secs>
+      // fn       : function without parameters
+      // max-secs : number (seconds)
+      // return   : number (iterations)
+      <do
+        // Warm it up first
+        <run-fn-for* fn 1000 0 0>
+        // Now do the test
+        <run-fn-for* fn <multiply 1000 max-secs> 0 0>
+      >
+    >
+  >
+>

@@ -1,0 +1,23 @@
+// Trivial but convenient functions.
+
+// Integer successor (number -> number)
+<var inc <function <a> <add a 1>>>
+
+// Integer predecessor (number -> number)
+<var dec <function <a> <subtract a 1>>>
+
+// Integer nullity test (number -> boolean)
+<var zero? <function <n> <eq 0 n>>>
+
+// Returns the unchanged argument.
+<var identity <function <x> x>>
+
+// Generate a hopefully unique symbol. See section "Plugging the Leaks"
+// of http://www.gigamonkeys.com/book/macros-defining-your-own.html
+<var gensym
+  <const [counter <atom 0>]
+    <function <>
+      <symbol <str "G__" <swap! counter inc>>>
+    >
+  >
+>

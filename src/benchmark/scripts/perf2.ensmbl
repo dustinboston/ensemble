@@ -1,0 +1,29 @@
+// Basic math/recursion performance test
+// Converted from perf2.mal to use Ensemble syntax
+
+// Recursive sum countdown function
+<var sumdown <function <n>
+  <if <eq n 0>
+    0
+    <add n <sumdown <subtract n 1>>>
+  >
+>>
+
+// Fibonacci function (recursive)
+<var fib <function <n>
+  <if <lt n 2>
+    n
+    <add <fib <subtract n 1>> <fib <subtract n 2>>>
+  >
+>>
+
+// Test function that runs both computations
+<var test-math-recursion <function <>
+  <do
+    <sumdown 10>
+    <fib 12>
+  >
+>>
+
+// Run the test
+<test-math-recursion>

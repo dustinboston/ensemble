@@ -1,0 +1,36 @@
+// Basic macros/atom performance test
+// Converted from perf3.mal to use Ensemble syntax
+
+// Create an atom with initial list
+<var atm <atom <list 0 1 2 3 4 5 6 7 8 9>>>
+
+// Test function that performs various operations on the atom
+<var test-atom-operations <function <>
+  <do
+    // Test logical OR with atom access
+    <or false nil false nil false nil false nil false nil <first <deref atm>>>
+    
+    // Test conditional with atom access
+    <cond 
+      false 1 
+      nil 2 
+      false 3 
+      nil 4 
+      false 5 
+      nil 6 
+      "else" <first <deref atm>>>
+    
+    // Test chained rest operations on atom content
+    <first <rest <rest <rest <rest <rest <rest <deref atm>>>>>>>>
+    
+    // Rotate the atom content (move first element to end)
+    <swap! atm <function <a> <concat <rest a> <list <first a>>>>>
+  >
+>>
+
+// Run a smaller test (reduced from 1000 iterations)
+<console.log "Running atom operations test...">
+<test-atom-operations>
+<test-atom-operations>
+<test-atom-operations>
+<console.log "Test completed">

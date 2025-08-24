@@ -42,32 +42,6 @@ Ensemble is a _web_ programming language that combines JavaScript, HTML, and CSS
 <console.log <binet 7>>
 ```
 
-### Alternative Lisp-style Syntax (Also Supported)
-
-```ensemble
-(var binet
-  (function (n)
-    (const [
-        sqrt5 (Math.sqrt 5),
-        phi   (divide (add 1 sqrt5) 2),
-        psi   (divide (subtract 1 sqrt5) 2)
-      ]
-      (Math.round
-        (divide
-          (subtract
-            (power phi n)
-            (power psi n)
-          )
-          sqrt5
-        )
-      )
-    )
-  )
-)
-
-(console.log (binet 7))
-```
-
 ## Core Language Reference
 
 ### Variable Declaration
@@ -156,7 +130,7 @@ Ensemble supports both Lisp-style and C-style comments:
 ### Run a File
 
 ```bash
-./bin/ensemble path/to/file.ensemble
+./bin/ensemble path/to/file.ensmbl
 ```
 
 ### Example Session
@@ -181,6 +155,9 @@ user> <square 5>
 root
 ├── bin
 ├── src
+│   ├── benchmark
+│   │   ├── results
+│   │   └── scripts
 │   ├── ensemble
 │   │   ├── build
 │   │   └── tests
@@ -189,7 +166,7 @@ root
 ├── var
 │   ├── data
 │   ├── generated
-│   └── reference
+│   └── images
 └── Makefile
 ```
 
@@ -252,6 +229,12 @@ The test suite includes comprehensive coverage of:
 ```bash
 make test-e2e
 ```
+
+### Running benchmarks
+
+1. Install hyperfine (e.g. `sudo apt install hyperfine`)
+2. Run `make benchmark`
+3. The results will be in `src/benchmark/results`
 
 ## Implementation Details
 

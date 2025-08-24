@@ -1,0 +1,23 @@
+// Like load-file, but will never load the same path twice.
+
+// This file is normally loaded with load-file, so it needs a
+// different mechanism to neutralize multiple inclusions of
+// itself. Moreover, the file list should never be reset.
+
+<var load-file-once
+  <try
+    load-file-once
+    <catch _
+      <const [seen <atom <hash-map "opt/bench/scripts/load-file-once.ensmbl" nil>>]
+        <function <filename>
+          <if <not <contains? <deref seen> filename>>
+            <do
+              <swap! seen <function <s> <assoc s filename nil>>>
+              <load-file filename>
+            >
+          >
+        >
+      >
+    >
+  >
+>

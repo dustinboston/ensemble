@@ -20,7 +20,7 @@ EXTENSION_NAME=ensemble-syntax-$(EXTENSION_VERSION).vsix
 NODE_MODULES_DIR="./node_modules"
 
 # Targets
-.PHONY: clean build test install install-dependencies package repl $(BIN_DIR)
+.PHONY: clean build test install install-dependencies package repl benchmark benchmark-memory benchmark-perf $(BIN_DIR)
 
 all: build
 
@@ -87,6 +87,28 @@ test-unit-fun: $(ENSEMBLE_BUILD_DIR)/%_test.js
 # Start the repl
 repl: $(ENSEMBLE_BUNDLE_FILE) $(QJS_BINARY_FILE)
 	$(QJS_BINARY_FILE) --std --module "$(ENSEMBLE_BUNDLE_FILE)"
+
+# Run performance benchmarks
+benchmark:
+	@echo "Running Ensemble performance benchmarks..."
+	@chmod +x ./src/benchmark/bench.sh
+	@./opt/benchmark/bench.sh
+
+# Run memory benchmarks
+benchmark-memory: $(QJS_BINARY_FILE)
+	@echo "Running memory benchmarks..."
+	$(QJS_BINARY_FILE) --std -d ./opt/bench/memory_bench.js
+
+# Run specific benchmark
+benchmark-core: $(QJS_BINARY_FILE)
+	@echo "Running core language benchmarks..."
+	$(QJS_BINARY_FILE) --std -d ./opt/bench/ensemble_bench.js
+
+# Run performance tests
+benchmark-perf:
+	@echo "Running Ensemble performance tests..."
+	@chmod +x ./opt/bench/run_perf_tests.sh
+	@./opt/bench/run_perf_tests.sh
 
 format:
 	npx @biomejs/biome format --write
