@@ -1,4 +1,6 @@
-# Ensemble: Novel Synthesis of Eich, McCarthy, Berners-Lee, Lie, etc
+# Ensemble
+
+> A Lisp-family programming language for the web with angle-bracket syntax
 
 ![A line drawing of a jazz ensemble](./var/images/ensemble_indexed.gif)
 
